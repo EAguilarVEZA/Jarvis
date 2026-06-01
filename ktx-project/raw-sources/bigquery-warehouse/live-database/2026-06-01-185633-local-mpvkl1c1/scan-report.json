@@ -1,0 +1,90 @@
+{
+  "connectionId": "bigquery-warehouse",
+  "driver": "bigquery",
+  "syncId": "2026-06-01-185633-local-mpvkl1c1",
+  "runId": "local-mpvkp6y8",
+  "trigger": "cli",
+  "mode": "enriched",
+  "dryRun": false,
+  "artifactPaths": {
+    "rawSourcesDir": "raw-sources/bigquery-warehouse/live-database/2026-06-01-185633-local-mpvkl1c1",
+    "reportPath": "raw-sources/bigquery-warehouse/live-database/2026-06-01-185633-local-mpvkl1c1/scan-report.json",
+    "manifestShards": [
+      "semantic-layer/bigquery-warehouse/_schema/adwords_orlando_health.yaml",
+      "semantic-layer/bigquery-warehouse/_schema/gold.yaml"
+    ],
+    "enrichmentArtifacts": [
+      "raw-sources/bigquery-warehouse/live-database/2026-06-01-185633-local-mpvkl1c1/enrichment/descriptions.json",
+      "raw-sources/bigquery-warehouse/live-database/2026-06-01-185633-local-mpvkl1c1/enrichment/embeddings.json",
+      "raw-sources/bigquery-warehouse/live-database/2026-06-01-185633-local-mpvkl1c1/enrichment/relationships.json",
+      "raw-sources/bigquery-warehouse/live-database/2026-06-01-185633-local-mpvkl1c1/enrichment/relationship-profile.json",
+      "raw-sources/bigquery-warehouse/live-database/2026-06-01-185633-local-mpvkl1c1/enrichment/relationship-diagnostics.json"
+    ]
+  },
+  "diffSummary": {
+    "tablesAdded": 0,
+    "tablesModified": 0,
+    "tablesDeleted": 0,
+    "tablesUnchanged": 57,
+    "columnsAdded": 0,
+    "columnsModified": 0,
+    "columnsDeleted": 0
+  },
+  "manifestShardsWritten": 2,
+  "structuralSyncStats": {
+    "tablesCreated": 0,
+    "tablesUpdated": 0,
+    "tablesDeleted": 0,
+    "columnsCreated": 0,
+    "columnsUpdated": 0,
+    "columnsDeleted": 0
+  },
+  "enrichment": {
+    "dataDictionary": "completed",
+    "tableDescriptions": "completed",
+    "columnDescriptions": "completed",
+    "embeddings": "completed",
+    "deterministicRelationships": "completed",
+    "llmRelationshipValidation": "completed",
+    "statisticalValidation": "completed"
+  },
+  "capabilityGaps": [],
+  "warnings": [
+    {
+      "code": "sampling_failed",
+      "message": "Failed to sample table er_wait_time_mockup after retries: Access Denied: BigQuery BigQuery: Permission denied while getting Drive credentials.",
+      "table": "er_wait_time_mockup",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "bigquery:bigquery-warehouse",
+        "error": "Access Denied: BigQuery BigQuery: Permission denied while getting Drive credentials."
+      }
+    },
+    {
+      "code": "description_fallback_used",
+      "message": "Generated table description without sample rows for er_wait_time_mockup (reason: sampling_failed)",
+      "table": "er_wait_time_mockup",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "bigquery:bigquery-warehouse",
+        "reason": "sampling_failed"
+      }
+    }
+  ],
+  "relationships": {
+    "accepted": 51,
+    "review": 44,
+    "rejected": 108,
+    "skipped": 0
+  },
+  "enrichmentState": {
+    "resumedStages": [],
+    "completedStages": [
+      "descriptions",
+      "embeddings",
+      "relationships"
+    ],
+    "failedStages": []
+  },
+  "createdAt": "2026-06-01T19:00:03.641Z"
+}
