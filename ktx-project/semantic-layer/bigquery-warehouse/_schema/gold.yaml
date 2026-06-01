@@ -4,716 +4,1625 @@ tables:
     columns:
       - name: ad_id
         type: number
+        descriptions:
+          ai: Unique identifier for the individual ad creative.
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier of the ad group containing this ad.
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Identifier of the campaign this ad belongs to.
       - name: customer_id
         type: number
+        descriptions:
+          ai: Google Ads account identifier owning this ad.
       - name: ad_group_ad_ad_added_by_google_ads
         type: boolean
+        descriptions:
+          ai: Indicates if Google automatically created this ad.
       - name: ad_group_ad_ad_app_ad_descriptions
         type: string
+        descriptions:
+          ai: Description text assets for app promotion ads.
       - name: ad_group_ad_ad_app_ad_headlines
         type: string
+        descriptions:
+          ai: Headline text assets for app promotion ads.
       - name: ad_group_ad_ad_app_ad_html5_media_bundles
         type: string
+        descriptions:
+          ai: HTML5 media bundle assets for app ads.
       - name: ad_group_ad_ad_app_ad_images
         type: string
+        descriptions:
+          ai: Image assets used in app promotion ads.
       - name: ad_group_ad_ad_app_ad_mandatory_ad_text
         type: string
+        descriptions:
+          ai: Required text element for app promotion ads.
       - name: ad_group_ad_ad_app_ad_youtube_videos
         type: string
+        descriptions:
+          ai: YouTube video assets linked to app ads.
       - name: ad_group_ad_ad_call_ad_phone_number
         type: string
+        descriptions:
+          ai: Phone number displayed in call-only ads.
       - name: ad_group_ad_ad_device_preference
         type: string
+        descriptions:
+          ai: Preferred device targeting for ad delivery.
       - name: ad_group_ad_ad_display_url
         type: string
+        descriptions:
+          ai: Visible URL shown to users in the ad.
       - name: ad_group_ad_ad_expanded_dynamic_search_ad_description
         type: string
+        descriptions:
+          ai: Primary description for dynamic search ads.
       - name: ad_group_ad_ad_expanded_dynamic_search_ad_description2
         type: string
+        descriptions:
+          ai: Secondary description for dynamic search ads.
       - name: ad_group_ad_ad_expanded_text_ad_description
         type: string
+        descriptions:
+          ai: Primary description line for expanded text ads.
       - name: ad_group_ad_ad_expanded_text_ad_description2
         type: string
+        descriptions:
+          ai: Secondary description line for expanded text ads.
       - name: ad_group_ad_ad_expanded_text_ad_headline_part1
         type: string
+        descriptions:
+          ai: First headline segment of expanded text ads.
       - name: ad_group_ad_ad_expanded_text_ad_headline_part2
         type: string
+        descriptions:
+          ai: Second headline segment of expanded text ads.
       - name: ad_group_ad_ad_expanded_text_ad_headline_part3
         type: string
+        descriptions:
+          ai: Third headline segment of expanded text ads.
       - name: ad_group_ad_ad_expanded_text_ad_path1
         type: string
+        descriptions:
+          ai: First URL path appended to display URL.
       - name: ad_group_ad_ad_expanded_text_ad_path2
         type: string
+        descriptions:
+          ai: Second URL path appended to display URL.
       - name: ad_group_ad_ad_final_app_urls
         type: string
+        descriptions:
+          ai: Landing URLs for app store destinations.
       - name: ad_group_ad_ad_final_mobile_urls
         type: string
+        descriptions:
+          ai: Landing URLs specifically for mobile users.
       - name: ad_group_ad_ad_final_urls
         type: string
+        descriptions:
+          ai: Primary destination URLs users land on after clicking.
       - name: ad_group_ad_ad_group
         type: string
+        descriptions:
+          ai: Resource name path of the parent ad group.
       - name: ad_group_ad_ad_image_ad_image_url
         type: string
+        descriptions:
+          ai: Hosted URL of the image ad creative.
       - name: ad_group_ad_ad_image_ad_mime_type
         type: string
+        descriptions:
+          ai: File format type of the image ad.
       - name: ad_group_ad_ad_image_ad_name
         type: string
+        descriptions:
+          ai: Filename or label assigned to the image ad.
       - name: ad_group_ad_ad_image_ad_pixel_height
         type: number
+        descriptions:
+          ai: Height of the image ad in pixels.
       - name: ad_group_ad_ad_image_ad_pixel_width
         type: number
+        descriptions:
+          ai: Width of the image ad in pixels.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_accent_color
         type: string
+        descriptions:
+          ai: Accent color used in legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_allow_flexible_color
         type: boolean
+        descriptions:
+          ai: Permits Google to adjust colors in legacy display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_business_name
         type: string
+        descriptions:
+          ai: Advertiser business name in legacy display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_call_to_action_text
         type: string
+        descriptions:
+          ai: CTA button text for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_description
         type: string
+        descriptions:
+          ai: Body description text for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_format_setting
         type: string
+        descriptions:
+          ai: Layout format preference for legacy display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_logo_image
         type: string
+        descriptions:
+          ai: Logo image asset for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_long_headline
         type: string
+        descriptions:
+          ai: Long headline text for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_main_color
         type: string
+        descriptions:
+          ai: Primary brand color for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_marketing_image
         type: string
+        descriptions:
+          ai: Main marketing image for legacy display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_price_prefix
         type: string
+        descriptions:
+          ai: Price prefix text shown in legacy display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_promo_text
         type: string
+        descriptions:
+          ai: Promotional text shown in legacy display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_short_headline
         type: string
+        descriptions:
+          ai: Short headline for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_square_logo_image
         type: string
+        descriptions:
+          ai: Square-format logo for legacy display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_square_marketing_image
         type: string
+        descriptions:
+          ai: Square marketing image for legacy display ads.
       - name: ad_group_ad_ad_name
         type: string
+        descriptions:
+          ai: Human-readable label assigned to the ad creative.
       - name: ad_group_ad_ad_responsive_display_ad_accent_color
         type: string
+        descriptions:
+          ai: Accent color for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_business_name
         type: string
+        descriptions:
+          ai: Advertiser business name in responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_call_to_action_text
         type: string
+        descriptions:
+          ai: CTA button text for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_descriptions
         type: string
+        descriptions:
+          ai: Description text assets for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_format_setting
         type: string
+        descriptions:
+          ai: Layout format preference for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_headlines
         type: string
+        descriptions:
+          ai: Headline assets for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_logo_images
         type: string
+        descriptions:
+          ai: Logo image assets for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_long_headline
         type: string
+        descriptions:
+          ai: Long headline asset for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_main_color
         type: string
+        descriptions:
+          ai: Primary brand color for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_marketing_images
         type: string
+        descriptions:
+          ai: Main marketing images for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_price_prefix
         type: string
+        descriptions:
+          ai: Price prefix text for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_promo_text
         type: string
+        descriptions:
+          ai: Promotional text shown in responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_square_logo_images
         type: string
+        descriptions:
+          ai: Square logo images for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_square_marketing_images
         type: string
+        descriptions:
+          ai: Square marketing images for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_youtube_videos
         type: string
+        descriptions:
+          ai: YouTube video assets for responsive display ads.
       - name: ad_group_ad_ad_responsive_search_ad_descriptions
         type: string
+        descriptions:
+          ai: Description assets for responsive search ads.
       - name: ad_group_ad_ad_responsive_search_ad_headlines
         type: string
+        descriptions:
+          ai: Headline assets for responsive search ads.
       - name: ad_group_ad_ad_responsive_search_ad_path1
         type: string
+        descriptions:
+          ai: First display URL path for responsive search ads.
       - name: ad_group_ad_ad_responsive_search_ad_path2
         type: string
+        descriptions:
+          ai: Second display URL path for responsive search ads.
       - name: ad_group_ad_ad_strength
         type: string
+        descriptions:
+          ai: Google's quality rating of the ad creative.
       - name: ad_group_ad_ad_system_managed_resource_source
         type: string
+        descriptions:
+          ai: Source system that auto-generated this ad resource.
       - name: ad_group_ad_ad_text_ad_description1
         type: string
+        descriptions:
+          ai: First description line for standard text ads.
       - name: ad_group_ad_ad_text_ad_description2
         type: string
+        descriptions:
+          ai: Second description line for standard text ads.
       - name: ad_group_ad_ad_text_ad_headline
         type: string
+        descriptions:
+          ai: Headline text for standard text ads.
       - name: ad_group_ad_ad_tracking_url_template
         type: string
+        descriptions:
+          ai: URL template for tracking ad click parameters.
       - name: ad_group_ad_ad_type
         type: string
+        descriptions:
+          ai: Format category of the ad creative.
       - name: ad_group_ad_ad_url_custom_parameters
         type: string
+        descriptions:
+          ai: Custom key-value pairs appended to tracking URLs.
       - name: ad_group_ad_policy_summary_approval_status
         type: string
+        descriptions:
+          ai: Google policy review outcome for the ad.
       - name: ad_group_ad_status
         type: string
+        descriptions:
+          ai: Current serving status of the ad.
+    descriptions:
+      ai: Google Ads dimension table storing ad creative details across all ad types within campaigns and ad groups.
+    joins:
+      - to: ad_policy_evidence_history
+        "on": campaign_dim_ad.ad_id = ad_policy_evidence_history.policy_topic_ad_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_dim_adgroup
+        "on": campaign_dim_ad.ad_group_id = campaign_dim_adgroup.ad_group_id
+        relationship: many_to_one
+        source: inferred
+      - to: ad_dim_ad
+        "on": campaign_dim_ad.ad_id = ad_dim_ad.ad_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_campaign
+        "on": campaign_dim_ad.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_customer
+        "on": campaign_dim_ad.customer_id = campaign_dim_customer.customer_id
+        relationship: many_to_one
+        source: inferred
   campaign_dim_adgroup:
     table: oh-data-warehouse.gold.campaign_dim_adgroup
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Unique identifier for the ad group.
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Parent campaign this ad group belongs to.
       - name: customer_id
         type: number
+        descriptions:
+          ai: Google Ads account owner of this ad group.
       - name: ad_group_ad_rotation_mode
         type: string
+        descriptions:
+          ai: How ads within the group are rotated for serving.
       - name: ad_group_cpc_bid_micros
         type: number
+        descriptions:
+          ai: Cost-per-click bid amount in micros (millionths of currency unit).
       - name: ad_group_cpm_bid_micros
         type: number
+        descriptions:
+          ai: Cost-per-thousand-impressions bid in micros.
       - name: ad_group_cpv_bid_micros
         type: number
+        descriptions:
+          ai: Cost-per-view bid in micros for video ads.
       - name: ad_group_display_custom_bid_dimension
         type: string
+        descriptions:
+          ai: Custom bid dimension used for display network targeting.
       - name: ad_group_effective_target_cpa_micros
         type: number
+        descriptions:
+          ai: Resolved target cost-per-acquisition in micros.
       - name: ad_group_effective_target_cpa_source
         type: string
+        descriptions:
+          ai: Origin of the effective CPA target value.
       - name: ad_group_effective_target_roas
         type: number
+        descriptions:
+          ai: Resolved target return on ad spend ratio.
       - name: ad_group_effective_target_roas_source
         type: string
+        descriptions:
+          ai: Origin of the effective ROAS target value.
       - name: ad_group_name
         type: string
+        descriptions:
+          ai: Human-readable label assigned to the ad group.
       - name: ad_group_status
         type: string
+        descriptions:
+          ai: "Current serving state: ENABLED, PAUSED, or REMOVED."
       - name: ad_group_tracking_url_template
         type: string
+        descriptions:
+          ai: URL template for tracking ad group click traffic.
       - name: ad_group_type
         type: string
+        descriptions:
+          ai: Ad group format type, e.g., SEARCH_STANDARD or DISPLAY_STANDARD.
       - name: ad_group_url_custom_parameters
         type: string
+        descriptions:
+          ai: Custom key-value parameters appended to destination URLs.
       - name: campaign_bidding_strategy
         type: string
+        descriptions:
+          ai: Resource path of the portfolio bidding strategy applied.
       - name: campaign_bidding_strategy_type
         type: string
+        descriptions:
+          ai: Bidding strategy type, e.g., MANUAL_CPC or TARGET_SPEND.
       - name: campaign_manual_cpc_enhanced_cpc_enabled
         type: boolean
+        descriptions:
+          ai: Whether enhanced CPC is active for manual CPC campaigns.
       - name: campaign_percent_cpc_enhanced_cpc_enabled
         type: boolean
+        descriptions:
+          ai: Whether enhanced CPC is active for percent CPC campaigns.
+    descriptions:
+      ai: Dimension table storing Google Ads ad group configuration and bidding settings linked to campaigns and customers.
+    joins:
+      - to: ad_stats
+        "on": campaign_dim_adgroup.ad_group_id = ad_stats.base_ad_group_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_dim_ad
+        "on": campaign_dim_adgroup.ad_group_id = campaign_dim_ad.ad_group_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_dim_campaign
+        "on": campaign_dim_adgroup.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_customer
+        "on": campaign_dim_adgroup.customer_id = campaign_dim_customer.customer_id
+        relationship: many_to_one
+        source: inferred
   campaign_dim_customer:
     table: oh-data-warehouse.gold.campaign_dim_customer
     columns:
       - name: customer_id
         type: number
+        descriptions:
+          ai: Unique Google Ads account identifier.
       - name: customer_auto_tagging_enabled
         type: boolean
+        descriptions:
+          ai: Indicates if URL auto-tagging for tracking is active on the account.
       - name: customer_currency_code
         type: string
+        descriptions:
+          ai: Currency used for billing and reporting within the account.
       - name: customer_descriptive_name
         type: string
+        descriptions:
+          ai: Human-readable display name identifying the advertiser account.
       - name: customer_manager
         type: boolean
+        descriptions:
+          ai: Indicates if this account is a manager (MCC) account overseeing others.
       - name: customer_test_account
         type: boolean
+        descriptions:
+          ai: Flags whether the account is used for testing purposes only.
       - name: customer_time_zone
         type: string
+        descriptions:
+          ai: Account's local time zone governing ad scheduling and reporting.
+    descriptions:
+      ai: Dimension table storing Google Ads customer account attributes used for campaign reporting and segmentation.
+    joins:
+      - to: ad_stats
+        "on": campaign_dim_customer.customer_id = ad_stats.customer_id
+        relationship: one_to_many
+        source: inferred
+      - to: ad_stats
+        "on": campaign_dim_customer.customer_id = ad_stats.external_customer_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_history
+        "on": campaign_dim_customer.customer_id = campaign_history.customer_id
+        relationship: one_to_many
+        source: inferred
+      - to: keyword_stats
+        "on": campaign_dim_customer.customer_id = keyword_stats.customer_id
+        relationship: one_to_many
+        source: inferred
+      - to: keyword_stats
+        "on": campaign_dim_customer.customer_id = keyword_stats.external_customer_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_dim_ad
+        "on": campaign_dim_customer.customer_id = campaign_dim_ad.customer_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_dim_adgroup
+        "on": campaign_dim_customer.customer_id = campaign_dim_adgroup.customer_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_dim_campaign
+        "on": campaign_dim_customer.customer_id = campaign_dim_campaign.customer_id
+        relationship: one_to_many
+        source: inferred
+      - to: account
+        "on": campaign_dim_customer.customer_currency_code = account.currency_code
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_fact_ads
+        "on": campaign_dim_customer.customer_id = campaign_fact_ads.customer_id
+        relationship: one_to_many
+        source: inferred
   campaign_dim_campaign:
     table: oh-data-warehouse.gold.campaign_dim_campaign
     columns:
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Unique Google Ads identifier for the campaign.
       - name: customer_id
         type: number
+        descriptions:
+          ai: Google Ads account identifier owning this campaign.
       - name: entity_key
         type: string
+        descriptions:
+          ai: Internal UUID linking campaign to a business entity.
       - name: bidding_strategy_name
         type: string
+        descriptions:
+          ai: Human-readable name of the portfolio bidding strategy applied.
       - name: campaign_advertising_channel_sub_type
         type: string
+        descriptions:
+          ai: Refined sub-classification of the advertising channel type.
       - name: campaign_advertising_channel_type
         type: string
+        descriptions:
+          ai: "Primary ad channel: SEARCH, DISPLAY, VIDEO, etc."
       - name: campaign_bidding_strategy
         type: string
+        descriptions:
+          ai: Resource path referencing the portfolio bidding strategy object.
       - name: campaign_bidding_strategy_type
         type: string
+        descriptions:
+          ai: Bidding method used, e.g., MAXIMIZE_CONVERSIONS, MANUAL_CPC.
       - name: campaign_budget_amount_micros
         type: number
+        descriptions:
+          ai: Daily or recurring budget in micros (divide by 1M for dollars).
       - name: campaign_budget_explicitly_shared
         type: boolean
+        descriptions:
+          ai: Indicates whether budget is shared across multiple campaigns.
       - name: campaign_budget_has_recommended_budget
         type: boolean
+        descriptions:
+          ai: Flags if Google has a recommended budget suggestion available.
       - name: campaign_budget_period
         type: string
+        descriptions:
+          ai: "Budget cycle period: DAILY or CUSTOM_PERIOD."
       - name: campaign_budget_recommended_budget_amount_micros
         type: number
+        descriptions:
+          ai: Google-recommended budget amount in micros.
       - name: campaign_budget_total_amount_micros
         type: number
+        descriptions:
+          ai: Lifetime total budget cap in micros for custom-period budgets.
       - name: campaign_campaign_budget
         type: string
+        descriptions:
+          ai: Resource path referencing the associated campaign budget object.
       - name: campaign_end_date
         type: time
+        descriptions:
+          ai: Scheduled date when the campaign stops serving ads.
       - name: campaign_experiment_type
         type: string
+        descriptions:
+          ai: Indicates if campaign is a BASE, DRAFT, or EXPERIMENT variant.
       - name: campaign_manual_cpc_enhanced_cpc_enabled
         type: boolean
+        descriptions:
+          ai: Whether enhanced CPC adjustments are enabled for manual CPC bidding.
       - name: campaign_maximize_conversion_value_target_roas
         type: number
+        descriptions:
+          ai: Target return on ad spend for maximize conversion value strategy.
       - name: campaign_name
         type: string
+        descriptions:
+          ai: Descriptive name identifying the campaign, often including service line.
       - name: campaign_percent_cpc_enhanced_cpc_enabled
         type: boolean
+        descriptions:
+          ai: Whether enhanced CPC is enabled for percent CPC bidding.
       - name: campaign_serving_status
         type: string
+        descriptions:
+          ai: "Current delivery status: SERVING, ENDED, or other Google statuses."
       - name: campaign_start_date
         type: time
+        descriptions:
+          ai: Date the campaign began or is scheduled to begin serving.
       - name: campaign_status
         type: string
+        descriptions:
+          ai: "Operational status set by advertiser: ENABLED, PAUSED, or REMOVED."
       - name: campaign_tracking_url_template
         type: string
+        descriptions:
+          ai: URL template appended to ads for click tracking purposes.
       - name: campaign_url_custom_parameters
         type: string
+        descriptions:
+          ai: Key-value pairs substituted into tracking URL templates.
       - name: parsed_service_line
         type: string
+        descriptions:
+          ai: Business service line extracted from the campaign name.
       - name: parsed_sub_specialty
         type: string
+        descriptions:
+          ai: Medical or business sub-specialty parsed from the campaign name.
+    descriptions:
+      ai: Google Ads campaign dimension table storing configuration, budget, bidding, and targeting details for each advertising campaign.
+    joins:
+      - to: ad_history
+        "on": campaign_dim_campaign.campaign_id = ad_history.base_campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: ad_stats
+        "on": campaign_dim_campaign.campaign_id = ad_stats.base_campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: ad_stats
+        "on": campaign_dim_campaign.campaign_id = ad_stats.campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: budget_history
+        "on": campaign_dim_campaign.campaign_id = budget_history.campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_conversion_optimizer_eligibility_history
+        "on": campaign_dim_campaign.campaign_id = campaign_conversion_optimizer_eligibility_history.campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_criterion_history
+        "on": campaign_dim_campaign.campaign_id = campaign_criterion_history.base_campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_criterion_history
+        "on": campaign_dim_campaign.campaign_id = campaign_criterion_history.campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_geo_target_type_setting_history
+        "on": campaign_dim_campaign.campaign_id = campaign_geo_target_type_setting_history.campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_history
+        "on": campaign_dim_campaign.campaign_id = campaign_history.base_campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_label_history
+        "on": campaign_dim_campaign.campaign_id = campaign_label_history.campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_targeting_setting_history
+        "on": campaign_dim_campaign.campaign_id = campaign_targeting_setting_history.campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: keyword_stats
+        "on": campaign_dim_campaign.campaign_id = keyword_stats.base_campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: keyword_stats
+        "on": campaign_dim_campaign.campaign_id = keyword_stats.campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: location
+        "on": campaign_dim_campaign.campaign_id = location.campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_dim_ad
+        "on": campaign_dim_campaign.campaign_id = campaign_dim_ad.campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_dim_adgroup
+        "on": campaign_dim_campaign.campaign_id = campaign_dim_adgroup.campaign_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_dim_customer
+        "on": campaign_dim_campaign.customer_id = campaign_dim_customer.customer_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_fact_ads
+        "on": campaign_dim_campaign.campaign_id = campaign_fact_ads.campaign_id
+        relationship: one_to_many
+        source: inferred
   campaign_fact_ads:
     table: oh-data-warehouse.gold.campaign_fact_ads
     columns:
       - name: ad_id
         type: number
+        descriptions:
+          ai: Unique identifier for the individual ad creative.
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group containing this ad.
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Identifier for the parent campaign.
       - name: customer_id
         type: number
+        descriptions:
+          ai: Identifier for the advertiser account.
       - name: entity_key
         type: string
+        descriptions:
+          ai: UUID linking to a related entity or configuration record.
       - name: active_view_impressions
         type: number
+        descriptions:
+          ai: Impressions meeting viewability standards for display ads.
       - name: clicks
         type: number
+        descriptions:
+          ai: Total number of ad clicks recorded.
       - name: micro_conversions
         type: number
+        descriptions:
+          ai: Count of lower-funnel conversion actions tracked.
       - name: micro_conversions_value
         type: number
+        descriptions:
+          ai: Monetary value attributed to micro-conversion events.
       - name: cost
         type: number
+        descriptions:
+          ai: Total ad spend in account currency.
       - name: gmail_forwards
         type: number
+        descriptions:
+          ai: Number of times a Gmail ad was forwarded.
       - name: gmail_saves
         type: number
+        descriptions:
+          ai: Number of times a Gmail ad was saved.
       - name: gmail_secondary_click
         type: number
+        descriptions:
+          ai: Clicks on links within an expanded Gmail ad.
       - name: impressions
         type: number
+        descriptions:
+          ai: Total times the ad was shown to users.
       - name: interaction_event_types
         type: string
+        descriptions:
+          ai: List of interaction types recorded for this row.
       - name: interactions
         type: number
+        descriptions:
+          ai: Total count of meaningful user interactions with the ad.
       - name: ad_network_type
         type: string
+        descriptions:
+          ai: Network where ad served, e.g., SEARCH, CONTENT, SEARCH_PARTNERS.
       - name: click_type
         type: string
+        descriptions:
+          ai: Specific type of click recorded, e.g., URL_CLICKS, UNKNOWN.
       - name: date
         type: time
+        descriptions:
+          ai: Calendar date of the performance data.
       - name: device
         type: string
+        descriptions:
+          ai: Device category on which the ad was served, e.g., DESKTOP.
+    descriptions:
+      ai: Daily performance metrics for individual ads across campaigns, ad groups, networks, devices, and click types.
+    joins:
+      - to: ad_dim_ad
+        "on": campaign_fact_ads.ad_id = ad_dim_ad.ad_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_campaign
+        "on": campaign_fact_ads.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_customer
+        "on": campaign_fact_ads.customer_id = campaign_dim_customer.customer_id
+        relationship: many_to_one
+        source: inferred
   campaign_summary_ad_networks:
     table: oh-data-warehouse.gold.campaign_summary_ad_networks
     columns:
       - name: date
         type: time
+        descriptions:
+          ai: Calendar date of the recorded ad network performance metrics.
       - name: entity_key
         type: string
+        descriptions:
+          ai: Unique identifier linking the record to a specific campaign entity.
       - name: ad_network_type
         type: string
+        descriptions:
+          ai: Distribution channel where ads were served, e.g., SEARCH or DISPLAY.
       - name: cost
         type: number
+        descriptions:
+          ai: Total advertising spend in currency units for the given day.
       - name: impressions
         type: number
+        descriptions:
+          ai: Number of times ads were displayed to users.
       - name: clicks
         type: number
+        descriptions:
+          ai: Number of user clicks recorded on the ads.
+    descriptions:
+      ai: Daily ad network performance metrics per campaign entity, tracking spend, impressions, and clicks.
   ad_dim_account:
     table: oh-data-warehouse.gold.ad_dim_account
     columns:
       - name: ad_platform
         type: string
+        descriptions:
+          ai: Name of the advertising platform, e.g., Google Ads, Meta Ads, Billboards.
       - name: account_id
         type: number
+        descriptions:
+          ai: Unique numeric identifier for the advertiser account on the platform.
       - name: customer_auto_tagging_enabled
         type: boolean
+        descriptions:
+          ai: Indicates if automatic URL tagging is enabled for tracking; Google Ads only.
       - name: customer_currency_code
         type: string
+        descriptions:
+          ai: Currency used for billing and reporting on the account.
       - name: customer_descriptive_name
         type: string
+        descriptions:
+          ai: Human-readable label identifying the advertiser or campaign group.
       - name: customer_manager
         type: boolean
+        descriptions:
+          ai: Flags whether the account is a manager (MCC) account overseeing sub-accounts.
       - name: customer_test_account
         type: boolean
+        descriptions:
+          ai: Indicates if the account is a test account, not used for real spend.
       - name: customer_time_zone
         type: string
+        descriptions:
+          ai: Time zone setting for the account, affecting reporting and scheduling.
+    descriptions:
+      ai: Dimension table storing advertising account metadata across multiple ad platforms.
+    joins:
+      - to: account
+        "on": ad_dim_account.customer_currency_code = account.currency_code
+        relationship: many_to_one
+        source: inferred
   ad_dim_ad:
     table: oh-data-warehouse.gold.ad_dim_ad
     columns:
       - name: ad_platform
         type: string
+        descriptions:
+          ai: Advertising platform where the ad runs, e.g., Google Ads.
       - name: ad_id
         type: number
+        descriptions:
+          ai: Unique identifier for the individual ad creative.
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier of the ad group containing this ad.
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Identifier of the campaign this ad belongs to.
       - name: account_id
         type: number
+        descriptions:
+          ai: Identifier of the advertiser account owning this ad.
       - name: ad_group_ad_ad_added_by_google_ads
         type: boolean
+        descriptions:
+          ai: Indicates if Google automatically created this ad.
       - name: ad_group_ad_ad_app_ad_descriptions
         type: string
+        descriptions:
+          ai: Description text assets for app promotion ads.
       - name: ad_group_ad_ad_app_ad_headlines
         type: string
+        descriptions:
+          ai: Headline text assets for app promotion ads.
       - name: ad_group_ad_ad_app_ad_html5_media_bundles
         type: string
+        descriptions:
+          ai: HTML5 media bundle assets used in app ads.
       - name: ad_group_ad_ad_app_ad_images
         type: string
+        descriptions:
+          ai: Image assets used in app promotion ads.
       - name: ad_group_ad_ad_app_ad_mandatory_ad_text
         type: string
+        descriptions:
+          ai: Required text that must appear in app ads.
       - name: ad_group_ad_ad_app_ad_youtube_videos
         type: string
+        descriptions:
+          ai: YouTube video assets linked to app ads.
       - name: ad_group_ad_ad_call_ad_phone_number
         type: string
+        descriptions:
+          ai: Phone number displayed in call-only ads.
       - name: ad_group_ad_ad_device_preference
         type: string
+        descriptions:
+          ai: Preferred device targeting for ad delivery.
       - name: ad_group_ad_ad_display_url
         type: string
+        descriptions:
+          ai: Visible URL shown to users in the ad.
       - name: ad_group_ad_ad_expanded_dynamic_search_ad_description
         type: string
+        descriptions:
+          ai: Primary description for dynamic search ads.
       - name: ad_group_ad_ad_expanded_dynamic_search_ad_description2
         type: string
+        descriptions:
+          ai: Secondary description for dynamic search ads.
       - name: ad_group_ad_ad_expanded_text_ad_description
         type: string
+        descriptions:
+          ai: Primary description line for expanded text ads.
       - name: ad_group_ad_ad_expanded_text_ad_description2
         type: string
+        descriptions:
+          ai: Secondary description line for expanded text ads.
       - name: ad_group_ad_ad_expanded_text_ad_headline_part1
         type: string
+        descriptions:
+          ai: First headline segment of expanded text ads.
       - name: ad_group_ad_ad_expanded_text_ad_headline_part2
         type: string
+        descriptions:
+          ai: Second headline segment of expanded text ads.
       - name: ad_group_ad_ad_expanded_text_ad_headline_part3
         type: string
+        descriptions:
+          ai: Third headline segment of expanded text ads.
       - name: ad_group_ad_ad_expanded_text_ad_path1
         type: string
+        descriptions:
+          ai: First URL path appended to display URL in expanded text ads.
       - name: ad_group_ad_ad_expanded_text_ad_path2
         type: string
+        descriptions:
+          ai: Second URL path appended to display URL in expanded text ads.
       - name: ad_group_ad_ad_final_app_urls
         type: string
+        descriptions:
+          ai: Deep link URLs directing users to mobile apps.
       - name: ad_group_ad_ad_final_mobile_urls
         type: string
+        descriptions:
+          ai: Landing page URLs specifically for mobile users.
       - name: ad_group_ad_ad_final_urls
         type: string
+        descriptions:
+          ai: Primary landing page URLs users reach after clicking.
       - name: ad_group_ad_ad_group
         type: string
+        descriptions:
+          ai: Full resource path of the parent ad group.
       - name: ad_group_ad_ad_image_ad_image_url
         type: string
+        descriptions:
+          ai: Hosted URL of the image ad creative.
       - name: ad_group_ad_ad_image_ad_mime_type
         type: string
+        descriptions:
+          ai: File format type of the image ad asset.
       - name: ad_group_ad_ad_image_ad_name
         type: string
+        descriptions:
+          ai: File or asset name of the image ad.
       - name: ad_group_ad_ad_image_ad_pixel_height
         type: number
+        descriptions:
+          ai: Height in pixels of the image ad creative.
       - name: ad_group_ad_ad_image_ad_pixel_width
         type: number
+        descriptions:
+          ai: Width in pixels of the image ad creative.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_accent_color
         type: string
+        descriptions:
+          ai: Accent color hex code for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_allow_flexible_color
         type: boolean
+        descriptions:
+          ai: Whether Google can override colors in legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_business_name
         type: string
+        descriptions:
+          ai: Brand or business name shown in legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_call_to_action_text
         type: string
+        descriptions:
+          ai: CTA button text in legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_description
         type: string
+        descriptions:
+          ai: Body description text for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_format_setting
         type: string
+        descriptions:
+          ai: Display format preference for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_logo_image
         type: string
+        descriptions:
+          ai: Logo image asset for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_long_headline
         type: string
+        descriptions:
+          ai: Long headline text for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_main_color
         type: string
+        descriptions:
+          ai: Primary color hex code for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_marketing_image
         type: string
+        descriptions:
+          ai: Main marketing image asset for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_price_prefix
         type: string
+        descriptions:
+          ai: Price prefix text shown in legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_promo_text
         type: string
+        descriptions:
+          ai: Promotional text shown in legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_short_headline
         type: string
+        descriptions:
+          ai: Short headline for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_square_logo_image
         type: string
+        descriptions:
+          ai: Square-format logo asset for legacy responsive display ads.
       - name: ad_group_ad_ad_legacy_responsive_display_ad_square_marketing_image
         type: string
+        descriptions:
+          ai: Square-format marketing image for legacy responsive display ads.
       - name: ad_group_ad_ad_name
         type: string
+        descriptions:
+          ai: User-defined name or label for the ad creative.
       - name: ad_group_ad_ad_responsive_display_ad_accent_color
         type: string
+        descriptions:
+          ai: Accent color hex code for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_business_name
         type: string
+        descriptions:
+          ai: Brand or business name shown in responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_call_to_action_text
         type: string
+        descriptions:
+          ai: CTA button text for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_descriptions
         type: string
+        descriptions:
+          ai: Multiple description text assets for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_format_setting
         type: string
+        descriptions:
+          ai: Display format preference for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_headlines
         type: string
+        descriptions:
+          ai: Multiple short headline assets for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_logo_images
         type: string
+        descriptions:
+          ai: Logo image assets for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_long_headline
         type: string
+        descriptions:
+          ai: Long headline text asset for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_main_color
         type: string
+        descriptions:
+          ai: Primary color hex code for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_marketing_images
         type: string
+        descriptions:
+          ai: Landscape marketing image assets for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_price_prefix
         type: string
+        descriptions:
+          ai: Price prefix text for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_promo_text
         type: string
+        descriptions:
+          ai: Promotional text shown in responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_square_logo_images
         type: string
+        descriptions:
+          ai: Square logo image assets for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_square_marketing_images
         type: string
+        descriptions:
+          ai: Square marketing image assets for responsive display ads.
       - name: ad_group_ad_ad_responsive_display_ad_youtube_videos
         type: string
+        descriptions:
+          ai: YouTube video assets linked to responsive display ads.
       - name: ad_group_ad_ad_responsive_search_ad_descriptions
         type: string
+        descriptions:
+          ai: Multiple description assets for responsive search ads.
       - name: ad_group_ad_ad_responsive_search_ad_headlines
         type: string
+        descriptions:
+          ai: Multiple headline assets for responsive search ads.
       - name: ad_group_ad_ad_responsive_search_ad_path1
         type: string
+        descriptions:
+          ai: First display URL path for responsive search ads.
       - name: ad_group_ad_ad_responsive_search_ad_path2
         type: string
+        descriptions:
+          ai: Second display URL path for responsive search ads.
       - name: ad_group_ad_ad_strength
         type: string
+        descriptions:
+          ai: Google's quality rating of the ad creative strength.
       - name: ad_group_ad_ad_system_managed_resource_source
         type: string
+        descriptions:
+          ai: Source system if the ad is automatically managed by Google.
       - name: ad_group_ad_ad_text_ad_description1
         type: string
+        descriptions:
+          ai: First description line for legacy standard text ads.
       - name: ad_group_ad_ad_text_ad_description2
         type: string
+        descriptions:
+          ai: Second description line for legacy standard text ads.
       - name: ad_group_ad_ad_text_ad_headline
         type: string
+        descriptions:
+          ai: Headline text for legacy standard text ads.
       - name: ad_group_ad_ad_tracking_url_template
         type: string
+        descriptions:
+          ai: URL template used for click tracking and measurement.
       - name: ad_group_ad_ad_type
         type: string
+        descriptions:
+          ai: Format type of the ad, e.g., TEXT_AD, IMAGE_AD.
       - name: ad_group_ad_ad_url_custom_parameters
         type: string
+        descriptions:
+          ai: Custom key-value parameters appended to landing page URLs.
       - name: ad_group_ad_policy_summary_approval_status
         type: string
+        descriptions:
+          ai: Google policy review approval status for the ad.
       - name: ad_group_ad_status
         type: string
+        descriptions:
+          ai: "Current serving status: ENABLED, PAUSED, or REMOVED."
       - name: landscape_image_media_id
         type: string
+        descriptions:
+          ai: Media ID for landscape-format image asset.
       - name: landscape_logo_media_id
         type: string
+        descriptions:
+          ai: Media ID for landscape-format logo asset.
       - name: square_image_media_id
         type: string
+        descriptions:
+          ai: Media ID for square-format image asset.
       - name: square_logo_media_id
         type: string
+        descriptions:
+          ai: Media ID for square-format logo asset.
+    descriptions:
+      ai: Dimension table storing ad creative attributes across all ad types and formats for Google Ads campaigns.
+    joins:
+      - to: ad_final_mobile_url_history
+        "on": ad_dim_ad.ad_id = ad_final_mobile_url_history.ad_id
+        relationship: one_to_many
+        source: inferred
+      - to: ad_final_url_history
+        "on": ad_dim_ad.ad_id = ad_final_url_history.ad_id
+        relationship: one_to_many
+        source: inferred
+      - to: ad_label_history
+        "on": ad_dim_ad.ad_id = ad_label_history.ad_id
+        relationship: one_to_many
+        source: inferred
+      - to: expanded_text_ad_history
+        "on": ad_dim_ad.ad_id = expanded_text_ad_history.ad_id
+        relationship: one_to_many
+        source: inferred
+      - to: image_ad_history
+        "on": ad_dim_ad.ad_id = image_ad_history.ad_id
+        relationship: one_to_many
+        source: inferred
+      - to: template_ad_history
+        "on": ad_dim_ad.ad_id = template_ad_history.ad_id
+        relationship: one_to_many
+        source: inferred
+      - to: text_ad_history
+        "on": ad_dim_ad.ad_id = text_ad_history.ad_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_dim_ad
+        "on": ad_dim_ad.ad_id = campaign_dim_ad.ad_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_fact_ads
+        "on": ad_dim_ad.ad_id = campaign_fact_ads.ad_id
+        relationship: one_to_many
+        source: inferred
   ad_dim_ad_platform:
     table: oh-data-warehouse.gold.ad_dim_ad_platform
     columns:
       - name: ad_platform_key
         type: number
+        descriptions:
+          ai: Surrogate key uniquely identifying each advertising platform record.
       - name: ad_platform
         type: string
+        descriptions:
+          ai: Name of the advertising platform, such as Pandora or Digital Audio.
       - name: platform_vendor
         type: string
+        descriptions:
+          ai: Company or vendor managing the advertising platform.
       - name: source_system
         type: string
+        descriptions:
+          ai: ETL or integration tool used to ingest platform data.
       - name: data_granularity
         type: string
+        descriptions:
+          ai: Time granularity of reported ad data, e.g., Monthly.
       - name: data_modification_check_frequency
         type: string
+        descriptions:
+          ai: How often historical data is checked for changes or corrections.
       - name: data_modification_window
         type: string
+        descriptions:
+          ai: How far back historical data may be retroactively modified.
       - name: data_ingestion_frequency
         type: string
+        descriptions:
+          ai: How often new data is loaded from the platform.
       - name: data_ingestion_lag
         type: string
+        descriptions:
+          ai: Typical delay between data availability and ingestion completion.
+    descriptions:
+      ai: Dimension table describing advertising platforms, their vendors, data sources, and ingestion metadata.
   ad_dim_adgroup:
     table: oh-data-warehouse.gold.ad_dim_adgroup
     columns:
       - name: ad_platform
         type: string
+        descriptions:
+          ai: Advertising platform where the ad group runs, e.g., Google Ads or Meta Ads.
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Unique identifier for the ad group on the platform.
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Parent campaign identifier this ad group belongs to.
       - name: account_id
         type: number
+        descriptions:
+          ai: Advertiser account identifier owning this ad group.
       - name: ad_group_ad_rotation_mode
         type: string
+        descriptions:
+          ai: How ads within the group are rotated for delivery.
       - name: ad_group_cpc_bid_micros
         type: number
+        descriptions:
+          ai: Cost-per-click bid amount in micros (millionths of currency unit).
       - name: ad_group_cpm_bid_micros
         type: number
+        descriptions:
+          ai: Cost-per-thousand-impressions bid amount in micros.
       - name: ad_group_cpv_bid_micros
         type: number
+        descriptions:
+          ai: Cost-per-view bid amount in micros for video ads.
       - name: ad_group_display_custom_bid_dimension
         type: string
+        descriptions:
+          ai: Custom dimension used for display network bid adjustments.
       - name: ad_group_effective_target_cpa_micros
         type: number
+        descriptions:
+          ai: Resolved target cost-per-acquisition in micros applied to bidding.
       - name: ad_group_effective_target_cpa_source
         type: string
+        descriptions:
+          ai: Origin of the effective CPA target, e.g., ad group or campaign.
       - name: ad_group_effective_target_roas
         type: number
+        descriptions:
+          ai: Resolved target return-on-ad-spend ratio applied to bidding.
       - name: ad_group_effective_target_roas_source
         type: string
+        descriptions:
+          ai: Origin of the effective ROAS target value.
       - name: ad_group_name
         type: string
+        descriptions:
+          ai: Human-readable label identifying the ad group.
       - name: ad_group_status
         type: string
+        descriptions:
+          ai: Current serving status such as ENABLED or REMOVED.
       - name: ad_group_tracking_url_template
         type: string
+        descriptions:
+          ai: URL template used for tracking ad group click traffic.
       - name: ad_group_type
         type: string
+        descriptions:
+          ai: Ad group type defining eligible ad formats, e.g., SEARCH_STANDARD.
       - name: ad_group_url_custom_parameters
         type: string
+        descriptions:
+          ai: Key-value pairs appended to URLs for custom tracking.
       - name: campaign_bidding_strategy
         type: string
+        descriptions:
+          ai: Named shared bidding strategy assigned to the parent campaign.
       - name: campaign_bidding_strategy_type
         type: string
+        descriptions:
+          ai: Bidding strategy type of the parent campaign, e.g., MANUAL_CPC.
       - name: campaign_manual_cpc_enhanced_cpc_enabled
         type: boolean
+        descriptions:
+          ai: Whether enhanced CPC is active for manual CPC campaigns.
       - name: campaign_percent_cpc_enhanced_cpc_enabled
         type: boolean
+        descriptions:
+          ai: Whether enhanced CPC is active for percent CPC campaigns.
+    descriptions:
+      ai: Dimension table storing ad group configuration and bidding settings across advertising platforms like Google and Meta.
   ad_dim_campaign:
     table: oh-data-warehouse.gold.ad_dim_campaign
     columns:
       - name: ad_platform
         type: string
+        descriptions:
+          ai: Advertising platform where the campaign runs, e.g., Google Ads, Meta Ads, Display.
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Unique identifier for the campaign on the ad platform.
       - name: account_id
         type: number
+        descriptions:
+          ai: Identifier for the advertiser account owning the campaign.
       - name: entity_key
         type: string
+        descriptions:
+          ai: Internal UUID linking the campaign to a business entity.
       - name: bidding_strategy_name
         type: string
+        descriptions:
+          ai: Name of the custom or portfolio bidding strategy applied.
       - name: campaign_advertising_channel_sub_type
         type: string
+        descriptions:
+          ai: More granular classification of the advertising channel type.
       - name: campaign_advertising_channel_type
         type: string
+        descriptions:
+          ai: Primary channel type, e.g., DISPLAY, SEARCH, VIDEO.
       - name: campaign_bidding_strategy
         type: string
+        descriptions:
+          ai: Resource path reference to the campaign's assigned bidding strategy.
       - name: campaign_bidding_strategy_type
         type: string
+        descriptions:
+          ai: Bidding method used, e.g., MANUAL_CPC, TARGET_ROAS.
       - name: campaign_budget_amount_micros
         type: number
+        descriptions:
+          ai: Daily or total budget in micros (millionths of currency unit).
       - name: campaign_budget_explicitly_shared
         type: boolean
+        descriptions:
+          ai: Indicates whether the budget is explicitly shared across campaigns.
       - name: campaign_budget_has_recommended_budget
         type: boolean
+        descriptions:
+          ai: Flags if Google has a recommended budget for this campaign.
       - name: campaign_budget_period
         type: string
+        descriptions:
+          ai: Budget cycle period, e.g., DAILY or TOTAL lifetime.
       - name: campaign_budget_recommended_budget_amount_micros
         type: number
+        descriptions:
+          ai: Platform-recommended budget amount in micros.
       - name: campaign_budget_total_amount_micros
         type: number
+        descriptions:
+          ai: Total lifetime budget cap in micros.
       - name: campaign_campaign_budget
         type: string
+        descriptions:
+          ai: Resource path referencing the associated campaign budget object.
       - name: campaign_end_date
         type: time
+        descriptions:
+          ai: Scheduled end date for the campaign.
       - name: campaign_experiment_type
         type: string
+        descriptions:
+          ai: Indicates if campaign is a BASE, DRAFT, or EXPERIMENT variant.
       - name: campaign_manual_cpc_enhanced_cpc_enabled
         type: boolean
+        descriptions:
+          ai: Whether enhanced CPC is enabled for manual CPC bidding.
       - name: campaign_maximize_conversion_value_target_roas
         type: number
+        descriptions:
+          ai: Target return on ad spend for maximize conversion value strategy.
       - name: campaign_name
         type: string
+        descriptions:
+          ai: Human-readable name describing the campaign's purpose or audience.
       - name: campaign_percent_cpc_enhanced_cpc_enabled
         type: boolean
+        descriptions:
+          ai: Whether enhanced CPC is enabled for percent CPC bidding.
       - name: campaign_serving_status
         type: string
+        descriptions:
+          ai: Current delivery status, e.g., SERVING, ENDED, PAUSED.
       - name: campaign_start_date
         type: time
+        descriptions:
+          ai: Date the campaign began or is scheduled to begin.
       - name: campaign_status
         type: string
+        descriptions:
+          ai: Administrative status of the campaign, e.g., ENABLED, PAUSED, REMOVED.
       - name: campaign_tracking_url_template
         type: string
+        descriptions:
+          ai: URL template used for tracking clicks across campaign ads.
       - name: campaign_url_custom_parameters
         type: string
+        descriptions:
+          ai: Custom key-value parameters appended to campaign tracking URLs.
       - name: parsed_service_line
         type: string
+        descriptions:
+          ai: Business service line extracted from the campaign name.
       - name: parsed_sub_specialty
         type: string
+        descriptions:
+          ai: Medical sub-specialty or campaign sub-category parsed from the name.
       - name: budget_owner
         type: string
+        descriptions:
+          ai: Business unit or brand responsible for the campaign budget.
+    descriptions:
+      ai: Dimension table storing advertising campaign attributes across platforms like Google Ads and Meta Ads.
   ad_fact_ads:
     table: oh-data-warehouse.gold.ad_fact_ads
     columns:
       - name: ad_platform
         type: string
+        descriptions:
+          ai: Advertising platform where the ad ran, e.g. Google Ads.
       - name: ad_id
         type: number
+        descriptions:
+          ai: Unique identifier for the individual ad creative.
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group containing this ad.
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Identifier for the campaign this ad belongs to.
       - name: account_id
         type: number
+        descriptions:
+          ai: Advertiser account identifier owning the campaign.
       - name: entity_key
         type: string
+        descriptions:
+          ai: UUID linking this record to an internal entity reference.
       - name: active_view_impressions
         type: number
+        descriptions:
+          ai: Impressions measured as viewable by Active View standard.
       - name: clicks
         type: number
+        descriptions:
+          ai: Total clicks recorded on the ad.
       - name: micro_conversions
         type: number
+        descriptions:
+          ai: Count of lower-funnel conversion events tracked.
       - name: micro_conversions_value
         type: number
+        descriptions:
+          ai: Monetary value attributed to micro-conversion events.
       - name: cost
         type: number
+        descriptions:
+          ai: Ad spend in account currency for the reporting period.
       - name: gmail_forwards
         type: number
+        descriptions:
+          ai: Number of times a Gmail ad was forwarded.
       - name: gmail_saves
         type: number
+        descriptions:
+          ai: Number of times a Gmail ad was saved.
       - name: gmail_secondary_click
         type: number
+        descriptions:
+          ai: Clicks on secondary links within a Gmail ad.
       - name: impressions
         type: number
+        descriptions:
+          ai: Total times the ad was shown to users.
       - name: interaction_event_types
         type: string
+        descriptions:
+          ai: List of interaction types recorded, e.g. CLICK.
       - name: interactions
         type: number
+        descriptions:
+          ai: Total user interactions beyond simple impressions.
       - name: ad_network_type
         type: string
+        descriptions:
+          ai: Network where ad served, e.g. SEARCH or CONTENT.
       - name: click_type
         type: string
+        descriptions:
+          ai: Specific click category, e.g. URL_CLICKS or LOCATION_EXPANSION.
       - name: date
         type: time
+        descriptions:
+          ai: Calendar date of the performance data row.
       - name: device
         type: string
+        descriptions:
+          ai: Device type used by the user, e.g. MOBILE or TABLET.
+    descriptions:
+      ai: Daily ad performance metrics by ad, device, network, and click type across platforms.
   ad_summary_ad_networks:
     table: oh-data-warehouse.gold.ad_summary_ad_networks
     columns:
       - name: date
         type: time
+        descriptions:
+          ai: Calendar date of the advertising activity being reported.
       - name: entity_key
         type: string
+        descriptions:
+          ai: Unique identifier linking the record to a specific advertiser or account.
       - name: ad_platform
         type: string
+        descriptions:
+          ai: Advertising platform where the campaign ran, e.g., Google Ads, Meta.
       - name: ad_network_type
         type: string
+        descriptions:
+          ai: Sub-network within the platform, such as search partners or display.
       - name: cost
         type: number
+        descriptions:
+          ai: Total spend in currency units for the given date and network.
       - name: impressions
         type: number
+        descriptions:
+          ai: Number of times ads were displayed to users.
       - name: clicks
         type: number
+        descriptions:
+          ai: Number of user clicks recorded on the ads.
+    descriptions:
+      ai: Daily ad performance metrics aggregated by platform and network type across advertising channels.
   ga4_dim_users_pseudonymous:
     table: oh-data-warehouse.gold.ga4_dim_users_pseudonymous
     columns:
@@ -722,54 +1631,103 @@ tables:
         pk: true
         descriptions:
           db: unique device ID based on cookie
+          ai: Cookie-based anonymous identifier uniquely representing a device or browser.
       - name: user_last_active_timestamp
         type: time
+        descriptions:
+          ai: Most recent session activity timestamp for this user.
       - name: user_first_touch_timestamp
         type: time
+        descriptions:
+          ai: Timestamp when the user first interacted with the property.
       - name: sessions_ltv
         type: number
+        descriptions:
+          ai: Lifetime total number of sessions attributed to this user.
       - name: engagement_time_millis_ltv
         type: number
+        descriptions:
+          ai: Lifetime cumulative active engagement time in milliseconds.
       - name: engagement_time_seconds_ltv
         type: number
+        descriptions:
+          ai: Lifetime cumulative active engagement time in seconds.
       - name: engaged_sessions_ltv
         type: number
+        descriptions:
+          ai: Lifetime count of sessions meeting GA4 engagement threshold.
       - name: session_duration_micros_ltv
         type: number
+        descriptions:
+          ai: Lifetime total session duration in microseconds.
       - name: device
         type: string
+        descriptions:
+          ai: Nested record with OS, device category, brand, and model details.
       - name: geo
         type: string
+        descriptions:
+          ai: Nested record with city, region, country, and continent location data.
       - name: last_updated_date
         type: time
+        descriptions:
+          ai: Date this user record was last refreshed in the dataset.
+    descriptions:
+      ai: GA4 pseudonymous user dimension with lifetime engagement metrics, device info, and geographic data per cookie-based user.
   ga4_dim_webpage:
     table: oh-data-warehouse.gold.ga4_dim_webpage
     columns:
       - name: page_url
         type: string
         pk: true
+        descriptions:
+          ai: Full webpage URL including protocol scheme as recorded in GA4.
       - name: page_url_no_scheme
         type: string
+        descriptions:
+          ai: Full URL with the http/https protocol prefix stripped out.
       - name: page_hostname
         type: string
+        descriptions:
+          ai: Domain and subdomain portion of the webpage URL.
       - name: page_path_1
         type: string
+        descriptions:
+          ai: First segment of the URL path after the hostname.
       - name: page_path_2
         type: string
+        descriptions:
+          ai: Second segment of the URL path hierarchy.
       - name: page_path_3
         type: string
+        descriptions:
+          ai: Third segment of the URL path hierarchy.
       - name: page_path_4
         type: string
+        descriptions:
+          ai: Fourth segment of the URL path hierarchy.
       - name: page_path_5
         type: string
+        descriptions:
+          ai: Fifth segment of the URL path hierarchy.
       - name: page_path_6
         type: string
+        descriptions:
+          ai: Sixth segment of the URL path hierarchy.
       - name: page_path_7
         type: string
+        descriptions:
+          ai: Seventh segment of the URL path hierarchy.
       - name: page_path_8
         type: string
+        descriptions:
+          ai: Eighth segment of the URL path hierarchy.
       - name: page_path_9
         type: string
+        descriptions:
+          ai: Ninth segment of the URL path hierarchy.
+    descriptions:
+      ai: Dimension table storing parsed webpage URL components tracked via Google Analytics 4 across Orlando Health web properties.
   ga4_dim_event_params:
     table: oh-data-warehouse.gold.ga4_dim_event_params
     columns:
@@ -778,22 +1736,27 @@ tables:
         pk: true
         descriptions:
           db: event_key from Fact table
+          ai: Foreign key linking this parameter record to its parent event in the fact table.
       - name: parameter_name_key
         type: string
         pk: true
         descriptions:
           db: event parameter name from key-value pair
+          ai: Name identifier of the event parameter, e.g., page_referrer or batch_ordering_id.
       - name: parameter_data_type
         type: string
         pk: true
         descriptions:
           db: data type of value from key-value pair. Values found in bridge_event_params.
+          ai: "Data type of the parameter value: string, int, float, or double."
       - name: parameter_value
         type: string
         descriptions:
           db: the value of the event_param as a STRUCT
+          ai: Structured record holding the parameter value in the appropriate typed field.
     descriptions:
       db: Dimension table for unique event_params values by name and data type. (Many per event).
+      ai: Dimension table storing GA4 event parameters as key-value pairs with typed values for each event.
   ga4_dim_sessions:
     table: oh-data-warehouse.gold.ga4_dim_sessions
     columns:
@@ -802,302 +1765,550 @@ tables:
         pk: true
         descriptions:
           db: generated primary key based on unique session attributes
+          ai: Surrogate primary key uniquely identifying each session record.
       - name: ga_session_id
         type: number
         descriptions:
           db: GA4 external session ID. NOT UNIQUE until paired with device ID and session number.
+          ai: GA4-assigned session identifier; requires device ID and session number for uniqueness.
       - name: is_engaged_session
         type: boolean
         descriptions:
           db: Session that lasted longer than 30s or visited more than 1 page.
+          ai: True if session exceeded 30 seconds or included multiple pageviews.
       - name: is_bounce_session
         type: boolean
         descriptions:
           db: Inverse of an engaged session.
+          ai: True if session was not engaged; single short-duration visit.
       - name: ga_session_number
         type: number
         descriptions:
           db: A soft LTV number of sessions.
+          ai: Cumulative count of sessions for a user; proxy lifetime visit number.
       - name: session_duration_micros
         type: number
         descriptions:
           db: Length of session in microseconds
+          ai: Total session length in microseconds.
       - name: is_there_a_session_start_event
         type: boolean
         descriptions:
           db: Helper field for determining UTM nuance.
+          ai: Indicates presence of session_start event; used for UTM attribution logic.
       - name: source
         type: string
         descriptions:
           db: utm_source value
+          ai: Traffic origin from utm_source parameter (e.g., google, pandora).
       - name: medium
         type: string
         descriptions:
           db: utm_medium value
+          ai: Marketing channel from utm_medium parameter (e.g., organic, display).
       - name: source_medium
         type: string
         descriptions:
           db: utm_source_medium value
+          ai: Combined source and medium for traffic channel reporting.
       - name: campaign_id
         type: string
         descriptions:
           db: utm_id value
+          ai: Paid campaign identifier from utm_id parameter.
       - name: campaign_name
         type: string
         descriptions:
           db: utm_campaign value
+          ai: Descriptive campaign name from utm_campaign parameter.
       - name: term
         type: string
         descriptions:
           db: utm_term value
+          ai: Paid keyword or targeting term from utm_term parameter.
       - name: content
         type: string
         descriptions:
           db: utm_content value
+          ai: Ad creative variant identifier from utm_content parameter.
       - name: source_platform
         type: string
+        descriptions:
+          ai: Platform that managed the campaign delivery.
       - name: creative_format
         type: string
+        descriptions:
+          ai: Format type of the ad creative served.
       - name: marketing_tactic
         type: string
+        descriptions:
+          ai: Targeting strategy or tactic applied to the campaign.
       - name: gclid
         type: string
         descriptions:
           db: External Google Click ID
+          ai: Google Click ID for linking Google Ads clicks to sessions.
       - name: dclid
         type: string
+        descriptions:
+          ai: Display Click ID from Google Display and Video 360.
       - name: srsltid
         type: string
+        descriptions:
+          ai: Google Shopping result click identifier.
     descriptions:
       db: Dimension table for each session.
+      ai: GA4 session-level dimension table capturing traffic source, engagement quality, and UTM attribution for each website session.
   ga4_fact_events:
     table: oh-data-warehouse.gold.ga4_fact_events
     columns:
       - name: event_timestamp
         type: number
+        descriptions:
+          ai: Microsecond-precision Unix timestamp when the event fired.
       - name: event_date
         type: time
+        descriptions:
+          ai: Calendar date the event occurred.
       - name: event_datetime
         type: time
+        descriptions:
+          ai: Combined date and time the event occurred.
       - name: user_pseudo_id
         type: string
+        descriptions:
+          ai: GA4 anonymous identifier linking events to a single browser/device.
       - name: is_new_user
         type: boolean
+        descriptions:
+          ai: True if this was the user's first-ever session.
       - name: session_key
         type: number
+        descriptions:
+          ai: Surrogate key uniquely identifying a user session.
       - name: is_engaged_session
         type: boolean
+        descriptions:
+          ai: True if the session met GA4 engagement thresholds.
       - name: ga_session_number
         type: number
+        descriptions:
+          ai: Sequential count of sessions for this user, starting at 1.
       - name: page_hostname
         type: string
+        descriptions:
+          ai: Domain of the page where the event fired.
       - name: page_url
         type: string
+        descriptions:
+          ai: Clean page URL without query parameters.
       - name: page_full_url
         type: string
+        descriptions:
+          ai: Complete URL including query string parameters.
       - name: page_title
         type: string
+        descriptions:
+          ai: Browser tab title of the page at event time.
       - name: page_referrer
         type: string
+        descriptions:
+          ai: URL of the page that referred the user here.
       - name: batch_page_id
         type: number
+        descriptions:
+          ai: Identifier grouping events sent in the same browser batch.
       - name: event_key
         type: number
         pk: true
+        descriptions:
+          ai: Surrogate key uniquely identifying this individual event row.
       - name: event_name
         type: string
+        descriptions:
+          ai: Raw GA4 event name such as page_view or click.
       - name: event_display_name
         type: string
+        descriptions:
+          ai: Human-readable label for the event type.
       - name: event_sequence
         type: number
+        descriptions:
+          ai: Ordinal position of this event within the session.
       - name: entrances
         type: number
+        descriptions:
+          ai: Flags the first page_view event of a session.
       - name: engagement_time_msec
         type: number
+        descriptions:
+          ai: Active engagement duration in milliseconds for this event.
       - name: engagement_time_sec
         type: number
+        descriptions:
+          ai: Active engagement duration in seconds for this event.
       - name: device
         type: string
+        descriptions:
+          ai: Nested record with device category, OS, browser, and hardware details.
       - name: geo
         type: string
+        descriptions:
+          ai: Nested record with city, region, country, and metro location.
       - name: click_event
         type: string
+        descriptions:
+          ai: Nested record with link URL, domain, classes, text, and ID.
       - name: content_event
         type: string
+        descriptions:
+          ai: Nested record with content ID, type, group, and hub metadata.
       - name: guided_nav_event
         type: string
+        descriptions:
+          ai: Nested record capturing guided navigation funnel step selections.
       - name: file_event
         type: string
+        descriptions:
+          ai: Nested record with downloaded file extension, path, and title.
       - name: search_event
         type: string
+        descriptions:
+          ai: Nested record with site search term and unique search term.
       - name: form_event
         type: string
+        descriptions:
+          ai: Nested record with form ID, name, destination, and submit text.
       - name: ua_profile
         type: string
+        descriptions:
+          ai: User-agent profile string for the visitor's browser.
       - name: ua_metric
         type: string
+        descriptions:
+          ai: Nested record with additional user-agent derived metrics.
+    descriptions:
+      ai: GA4 website event-level fact table capturing user interactions across Orlando Health web properties.
   gsc_fact_site_impression:
     table: oh-data-warehouse.gold.gsc_fact_site_impression
     columns:
       - name: date
         type: time
+        descriptions:
+          ai: Calendar date of the search impression data.
       - name: page_hostname
         type: string
+        descriptions:
+          ai: Website domain where the search traffic was directed.
       - name: query
         type: string
+        descriptions:
+          ai: Search term entered by the user in Google Search.
       - name: is_anonymized_query
         type: boolean
+        descriptions:
+          ai: Indicates if Google anonymized the query for privacy reasons.
       - name: country
         type: string
+        descriptions:
+          ai: Three-letter country code where the search originated.
       - name: search_type
         type: string
+        descriptions:
+          ai: Google search surface type, such as WEB, IMAGE, or VIDEO.
       - name: device
         type: string
+        descriptions:
+          ai: "Device category used for the search: MOBILE, DESKTOP, or TABLET."
       - name: impressions
         type: number
+        descriptions:
+          ai: Number of times the site appeared in search results.
       - name: clicks
         type: number
+        descriptions:
+          ai: Number of times users clicked through to the site.
       - name: sum_top_results_position
         type: number
+        descriptions:
+          ai: Summed ranking position across top search result appearances.
       - name: average_results_position
         type: number
+        descriptions:
+          ai: Mean ranking position in Google search results for the query.
+    descriptions:
+      ai: Google Search Console daily search performance metrics by site, query, country, and device.
   gsc_summary_monthly_site_impression:
     table: oh-data-warehouse.gold.gsc_summary_monthly_site_impression
     columns:
       - name: month
         type: time
+        descriptions:
+          ai: First day of the month representing the reporting period.
       - name: page_hostname
         type: string
+        descriptions:
+          ai: Website domain where search traffic was directed.
       - name: query
         type: string
+        descriptions:
+          ai: Search term users typed that triggered an impression.
       - name: impressions
         type: number
+        descriptions:
+          ai: Number of times the site appeared in search results.
       - name: clicks
         type: number
+        descriptions:
+          ai: Number of times users clicked through from search results.
       - name: ctr
         type: number
+        descriptions:
+          ai: Ratio of clicks to impressions as a decimal.
       - name: average_results_position
         type: number
+        descriptions:
+          ai: Mean ranking position in Google search results pages.
+    descriptions:
+      ai: Monthly Google Search Console performance metrics aggregated by site, hostname, and search query.
   dim_date:
     table: oh-data-warehouse.gold.dim_date
     columns:
       - name: date
         type: time
         pk: true
+        descriptions:
+          ai: The full calendar date value serving as the primary key.
       - name: calendar_year
         type: number
+        descriptions:
+          ai: Four-digit calendar year of the date.
       - name: calendar_quarter
         type: number
+        descriptions:
+          ai: Calendar quarter number (1–4) within the calendar year.
       - name: calendar_month
         type: number
+        descriptions:
+          ai: Numeric month (1–12) within the calendar year.
       - name: calendar_day
         type: number
+        descriptions:
+          ai: Day of the month (1–31).
       - name: month_name
         type: string
+        descriptions:
+          ai: Full name of the calendar month, e.g., January.
       - name: day_name
         type: string
+        descriptions:
+          ai: Full name of the day of the week, e.g., Monday.
       - name: day_of_week
         type: number
+        descriptions:
+          ai: Numeric day of the week, typically 1=Sunday through 7=Saturday.
       - name: day_of_year
         type: number
+        descriptions:
+          ai: Sequential day number within the calendar year (1–366).
       - name: week_of_year
         type: number
+        descriptions:
+          ai: ISO or standard week number within the calendar year.
       - name: fiscal_year
         type: number
+        descriptions:
+          ai: Four-digit fiscal year the date belongs to.
       - name: fiscal_quarter
         type: number
+        descriptions:
+          ai: Quarter number (1–4) within the fiscal year.
       - name: fiscal_month
         type: number
+        descriptions:
+          ai: Month number (1–12) within the fiscal year.
       - name: fiscal_day_of_year
         type: number
+        descriptions:
+          ai: Sequential day number within the fiscal year.
       - name: weekday_weekend
         type: string
+        descriptions:
+          ai: Indicates whether the date falls on a Weekday or Weekend.
       - name: calendar_year_alt_display
         type: string
+        descriptions:
+          ai: Short display label for calendar year, e.g., CY23.
       - name: fiscal_year_alt_display
         type: string
+        descriptions:
+          ai: Short display label for fiscal year, e.g., FY23.
       - name: fiscal_quarter_alt_display
         type: string
+        descriptions:
+          ai: Short display label for fiscal quarter, e.g., Q1.
+    descriptions:
+      ai: Date dimension table providing calendar and fiscal date attributes for time-based reporting and analysis.
   er_wait_time:
     table: oh-data-warehouse.gold.er_wait_time
     columns:
       - name: EmergencyDepartment
         type: string
+        descriptions:
+          ai: Full name of the Orlando Health emergency room facility.
       - name: AvgWaitTime
         type: string
+        descriptions:
+          ai: Average patient wait time displayed as a formatted string with minutes.
       - name: RecentWaitTime
         type: number
+        descriptions:
+          ai: Most recent wait time in minutes as a numeric value.
       - name: MapLink
         type: string
+        descriptions:
+          ai: Google Maps directions URL to the emergency department location.
       - name: LastUpdated
         type: string
+        descriptions:
+          ai: Timestamp indicating when the wait time data was last refreshed.
+    descriptions:
+      ai: Tracks real-time emergency department wait times across Orlando Health hospital locations in Florida.
   er_wait_time_mockup:
     table: oh-data-warehouse.gold.er_wait_time_mockup
     columns:
       - name: EmergencyDepartment
         type: string
+        descriptions:
+          ai: Name or identifier of the hospital emergency department facility.
       - name: AvgWaitTime
         type: string
+        descriptions:
+          ai: Historical average patient wait time, likely formatted as a duration string.
       - name: RecentWaitTime
         type: number
+        descriptions:
+          ai: Most recent recorded wait time in minutes for the emergency department.
       - name: MapLink
         type: string
+        descriptions:
+          ai: URL linking to the geographic location of the emergency department.
       - name: LastUpdated
         type: string
+        descriptions:
+          ai: Timestamp or date string indicating when wait time data was refreshed.
+    descriptions:
+      ai: Tracks emergency department wait times and location info for hospital triage and patient routing decisions.
   sample_flat_ad_fact:
     table: oh-data-warehouse.gold.sample_flat_ad_fact
     columns:
       - name: ad_platform
         type: string
+        descriptions:
+          ai: Advertising platform where the ad ran, e.g., Google Ads.
       - name: ad_id
         type: number
+        descriptions:
+          ai: Unique identifier for the individual ad creative.
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group containing the ad.
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Identifier for the campaign containing the ad group.
       - name: account_id
         type: number
+        descriptions:
+          ai: Identifier for the advertiser account.
       - name: entity_key
         type: string
+        descriptions:
+          ai: Unique UUID linking the row to an internal entity record.
       - name: active_view_impressions
         type: number
+        descriptions:
+          ai: Impressions measured as viewable by Active View standard.
       - name: clicks
         type: number
+        descriptions:
+          ai: Total clicks recorded on the ad.
       - name: micro_conversions
         type: number
+        descriptions:
+          ai: Count of lower-funnel conversion actions tracked.
       - name: micro_conversions_value
         type: number
+        descriptions:
+          ai: Monetary value attributed to micro conversions.
       - name: cost
         type: number
+        descriptions:
+          ai: Total ad spend in account currency.
       - name: gmail_forwards
         type: number
+        descriptions:
+          ai: Number of times a Gmail ad was forwarded.
       - name: gmail_saves
         type: number
+        descriptions:
+          ai: Number of times a Gmail ad was saved.
       - name: gmail_secondary_click
         type: number
+        descriptions:
+          ai: Clicks on expanded Gmail ad content.
       - name: impressions
         type: number
+        descriptions:
+          ai: Total times the ad was shown to users.
       - name: interaction_event_types
         type: string
+        descriptions:
+          ai: List of interaction types recorded, e.g., CLICK.
       - name: interactions
         type: number
+        descriptions:
+          ai: Total user interactions with the ad.
       - name: ad_network_type
         type: string
+        descriptions:
+          ai: Network where ad served, e.g., SEARCH or SEARCH_PARTNERS.
       - name: click_type
         type: string
+        descriptions:
+          ai: Type of click recorded, e.g., URL_CLICKS, CALLS, SITELINKS.
       - name: date
         type: time
+        descriptions:
+          ai: Calendar date of the performance data.
       - name: device
         type: string
+        descriptions:
+          ai: Device category of the user, e.g., MOBILE, DESKTOP, TABLET.
       - name: Hierarchy_L1
         type: string
+        descriptions:
+          ai: Top-level organizational entity, e.g., health system name.
       - name: Hierarchy_L2
         type: string
+        descriptions:
+          ai: Second organizational level, typically geographic region.
       - name: Hierarchy_L3
         type: string
+        descriptions:
+          ai: Third organizational level, typically health network brand.
       - name: Hierarchy_L4
         type: string
+        descriptions:
+          ai: Fourth level representing a service line or department.
       - name: Hierarchy_L5
         type: string
+        descriptions:
+          ai: Fifth level representing a specific facility or program.
       - name: Hierarchy_L6
         type: string
+        descriptions:
+          ai: Sixth level representing a sub-specialty or service within a facility.
+    descriptions:
+      ai: Daily ad performance metrics from Google Ads, segmented by ad, device, network, and organizational hierarchy.
