@@ -1,0 +1,1138 @@
+tables:
+  campaign_conversion_optimizer_eligibility_history:
+    table: oh-data-warehouse.adwords_orlando_health.campaign_conversion_optimizer_eligibility_history
+    columns:
+      - name: campaign_id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: is_eligible
+        type: boolean
+      - name: rejection_reason
+        type: string
+  campaign_criterion_history:
+    table: oh-data-warehouse.adwords_orlando_health.campaign_criterion_history
+    columns:
+      - name: campaign_id
+        type: number
+      - name: id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: ad_schedule_day_of_week
+        type: string
+      - name: ad_schedule_end_hour
+        type: number
+      - name: ad_schedule_end_minute
+        type: string
+      - name: ad_schedule_start_hour
+        type: number
+      - name: ad_schedule_start_minute
+        type: string
+      - name: age_range_type
+        type: string
+      - name: base_campaign_id
+        type: number
+      - name: bid_modifier
+        type: number
+      - name: campaign_criterion_status
+        type: string
+      - name: campaign_criterion_type
+        type: string
+      - name: carrier_country_code
+        type: string
+      - name: carrier_name
+        type: string
+      - name: content_label_type
+        type: string
+      - name: criterion_type
+        type: string
+      - name: gender_type
+        type: string
+      - name: income_range_type
+        type: string
+      - name: ip_block_ip_address
+        type: string
+      - name: is_negative
+        type: boolean
+      - name: keyword_match_type
+        type: string
+      - name: keyword_text
+        type: string
+      - name: language_code
+        type: string
+      - name: language_name
+        type: string
+      - name: location_display_type
+        type: string
+      - name: location_name
+        type: string
+      - name: location_parent_locations
+        type: string
+      - name: location_targeting_status
+        type: string
+      - name: mobile_app_category_id
+        type: number
+      - name: mobile_app_display_name
+        type: string
+      - name: mobile_application_app_id
+        type: string
+      - name: mobile_application_display_name
+        type: string
+      - name: mobile_device_manufacturer_name
+        type: string
+      - name: mobile_device_name
+        type: string
+      - name: mobile_device_operating_system_name
+        type: string
+      - name: mobile_device_type
+        type: string
+      - name: operating_system_name
+        type: string
+      - name: operating_system_operator_type
+        type: string
+      - name: operating_system_os_major_version
+        type: number
+      - name: operating_system_os_minor_version
+        type: number
+      - name: parent_type
+        type: string
+      - name: placement_url
+        type: string
+      - name: platform_name
+        type: string
+      - name: proximity_address_street_address
+        type: string
+      - name: proximity_address_street_address_2
+        type: string
+      - name: proximity_city_name
+        type: string
+      - name: proximity_country_code
+        type: string
+      - name: proximity_geo_point_latitude_in_micro_degrees
+        type: number
+      - name: proximity_geo_point_longitude_in_micro_degrees
+        type: number
+      - name: proximity_postal_code
+        type: string
+      - name: proximity_province_code
+        type: string
+      - name: proximity_province_name
+        type: string
+      - name: proximity_radius_distance_units
+        type: string
+      - name: proximity_radius_in_units
+        type: number
+      - name: user_interest_id
+        type: number
+      - name: user_interest_name
+        type: string
+      - name: user_interest_parent_id
+        type: number
+      - name: user_list_eligible_for_display
+        type: boolean
+      - name: user_list_eligible_for_search
+        type: boolean
+      - name: user_list_id
+        type: number
+      - name: user_list_membership_status
+        type: string
+      - name: user_list_name
+        type: string
+      - name: vertical_id
+        type: number
+      - name: vertical_parent_id
+        type: number
+      - name: vertical_path
+        type: string
+      - name: youtube_channel_id
+        type: string
+      - name: youtube_channel_name
+        type: string
+      - name: youtube_video_id
+        type: string
+      - name: youtube_video_name
+        type: string
+  campaign_geo_target_type_setting_history:
+    table: oh-data-warehouse.adwords_orlando_health.campaign_geo_target_type_setting_history
+    columns:
+      - name: campaign_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: negative_geo_target_type
+        type: string
+      - name: positive_geo_target_type
+        type: string
+  campaign_history:
+    table: oh-data-warehouse.adwords_orlando_health.campaign_history
+    columns:
+      - name: id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: ad_serving_optimization_status
+        type: string
+      - name: advertising_channel_subtype
+        type: string
+      - name: advertising_channel_type
+        type: string
+      - name: base_campaign_id
+        type: number
+      - name: bidding_strategy_bid_ceiling
+        type: number
+      - name: bidding_strategy_bid_changes_for_raises_only
+        type: boolean
+      - name: bidding_strategy_bid_floor
+        type: number
+      - name: bidding_strategy_bid_modifier
+        type: number
+      - name: bidding_strategy_competitor_domain
+        type: string
+      - name: bidding_strategy_cpa_bid_amount
+        type: number
+      - name: bidding_strategy_cpc_bid_amount
+        type: number
+      - name: bidding_strategy_cpm_bid_amount
+        type: number
+      - name: bidding_strategy_enhanced_cpc_enabled
+        type: boolean
+      - name: bidding_strategy_id
+        type: number
+      - name: bidding_strategy_max_cpc_bid_ceiling
+        type: number
+      - name: bidding_strategy_max_cpc_bid_floor
+        type: number
+      - name: bidding_strategy_name
+        type: string
+      - name: bidding_strategy_raise_bid_when_budget_constrained
+        type: boolean
+      - name: bidding_strategy_raise_bid_when_low_quality_score
+        type: boolean
+      - name: bidding_strategy_scheme_type
+        type: string
+      - name: bidding_strategy_source
+        type: string
+      - name: bidding_strategy_spend_target
+        type: number
+      - name: bidding_strategy_strategy_goal
+        type: string
+      - name: bidding_strategy_target_cpa
+        type: number
+      - name: bidding_strategy_target_outrank_share
+        type: number
+      - name: bidding_strategy_target_roas
+        type: number
+      - name: bidding_strategy_target_roas_override
+        type: number
+      - name: bidding_strategy_type
+        type: string
+      - name: bidding_strategy_viewable_cpm_enabled
+        type: boolean
+      - name: campaign_group_id
+        type: number
+      - name: campaign_trial_type
+        type: string
+      - name: customer_id
+        type: number
+      - name: end_date
+        type: string
+      - name: final_url_suffix
+        type: string
+      - name: frequency_cap_impressions
+        type: number
+      - name: frequency_cap_level
+        type: string
+      - name: frequency_cap_time_unit
+        type: string
+      - name: name
+        type: string
+      - name: network_setting_target_content_network
+        type: boolean
+      - name: network_setting_target_google_search
+        type: boolean
+      - name: network_setting_target_partner_search_network
+        type: boolean
+      - name: network_setting_target_search_network
+        type: boolean
+      - name: serving_status
+        type: string
+      - name: start_date
+        type: string
+      - name: status
+        type: string
+      - name: tracking_url_template
+        type: string
+      - name: vanity_pharma_display_url_mode
+        type: string
+      - name: vanity_pharma_text
+        type: string
+  campaign_label_history:
+    table: oh-data-warehouse.adwords_orlando_health.campaign_label_history
+    columns:
+      - name: campaign_id
+        type: number
+      - name: label_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+  campaign_targeting_setting_history:
+    table: oh-data-warehouse.adwords_orlando_health.campaign_targeting_setting_history
+    columns:
+      - name: campaign_id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: criterion_type_group
+        type: string
+      - name: target_all
+        type: boolean
+  account:
+    table: oh-data-warehouse.adwords_orlando_health.account
+    columns:
+      - name: id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: _fivetran_synced
+        type: time
+      - name: account_label_id
+        type: number
+      - name: account_label_name
+        type: string
+      - name: can_manage_clients
+        type: boolean
+      - name: currency_code
+        type: string
+      - name: date_timezone
+        type: string
+      - name: manager_customer_id
+        type: number
+      - name: name
+        type: string
+      - name: test_account
+        type: boolean
+  ad_group_criterion_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_group_criterion_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: ad_group_criterion_type
+        type: string
+      - name: age_range_type
+        type: string
+      - name: app_id
+        type: string
+      - name: app_payment_model_type
+        type: string
+      - name: approval_status
+        type: string
+      - name: base_adgroup_id
+        type: number
+      - name: base_campaign_id
+        type: number
+      - name: bid_modifier
+        type: number
+      - name: bidding_strategy_bid_ceiling
+        type: number
+      - name: bidding_strategy_bid_changes_for_raises_only
+        type: boolean
+      - name: bidding_strategy_bid_floor
+        type: number
+      - name: bidding_strategy_bid_modifier
+        type: number
+      - name: bidding_strategy_competitor_domain
+        type: string
+      - name: bidding_strategy_cpa_bid_amount
+        type: number
+      - name: bidding_strategy_cpc_bid_amount
+        type: number
+      - name: bidding_strategy_cpm_bid_amount
+        type: number
+      - name: bidding_strategy_enhanced_cpc_enabled
+        type: boolean
+      - name: bidding_strategy_id
+        type: number
+      - name: bidding_strategy_max_cpc_bid_ceiling
+        type: number
+      - name: bidding_strategy_max_cpc_bid_floor
+        type: number
+      - name: bidding_strategy_name
+        type: string
+      - name: bidding_strategy_raise_bid_when_budget_constrained
+        type: boolean
+      - name: bidding_strategy_raise_bid_when_low_quality_score
+        type: boolean
+      - name: bidding_strategy_scheme_type
+        type: string
+      - name: bidding_strategy_source
+        type: string
+      - name: bidding_strategy_spend_target
+        type: number
+      - name: bidding_strategy_strategy_goal
+        type: string
+      - name: bidding_strategy_target_cpa
+        type: number
+      - name: bidding_strategy_target_outrank_share
+        type: number
+      - name: bidding_strategy_target_roas
+        type: number
+      - name: bidding_strategy_target_roas_override
+        type: number
+      - name: bidding_strategy_type
+        type: string
+      - name: bidding_strategy_viewable_cpm_enabled
+        type: boolean
+      - name: channel_exclusivity
+        type: string
+      - name: channel_id
+        type: string
+      - name: channel_name
+        type: string
+      - name: criterion_use
+        type: string
+      - name: custom_affinity_id
+        type: number
+      - name: custom_intent_id
+        type: number
+      - name: first_page_cpc
+        type: number
+      - name: first_position_cpc
+        type: number
+      - name: gender_type
+        type: string
+      - name: income_range_type
+        type: string
+      - name: keyword_match_type
+        type: string
+      - name: keyword_text
+        type: string
+      - name: mobile_app_category_display_name
+        type: string
+      - name: mobile_app_category_id
+        type: number
+      - name: mobile_application_display_name
+        type: string
+      - name: parent_criterion_id
+        type: number
+      - name: parent_type
+        type: string
+      - name: partition_type
+        type: string
+      - name: placement_url
+        type: string
+      - name: product_adwords_grouping
+        type: string
+      - name: product_adwords_label
+        type: string
+      - name: product_bidding_category_type
+        type: string
+      - name: product_bidding_category_value
+        type: number
+      - name: product_brand_value
+        type: string
+      - name: product_canonical_condition
+        type: string
+      - name: product_channel
+        type: string
+      - name: product_custom_attribute_type
+        type: string
+      - name: product_custom_attribute_value
+        type: string
+      - name: product_legacy_condition
+        type: string
+      - name: product_offer_id
+        type: string
+      - name: product_type
+        type: string
+      - name: product_type_full
+        type: string
+      - name: product_type_value
+        type: string
+      - name: quality_info_score
+        type: number
+      - name: system_serving_status
+        type: string
+      - name: top_of_page_cpc
+        type: number
+      - name: tracking_url_template
+        type: string
+      - name: user_interest_id
+        type: number
+      - name: user_interest_name
+        type: string
+      - name: user_interest_parent_id
+        type: number
+      - name: user_list_eligible_for_display
+        type: boolean
+      - name: user_list_eligible_for_search
+        type: boolean
+      - name: user_list_id
+        type: number
+      - name: user_list_membership_status
+        type: string
+      - name: user_list_name
+        type: string
+      - name: user_status
+        type: string
+      - name: vertical_id
+        type: number
+      - name: vertical_parent_id
+        type: number
+      - name: vertical_path
+        type: string
+      - name: video_id
+        type: string
+      - name: video_name
+        type: string
+  ad_group_criterion_label_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_group_criterion_label_history
+    columns:
+      - name: ad_group_criterion_id
+        type: number
+      - name: ad_group_id
+        type: number
+      - name: label_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+  ad_group_explorer_auto_optimizer_setting_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_group_explorer_auto_optimizer_setting_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: opt_in
+        type: boolean
+  ad_group_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_group_history
+    columns:
+      - name: id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: ad_group_rotation_mode
+        type: string
+      - name: ad_group_type
+        type: string
+      - name: base_ad_group_id
+        type: number
+      - name: base_campaign_id
+        type: number
+      - name: bidding_strategy_bid_ceiling
+        type: number
+      - name: bidding_strategy_bid_changes_for_raises_only
+        type: boolean
+      - name: bidding_strategy_bid_floor
+        type: number
+      - name: bidding_strategy_bid_modifier
+        type: number
+      - name: bidding_strategy_competitor_domain
+        type: string
+      - name: bidding_strategy_cpa_bid_amount
+        type: number
+      - name: bidding_strategy_cpc_bid_amount
+        type: number
+      - name: bidding_strategy_cpm_bid_amount
+        type: number
+      - name: bidding_strategy_enhanced_cpc_enabled
+        type: boolean
+      - name: bidding_strategy_id
+        type: number
+      - name: bidding_strategy_max_cpc_bid_ceiling
+        type: number
+      - name: bidding_strategy_max_cpc_bid_floor
+        type: number
+      - name: bidding_strategy_name
+        type: string
+      - name: bidding_strategy_raise_bid_when_budget_constrained
+        type: boolean
+      - name: bidding_strategy_raise_bid_when_low_quality_score
+        type: boolean
+      - name: bidding_strategy_scheme_type
+        type: string
+      - name: bidding_strategy_source
+        type: string
+      - name: bidding_strategy_spend_target
+        type: number
+      - name: bidding_strategy_strategy_goal
+        type: string
+      - name: bidding_strategy_target_cpa
+        type: number
+      - name: bidding_strategy_target_outrank_share
+        type: number
+      - name: bidding_strategy_target_roas
+        type: number
+      - name: bidding_strategy_target_roas_override
+        type: number
+      - name: bidding_strategy_type
+        type: string
+      - name: bidding_strategy_viewable_cpm_enabled
+        type: boolean
+      - name: campaign_id
+        type: number
+      - name: campaign_name
+        type: string
+      - name: content_bid_criterion_type_group
+        type: string
+      - name: final_url_suffix
+        type: string
+      - name: name
+        type: string
+      - name: status
+        type: string
+      - name: tracking_url_template
+        type: string
+  ad_group_label_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_group_label_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: label_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+  ad_group_targeting_setting_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_group_targeting_setting_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: criterion_type_group
+        type: string
+      - name: target_all
+        type: boolean
+  ad_final_mobile_url_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_final_mobile_url_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: ad_id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: url
+        type: string
+  ad_final_url_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_final_url_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: ad_id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: url
+        type: string
+  ad_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: ad_type
+        type: string
+      - name: automated
+        type: boolean
+      - name: base_adgroup_id
+        type: number
+      - name: base_campaign_id
+        type: number
+      - name: device_preference
+        type: number
+      - name: display_url
+        type: string
+      - name: final_url_suffix
+        type: string
+      - name: policy_summary_combined_approval_status
+        type: string
+      - name: policy_summary_denormalized_status
+        type: string
+      - name: policy_summary_review_state
+        type: string
+      - name: status
+        type: string
+      - name: system_managed_entity_source
+        type: string
+      - name: tracking_url_template
+        type: string
+      - name: url
+        type: string
+  ad_label_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_label_history
+    columns:
+      - name: ad_id
+        type: number
+      - name: label_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+  ad_stats:
+    table: oh-data-warehouse.adwords_orlando_health.ad_stats
+    columns:
+      - name: _fivetran_id
+        type: string
+      - name: customer_id
+        type: number
+      - name: date
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: active_view_impressions
+        type: number
+      - name: active_view_measurability
+        type: number
+      - name: active_view_measurable_cost
+        type: number
+      - name: active_view_measurable_impressions
+        type: number
+      - name: active_view_viewability
+        type: number
+      - name: ad_group_id
+        type: number
+      - name: ad_network_type_1
+        type: string
+      - name: ad_network_type_2
+        type: string
+      - name: base_ad_group_id
+        type: number
+      - name: base_campaign_id
+        type: number
+      - name: campaign_id
+        type: number
+      - name: clicks
+        type: number
+      - name: conversion_value
+        type: number
+      - name: conversions
+        type: number
+      - name: cost
+        type: number
+      - name: criterion_id
+        type: number
+      - name: criterion_type
+        type: string
+      - name: device
+        type: string
+      - name: external_customer_id
+        type: number
+      - name: id
+        type: number
+      - name: impressions
+        type: number
+      - name: interaction_types
+        type: string
+      - name: interactions
+        type: number
+      - name: is_negative
+        type: string
+      - name: slot
+        type: string
+      - name: view_through_conversions
+        type: number
+  ad_policy_constraint_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_policy_constraint_history
+    columns:
+      - name: policy_topic_ad_group_id
+        type: number
+      - name: policy_topic_ad_id
+        type: number
+      - name: policy_topic_sequence_id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: constrained_countries
+        type: string
+      - name: constraint_type
+        type: string
+      - name: total_targeted_countries
+        type: number
+  ad_policy_evidence_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_policy_evidence_history
+    columns:
+      - name: policy_topic_ad_group_id
+        type: number
+      - name: policy_topic_ad_id
+        type: number
+      - name: policy_topic_sequence_id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: evidence_text_list
+        type: string
+      - name: policy_type_evidence_type
+        type: string
+  ad_policy_topic_history:
+    table: oh-data-warehouse.adwords_orlando_health.ad_policy_topic_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: ad_id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: policy_topic_entry_type
+        type: string
+      - name: policy_topic_help_center_url
+        type: string
+      - name: policy_topic_id
+        type: string
+      - name: policy_topic_name
+        type: string
+  budget_history:
+    table: oh-data-warehouse.adwords_orlando_health.budget_history
+    columns:
+      - name: campaign_id
+        type: number
+      - name: id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: amount
+        type: number
+      - name: delivery_method
+        type: string
+      - name: is_explicitly_shared
+        type: boolean
+      - name: name
+        type: string
+      - name: reference_count
+        type: number
+      - name: status
+        type: string
+  disapproval_reason_history:
+    table: oh-data-warehouse.adwords_orlando_health.disapproval_reason_history
+    columns:
+      - name: ad_group_criterion_id
+        type: number
+      - name: ad_group_id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: disapproval_reason
+        type: string
+  dynamic_search_ad_history:
+    table: oh-data-warehouse.adwords_orlando_health.dynamic_search_ad_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: ad_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: description_1
+        type: string
+      - name: description_2
+        type: string
+  expanded_text_ad_history:
+    table: oh-data-warehouse.adwords_orlando_health.expanded_text_ad_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: ad_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: description
+        type: string
+      - name: description_2
+        type: string
+      - name: head_line_part_1
+        type: string
+      - name: head_line_part_2
+        type: string
+      - name: head_line_part_3
+        type: string
+      - name: path_1
+        type: string
+      - name: path_2
+        type: string
+  fivetran_audit:
+    table: oh-data-warehouse.adwords_orlando_health.fivetran_audit
+    columns:
+      - name: id
+        type: string
+      - name: _fivetran_synced
+        type: time
+      - name: done
+        type: time
+      - name: message
+        type: string
+      - name: progress
+        type: time
+      - name: rows_updated_or_inserted
+        type: number
+      - name: schema
+        type: string
+      - name: start
+        type: time
+      - name: status
+        type: string
+      - name: table
+        type: string
+      - name: update_id
+        type: string
+      - name: update_started
+        type: time
+  final_url_history:
+    table: oh-data-warehouse.adwords_orlando_health.final_url_history
+    columns:
+      - name: ad_group_criterion_id
+        type: number
+      - name: ad_group_id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: url
+        type: string
+  keyword_stats:
+    table: oh-data-warehouse.adwords_orlando_health.keyword_stats
+    columns:
+      - name: _fivetran_id
+        type: string
+      - name: customer_id
+        type: number
+      - name: date
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: active_view_impressions
+        type: number
+      - name: active_view_measurability
+        type: number
+      - name: active_view_measurable_cost
+        type: number
+      - name: active_view_measurable_impressions
+        type: number
+      - name: active_view_viewability
+        type: number
+      - name: ad_group_id
+        type: number
+      - name: ad_network_type_1
+        type: string
+      - name: ad_network_type_2
+        type: string
+      - name: base_ad_group_id
+        type: number
+      - name: base_campaign_id
+        type: number
+      - name: campaign_id
+        type: number
+      - name: clicks
+        type: number
+      - name: conversion_value
+        type: number
+      - name: conversions
+        type: number
+      - name: cost
+        type: number
+      - name: device
+        type: string
+      - name: external_customer_id
+        type: number
+      - name: id
+        type: number
+      - name: impressions
+        type: number
+      - name: interaction_types
+        type: string
+      - name: interactions
+        type: number
+      - name: slot
+        type: string
+      - name: view_through_conversions
+        type: number
+  image_ad_history:
+    table: oh-data-warehouse.adwords_orlando_health.image_ad_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: ad_id
+        type: number
+      - name: sequence_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: image_creation_time
+        type: string
+      - name: image_dimensions_height
+        type: number
+      - name: image_dimensions_key
+        type: string
+      - name: image_dimensions_width
+        type: number
+      - name: image_file_size
+        type: number
+      - name: image_media_id
+        type: number
+      - name: image_mime_type
+        type: string
+      - name: image_name
+        type: string
+      - name: image_reference_id
+        type: number
+      - name: image_source_url
+        type: string
+      - name: image_type
+        type: string
+      - name: image_urls_key
+        type: string
+      - name: image_urls_value
+        type: string
+      - name: name
+        type: string
+  location:
+    table: oh-data-warehouse.adwords_orlando_health.location
+    columns:
+      - name: campaign_id
+        type: number
+      - name: id
+        type: number
+      - name: parent_location
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: display_type
+        type: string
+      - name: name
+        type: string
+      - name: targeting_status
+        type: string
+  label:
+    table: oh-data-warehouse.adwords_orlando_health.label
+    columns:
+      - name: id
+        type: number
+      - name: _fivetran_synced
+        type: time
+      - name: attribute_background_color
+        type: string
+      - name: attribute_description
+        type: string
+      - name: attribute_type
+        type: string
+      - name: label_type
+        type: string
+      - name: name
+        type: string
+      - name: status
+        type: string
+  text_ad_history:
+    table: oh-data-warehouse.adwords_orlando_health.text_ad_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: ad_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: description_1
+        type: string
+      - name: description_2
+        type: string
+      - name: headline
+        type: string
+  template_ad_history:
+    table: oh-data-warehouse.adwords_orlando_health.template_ad_history
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: ad_id
+        type: number
+      - name: updated_at
+        type: time
+      - name: _fivetran_synced
+        type: time
+      - name: ad_union_id
+        type: number
+      - name: duration
+        type: number
+      - name: name
+        type: string
+      - name: origin_ad_id
+        type: number
+      - name: template_id
+        type: number
