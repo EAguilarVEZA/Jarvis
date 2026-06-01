@@ -1,0 +1,1103 @@
+tables:
+  campaign_dim_ad:
+    table: oh-data-warehouse.gold.campaign_dim_ad
+    columns:
+      - name: ad_id
+        type: number
+      - name: ad_group_id
+        type: number
+      - name: campaign_id
+        type: number
+      - name: customer_id
+        type: number
+      - name: ad_group_ad_ad_added_by_google_ads
+        type: boolean
+      - name: ad_group_ad_ad_app_ad_descriptions
+        type: string
+      - name: ad_group_ad_ad_app_ad_headlines
+        type: string
+      - name: ad_group_ad_ad_app_ad_html5_media_bundles
+        type: string
+      - name: ad_group_ad_ad_app_ad_images
+        type: string
+      - name: ad_group_ad_ad_app_ad_mandatory_ad_text
+        type: string
+      - name: ad_group_ad_ad_app_ad_youtube_videos
+        type: string
+      - name: ad_group_ad_ad_call_ad_phone_number
+        type: string
+      - name: ad_group_ad_ad_device_preference
+        type: string
+      - name: ad_group_ad_ad_display_url
+        type: string
+      - name: ad_group_ad_ad_expanded_dynamic_search_ad_description
+        type: string
+      - name: ad_group_ad_ad_expanded_dynamic_search_ad_description2
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_description
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_description2
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_headline_part1
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_headline_part2
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_headline_part3
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_path1
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_path2
+        type: string
+      - name: ad_group_ad_ad_final_app_urls
+        type: string
+      - name: ad_group_ad_ad_final_mobile_urls
+        type: string
+      - name: ad_group_ad_ad_final_urls
+        type: string
+      - name: ad_group_ad_ad_group
+        type: string
+      - name: ad_group_ad_ad_image_ad_image_url
+        type: string
+      - name: ad_group_ad_ad_image_ad_mime_type
+        type: string
+      - name: ad_group_ad_ad_image_ad_name
+        type: string
+      - name: ad_group_ad_ad_image_ad_pixel_height
+        type: number
+      - name: ad_group_ad_ad_image_ad_pixel_width
+        type: number
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_accent_color
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_allow_flexible_color
+        type: boolean
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_business_name
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_call_to_action_text
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_description
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_format_setting
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_logo_image
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_long_headline
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_main_color
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_marketing_image
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_price_prefix
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_promo_text
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_short_headline
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_square_logo_image
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_square_marketing_image
+        type: string
+      - name: ad_group_ad_ad_name
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_accent_color
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_business_name
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_call_to_action_text
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_descriptions
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_format_setting
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_headlines
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_logo_images
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_long_headline
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_main_color
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_marketing_images
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_price_prefix
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_promo_text
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_square_logo_images
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_square_marketing_images
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_youtube_videos
+        type: string
+      - name: ad_group_ad_ad_responsive_search_ad_descriptions
+        type: string
+      - name: ad_group_ad_ad_responsive_search_ad_headlines
+        type: string
+      - name: ad_group_ad_ad_responsive_search_ad_path1
+        type: string
+      - name: ad_group_ad_ad_responsive_search_ad_path2
+        type: string
+      - name: ad_group_ad_ad_strength
+        type: string
+      - name: ad_group_ad_ad_system_managed_resource_source
+        type: string
+      - name: ad_group_ad_ad_text_ad_description1
+        type: string
+      - name: ad_group_ad_ad_text_ad_description2
+        type: string
+      - name: ad_group_ad_ad_text_ad_headline
+        type: string
+      - name: ad_group_ad_ad_tracking_url_template
+        type: string
+      - name: ad_group_ad_ad_type
+        type: string
+      - name: ad_group_ad_ad_url_custom_parameters
+        type: string
+      - name: ad_group_ad_policy_summary_approval_status
+        type: string
+      - name: ad_group_ad_status
+        type: string
+  campaign_dim_adgroup:
+    table: oh-data-warehouse.gold.campaign_dim_adgroup
+    columns:
+      - name: ad_group_id
+        type: number
+      - name: campaign_id
+        type: number
+      - name: customer_id
+        type: number
+      - name: ad_group_ad_rotation_mode
+        type: string
+      - name: ad_group_cpc_bid_micros
+        type: number
+      - name: ad_group_cpm_bid_micros
+        type: number
+      - name: ad_group_cpv_bid_micros
+        type: number
+      - name: ad_group_display_custom_bid_dimension
+        type: string
+      - name: ad_group_effective_target_cpa_micros
+        type: number
+      - name: ad_group_effective_target_cpa_source
+        type: string
+      - name: ad_group_effective_target_roas
+        type: number
+      - name: ad_group_effective_target_roas_source
+        type: string
+      - name: ad_group_name
+        type: string
+      - name: ad_group_status
+        type: string
+      - name: ad_group_tracking_url_template
+        type: string
+      - name: ad_group_type
+        type: string
+      - name: ad_group_url_custom_parameters
+        type: string
+      - name: campaign_bidding_strategy
+        type: string
+      - name: campaign_bidding_strategy_type
+        type: string
+      - name: campaign_manual_cpc_enhanced_cpc_enabled
+        type: boolean
+      - name: campaign_percent_cpc_enhanced_cpc_enabled
+        type: boolean
+  campaign_dim_customer:
+    table: oh-data-warehouse.gold.campaign_dim_customer
+    columns:
+      - name: customer_id
+        type: number
+      - name: customer_auto_tagging_enabled
+        type: boolean
+      - name: customer_currency_code
+        type: string
+      - name: customer_descriptive_name
+        type: string
+      - name: customer_manager
+        type: boolean
+      - name: customer_test_account
+        type: boolean
+      - name: customer_time_zone
+        type: string
+  campaign_dim_campaign:
+    table: oh-data-warehouse.gold.campaign_dim_campaign
+    columns:
+      - name: campaign_id
+        type: number
+      - name: customer_id
+        type: number
+      - name: entity_key
+        type: string
+      - name: bidding_strategy_name
+        type: string
+      - name: campaign_advertising_channel_sub_type
+        type: string
+      - name: campaign_advertising_channel_type
+        type: string
+      - name: campaign_bidding_strategy
+        type: string
+      - name: campaign_bidding_strategy_type
+        type: string
+      - name: campaign_budget_amount_micros
+        type: number
+      - name: campaign_budget_explicitly_shared
+        type: boolean
+      - name: campaign_budget_has_recommended_budget
+        type: boolean
+      - name: campaign_budget_period
+        type: string
+      - name: campaign_budget_recommended_budget_amount_micros
+        type: number
+      - name: campaign_budget_total_amount_micros
+        type: number
+      - name: campaign_campaign_budget
+        type: string
+      - name: campaign_end_date
+        type: time
+      - name: campaign_experiment_type
+        type: string
+      - name: campaign_manual_cpc_enhanced_cpc_enabled
+        type: boolean
+      - name: campaign_maximize_conversion_value_target_roas
+        type: number
+      - name: campaign_name
+        type: string
+      - name: campaign_percent_cpc_enhanced_cpc_enabled
+        type: boolean
+      - name: campaign_serving_status
+        type: string
+      - name: campaign_start_date
+        type: time
+      - name: campaign_status
+        type: string
+      - name: campaign_tracking_url_template
+        type: string
+      - name: campaign_url_custom_parameters
+        type: string
+      - name: parsed_service_line
+        type: string
+      - name: parsed_sub_specialty
+        type: string
+  campaign_fact_ads:
+    table: oh-data-warehouse.gold.campaign_fact_ads
+    columns:
+      - name: ad_id
+        type: number
+      - name: ad_group_id
+        type: number
+      - name: campaign_id
+        type: number
+      - name: customer_id
+        type: number
+      - name: entity_key
+        type: string
+      - name: active_view_impressions
+        type: number
+      - name: clicks
+        type: number
+      - name: micro_conversions
+        type: number
+      - name: micro_conversions_value
+        type: number
+      - name: cost
+        type: number
+      - name: gmail_forwards
+        type: number
+      - name: gmail_saves
+        type: number
+      - name: gmail_secondary_click
+        type: number
+      - name: impressions
+        type: number
+      - name: interaction_event_types
+        type: string
+      - name: interactions
+        type: number
+      - name: ad_network_type
+        type: string
+      - name: click_type
+        type: string
+      - name: date
+        type: time
+      - name: device
+        type: string
+  campaign_summary_ad_networks:
+    table: oh-data-warehouse.gold.campaign_summary_ad_networks
+    columns:
+      - name: date
+        type: time
+      - name: entity_key
+        type: string
+      - name: ad_network_type
+        type: string
+      - name: cost
+        type: number
+      - name: impressions
+        type: number
+      - name: clicks
+        type: number
+  ad_dim_account:
+    table: oh-data-warehouse.gold.ad_dim_account
+    columns:
+      - name: ad_platform
+        type: string
+      - name: account_id
+        type: number
+      - name: customer_auto_tagging_enabled
+        type: boolean
+      - name: customer_currency_code
+        type: string
+      - name: customer_descriptive_name
+        type: string
+      - name: customer_manager
+        type: boolean
+      - name: customer_test_account
+        type: boolean
+      - name: customer_time_zone
+        type: string
+  ad_dim_ad:
+    table: oh-data-warehouse.gold.ad_dim_ad
+    columns:
+      - name: ad_platform
+        type: string
+      - name: ad_id
+        type: number
+      - name: ad_group_id
+        type: number
+      - name: campaign_id
+        type: number
+      - name: account_id
+        type: number
+      - name: ad_group_ad_ad_added_by_google_ads
+        type: boolean
+      - name: ad_group_ad_ad_app_ad_descriptions
+        type: string
+      - name: ad_group_ad_ad_app_ad_headlines
+        type: string
+      - name: ad_group_ad_ad_app_ad_html5_media_bundles
+        type: string
+      - name: ad_group_ad_ad_app_ad_images
+        type: string
+      - name: ad_group_ad_ad_app_ad_mandatory_ad_text
+        type: string
+      - name: ad_group_ad_ad_app_ad_youtube_videos
+        type: string
+      - name: ad_group_ad_ad_call_ad_phone_number
+        type: string
+      - name: ad_group_ad_ad_device_preference
+        type: string
+      - name: ad_group_ad_ad_display_url
+        type: string
+      - name: ad_group_ad_ad_expanded_dynamic_search_ad_description
+        type: string
+      - name: ad_group_ad_ad_expanded_dynamic_search_ad_description2
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_description
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_description2
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_headline_part1
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_headline_part2
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_headline_part3
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_path1
+        type: string
+      - name: ad_group_ad_ad_expanded_text_ad_path2
+        type: string
+      - name: ad_group_ad_ad_final_app_urls
+        type: string
+      - name: ad_group_ad_ad_final_mobile_urls
+        type: string
+      - name: ad_group_ad_ad_final_urls
+        type: string
+      - name: ad_group_ad_ad_group
+        type: string
+      - name: ad_group_ad_ad_image_ad_image_url
+        type: string
+      - name: ad_group_ad_ad_image_ad_mime_type
+        type: string
+      - name: ad_group_ad_ad_image_ad_name
+        type: string
+      - name: ad_group_ad_ad_image_ad_pixel_height
+        type: number
+      - name: ad_group_ad_ad_image_ad_pixel_width
+        type: number
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_accent_color
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_allow_flexible_color
+        type: boolean
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_business_name
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_call_to_action_text
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_description
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_format_setting
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_logo_image
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_long_headline
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_main_color
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_marketing_image
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_price_prefix
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_promo_text
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_short_headline
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_square_logo_image
+        type: string
+      - name: ad_group_ad_ad_legacy_responsive_display_ad_square_marketing_image
+        type: string
+      - name: ad_group_ad_ad_name
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_accent_color
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_business_name
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_call_to_action_text
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_descriptions
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_format_setting
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_headlines
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_logo_images
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_long_headline
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_main_color
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_marketing_images
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_price_prefix
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_promo_text
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_square_logo_images
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_square_marketing_images
+        type: string
+      - name: ad_group_ad_ad_responsive_display_ad_youtube_videos
+        type: string
+      - name: ad_group_ad_ad_responsive_search_ad_descriptions
+        type: string
+      - name: ad_group_ad_ad_responsive_search_ad_headlines
+        type: string
+      - name: ad_group_ad_ad_responsive_search_ad_path1
+        type: string
+      - name: ad_group_ad_ad_responsive_search_ad_path2
+        type: string
+      - name: ad_group_ad_ad_strength
+        type: string
+      - name: ad_group_ad_ad_system_managed_resource_source
+        type: string
+      - name: ad_group_ad_ad_text_ad_description1
+        type: string
+      - name: ad_group_ad_ad_text_ad_description2
+        type: string
+      - name: ad_group_ad_ad_text_ad_headline
+        type: string
+      - name: ad_group_ad_ad_tracking_url_template
+        type: string
+      - name: ad_group_ad_ad_type
+        type: string
+      - name: ad_group_ad_ad_url_custom_parameters
+        type: string
+      - name: ad_group_ad_policy_summary_approval_status
+        type: string
+      - name: ad_group_ad_status
+        type: string
+      - name: landscape_image_media_id
+        type: string
+      - name: landscape_logo_media_id
+        type: string
+      - name: square_image_media_id
+        type: string
+      - name: square_logo_media_id
+        type: string
+  ad_dim_ad_platform:
+    table: oh-data-warehouse.gold.ad_dim_ad_platform
+    columns:
+      - name: ad_platform_key
+        type: number
+      - name: ad_platform
+        type: string
+      - name: platform_vendor
+        type: string
+      - name: source_system
+        type: string
+      - name: data_granularity
+        type: string
+      - name: data_modification_check_frequency
+        type: string
+      - name: data_modification_window
+        type: string
+      - name: data_ingestion_frequency
+        type: string
+      - name: data_ingestion_lag
+        type: string
+  ad_dim_adgroup:
+    table: oh-data-warehouse.gold.ad_dim_adgroup
+    columns:
+      - name: ad_platform
+        type: string
+      - name: ad_group_id
+        type: number
+      - name: campaign_id
+        type: number
+      - name: account_id
+        type: number
+      - name: ad_group_ad_rotation_mode
+        type: string
+      - name: ad_group_cpc_bid_micros
+        type: number
+      - name: ad_group_cpm_bid_micros
+        type: number
+      - name: ad_group_cpv_bid_micros
+        type: number
+      - name: ad_group_display_custom_bid_dimension
+        type: string
+      - name: ad_group_effective_target_cpa_micros
+        type: number
+      - name: ad_group_effective_target_cpa_source
+        type: string
+      - name: ad_group_effective_target_roas
+        type: number
+      - name: ad_group_effective_target_roas_source
+        type: string
+      - name: ad_group_name
+        type: string
+      - name: ad_group_status
+        type: string
+      - name: ad_group_tracking_url_template
+        type: string
+      - name: ad_group_type
+        type: string
+      - name: ad_group_url_custom_parameters
+        type: string
+      - name: campaign_bidding_strategy
+        type: string
+      - name: campaign_bidding_strategy_type
+        type: string
+      - name: campaign_manual_cpc_enhanced_cpc_enabled
+        type: boolean
+      - name: campaign_percent_cpc_enhanced_cpc_enabled
+        type: boolean
+  ad_dim_campaign:
+    table: oh-data-warehouse.gold.ad_dim_campaign
+    columns:
+      - name: ad_platform
+        type: string
+      - name: campaign_id
+        type: number
+      - name: account_id
+        type: number
+      - name: entity_key
+        type: string
+      - name: bidding_strategy_name
+        type: string
+      - name: campaign_advertising_channel_sub_type
+        type: string
+      - name: campaign_advertising_channel_type
+        type: string
+      - name: campaign_bidding_strategy
+        type: string
+      - name: campaign_bidding_strategy_type
+        type: string
+      - name: campaign_budget_amount_micros
+        type: number
+      - name: campaign_budget_explicitly_shared
+        type: boolean
+      - name: campaign_budget_has_recommended_budget
+        type: boolean
+      - name: campaign_budget_period
+        type: string
+      - name: campaign_budget_recommended_budget_amount_micros
+        type: number
+      - name: campaign_budget_total_amount_micros
+        type: number
+      - name: campaign_campaign_budget
+        type: string
+      - name: campaign_end_date
+        type: time
+      - name: campaign_experiment_type
+        type: string
+      - name: campaign_manual_cpc_enhanced_cpc_enabled
+        type: boolean
+      - name: campaign_maximize_conversion_value_target_roas
+        type: number
+      - name: campaign_name
+        type: string
+      - name: campaign_percent_cpc_enhanced_cpc_enabled
+        type: boolean
+      - name: campaign_serving_status
+        type: string
+      - name: campaign_start_date
+        type: time
+      - name: campaign_status
+        type: string
+      - name: campaign_tracking_url_template
+        type: string
+      - name: campaign_url_custom_parameters
+        type: string
+      - name: parsed_service_line
+        type: string
+      - name: parsed_sub_specialty
+        type: string
+      - name: budget_owner
+        type: string
+  ad_fact_ads:
+    table: oh-data-warehouse.gold.ad_fact_ads
+    columns:
+      - name: ad_platform
+        type: string
+      - name: ad_id
+        type: number
+      - name: ad_group_id
+        type: number
+      - name: campaign_id
+        type: number
+      - name: account_id
+        type: number
+      - name: entity_key
+        type: string
+      - name: active_view_impressions
+        type: number
+      - name: clicks
+        type: number
+      - name: micro_conversions
+        type: number
+      - name: micro_conversions_value
+        type: number
+      - name: cost
+        type: number
+      - name: gmail_forwards
+        type: number
+      - name: gmail_saves
+        type: number
+      - name: gmail_secondary_click
+        type: number
+      - name: impressions
+        type: number
+      - name: interaction_event_types
+        type: string
+      - name: interactions
+        type: number
+      - name: ad_network_type
+        type: string
+      - name: click_type
+        type: string
+      - name: date
+        type: time
+      - name: device
+        type: string
+  ad_summary_ad_networks:
+    table: oh-data-warehouse.gold.ad_summary_ad_networks
+    columns:
+      - name: date
+        type: time
+      - name: entity_key
+        type: string
+      - name: ad_platform
+        type: string
+      - name: ad_network_type
+        type: string
+      - name: cost
+        type: number
+      - name: impressions
+        type: number
+      - name: clicks
+        type: number
+  ga4_dim_users_pseudonymous:
+    table: oh-data-warehouse.gold.ga4_dim_users_pseudonymous
+    columns:
+      - name: pseudo_user_id
+        type: string
+        pk: true
+        descriptions:
+          db: unique device ID based on cookie
+      - name: user_last_active_timestamp
+        type: time
+      - name: user_first_touch_timestamp
+        type: time
+      - name: sessions_ltv
+        type: number
+      - name: engagement_time_millis_ltv
+        type: number
+      - name: engagement_time_seconds_ltv
+        type: number
+      - name: engaged_sessions_ltv
+        type: number
+      - name: session_duration_micros_ltv
+        type: number
+      - name: device
+        type: string
+      - name: geo
+        type: string
+      - name: last_updated_date
+        type: time
+  ga4_dim_webpage:
+    table: oh-data-warehouse.gold.ga4_dim_webpage
+    columns:
+      - name: page_url
+        type: string
+        pk: true
+      - name: page_url_no_scheme
+        type: string
+      - name: page_hostname
+        type: string
+      - name: page_path_1
+        type: string
+      - name: page_path_2
+        type: string
+      - name: page_path_3
+        type: string
+      - name: page_path_4
+        type: string
+      - name: page_path_5
+        type: string
+      - name: page_path_6
+        type: string
+      - name: page_path_7
+        type: string
+      - name: page_path_8
+        type: string
+      - name: page_path_9
+        type: string
+  ga4_dim_event_params:
+    table: oh-data-warehouse.gold.ga4_dim_event_params
+    columns:
+      - name: event_key
+        type: number
+        pk: true
+        descriptions:
+          db: event_key from Fact table
+      - name: parameter_name_key
+        type: string
+        pk: true
+        descriptions:
+          db: event parameter name from key-value pair
+      - name: parameter_data_type
+        type: string
+        pk: true
+        descriptions:
+          db: data type of value from key-value pair. Values found in bridge_event_params.
+      - name: parameter_value
+        type: string
+        descriptions:
+          db: the value of the event_param as a STRUCT
+    descriptions:
+      db: Dimension table for unique event_params values by name and data type. (Many per event).
+  ga4_dim_sessions:
+    table: oh-data-warehouse.gold.ga4_dim_sessions
+    columns:
+      - name: session_key
+        type: number
+        pk: true
+        descriptions:
+          db: generated primary key based on unique session attributes
+      - name: ga_session_id
+        type: number
+        descriptions:
+          db: GA4 external session ID. NOT UNIQUE until paired with device ID and session number.
+      - name: is_engaged_session
+        type: boolean
+        descriptions:
+          db: Session that lasted longer than 30s or visited more than 1 page.
+      - name: is_bounce_session
+        type: boolean
+        descriptions:
+          db: Inverse of an engaged session.
+      - name: ga_session_number
+        type: number
+        descriptions:
+          db: A soft LTV number of sessions.
+      - name: session_duration_micros
+        type: number
+        descriptions:
+          db: Length of session in microseconds
+      - name: is_there_a_session_start_event
+        type: boolean
+        descriptions:
+          db: Helper field for determining UTM nuance.
+      - name: source
+        type: string
+        descriptions:
+          db: utm_source value
+      - name: medium
+        type: string
+        descriptions:
+          db: utm_medium value
+      - name: source_medium
+        type: string
+        descriptions:
+          db: utm_source_medium value
+      - name: campaign_id
+        type: string
+        descriptions:
+          db: utm_id value
+      - name: campaign_name
+        type: string
+        descriptions:
+          db: utm_campaign value
+      - name: term
+        type: string
+        descriptions:
+          db: utm_term value
+      - name: content
+        type: string
+        descriptions:
+          db: utm_content value
+      - name: source_platform
+        type: string
+      - name: creative_format
+        type: string
+      - name: marketing_tactic
+        type: string
+      - name: gclid
+        type: string
+        descriptions:
+          db: External Google Click ID
+      - name: dclid
+        type: string
+      - name: srsltid
+        type: string
+    descriptions:
+      db: Dimension table for each session.
+  ga4_fact_events:
+    table: oh-data-warehouse.gold.ga4_fact_events
+    columns:
+      - name: event_timestamp
+        type: number
+      - name: event_date
+        type: time
+      - name: event_datetime
+        type: time
+      - name: user_pseudo_id
+        type: string
+      - name: is_new_user
+        type: boolean
+      - name: session_key
+        type: number
+      - name: is_engaged_session
+        type: boolean
+      - name: ga_session_number
+        type: number
+      - name: page_hostname
+        type: string
+      - name: page_url
+        type: string
+      - name: page_full_url
+        type: string
+      - name: page_title
+        type: string
+      - name: page_referrer
+        type: string
+      - name: batch_page_id
+        type: number
+      - name: event_key
+        type: number
+        pk: true
+      - name: event_name
+        type: string
+      - name: event_display_name
+        type: string
+      - name: event_sequence
+        type: number
+      - name: entrances
+        type: number
+      - name: engagement_time_msec
+        type: number
+      - name: engagement_time_sec
+        type: number
+      - name: device
+        type: string
+      - name: geo
+        type: string
+      - name: click_event
+        type: string
+      - name: content_event
+        type: string
+      - name: guided_nav_event
+        type: string
+      - name: file_event
+        type: string
+      - name: search_event
+        type: string
+      - name: form_event
+        type: string
+      - name: ua_profile
+        type: string
+      - name: ua_metric
+        type: string
+  gsc_fact_site_impression:
+    table: oh-data-warehouse.gold.gsc_fact_site_impression
+    columns:
+      - name: date
+        type: time
+      - name: page_hostname
+        type: string
+      - name: query
+        type: string
+      - name: is_anonymized_query
+        type: boolean
+      - name: country
+        type: string
+      - name: search_type
+        type: string
+      - name: device
+        type: string
+      - name: impressions
+        type: number
+      - name: clicks
+        type: number
+      - name: sum_top_results_position
+        type: number
+      - name: average_results_position
+        type: number
+  gsc_summary_monthly_site_impression:
+    table: oh-data-warehouse.gold.gsc_summary_monthly_site_impression
+    columns:
+      - name: month
+        type: time
+      - name: page_hostname
+        type: string
+      - name: query
+        type: string
+      - name: impressions
+        type: number
+      - name: clicks
+        type: number
+      - name: ctr
+        type: number
+      - name: average_results_position
+        type: number
+  dim_date:
+    table: oh-data-warehouse.gold.dim_date
+    columns:
+      - name: date
+        type: time
+        pk: true
+      - name: calendar_year
+        type: number
+      - name: calendar_quarter
+        type: number
+      - name: calendar_month
+        type: number
+      - name: calendar_day
+        type: number
+      - name: month_name
+        type: string
+      - name: day_name
+        type: string
+      - name: day_of_week
+        type: number
+      - name: day_of_year
+        type: number
+      - name: week_of_year
+        type: number
+      - name: fiscal_year
+        type: number
+      - name: fiscal_quarter
+        type: number
+      - name: fiscal_month
+        type: number
+      - name: fiscal_day_of_year
+        type: number
+      - name: weekday_weekend
+        type: string
+      - name: calendar_year_alt_display
+        type: string
+      - name: fiscal_year_alt_display
+        type: string
+      - name: fiscal_quarter_alt_display
+        type: string
+  er_wait_time:
+    table: oh-data-warehouse.gold.er_wait_time
+    columns:
+      - name: EmergencyDepartment
+        type: string
+      - name: AvgWaitTime
+        type: string
+      - name: RecentWaitTime
+        type: number
+      - name: MapLink
+        type: string
+      - name: LastUpdated
+        type: string
+  er_wait_time_mockup:
+    table: oh-data-warehouse.gold.er_wait_time_mockup
+    columns:
+      - name: EmergencyDepartment
+        type: string
+      - name: AvgWaitTime
+        type: string
+      - name: RecentWaitTime
+        type: number
+      - name: MapLink
+        type: string
+      - name: LastUpdated
+        type: string
+  sample_flat_ad_fact:
+    table: oh-data-warehouse.gold.sample_flat_ad_fact
+    columns:
+      - name: ad_platform
+        type: string
+      - name: ad_id
+        type: number
+      - name: ad_group_id
+        type: number
+      - name: campaign_id
+        type: number
+      - name: account_id
+        type: number
+      - name: entity_key
+        type: string
+      - name: active_view_impressions
+        type: number
+      - name: clicks
+        type: number
+      - name: micro_conversions
+        type: number
+      - name: micro_conversions_value
+        type: number
+      - name: cost
+        type: number
+      - name: gmail_forwards
+        type: number
+      - name: gmail_saves
+        type: number
+      - name: gmail_secondary_click
+        type: number
+      - name: impressions
+        type: number
+      - name: interaction_event_types
+        type: string
+      - name: interactions
+        type: number
+      - name: ad_network_type
+        type: string
+      - name: click_type
+        type: string
+      - name: date
+        type: time
+      - name: device
+        type: string
+      - name: Hierarchy_L1
+        type: string
+      - name: Hierarchy_L2
+        type: string
+      - name: Hierarchy_L3
+        type: string
+      - name: Hierarchy_L4
+        type: string
+      - name: Hierarchy_L5
+        type: string
+      - name: Hierarchy_L6
+        type: string
