@@ -4,1135 +4,2474 @@ tables:
     columns:
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Unique identifier for the advertising campaign.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Order of eligibility status change events for a campaign.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the eligibility status was last changed.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: is_eligible
         type: boolean
+        descriptions:
+          ai: Whether the campaign qualifies for conversion optimizer.
       - name: rejection_reason
         type: string
+        descriptions:
+          ai: Reason the campaign was denied conversion optimizer eligibility.
+    descriptions:
+      ai: Tracks historical eligibility status of campaigns for Google Ads conversion optimizer feature over time.
+    joins:
+      - to: campaign_dim_campaign
+        "on": campaign_conversion_optimizer_eligibility_history.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
   campaign_criterion_history:
     table: oh-data-warehouse.adwords_orlando_health.campaign_criterion_history
     columns:
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Identifier of the Google Ads campaign this criterion belongs to.
       - name: id
         type: number
+        descriptions:
+          ai: Unique identifier for the campaign criterion record.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when this criterion record was last updated.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: ad_schedule_day_of_week
         type: string
+        descriptions:
+          ai: Day of week for ad scheduling targeting.
       - name: ad_schedule_end_hour
         type: number
+        descriptions:
+          ai: Hour when the ad schedule targeting window ends.
       - name: ad_schedule_end_minute
         type: string
+        descriptions:
+          ai: Minute when the ad schedule targeting window ends.
       - name: ad_schedule_start_hour
         type: number
+        descriptions:
+          ai: Hour when the ad schedule targeting window begins.
       - name: ad_schedule_start_minute
         type: string
+        descriptions:
+          ai: Minute when the ad schedule targeting window begins.
       - name: age_range_type
         type: string
+        descriptions:
+          ai: Targeted age range demographic segment.
       - name: base_campaign_id
         type: number
+        descriptions:
+          ai: Original campaign ID, relevant for draft or experiment campaigns.
       - name: bid_modifier
         type: number
+        descriptions:
+          ai: Multiplier adjusting bids for this criterion.
       - name: campaign_criterion_status
         type: string
+        descriptions:
+          ai: Active or paused status of this criterion.
       - name: campaign_criterion_type
         type: string
+        descriptions:
+          ai: Whether criterion is a positive target or negative exclusion.
       - name: carrier_country_code
         type: string
+        descriptions:
+          ai: Country code of the mobile carrier being targeted.
       - name: carrier_name
         type: string
+        descriptions:
+          ai: Name of the mobile carrier being targeted.
       - name: content_label_type
         type: string
+        descriptions:
+          ai: Type of content label excluded from ad serving.
       - name: criterion_type
         type: string
+        descriptions:
+          ai: Category of targeting criterion such as Location, Keyword, or Platform.
       - name: gender_type
         type: string
+        descriptions:
+          ai: Targeted gender demographic segment.
       - name: income_range_type
         type: string
+        descriptions:
+          ai: Targeted household income range segment.
       - name: ip_block_ip_address
         type: string
+        descriptions:
+          ai: IP address blocked from seeing ads.
       - name: is_negative
         type: boolean
+        descriptions:
+          ai: Indicates whether this criterion is an exclusion rather than inclusion.
       - name: keyword_match_type
         type: string
+        descriptions:
+          ai: "Match type for keyword targeting: broad, phrase, or exact."
       - name: keyword_text
         type: string
+        descriptions:
+          ai: The keyword text used for targeting or exclusion.
       - name: language_code
         type: string
+        descriptions:
+          ai: ISO code of the targeted language.
       - name: language_name
         type: string
+        descriptions:
+          ai: Human-readable name of the targeted language.
       - name: location_display_type
         type: string
+        descriptions:
+          ai: Geographic level of the location such as Country or City.
       - name: location_name
         type: string
+        descriptions:
+          ai: Name of the targeted geographic location.
       - name: location_parent_locations
         type: string
+        descriptions:
+          ai: Parent geographic locations containing the targeted location.
       - name: location_targeting_status
         type: string
+        descriptions:
+          ai: Availability status of the targeted location.
       - name: mobile_app_category_id
         type: number
+        descriptions:
+          ai: Identifier for the targeted mobile app category.
       - name: mobile_app_display_name
         type: string
+        descriptions:
+          ai: Display name of the targeted mobile app category.
       - name: mobile_application_app_id
         type: string
+        descriptions:
+          ai: Store identifier of the targeted mobile application.
       - name: mobile_application_display_name
         type: string
+        descriptions:
+          ai: Display name of the targeted mobile application.
       - name: mobile_device_manufacturer_name
         type: string
+        descriptions:
+          ai: Manufacturer of the targeted mobile device.
       - name: mobile_device_name
         type: string
+        descriptions:
+          ai: Model name of the targeted mobile device.
       - name: mobile_device_operating_system_name
         type: string
+        descriptions:
+          ai: Operating system of the targeted mobile device.
       - name: mobile_device_type
         type: string
+        descriptions:
+          ai: Type classification of the targeted mobile device.
       - name: operating_system_name
         type: string
+        descriptions:
+          ai: Name of the targeted device operating system.
       - name: operating_system_operator_type
         type: string
+        descriptions:
+          ai: Comparison operator for OS version targeting.
       - name: operating_system_os_major_version
         type: number
+        descriptions:
+          ai: Major version number of the targeted operating system.
       - name: operating_system_os_minor_version
         type: number
+        descriptions:
+          ai: Minor version number of the targeted operating system.
       - name: parent_type
         type: string
+        descriptions:
+          ai: Parental status demographic segment being targeted.
       - name: placement_url
         type: string
+        descriptions:
+          ai: Website URL targeted or excluded as a placement.
       - name: platform_name
         type: string
+        descriptions:
+          ai: Platform targeted such as desktop or high-end mobile.
       - name: proximity_address_street_address
         type: string
+        descriptions:
+          ai: Primary street address for proximity radius targeting.
       - name: proximity_address_street_address_2
         type: string
+        descriptions:
+          ai: Secondary street address line for proximity targeting.
       - name: proximity_city_name
         type: string
+        descriptions:
+          ai: City of the proximity targeting center point.
       - name: proximity_country_code
         type: string
+        descriptions:
+          ai: Country code of the proximity targeting center point.
       - name: proximity_geo_point_latitude_in_micro_degrees
         type: number
+        descriptions:
+          ai: Latitude in micro-degrees for proximity targeting center.
       - name: proximity_geo_point_longitude_in_micro_degrees
         type: number
+        descriptions:
+          ai: Longitude in micro-degrees for proximity targeting center.
       - name: proximity_postal_code
         type: string
+        descriptions:
+          ai: Postal code of the proximity targeting center point.
       - name: proximity_province_code
         type: string
+        descriptions:
+          ai: Province or state code for proximity targeting.
       - name: proximity_province_name
         type: string
+        descriptions:
+          ai: Province or state name for proximity targeting.
       - name: proximity_radius_distance_units
         type: string
+        descriptions:
+          ai: Unit of measurement for the proximity targeting radius.
       - name: proximity_radius_in_units
         type: number
+        descriptions:
+          ai: Radius size for proximity geographic targeting.
       - name: user_interest_id
         type: number
+        descriptions:
+          ai: Identifier of the targeted user interest audience segment.
       - name: user_interest_name
         type: string
+        descriptions:
+          ai: Name of the targeted user interest audience segment.
       - name: user_interest_parent_id
         type: number
+        descriptions:
+          ai: Parent category identifier for the user interest segment.
       - name: user_list_eligible_for_display
         type: boolean
+        descriptions:
+          ai: Indicates if the user list can be used for display campaigns.
       - name: user_list_eligible_for_search
         type: boolean
+        descriptions:
+          ai: Indicates if the user list can be used for search campaigns.
       - name: user_list_id
         type: number
+        descriptions:
+          ai: Identifier of the targeted remarketing user list.
       - name: user_list_membership_status
         type: string
+        descriptions:
+          ai: Whether the user list is open or closed for membership.
       - name: user_list_name
         type: string
+        descriptions:
+          ai: Name of the targeted remarketing user list.
       - name: vertical_id
         type: number
+        descriptions:
+          ai: Identifier of the targeted content vertical category.
       - name: vertical_parent_id
         type: number
+        descriptions:
+          ai: Parent category identifier for the content vertical.
       - name: vertical_path
         type: string
+        descriptions:
+          ai: Full hierarchical path of the targeted content vertical.
       - name: youtube_channel_id
         type: string
+        descriptions:
+          ai: Identifier of the targeted or excluded YouTube channel.
       - name: youtube_channel_name
         type: string
+        descriptions:
+          ai: Name of the targeted or excluded YouTube channel.
       - name: youtube_video_id
         type: string
+        descriptions:
+          ai: Identifier of the targeted or excluded YouTube video.
       - name: youtube_video_name
         type: string
+        descriptions:
+          ai: Title of the targeted or excluded YouTube video.
+    descriptions:
+      ai: Historical record of targeting criteria applied to Google Ads campaigns, including inclusions and exclusions.
+    joins:
+      - to: campaign_dim_campaign
+        "on": campaign_criterion_history.base_campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_campaign
+        "on": campaign_criterion_history.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
+      - to: location
+        "on": campaign_criterion_history.campaign_id = location.campaign_id AND campaign_criterion_history.id = location.id
+        relationship: one_to_many
+        source: inferred
   campaign_geo_target_type_setting_history:
     table: oh-data-warehouse.adwords_orlando_health.campaign_geo_target_type_setting_history
     columns:
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Unique identifier linking the record to a specific advertising campaign.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the geo targeting setting was last modified in the source system.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record to the data warehouse.
       - name: negative_geo_target_type
         type: string
+        descriptions:
+          ai: Criteria for excluding users based on location presence or interest.
       - name: positive_geo_target_type
         type: string
+        descriptions:
+          ai: Criteria for including users based on location presence, interest, or no preference.
+    descriptions:
+      ai: Historical record of geographic targeting type settings for advertising campaigns over time.
+    joins:
+      - to: campaign_dim_campaign
+        "on": campaign_geo_target_type_setting_history.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
   campaign_history:
     table: oh-data-warehouse.adwords_orlando_health.campaign_history
     columns:
       - name: id
         type: number
+        descriptions:
+          ai: Unique Google Ads campaign identifier.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the campaign record was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: ad_serving_optimization_status
         type: string
+        descriptions:
+          ai: Controls how Google optimizes ad serving within the campaign.
       - name: advertising_channel_subtype
         type: string
+        descriptions:
+          ai: More specific sub-classification of the advertising channel.
       - name: advertising_channel_type
         type: string
+        descriptions:
+          ai: Primary channel type, e.g., SEARCH or DISPLAY.
       - name: base_campaign_id
         type: number
+        descriptions:
+          ai: ID of the original campaign if this is a trial variant.
       - name: bidding_strategy_bid_ceiling
         type: number
+        descriptions:
+          ai: Maximum bid cap allowed by the bidding strategy.
       - name: bidding_strategy_bid_changes_for_raises_only
         type: boolean
+        descriptions:
+          ai: Restricts automated bid adjustments to increases only.
       - name: bidding_strategy_bid_floor
         type: number
+        descriptions:
+          ai: Minimum bid floor set by the bidding strategy.
       - name: bidding_strategy_bid_modifier
         type: number
+        descriptions:
+          ai: Multiplier applied to adjust bids automatically.
       - name: bidding_strategy_competitor_domain
         type: string
+        descriptions:
+          ai: Competitor domain targeted for outranking bid strategies.
       - name: bidding_strategy_cpa_bid_amount
         type: number
+        descriptions:
+          ai: Target cost-per-acquisition bid amount in micros.
       - name: bidding_strategy_cpc_bid_amount
         type: number
+        descriptions:
+          ai: Target cost-per-click bid amount in micros.
       - name: bidding_strategy_cpm_bid_amount
         type: number
+        descriptions:
+          ai: Target cost-per-thousand-impressions bid amount in micros.
       - name: bidding_strategy_enhanced_cpc_enabled
         type: boolean
+        descriptions:
+          ai: Indicates if enhanced CPC bid adjustment is active.
       - name: bidding_strategy_id
         type: number
+        descriptions:
+          ai: Identifier of the shared portfolio bidding strategy applied.
       - name: bidding_strategy_max_cpc_bid_ceiling
         type: number
+        descriptions:
+          ai: Upper CPC bid ceiling within the bidding strategy.
       - name: bidding_strategy_max_cpc_bid_floor
         type: number
+        descriptions:
+          ai: Lower CPC bid floor within the bidding strategy.
       - name: bidding_strategy_name
         type: string
+        descriptions:
+          ai: Human-readable name of the applied bidding strategy.
       - name: bidding_strategy_raise_bid_when_budget_constrained
         type: boolean
+        descriptions:
+          ai: Allows bid increases when campaign is budget-limited.
       - name: bidding_strategy_raise_bid_when_low_quality_score
         type: boolean
+        descriptions:
+          ai: Allows bid increases for low quality score keywords.
       - name: bidding_strategy_scheme_type
         type: string
+        descriptions:
+          ai: Classification scheme of the bidding strategy approach.
       - name: bidding_strategy_source
         type: string
+        descriptions:
+          ai: Indicates whether strategy is campaign-level or portfolio-level.
       - name: bidding_strategy_spend_target
         type: number
+        descriptions:
+          ai: Target spend amount for budget-based bidding strategies.
       - name: bidding_strategy_strategy_goal
         type: string
+        descriptions:
+          ai: Primary optimization goal of the bidding strategy.
       - name: bidding_strategy_target_cpa
         type: number
+        descriptions:
+          ai: Desired cost per acquisition for Target CPA strategy.
       - name: bidding_strategy_target_outrank_share
         type: number
+        descriptions:
+          ai: Share of auctions where campaign should outrank competitors.
       - name: bidding_strategy_target_roas
         type: number
+        descriptions:
+          ai: Desired return on ad spend ratio for Target ROAS.
       - name: bidding_strategy_target_roas_override
         type: number
+        descriptions:
+          ai: Campaign-level override for the portfolio target ROAS value.
       - name: bidding_strategy_type
         type: string
+        descriptions:
+          ai: Type of bidding strategy, e.g., TARGET_CPA or MANUAL_CPC.
       - name: bidding_strategy_viewable_cpm_enabled
         type: boolean
+        descriptions:
+          ai: Indicates if viewable CPM bidding is enabled.
       - name: campaign_group_id
         type: number
+        descriptions:
+          ai: ID of the campaign group this campaign belongs to.
       - name: campaign_trial_type
         type: string
+        descriptions:
+          ai: Indicates if campaign is a BASE or experimental trial.
       - name: customer_id
         type: number
+        descriptions:
+          ai: Google Ads account identifier owning this campaign.
       - name: end_date
         type: string
+        descriptions:
+          ai: Scheduled end date of the campaign in YYYYMMDD format.
       - name: final_url_suffix
         type: string
+        descriptions:
+          ai: Parameters appended to landing page URLs for tracking.
       - name: frequency_cap_impressions
         type: number
+        descriptions:
+          ai: Maximum impressions allowed per user within the time unit.
       - name: frequency_cap_level
         type: string
+        descriptions:
+          ai: Level at which frequency cap is applied, e.g., ad group.
       - name: frequency_cap_time_unit
         type: string
+        descriptions:
+          ai: Time period for the frequency cap, e.g., DAY or WEEK.
       - name: name
         type: string
+        descriptions:
+          ai: Descriptive display name of the campaign.
       - name: network_setting_target_content_network
         type: boolean
+        descriptions:
+          ai: Enables serving ads on Google Display Network.
       - name: network_setting_target_google_search
         type: boolean
+        descriptions:
+          ai: Enables serving ads on Google Search results.
       - name: network_setting_target_partner_search_network
         type: boolean
+        descriptions:
+          ai: Enables serving ads on Google search partner sites.
       - name: network_setting_target_search_network
         type: boolean
+        descriptions:
+          ai: Enables serving ads on Google Search Network.
       - name: serving_status
         type: string
+        descriptions:
+          ai: Current delivery status, e.g., SERVING or ENDED.
       - name: start_date
         type: string
+        descriptions:
+          ai: Campaign launch date in YYYYMMDD format.
       - name: status
         type: string
+        descriptions:
+          ai: "Administrative status: ENABLED, PAUSED, or REMOVED."
       - name: tracking_url_template
         type: string
+        descriptions:
+          ai: URL template used for click tracking across ads.
       - name: vanity_pharma_display_url_mode
         type: string
+        descriptions:
+          ai: Display URL mode for pharmaceutical vanity URL compliance.
       - name: vanity_pharma_text
         type: string
+        descriptions:
+          ai: Approved vanity text shown in pharma ad display URLs.
+    descriptions:
+      ai: Historical snapshot of Google Ads campaign configurations, settings, and bidding strategies per customer.
+    joins:
+      - to: campaign_dim_campaign
+        "on": campaign_history.base_campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_customer
+        "on": campaign_history.customer_id = campaign_dim_customer.customer_id
+        relationship: many_to_one
+        source: inferred
   campaign_label_history:
     table: oh-data-warehouse.adwords_orlando_health.campaign_label_history
     columns:
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Unique identifier for the advertising campaign.
       - name: label_id
         type: number
+        descriptions:
+          ai: Unique identifier for the label assigned to the campaign.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the campaign-label association was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
+    descriptions:
+      ai: Tracks historical associations between advertising campaigns and their assigned labels over time.
+    joins:
+      - to: campaign_dim_campaign
+        "on": campaign_label_history.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
+      - to: label
+        "on": campaign_label_history.label_id = label.id
+        relationship: many_to_one
+        source: inferred
   campaign_targeting_setting_history:
     table: oh-data-warehouse.adwords_orlando_health.campaign_targeting_setting_history
     columns:
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Unique identifier linking the record to a specific ad campaign.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Version number indicating the order of changes for this campaign setting.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the targeting setting was last modified in the source system.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record to the data warehouse.
       - name: criterion_type_group
         type: string
+        descriptions:
+          ai: Category of targeting criteria applied, such as audience interest or remarketing lists.
       - name: target_all
         type: boolean
+        descriptions:
+          ai: Indicates whether the campaign targets all users within the criterion group.
+    descriptions:
+      ai: Tracks historical changes to campaign targeting settings, including audience criterion configurations over time.
+    joins:
+      - to: campaign_dim_campaign
+        "on": campaign_targeting_setting_history.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
   account:
     table: oh-data-warehouse.adwords_orlando_health.account
     columns:
       - name: id
         type: number
+        descriptions:
+          ai: Unique Google Ads customer account identifier.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Ordering sequence for record versioning or deduplication.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp of the last Fivetran sync for this record.
       - name: account_label_id
         type: number
+        descriptions:
+          ai: Numeric identifier of the label assigned to this account.
       - name: account_label_name
         type: string
+        descriptions:
+          ai: Display name of the label assigned to this account.
       - name: can_manage_clients
         type: boolean
+        descriptions:
+          ai: Indicates whether this account has manager-level client access.
       - name: currency_code
         type: string
+        descriptions:
+          ai: ISO currency code used for billing and reporting.
       - name: date_timezone
         type: string
+        descriptions:
+          ai: Timezone used for date-based reporting and scheduling.
       - name: manager_customer_id
         type: number
+        descriptions:
+          ai: Parent manager account ID if this is a sub-account.
       - name: name
         type: string
+        descriptions:
+          ai: Business or brand name of the advertising account.
       - name: test_account
         type: boolean
+        descriptions:
+          ai: Flags whether this is a test account, not real spend.
+    descriptions:
+      ai: Google Ads accounts synced via Fivetran, representing advertiser or manager account configurations.
+    joins:
+      - to: ad_dim_account
+        "on": account.currency_code = ad_dim_account.customer_currency_code
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_dim_customer
+        "on": account.currency_code = campaign_dim_customer.customer_currency_code
+        relationship: one_to_many
+        source: inferred
   ad_group_criterion_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_group_criterion_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier of the ad group this criterion belongs to.
       - name: id
         type: number
+        descriptions:
+          ai: Unique identifier for the ad group criterion.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when this criterion record was last updated.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: ad_group_criterion_type
         type: string
+        descriptions:
+          ai: Whether criterion is biddable or negative targeting.
       - name: age_range_type
         type: string
+        descriptions:
+          ai: Age range demographic targeting segment.
       - name: app_id
         type: string
+        descriptions:
+          ai: App store identifier for app-based targeting criteria.
       - name: app_payment_model_type
         type: string
+        descriptions:
+          ai: Payment model type for app targeting (free or paid).
       - name: approval_status
         type: string
+        descriptions:
+          ai: Google's editorial approval status for this criterion.
       - name: base_adgroup_id
         type: number
+        descriptions:
+          ai: Original ad group ID for draft or experiment ad groups.
       - name: base_campaign_id
         type: number
+        descriptions:
+          ai: Original campaign ID for draft or experiment campaigns.
       - name: bid_modifier
         type: number
+        descriptions:
+          ai: Multiplier adjusting bids for this criterion.
       - name: bidding_strategy_bid_ceiling
         type: number
+        descriptions:
+          ai: Maximum bid cap allowed by the bidding strategy.
       - name: bidding_strategy_bid_changes_for_raises_only
         type: boolean
+        descriptions:
+          ai: Restricts automated bid changes to increases only.
       - name: bidding_strategy_bid_floor
         type: number
+        descriptions:
+          ai: Minimum bid floor set by the bidding strategy.
       - name: bidding_strategy_bid_modifier
         type: number
+        descriptions:
+          ai: Bid adjustment multiplier within the bidding strategy.
       - name: bidding_strategy_competitor_domain
         type: string
+        descriptions:
+          ai: Competitor domain targeted for outranking share strategy.
       - name: bidding_strategy_cpa_bid_amount
         type: number
+        descriptions:
+          ai: Target cost-per-acquisition bid amount in micros.
       - name: bidding_strategy_cpc_bid_amount
         type: number
+        descriptions:
+          ai: Cost-per-click bid amount in micros.
       - name: bidding_strategy_cpm_bid_amount
         type: number
+        descriptions:
+          ai: Cost-per-thousand-impressions bid amount in micros.
       - name: bidding_strategy_enhanced_cpc_enabled
         type: boolean
+        descriptions:
+          ai: Whether enhanced CPC bid optimization is enabled.
       - name: bidding_strategy_id
         type: number
+        descriptions:
+          ai: Identifier of the shared portfolio bidding strategy.
       - name: bidding_strategy_max_cpc_bid_ceiling
         type: number
+        descriptions:
+          ai: Maximum CPC ceiling within the bidding strategy.
       - name: bidding_strategy_max_cpc_bid_floor
         type: number
+        descriptions:
+          ai: Minimum CPC floor within the bidding strategy.
       - name: bidding_strategy_name
         type: string
+        descriptions:
+          ai: Name of the applied bidding strategy.
       - name: bidding_strategy_raise_bid_when_budget_constrained
         type: boolean
+        descriptions:
+          ai: Raises bids automatically when campaign is budget-limited.
       - name: bidding_strategy_raise_bid_when_low_quality_score
         type: boolean
+        descriptions:
+          ai: Raises bids automatically when quality score is low.
       - name: bidding_strategy_scheme_type
         type: string
+        descriptions:
+          ai: Class name of the bidding scheme applied.
       - name: bidding_strategy_source
         type: string
+        descriptions:
+          ai: Level where bidding strategy is set (campaign or ad group).
       - name: bidding_strategy_spend_target
         type: number
+        descriptions:
+          ai: Target spend amount for the bidding strategy.
       - name: bidding_strategy_strategy_goal
         type: string
+        descriptions:
+          ai: Optimization goal of the bidding strategy.
       - name: bidding_strategy_target_cpa
         type: number
+        descriptions:
+          ai: Target CPA goal amount in micros.
       - name: bidding_strategy_target_outrank_share
         type: number
+        descriptions:
+          ai: Target share of auctions to outrank a competitor.
       - name: bidding_strategy_target_roas
         type: number
+        descriptions:
+          ai: Target return on ad spend ratio.
       - name: bidding_strategy_target_roas_override
         type: number
+        descriptions:
+          ai: Criterion-level override for target ROAS.
       - name: bidding_strategy_type
         type: string
+        descriptions:
+          ai: Type of bidding strategy such as MANUAL_CPC or TARGET_CPA.
       - name: bidding_strategy_viewable_cpm_enabled
         type: boolean
+        descriptions:
+          ai: Whether viewable CPM bidding is enabled.
       - name: channel_exclusivity
         type: string
+        descriptions:
+          ai: Restricts serving to a single channel or allows multiple.
       - name: channel_id
         type: string
+        descriptions:
+          ai: Identifier for the YouTube or display channel targeted.
       - name: channel_name
         type: string
+        descriptions:
+          ai: Name of the targeted YouTube or display channel.
       - name: criterion_use
         type: string
+        descriptions:
+          ai: Whether criterion is used for bidding or exclusion (negative).
       - name: custom_affinity_id
         type: number
+        descriptions:
+          ai: Identifier for a custom affinity audience segment.
       - name: custom_intent_id
         type: number
+        descriptions:
+          ai: Identifier for a custom intent audience segment.
       - name: first_page_cpc
         type: number
+        descriptions:
+          ai: Estimated CPC needed to appear on the first page.
       - name: first_position_cpc
         type: number
+        descriptions:
+          ai: Estimated CPC needed to appear in the first position.
       - name: gender_type
         type: string
+        descriptions:
+          ai: Gender demographic targeting segment.
       - name: income_range_type
         type: string
+        descriptions:
+          ai: Household income range demographic targeting segment.
       - name: keyword_match_type
         type: string
+        descriptions:
+          ai: "Keyword matching type: EXACT, PHRASE, or BROAD."
       - name: keyword_text
         type: string
+        descriptions:
+          ai: The keyword text used for search targeting.
       - name: mobile_app_category_display_name
         type: string
+        descriptions:
+          ai: Human-readable name of the mobile app category targeted.
       - name: mobile_app_category_id
         type: number
+        descriptions:
+          ai: Identifier for the mobile app category targeted.
       - name: mobile_application_display_name
         type: string
+        descriptions:
+          ai: Display name of the specific mobile application targeted.
       - name: parent_criterion_id
         type: number
+        descriptions:
+          ai: Parent criterion ID for hierarchical product partition trees.
       - name: parent_type
         type: string
+        descriptions:
+          ai: Type of the parent criterion in a hierarchy.
       - name: partition_type
         type: string
+        descriptions:
+          ai: Whether product partition is a subdivision or unit.
       - name: placement_url
         type: string
+        descriptions:
+          ai: URL of the website or app placement targeted.
       - name: product_adwords_grouping
         type: string
+        descriptions:
+          ai: Custom grouping label assigned to products in AdWords.
       - name: product_adwords_label
         type: string
+        descriptions:
+          ai: Custom label applied to products for AdWords targeting.
       - name: product_bidding_category_type
         type: string
+        descriptions:
+          ai: Level of the Google product bidding category hierarchy.
       - name: product_bidding_category_value
         type: number
+        descriptions:
+          ai: Numeric value of the product bidding category.
       - name: product_brand_value
         type: string
+        descriptions:
+          ai: Brand name used for product targeting.
       - name: product_canonical_condition
         type: string
+        descriptions:
+          ai: "Standardized product condition: new, used, or refurbished."
       - name: product_channel
         type: string
+        descriptions:
+          ai: "Sales channel for product targeting: online or local."
       - name: product_custom_attribute_type
         type: string
+        descriptions:
+          ai: Custom attribute slot type used for product segmentation.
       - name: product_custom_attribute_value
         type: string
+        descriptions:
+          ai: Value of the custom product attribute for targeting.
       - name: product_legacy_condition
         type: string
+        descriptions:
+          ai: Legacy condition value for product targeting.
       - name: product_offer_id
         type: string
+        descriptions:
+          ai: Merchant-assigned offer ID for specific product targeting.
       - name: product_type
         type: string
+        descriptions:
+          ai: Product type category used for Shopping targeting.
       - name: product_type_full
         type: string
+        descriptions:
+          ai: Full hierarchical product type string.
       - name: product_type_value
         type: string
+        descriptions:
+          ai: Specific product type value for targeting.
       - name: quality_info_score
         type: number
+        descriptions:
+          ai: Quality score indicating ad relevance and landing page quality.
       - name: system_serving_status
         type: string
+        descriptions:
+          ai: Google's system status indicating if criterion is eligible to serve.
       - name: top_of_page_cpc
         type: number
+        descriptions:
+          ai: Estimated CPC needed to appear at the top of the page.
       - name: tracking_url_template
         type: string
+        descriptions:
+          ai: URL template used for click tracking on this criterion.
       - name: user_interest_id
         type: number
+        descriptions:
+          ai: Identifier for the user interest audience segment.
       - name: user_interest_name
         type: string
+        descriptions:
+          ai: Name of the user interest audience segment.
       - name: user_interest_parent_id
         type: number
+        descriptions:
+          ai: Parent category ID for the user interest segment.
       - name: user_list_eligible_for_display
         type: boolean
+        descriptions:
+          ai: Whether the user list can be used for display targeting.
       - name: user_list_eligible_for_search
         type: boolean
+        descriptions:
+          ai: Whether the user list can be used for search targeting.
       - name: user_list_id
         type: number
+        descriptions:
+          ai: Identifier for the remarketing or customer match user list.
       - name: user_list_membership_status
         type: string
+        descriptions:
+          ai: Whether users are currently open or closed for list membership.
       - name: user_list_name
         type: string
+        descriptions:
+          ai: Name of the targeted user list audience.
       - name: user_status
         type: string
+        descriptions:
+          ai: "Advertiser-set status of the criterion: ENABLED or PAUSED."
       - name: vertical_id
         type: number
+        descriptions:
+          ai: Identifier for the content vertical category targeted.
       - name: vertical_parent_id
         type: number
+        descriptions:
+          ai: Parent category ID for the content vertical.
       - name: vertical_path
         type: string
+        descriptions:
+          ai: Full path of the content vertical hierarchy.
       - name: video_id
         type: string
+        descriptions:
+          ai: Identifier for the specific YouTube video targeted.
       - name: video_name
         type: string
+        descriptions:
+          ai: Name of the targeted YouTube video.
+    descriptions:
+      ai: Historical snapshots of Google Ads ad group criteria including keywords, audiences, placements, and bidding settings over time.
   ad_group_criterion_label_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_group_criterion_label_history
     columns:
       - name: ad_group_criterion_id
         type: number
+        descriptions:
+          ai: Unique identifier for the specific ad group criterion being labeled.
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier of the ad group containing the criterion.
       - name: label_id
         type: number
+        descriptions:
+          ai: Identifier of the label applied to the criterion.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the label assignment was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
+    descriptions:
+      ai: Historical record of labels assigned to ad group criteria in Google Ads campaigns.
+    joins:
+      - to: label
+        "on": ad_group_criterion_label_history.label_id = label.id
+        relationship: many_to_one
+        source: inferred
   ad_group_explorer_auto_optimizer_setting_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_group_explorer_auto_optimizer_setting_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Unique identifier for the ad group being configured.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the optimizer setting was last changed.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: opt_in
         type: boolean
+        descriptions:
+          ai: Whether the ad group is enrolled in Explorer auto-optimization.
+    descriptions:
+      ai: Tracks historical opt-in status changes for the Explorer auto-optimizer feature at the ad group level.
   ad_group_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_group_history
     columns:
       - name: id
         type: number
+        descriptions:
+          ai: Unique identifier for the ad group.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the ad group record was last updated.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: ad_group_rotation_mode
         type: string
+        descriptions:
+          ai: How ads within the group are rotated for serving.
       - name: ad_group_type
         type: string
+        descriptions:
+          ai: Classification of the ad group, e.g., SEARCH_STANDARD.
       - name: base_ad_group_id
         type: number
+        descriptions:
+          ai: Original ad group ID for draft or experiment groups.
       - name: base_campaign_id
         type: number
+        descriptions:
+          ai: Original campaign ID for draft or experiment groups.
       - name: bidding_strategy_bid_ceiling
         type: number
+        descriptions:
+          ai: Maximum bid cap allowed by the bidding strategy.
       - name: bidding_strategy_bid_changes_for_raises_only
         type: boolean
+        descriptions:
+          ai: Restricts automated bid changes to increases only.
       - name: bidding_strategy_bid_floor
         type: number
+        descriptions:
+          ai: Minimum bid floor set by the bidding strategy.
       - name: bidding_strategy_bid_modifier
         type: number
+        descriptions:
+          ai: Multiplier applied to adjust bids automatically.
       - name: bidding_strategy_competitor_domain
         type: string
+        descriptions:
+          ai: Competitor domain targeted for outranking strategies.
       - name: bidding_strategy_cpa_bid_amount
         type: number
+        descriptions:
+          ai: Target cost-per-acquisition bid in micros.
       - name: bidding_strategy_cpc_bid_amount
         type: number
+        descriptions:
+          ai: Manual cost-per-click bid amount in micros.
       - name: bidding_strategy_cpm_bid_amount
         type: number
+        descriptions:
+          ai: Cost-per-thousand-impressions bid amount in micros.
       - name: bidding_strategy_enhanced_cpc_enabled
         type: boolean
+        descriptions:
+          ai: Whether enhanced CPC bid adjustments are active.
       - name: bidding_strategy_id
         type: number
+        descriptions:
+          ai: Identifier of the portfolio bidding strategy applied.
       - name: bidding_strategy_max_cpc_bid_ceiling
         type: number
+        descriptions:
+          ai: Upper CPC limit for automated bidding strategies.
       - name: bidding_strategy_max_cpc_bid_floor
         type: number
+        descriptions:
+          ai: Lower CPC limit for automated bidding strategies.
       - name: bidding_strategy_name
         type: string
+        descriptions:
+          ai: Name of the portfolio bidding strategy used.
       - name: bidding_strategy_raise_bid_when_budget_constrained
         type: boolean
+        descriptions:
+          ai: Allows bid increases when campaign budget is limiting delivery.
       - name: bidding_strategy_raise_bid_when_low_quality_score
         type: boolean
+        descriptions:
+          ai: Allows bid increases for low quality score keywords.
       - name: bidding_strategy_scheme_type
         type: string
+        descriptions:
+          ai: Class name of the bidding scheme, e.g., ManualCpcBiddingScheme.
       - name: bidding_strategy_source
         type: string
+        descriptions:
+          ai: Indicates if strategy is set at ad group or campaign level.
       - name: bidding_strategy_spend_target
         type: number
+        descriptions:
+          ai: Target spend amount for budget-based bidding strategies.
       - name: bidding_strategy_strategy_goal
         type: string
+        descriptions:
+          ai: Optimization goal of the bidding strategy.
       - name: bidding_strategy_target_cpa
         type: number
+        descriptions:
+          ai: Target CPA value used in automated CPA bidding.
       - name: bidding_strategy_target_outrank_share
         type: number
+        descriptions:
+          ai: Target share of auctions to outrank a competitor.
       - name: bidding_strategy_target_roas
         type: number
+        descriptions:
+          ai: Target return on ad spend ratio for automated bidding.
       - name: bidding_strategy_target_roas_override
         type: number
+        descriptions:
+          ai: Ad group level override for target ROAS value.
       - name: bidding_strategy_type
         type: string
+        descriptions:
+          ai: Type of bidding strategy, e.g., MANUAL_CPC, TARGET_CPA.
       - name: bidding_strategy_viewable_cpm_enabled
         type: boolean
+        descriptions:
+          ai: Whether viewable CPM bidding is enabled.
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Identifier of the parent campaign.
       - name: campaign_name
         type: string
+        descriptions:
+          ai: Display name of the parent campaign.
       - name: content_bid_criterion_type_group
         type: string
+        descriptions:
+          ai: Criterion type group used for content network bids.
       - name: final_url_suffix
         type: string
+        descriptions:
+          ai: Parameters appended to final URLs for tracking.
       - name: name
         type: string
+        descriptions:
+          ai: Display name of the ad group.
       - name: status
         type: string
+        descriptions:
+          ai: Current serving status, e.g., ENABLED or PAUSED.
       - name: tracking_url_template
         type: string
+        descriptions:
+          ai: URL template with ValueTrack parameters for click tracking.
+    descriptions:
+      ai: Historical snapshot of Google Ads ad group configurations, bidding strategies, and settings synced via Fivetran.
+    joins:
+      - to: ad_history
+        "on": ad_group_history.id = ad_history.ad_group_id
+        relationship: one_to_many
+        source: inferred
+      - to: ad_history
+        "on": ad_group_history.id = ad_history.base_adgroup_id
+        relationship: one_to_many
+        source: inferred
   ad_group_label_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_group_label_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Unique identifier for the Google Ads ad group.
       - name: label_id
         type: number
+        descriptions:
+          ai: Unique identifier for the label assigned to the ad group.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the label-ad group association was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
+    descriptions:
+      ai: Tracks historical associations between Google Ads ad groups and their assigned labels over time.
+    joins:
+      - to: label
+        "on": ad_group_label_history.label_id = label.id
+        relationship: many_to_one
+        source: inferred
   ad_group_targeting_setting_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_group_targeting_setting_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier linking the targeting setting to a specific ad group.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Version number indicating the order of changes for this record.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the targeting setting was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
       - name: criterion_type_group
         type: string
+        descriptions:
+          ai: Category of targeting criterion, such as AGE_RANGE, PARENT, or VERTICAL.
       - name: target_all
         type: boolean
+        descriptions:
+          ai: Whether all values within the criterion type group are targeted broadly.
+    descriptions:
+      ai: Historical log of ad group targeting settings by criterion type, tracking changes over time.
+    joins:
+      - to: ad_final_mobile_url_history
+        "on": ad_group_targeting_setting_history.ad_group_id = ad_final_mobile_url_history.ad_group_id AND ad_group_targeting_setting_history.sequence_id = ad_final_mobile_url_history.sequence_id
+        relationship: one_to_many
+        source: inferred
+      - to: disapproval_reason_history
+        "on": ad_group_targeting_setting_history.ad_group_id = disapproval_reason_history.ad_group_id AND ad_group_targeting_setting_history.sequence_id = disapproval_reason_history.sequence_id
+        relationship: one_to_many
+        source: inferred
+      - to: final_url_history
+        "on": ad_group_targeting_setting_history.ad_group_id = final_url_history.ad_group_id AND ad_group_targeting_setting_history.sequence_id = final_url_history.sequence_id
+        relationship: one_to_many
+        source: inferred
   ad_final_mobile_url_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_final_mobile_url_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group containing the ad.
       - name: ad_id
         type: number
+        descriptions:
+          ai: Identifier for the specific ad with the mobile URL.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Order index when multiple mobile URLs exist for an ad.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the mobile URL record was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: url
         type: string
+        descriptions:
+          ai: Final mobile landing page URL including UTM tracking parameters.
+    descriptions:
+      ai: Historical record of final mobile destination URLs assigned to ads within Google Ads ad groups.
+    joins:
+      - to: ad_group_targeting_setting_history
+        "on": ad_final_mobile_url_history.ad_group_id = ad_group_targeting_setting_history.ad_group_id AND ad_final_mobile_url_history.sequence_id = ad_group_targeting_setting_history.sequence_id
+        relationship: many_to_one
+        source: inferred
+      - to: ad_dim_ad
+        "on": ad_final_mobile_url_history.ad_id = ad_dim_ad.ad_id
+        relationship: many_to_one
+        source: inferred
   ad_final_url_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_final_url_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group containing the ad.
       - name: ad_id
         type: number
+        descriptions:
+          ai: Identifier for the specific ad associated with the URL.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Version order of URL changes; zero indicates the original URL.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the final URL record was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: url
         type: string
+        descriptions:
+          ai: Final destination landing page URL including tracking parameters.
+    descriptions:
+      ai: Tracks historical final destination URLs for ads, capturing changes over time per ad and ad group.
+    joins:
+      - to: ad_dim_ad
+        "on": ad_final_url_history.ad_id = ad_dim_ad.ad_id
+        relationship: many_to_one
+        source: inferred
   ad_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: The ad group this ad belongs to.
       - name: id
         type: number
+        descriptions:
+          ai: Unique identifier for the individual ad.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the ad record was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: ad_type
         type: string
+        descriptions:
+          ai: Format of the ad, e.g., TextAd, ExpandedTextAd, ImageAd.
       - name: automated
         type: boolean
+        descriptions:
+          ai: Indicates whether the ad was automatically created by Google.
       - name: base_adgroup_id
         type: number
+        descriptions:
+          ai: Original ad group ID before any drafts or experiments.
       - name: base_campaign_id
         type: number
+        descriptions:
+          ai: Original campaign ID before any drafts or experiments.
       - name: device_preference
         type: number
+        descriptions:
+          ai: Preferred device targeting for the ad.
       - name: display_url
         type: string
+        descriptions:
+          ai: Visible URL shown to users in the ad.
       - name: final_url_suffix
         type: string
+        descriptions:
+          ai: Parameters appended to the landing page URL for tracking.
       - name: policy_summary_combined_approval_status
         type: string
+        descriptions:
+          ai: Overall Google policy approval status for the ad.
       - name: policy_summary_denormalized_status
         type: string
+        descriptions:
+          ai: Flattened policy status reflecting all policy findings.
       - name: policy_summary_review_state
         type: string
+        descriptions:
+          ai: Current stage of Google's policy review process.
       - name: status
         type: string
+        descriptions:
+          ai: Serving status of the ad, e.g., ENABLED or PAUSED.
       - name: system_managed_entity_source
         type: string
+        descriptions:
+          ai: Source system if the ad is managed automatically by Google.
       - name: tracking_url_template
         type: string
+        descriptions:
+          ai: URL template used for third-party click tracking.
       - name: url
         type: string
+        descriptions:
+          ai: Destination URL users are directed to after clicking.
+    descriptions:
+      ai: Historical snapshot of Google Ads individual ad configurations, statuses, and policy approvals synced via Fivetran.
+    joins:
+      - to: ad_group_history
+        "on": ad_history.ad_group_id = ad_group_history.id
+        relationship: many_to_one
+        source: inferred
+      - to: ad_group_history
+        "on": ad_history.base_adgroup_id = ad_group_history.id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_campaign
+        "on": ad_history.base_campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
   ad_label_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_label_history
     columns:
       - name: ad_id
         type: number
+        descriptions:
+          ai: Unique identifier for the advertising creative or ad unit.
       - name: label_id
         type: number
+        descriptions:
+          ai: Unique identifier for the label assigned to the ad.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the ad-label association was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
+    descriptions:
+      ai: Tracks historical associations between ads and their assigned labels over time.
+    joins:
+      - to: ad_dim_ad
+        "on": ad_label_history.ad_id = ad_dim_ad.ad_id
+        relationship: many_to_one
+        source: inferred
+      - to: label
+        "on": ad_label_history.label_id = label.id
+        relationship: many_to_one
+        source: inferred
   ad_stats:
     table: oh-data-warehouse.adwords_orlando_health.ad_stats
     columns:
       - name: _fivetran_id
         type: string
+        descriptions:
+          ai: Unique row identifier generated by Fivetran for deduplication.
       - name: customer_id
         type: number
+        descriptions:
+          ai: Internal Google Ads account identifier for the advertiser.
       - name: date
         type: time
+        descriptions:
+          ai: Calendar date for which the performance metrics are reported.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp of the most recent Fivetran data sync for this row.
       - name: active_view_impressions
         type: number
+        descriptions:
+          ai: Number of impressions measured as viewable by Active View.
       - name: active_view_measurability
         type: number
+        descriptions:
+          ai: Percentage of impressions eligible for Active View measurement.
       - name: active_view_measurable_cost
         type: number
+        descriptions:
+          ai: Cost attributed to Active View measurable impressions.
       - name: active_view_measurable_impressions
         type: number
+        descriptions:
+          ai: Count of impressions that could be measured for viewability.
       - name: active_view_viewability
         type: number
+        descriptions:
+          ai: Percentage of measurable impressions that were actually viewable.
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group containing the ad.
       - name: ad_network_type_1
         type: string
+        descriptions:
+          ai: Broad network category where the ad was served (e.g., Search, Display).
       - name: ad_network_type_2
         type: string
+        descriptions:
+          ai: Specific network placement where the ad appeared.
       - name: base_ad_group_id
         type: number
+        descriptions:
+          ai: Original ad group ID before any drafts or experiments.
       - name: base_campaign_id
         type: number
+        descriptions:
+          ai: Original campaign ID before any drafts or experiments.
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Identifier for the campaign containing the ad.
       - name: clicks
         type: number
+        descriptions:
+          ai: Total number of user clicks on the ad.
       - name: conversion_value
         type: number
+        descriptions:
+          ai: Total monetary value attributed to recorded conversions.
       - name: conversions
         type: number
+        descriptions:
+          ai: Number of conversion actions completed after ad interaction.
       - name: cost
         type: number
+        descriptions:
+          ai: Total spend in account currency for the ad on this date.
       - name: criterion_id
         type: number
+        descriptions:
+          ai: Identifier for the targeting criterion (e.g., keyword, audience).
       - name: criterion_type
         type: string
+        descriptions:
+          ai: Type of targeting criterion such as Keyword or Age.
       - name: device
         type: string
+        descriptions:
+          ai: Device category on which the ad was served.
       - name: external_customer_id
         type: number
+        descriptions:
+          ai: Advertiser-facing Google Ads account ID shown in the UI.
       - name: id
         type: number
+        descriptions:
+          ai: Unique identifier for the specific ad creative.
       - name: impressions
         type: number
+        descriptions:
+          ai: Total number of times the ad was displayed.
       - name: interaction_types
         type: string
+        descriptions:
+          ai: List of interaction types recorded, such as Clicks.
       - name: interactions
         type: number
+        descriptions:
+          ai: Total count of user interactions with the ad.
       - name: is_negative
         type: string
+        descriptions:
+          ai: Indicates whether the criterion is a negative targeting exclusion.
       - name: slot
         type: string
+        descriptions:
+          ai: Position on the page where the ad appeared.
       - name: view_through_conversions
         type: number
+        descriptions:
+          ai: Conversions from users who saw but did not click the ad.
+    descriptions:
+      ai: Daily Google Ads performance metrics per ad, campaign, ad group, criterion, device, and network placement.
+    joins:
+      - to: campaign_dim_adgroup
+        "on": ad_stats.base_ad_group_id = campaign_dim_adgroup.ad_group_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_campaign
+        "on": ad_stats.base_campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_campaign
+        "on": ad_stats.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_customer
+        "on": ad_stats.customer_id = campaign_dim_customer.customer_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_customer
+        "on": ad_stats.external_customer_id = campaign_dim_customer.customer_id
+        relationship: many_to_one
+        source: inferred
   ad_policy_constraint_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_policy_constraint_history
     columns:
       - name: policy_topic_ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group associated with the policy topic constraint.
       - name: policy_topic_ad_id
         type: number
+        descriptions:
+          ai: Identifier for the specific ad subject to the policy constraint.
       - name: policy_topic_sequence_id
         type: number
+        descriptions:
+          ai: Sequence number identifying the policy topic entry order.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Version or iteration number for tracking constraint record changes.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the policy constraint record was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
       - name: constrained_countries
         type: string
+        descriptions:
+          ai: Country codes where the ad is restricted or limited from serving.
       - name: constraint_type
         type: string
+        descriptions:
+          ai: Category of policy restriction applied, such as CountryConstraint.
       - name: total_targeted_countries
         type: number
+        descriptions:
+          ai: Total number of countries targeted by the associated ad campaign.
+    descriptions:
+      ai: Historical log of ad policy constraints applied to ads, tracking country-level advertising restrictions over time.
   ad_policy_evidence_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_policy_evidence_history
     columns:
       - name: policy_topic_ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group associated with the policy violation.
       - name: policy_topic_ad_id
         type: number
+        descriptions:
+          ai: Identifier for the specific ad flagged for a policy violation.
       - name: policy_topic_sequence_id
         type: number
+        descriptions:
+          ai: Ordering index for multiple policy topics on the same ad.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Ordering index for multiple evidence entries within a policy topic.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the policy evidence record was last updated.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
       - name: evidence_text_list
         type: string
+        descriptions:
+          ai: Specific text within the ad that triggered the policy flag.
       - name: policy_type_evidence_type
         type: string
+        descriptions:
+          ai: Category of evidence type, such as ad text or URL content.
+    descriptions:
+      ai: Historical log of policy violation evidence found in Google Ads, tracking flagged ad content over time.
+    joins:
+      - to: campaign_dim_ad
+        "on": ad_policy_evidence_history.policy_topic_ad_id = campaign_dim_ad.ad_id
+        relationship: many_to_one
+        source: inferred
   ad_policy_topic_history:
     table: oh-data-warehouse.adwords_orlando_health.ad_policy_topic_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group containing the flagged ad.
       - name: ad_id
         type: number
+        descriptions:
+          ai: Identifier for the specific ad that triggered a policy topic.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Order index when multiple policy topics apply to one ad.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the policy topic record was last updated.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: policy_topic_entry_type
         type: string
+        descriptions:
+          ai: "Severity classification: UNKNOWN, LIMITED, or PROHIBITED policy violation."
       - name: policy_topic_help_center_url
         type: string
+        descriptions:
+          ai: Google support URL explaining the specific policy violation.
       - name: policy_topic_id
         type: string
+        descriptions:
+          ai: Unique numeric identifier for the Google Ads policy topic.
       - name: policy_topic_name
         type: string
+        descriptions:
+          ai: Human-readable name of the policy category flagged on the ad.
+    descriptions:
+      ai: Historical log of Google Ads policy topic flags applied to individual ads within ad groups.
   budget_history:
     table: oh-data-warehouse.adwords_orlando_health.budget_history
     columns:
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Foreign key linking the budget to its associated advertising campaign.
       - name: id
         type: number
+        descriptions:
+          ai: Unique identifier for each budget record.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the budget record was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
       - name: amount
         type: number
+        descriptions:
+          ai: Budget amount in micros; divide by one million for actual currency value.
       - name: delivery_method
         type: string
+        descriptions:
+          ai: Pacing strategy for ad spend, e.g., STANDARD for even daily distribution.
       - name: is_explicitly_shared
         type: boolean
+        descriptions:
+          ai: Indicates whether this budget is intentionally shared across multiple campaigns.
       - name: name
         type: string
+        descriptions:
+          ai: Descriptive label identifying the campaign and service line for the budget.
       - name: reference_count
         type: number
+        descriptions:
+          ai: Number of campaigns currently using this budget.
       - name: status
         type: string
+        descriptions:
+          ai: Current operational state of the budget, e.g., ENABLED or PAUSED.
+    descriptions:
+      ai: Historical record of advertising campaign budget configurations and changes over time.
+    joins:
+      - to: campaign_dim_campaign
+        "on": budget_history.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
   disapproval_reason_history:
     table: oh-data-warehouse.adwords_orlando_health.disapproval_reason_history
     columns:
       - name: ad_group_criterion_id
         type: number
+        descriptions:
+          ai: Unique identifier for the specific keyword or targeting criterion within an ad group.
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier of the ad group containing the disapproved criterion.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Order index tracking multiple disapproval reasons for the same criterion.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the disapproval reason record was last updated in Google Ads.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record to the data warehouse.
       - name: disapproval_reason
         type: string
+        descriptions:
+          ai: Google Ads policy violation reason causing the criterion to be disapproved.
+    descriptions:
+      ai: Tracks historical disapproval reasons for Google Ads ad group criteria over time.
+    joins:
+      - to: ad_group_targeting_setting_history
+        "on": disapproval_reason_history.ad_group_id = ad_group_targeting_setting_history.ad_group_id AND disapproval_reason_history.sequence_id = ad_group_targeting_setting_history.sequence_id
+        relationship: many_to_one
+        source: inferred
   dynamic_search_ad_history:
     table: oh-data-warehouse.adwords_orlando_health.dynamic_search_ad_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group containing this dynamic search ad.
       - name: ad_id
         type: number
+        descriptions:
+          ai: Unique identifier for the specific dynamic search ad.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the ad copy or configuration was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
       - name: description_1
         type: string
+        descriptions:
+          ai: First line of ad copy text shown to users in search results.
       - name: description_2
         type: string
+        descriptions:
+          ai: Second line of ad copy text shown to users in search results.
+    descriptions:
+      ai: Historical record of dynamic search ad copy changes over time, synced via Fivetran.
   expanded_text_ad_history:
     table: oh-data-warehouse.adwords_orlando_health.expanded_text_ad_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier linking the ad to its parent Google Ads ad group.
       - name: ad_id
         type: number
+        descriptions:
+          ai: Unique identifier for the specific expanded text ad.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the ad creative content was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
       - name: description
         type: string
+        descriptions:
+          ai: Primary ad description line shown to users in search results.
       - name: description_2
         type: string
+        descriptions:
+          ai: Optional second description line for additional ad messaging.
       - name: head_line_part_1
         type: string
+        descriptions:
+          ai: First headline segment displayed prominently in the ad.
       - name: head_line_part_2
         type: string
+        descriptions:
+          ai: Second headline segment displayed prominently in the ad.
       - name: head_line_part_3
         type: string
+        descriptions:
+          ai: Optional third headline segment displayed in the ad.
       - name: path_1
         type: string
+        descriptions:
+          ai: First optional URL display path appended to the visible URL.
       - name: path_2
         type: string
+        descriptions:
+          ai: Second optional URL display path appended after path_1.
+    descriptions:
+      ai: Historical snapshots of Google Ads expanded text ad creative content, tracked over time via Fivetran.
+    joins:
+      - to: ad_dim_ad
+        "on": expanded_text_ad_history.ad_id = ad_dim_ad.ad_id
+        relationship: many_to_one
+        source: inferred
   fivetran_audit:
     table: oh-data-warehouse.adwords_orlando_health.fivetran_audit
     columns:
       - name: id
         type: string
+        descriptions:
+          ai: Unique identifier for each individual sync operation record.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this audit record.
       - name: done
         type: time
+        descriptions:
+          ai: Timestamp when the sync operation completed.
       - name: message
         type: string
+        descriptions:
+          ai: Error or informational message associated with the sync operation.
       - name: progress
         type: time
+        descriptions:
+          ai: Timestamp marking when progress was last recorded during sync.
       - name: rows_updated_or_inserted
         type: number
+        descriptions:
+          ai: Count of rows affected during the sync operation.
       - name: schema
         type: string
+        descriptions:
+          ai: Target database schema where synced data was written.
       - name: start
         type: time
+        descriptions:
+          ai: Timestamp when the sync operation began processing.
       - name: status
         type: string
+        descriptions:
+          ai: Outcome of the sync operation, e.g., Ok or error.
       - name: table
         type: string
+        descriptions:
+          ai: Target database table that was updated during sync.
       - name: update_id
         type: string
+        descriptions:
+          ai: Unique identifier grouping related sync update operations together.
       - name: update_started
         type: time
+        descriptions:
+          ai: Timestamp when the overall update batch was initiated.
+    descriptions:
+      ai: Tracks Fivetran sync operations, logging status, timing, and row counts for each data pipeline update.
   final_url_history:
     table: oh-data-warehouse.adwords_orlando_health.final_url_history
     columns:
       - name: ad_group_criterion_id
         type: number
+        descriptions:
+          ai: Unique identifier for the keyword or targeting criterion within an ad group.
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier linking the criterion to its parent Google Ads ad group.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Version order of the URL record, supporting historical change tracking.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the final URL was last modified in Google Ads.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
       - name: url
         type: string
+        descriptions:
+          ai: Final landing page URL including UTM tracking parameters for campaign attribution.
+    descriptions:
+      ai: Tracks historical final destination URLs assigned to Google Ads ad group criteria over time.
+    joins:
+      - to: ad_group_targeting_setting_history
+        "on": final_url_history.ad_group_id = ad_group_targeting_setting_history.ad_group_id AND final_url_history.sequence_id = ad_group_targeting_setting_history.sequence_id
+        relationship: many_to_one
+        source: inferred
   keyword_stats:
     table: oh-data-warehouse.adwords_orlando_health.keyword_stats
     columns:
       - name: _fivetran_id
         type: string
+        descriptions:
+          ai: Unique row identifier assigned by Fivetran for deduplication.
       - name: customer_id
         type: number
+        descriptions:
+          ai: Internal Google Ads account identifier for the advertiser.
       - name: date
         type: time
+        descriptions:
+          ai: Date of the reported keyword performance metrics.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: active_view_impressions
         type: number
+        descriptions:
+          ai: Impressions measured for viewability via Active View.
       - name: active_view_measurability
         type: number
+        descriptions:
+          ai: Ratio of impressions measurable for viewability to total impressions.
       - name: active_view_measurable_cost
         type: number
+        descriptions:
+          ai: Cost attributed to Active View measurable impressions.
       - name: active_view_measurable_impressions
         type: number
+        descriptions:
+          ai: Count of impressions eligible for Active View measurement.
       - name: active_view_viewability
         type: number
+        descriptions:
+          ai: Ratio of viewable impressions to measurable Active View impressions.
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier of the ad group containing the keyword.
       - name: ad_network_type_1
         type: string
+        descriptions:
+          ai: Broad network category where the ad was served (e.g., Search).
       - name: ad_network_type_2
         type: string
+        descriptions:
+          ai: Specific network sub-type where the ad appeared.
       - name: base_ad_group_id
         type: number
+        descriptions:
+          ai: Original ad group ID, relevant for draft or experiment campaigns.
       - name: base_campaign_id
         type: number
+        descriptions:
+          ai: Original campaign ID, relevant for draft or experiment campaigns.
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Identifier of the campaign containing the keyword.
       - name: clicks
         type: number
+        descriptions:
+          ai: Total clicks received by the keyword on the given date.
       - name: conversion_value
         type: number
+        descriptions:
+          ai: Total monetary value attributed to keyword-driven conversions.
       - name: conversions
         type: number
+        descriptions:
+          ai: Number of conversion actions attributed to the keyword.
       - name: cost
         type: number
+        descriptions:
+          ai: Total advertising spend for the keyword in account currency.
       - name: device
         type: string
+        descriptions:
+          ai: Device type on which the ad was served.
       - name: external_customer_id
         type: number
+        descriptions:
+          ai: Google Ads account ID visible externally to advertisers.
       - name: id
         type: number
+        descriptions:
+          ai: Unique identifier for the keyword within the ad group.
       - name: impressions
         type: number
+        descriptions:
+          ai: Total times the keyword triggered an ad display.
       - name: interaction_types
         type: string
+        descriptions:
+          ai: Types of user interactions recorded (e.g., clicks).
       - name: interactions
         type: number
+        descriptions:
+          ai: Total count of all user interactions with the ad.
       - name: slot
         type: string
+        descriptions:
+          ai: Ad placement position on the search results page.
       - name: view_through_conversions
         type: number
+        descriptions:
+          ai: Conversions where ad was seen but not clicked before converting.
+    descriptions:
+      ai: Daily Google Ads keyword performance metrics segmented by device, network, and ad placement slot.
+    joins:
+      - to: campaign_dim_campaign
+        "on": keyword_stats.base_campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_campaign
+        "on": keyword_stats.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_customer
+        "on": keyword_stats.customer_id = campaign_dim_customer.customer_id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_customer
+        "on": keyword_stats.external_customer_id = campaign_dim_customer.customer_id
+        relationship: many_to_one
+        source: inferred
   image_ad_history:
     table: oh-data-warehouse.adwords_orlando_health.image_ad_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group containing this image ad.
       - name: ad_id
         type: number
+        descriptions:
+          ai: Unique identifier for the specific image ad.
       - name: sequence_id
         type: number
+        descriptions:
+          ai: Version sequence number tracking historical changes to the ad record.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the ad record was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
       - name: image_creation_time
         type: string
+        descriptions:
+          ai: When the image asset was originally created.
       - name: image_dimensions_height
         type: number
+        descriptions:
+          ai: Height in pixels for the specified image dimension type.
       - name: image_dimensions_key
         type: string
+        descriptions:
+          ai: Label for the dimension variant, such as FULL or PREVIEW.
       - name: image_dimensions_width
         type: number
+        descriptions:
+          ai: Width in pixels for the specified image dimension type.
       - name: image_file_size
         type: number
+        descriptions:
+          ai: File size of the image asset in bytes.
       - name: image_media_id
         type: number
+        descriptions:
+          ai: Platform media library identifier for the image asset.
       - name: image_mime_type
         type: string
+        descriptions:
+          ai: Image format type, such as IMAGE_PNG or IMAGE_JPEG.
       - name: image_name
         type: string
+        descriptions:
+          ai: Human-readable name assigned to the image asset.
       - name: image_reference_id
         type: number
+        descriptions:
+          ai: External reference identifier linking to the image asset.
       - name: image_source_url
         type: string
+        descriptions:
+          ai: Original URL from which the image was sourced.
       - name: image_type
         type: string
+        descriptions:
+          ai: Category of the media asset, typically IMAGE.
       - name: image_urls_key
         type: string
+        descriptions:
+          ai: Label for the URL variant, such as FULL or PREVIEW.
       - name: image_urls_value
         type: string
+        descriptions:
+          ai: Serving URL used to deliver the image to users.
       - name: name
         type: string
+        descriptions:
+          ai: Display name of the image ad creative.
+    descriptions:
+      ai: Historical snapshots of Google Ads image ad creatives with metadata, dimensions, and serving URLs.
+    joins:
+      - to: ad_dim_ad
+        "on": image_ad_history.ad_id = ad_dim_ad.ad_id
+        relationship: many_to_one
+        source: inferred
   location:
     table: oh-data-warehouse.adwords_orlando_health.location
     columns:
       - name: campaign_id
         type: number
+        descriptions:
+          ai: Foreign key linking this location target to a specific ad campaign.
       - name: id
         type: number
+        descriptions:
+          ai: Unique identifier for this location targeting record.
       - name: parent_location
         type: number
+        descriptions:
+          ai: Identifier of the parent geographic region containing this location.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when this location targeting record was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
       - name: display_type
         type: string
+        descriptions:
+          ai: How the location is categorized or displayed in targeting UI.
       - name: name
         type: string
+        descriptions:
+          ai: Human-readable label for the targeted geographic location.
       - name: targeting_status
         type: string
+        descriptions:
+          ai: Indicates whether this location is actively included or excluded from targeting.
+    descriptions:
+      ai: Geographic location targets associated with ad campaigns for location-based ad targeting.
+    joins:
+      - to: campaign_criterion_history
+        "on": location.campaign_id = campaign_criterion_history.campaign_id AND location.id = campaign_criterion_history.id
+        relationship: many_to_one
+        source: inferred
+      - to: campaign_dim_campaign
+        "on": location.campaign_id = campaign_dim_campaign.campaign_id
+        relationship: many_to_one
+        source: inferred
   label:
     table: oh-data-warehouse.adwords_orlando_health.label
     columns:
       - name: id
         type: number
+        descriptions:
+          ai: Unique numeric identifier for each label record.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
       - name: attribute_background_color
         type: string
+        descriptions:
+          ai: Hex color code used to visually display the label background.
       - name: attribute_description
         type: string
+        descriptions:
+          ai: Optional text describing the label's purpose or usage.
       - name: attribute_type
         type: string
+        descriptions:
+          ai: Defines how the label attribute is rendered, e.g., DisplayAttribute.
       - name: label_type
         type: string
+        descriptions:
+          ai: Categorizes the label format, such as TextLabel.
       - name: name
         type: string
+        descriptions:
+          ai: Human-readable label name shown to users for categorization.
       - name: status
         type: string
+        descriptions:
+          ai: Indicates whether the label is active; e.g., ENABLED or DISABLED.
+    descriptions:
+      ai: Stores classification labels used to tag or categorize items, with display styling and status metadata.
+    joins:
+      - to: ad_group_criterion_label_history
+        "on": label.id = ad_group_criterion_label_history.label_id
+        relationship: one_to_many
+        source: inferred
+      - to: ad_group_label_history
+        "on": label.id = ad_group_label_history.label_id
+        relationship: one_to_many
+        source: inferred
+      - to: ad_label_history
+        "on": label.id = ad_label_history.label_id
+        relationship: one_to_many
+        source: inferred
+      - to: campaign_label_history
+        "on": label.id = campaign_label_history.label_id
+        relationship: one_to_many
+        source: inferred
   text_ad_history:
     table: oh-data-warehouse.adwords_orlando_health.text_ad_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier linking the ad to its parent Google Ads ad group.
       - name: ad_id
         type: number
+        descriptions:
+          ai: Unique identifier for the individual text ad creative.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the ad content was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record from the source.
       - name: description_1
         type: string
+        descriptions:
+          ai: First line of the ad's body copy shown to users.
       - name: description_2
         type: string
+        descriptions:
+          ai: Second line of the ad's body copy shown to users.
       - name: headline
         type: string
+        descriptions:
+          ai: Ad headline, often dynamically populated using keyword insertion.
+    descriptions:
+      ai: Historical record of text ad creative content and updates within Google Ads ad groups.
+    joins:
+      - to: ad_dim_ad
+        "on": text_ad_history.ad_id = ad_dim_ad.ad_id
+        relationship: many_to_one
+        source: inferred
   template_ad_history:
     table: oh-data-warehouse.adwords_orlando_health.template_ad_history
     columns:
       - name: ad_group_id
         type: number
+        descriptions:
+          ai: Identifier for the ad group containing this ad.
       - name: ad_id
         type: number
+        descriptions:
+          ai: Unique identifier for the individual ad.
       - name: updated_at
         type: time
+        descriptions:
+          ai: Timestamp when the ad record was last modified.
       - name: _fivetran_synced
         type: time
+        descriptions:
+          ai: Timestamp when Fivetran last synced this record.
       - name: ad_union_id
         type: number
+        descriptions:
+          ai: Identifier linking related ads across union groups.
       - name: duration
         type: number
+        descriptions:
+          ai: Length of the ad in seconds or defined time units.
       - name: name
         type: string
+        descriptions:
+          ai: Human-readable label or campaign theme for the ad.
       - name: origin_ad_id
         type: number
+        descriptions:
+          ai: Source ad ID this ad was derived or copied from.
       - name: template_id
         type: number
+        descriptions:
+          ai: Identifier of the creative template used to build this ad.
+    descriptions:
+      ai: Historical record of template-based ads, tracking ad configurations and their template associations over time.
+    joins:
+      - to: ad_dim_ad
+        "on": template_ad_history.ad_id = ad_dim_ad.ad_id
+        relationship: many_to_one
+        source: inferred
+      - to: template_ad_history
+        "on": template_ad_history.origin_ad_id = template_ad_history.ad_id
+        relationship: many_to_one
+        source: inferred
+      - to: template_ad_history
+        "on": template_ad_history.ad_id = template_ad_history.origin_ad_id
+        relationship: one_to_many
+        source: inferred
