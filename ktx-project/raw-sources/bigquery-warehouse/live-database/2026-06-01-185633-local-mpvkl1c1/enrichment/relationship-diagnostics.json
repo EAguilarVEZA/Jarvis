@@ -1,0 +1,64 @@
+{
+  "connectionId": "bigquery-warehouse",
+  "generatedAt": "2026-06-01T19:07:06.264Z",
+  "summary": {
+    "accepted": 51,
+    "review": 44,
+    "rejected": 108,
+    "skipped": 0
+  },
+  "noAcceptedReason": null,
+  "candidateCountsBySource": {
+    "column_suffix_match": 30,
+    "composite_profile_match": 8,
+    "embedding_similarity": 30,
+    "exact_column_match": 67,
+    "llm_proposal": 41,
+    "normalized_table_match": 7,
+    "profile_match": 20
+  },
+  "validation": {
+    "available": true,
+    "sqlAvailable": true,
+    "queryCount": 53
+  },
+  "thresholds": {
+    "acceptThreshold": 0.85,
+    "reviewThreshold": 0.55
+  },
+  "policy": {
+    "validationRequiredForManifest": true,
+    "maxCandidatesPerColumn": 25,
+    "profileSampleRows": 10000,
+    "profileConcurrency": 4,
+    "validationConcurrency": 4
+  },
+  "warnings": [
+    {
+      "code": "sampling_failed",
+      "message": "Failed to sample table er_wait_time_mockup after retries: Access Denied: BigQuery BigQuery: Permission denied while getting Drive credentials.",
+      "table": "er_wait_time_mockup",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "bigquery:bigquery-warehouse",
+        "error": "Access Denied: BigQuery BigQuery: Permission denied while getting Drive credentials."
+      }
+    },
+    {
+      "code": "description_fallback_used",
+      "message": "Generated table description without sample rows for er_wait_time_mockup (reason: sampling_failed)",
+      "table": "er_wait_time_mockup",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "bigquery:bigquery-warehouse",
+        "reason": "sampling_failed"
+      }
+    }
+  ],
+  "profileWarnings": [
+    "profile_failed:ga4_dim_users_pseudonymous:Invalid cast from STRUCT<operating_system STRING, category STRING, mobile_brand_name STRING, ...> to STRING at [1:8289]",
+    "profile_failed:ga4_dim_event_params:Invalid cast from STRUCT<string_value STRING, int_value INT64, float_value FLOAT64, ...> to STRING at [1:3073]",
+    "profile_failed:ga4_fact_events:Invalid cast from STRUCT<category STRING, mobile_brand_name STRING, mobile_model_name STRING, ...> to STRING at [1:18881]",
+    "profile_failed:er_wait_time_mockup:Access Denied: BigQuery BigQuery: Permission denied while getting Drive credentials."
+  ]
+}
