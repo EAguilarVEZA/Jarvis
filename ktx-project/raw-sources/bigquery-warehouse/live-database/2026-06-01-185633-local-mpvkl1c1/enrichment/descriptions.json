@@ -1,0 +1,1580 @@
+[
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "campaign_conversion_optimizer_eligibility_history"
+    },
+    "tableDescription": "Tracks historical eligibility status of campaigns for Google Ads conversion optimizer feature over time.",
+    "columnDescriptions": {
+      "campaign_id": "Unique identifier for the advertising campaign.",
+      "sequence_id": "Order of eligibility status change events for a campaign.",
+      "updated_at": "Timestamp when the eligibility status was last changed.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "is_eligible": "Whether the campaign qualifies for conversion optimizer.",
+      "rejection_reason": "Reason the campaign was denied conversion optimizer eligibility."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "campaign_criterion_history"
+    },
+    "tableDescription": "Historical record of targeting criteria applied to Google Ads campaigns, including inclusions and exclusions.",
+    "columnDescriptions": {
+      "campaign_id": "Identifier of the Google Ads campaign this criterion belongs to.",
+      "id": "Unique identifier for the campaign criterion record.",
+      "updated_at": "Timestamp when this criterion record was last updated.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "ad_schedule_day_of_week": "Day of week for ad scheduling targeting.",
+      "ad_schedule_end_hour": "Hour when the ad schedule targeting window ends.",
+      "ad_schedule_end_minute": "Minute when the ad schedule targeting window ends.",
+      "ad_schedule_start_hour": "Hour when the ad schedule targeting window begins.",
+      "ad_schedule_start_minute": "Minute when the ad schedule targeting window begins.",
+      "age_range_type": "Targeted age range demographic segment.",
+      "base_campaign_id": "Original campaign ID, relevant for draft or experiment campaigns.",
+      "bid_modifier": "Multiplier adjusting bids for this criterion.",
+      "campaign_criterion_status": "Active or paused status of this criterion.",
+      "campaign_criterion_type": "Whether criterion is a positive target or negative exclusion.",
+      "carrier_country_code": "Country code of the mobile carrier being targeted.",
+      "carrier_name": "Name of the mobile carrier being targeted.",
+      "content_label_type": "Type of content label excluded from ad serving.",
+      "criterion_type": "Category of targeting criterion such as Location, Keyword, or Platform.",
+      "gender_type": "Targeted gender demographic segment.",
+      "income_range_type": "Targeted household income range segment.",
+      "ip_block_ip_address": "IP address blocked from seeing ads.",
+      "is_negative": "Indicates whether this criterion is an exclusion rather than inclusion.",
+      "keyword_match_type": "Match type for keyword targeting: broad, phrase, or exact.",
+      "keyword_text": "The keyword text used for targeting or exclusion.",
+      "language_code": "ISO code of the targeted language.",
+      "language_name": "Human-readable name of the targeted language.",
+      "location_display_type": "Geographic level of the location such as Country or City.",
+      "location_name": "Name of the targeted geographic location.",
+      "location_parent_locations": "Parent geographic locations containing the targeted location.",
+      "location_targeting_status": "Availability status of the targeted location.",
+      "mobile_app_category_id": "Identifier for the targeted mobile app category.",
+      "mobile_app_display_name": "Display name of the targeted mobile app category.",
+      "mobile_application_app_id": "Store identifier of the targeted mobile application.",
+      "mobile_application_display_name": "Display name of the targeted mobile application.",
+      "mobile_device_manufacturer_name": "Manufacturer of the targeted mobile device.",
+      "mobile_device_name": "Model name of the targeted mobile device.",
+      "mobile_device_operating_system_name": "Operating system of the targeted mobile device.",
+      "mobile_device_type": "Type classification of the targeted mobile device.",
+      "operating_system_name": "Name of the targeted device operating system.",
+      "operating_system_operator_type": "Comparison operator for OS version targeting.",
+      "operating_system_os_major_version": "Major version number of the targeted operating system.",
+      "operating_system_os_minor_version": "Minor version number of the targeted operating system.",
+      "parent_type": "Parental status demographic segment being targeted.",
+      "placement_url": "Website URL targeted or excluded as a placement.",
+      "platform_name": "Platform targeted such as desktop or high-end mobile.",
+      "proximity_address_street_address": "Primary street address for proximity radius targeting.",
+      "proximity_address_street_address_2": "Secondary street address line for proximity targeting.",
+      "proximity_city_name": "City of the proximity targeting center point.",
+      "proximity_country_code": "Country code of the proximity targeting center point.",
+      "proximity_geo_point_latitude_in_micro_degrees": "Latitude in micro-degrees for proximity targeting center.",
+      "proximity_geo_point_longitude_in_micro_degrees": "Longitude in micro-degrees for proximity targeting center.",
+      "proximity_postal_code": "Postal code of the proximity targeting center point.",
+      "proximity_province_code": "Province or state code for proximity targeting.",
+      "proximity_province_name": "Province or state name for proximity targeting.",
+      "proximity_radius_distance_units": "Unit of measurement for the proximity targeting radius.",
+      "proximity_radius_in_units": "Radius size for proximity geographic targeting.",
+      "user_interest_id": "Identifier of the targeted user interest audience segment.",
+      "user_interest_name": "Name of the targeted user interest audience segment.",
+      "user_interest_parent_id": "Parent category identifier for the user interest segment.",
+      "user_list_eligible_for_display": "Indicates if the user list can be used for display campaigns.",
+      "user_list_eligible_for_search": "Indicates if the user list can be used for search campaigns.",
+      "user_list_id": "Identifier of the targeted remarketing user list.",
+      "user_list_membership_status": "Whether the user list is open or closed for membership.",
+      "user_list_name": "Name of the targeted remarketing user list.",
+      "vertical_id": "Identifier of the targeted content vertical category.",
+      "vertical_parent_id": "Parent category identifier for the content vertical.",
+      "vertical_path": "Full hierarchical path of the targeted content vertical.",
+      "youtube_channel_id": "Identifier of the targeted or excluded YouTube channel.",
+      "youtube_channel_name": "Name of the targeted or excluded YouTube channel.",
+      "youtube_video_id": "Identifier of the targeted or excluded YouTube video.",
+      "youtube_video_name": "Title of the targeted or excluded YouTube video."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "campaign_geo_target_type_setting_history"
+    },
+    "tableDescription": "Historical record of geographic targeting type settings for advertising campaigns over time.",
+    "columnDescriptions": {
+      "campaign_id": "Unique identifier linking the record to a specific advertising campaign.",
+      "updated_at": "Timestamp when the geo targeting setting was last modified in the source system.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record to the data warehouse.",
+      "negative_geo_target_type": "Criteria for excluding users based on location presence or interest.",
+      "positive_geo_target_type": "Criteria for including users based on location presence, interest, or no preference."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "campaign_history"
+    },
+    "tableDescription": "Historical snapshot of Google Ads campaign configurations, settings, and bidding strategies per customer.",
+    "columnDescriptions": {
+      "id": "Unique Google Ads campaign identifier.",
+      "updated_at": "Timestamp when the campaign record was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "ad_serving_optimization_status": "Controls how Google optimizes ad serving within the campaign.",
+      "advertising_channel_subtype": "More specific sub-classification of the advertising channel.",
+      "advertising_channel_type": "Primary channel type, e.g., SEARCH or DISPLAY.",
+      "base_campaign_id": "ID of the original campaign if this is a trial variant.",
+      "bidding_strategy_bid_ceiling": "Maximum bid cap allowed by the bidding strategy.",
+      "bidding_strategy_bid_changes_for_raises_only": "Restricts automated bid adjustments to increases only.",
+      "bidding_strategy_bid_floor": "Minimum bid floor set by the bidding strategy.",
+      "bidding_strategy_bid_modifier": "Multiplier applied to adjust bids automatically.",
+      "bidding_strategy_competitor_domain": "Competitor domain targeted for outranking bid strategies.",
+      "bidding_strategy_cpa_bid_amount": "Target cost-per-acquisition bid amount in micros.",
+      "bidding_strategy_cpc_bid_amount": "Target cost-per-click bid amount in micros.",
+      "bidding_strategy_cpm_bid_amount": "Target cost-per-thousand-impressions bid amount in micros.",
+      "bidding_strategy_enhanced_cpc_enabled": "Indicates if enhanced CPC bid adjustment is active.",
+      "bidding_strategy_id": "Identifier of the shared portfolio bidding strategy applied.",
+      "bidding_strategy_max_cpc_bid_ceiling": "Upper CPC bid ceiling within the bidding strategy.",
+      "bidding_strategy_max_cpc_bid_floor": "Lower CPC bid floor within the bidding strategy.",
+      "bidding_strategy_name": "Human-readable name of the applied bidding strategy.",
+      "bidding_strategy_raise_bid_when_budget_constrained": "Allows bid increases when campaign is budget-limited.",
+      "bidding_strategy_raise_bid_when_low_quality_score": "Allows bid increases for low quality score keywords.",
+      "bidding_strategy_scheme_type": "Classification scheme of the bidding strategy approach.",
+      "bidding_strategy_source": "Indicates whether strategy is campaign-level or portfolio-level.",
+      "bidding_strategy_spend_target": "Target spend amount for budget-based bidding strategies.",
+      "bidding_strategy_strategy_goal": "Primary optimization goal of the bidding strategy.",
+      "bidding_strategy_target_cpa": "Desired cost per acquisition for Target CPA strategy.",
+      "bidding_strategy_target_outrank_share": "Share of auctions where campaign should outrank competitors.",
+      "bidding_strategy_target_roas": "Desired return on ad spend ratio for Target ROAS.",
+      "bidding_strategy_target_roas_override": "Campaign-level override for the portfolio target ROAS value.",
+      "bidding_strategy_type": "Type of bidding strategy, e.g., TARGET_CPA or MANUAL_CPC.",
+      "bidding_strategy_viewable_cpm_enabled": "Indicates if viewable CPM bidding is enabled.",
+      "campaign_group_id": "ID of the campaign group this campaign belongs to.",
+      "campaign_trial_type": "Indicates if campaign is a BASE or experimental trial.",
+      "customer_id": "Google Ads account identifier owning this campaign.",
+      "end_date": "Scheduled end date of the campaign in YYYYMMDD format.",
+      "final_url_suffix": "Parameters appended to landing page URLs for tracking.",
+      "frequency_cap_impressions": "Maximum impressions allowed per user within the time unit.",
+      "frequency_cap_level": "Level at which frequency cap is applied, e.g., ad group.",
+      "frequency_cap_time_unit": "Time period for the frequency cap, e.g., DAY or WEEK.",
+      "name": "Descriptive display name of the campaign.",
+      "network_setting_target_content_network": "Enables serving ads on Google Display Network.",
+      "network_setting_target_google_search": "Enables serving ads on Google Search results.",
+      "network_setting_target_partner_search_network": "Enables serving ads on Google search partner sites.",
+      "network_setting_target_search_network": "Enables serving ads on Google Search Network.",
+      "serving_status": "Current delivery status, e.g., SERVING or ENDED.",
+      "start_date": "Campaign launch date in YYYYMMDD format.",
+      "status": "Administrative status: ENABLED, PAUSED, or REMOVED.",
+      "tracking_url_template": "URL template used for click tracking across ads.",
+      "vanity_pharma_display_url_mode": "Display URL mode for pharmaceutical vanity URL compliance.",
+      "vanity_pharma_text": "Approved vanity text shown in pharma ad display URLs."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "campaign_label_history"
+    },
+    "tableDescription": "Tracks historical associations between advertising campaigns and their assigned labels over time.",
+    "columnDescriptions": {
+      "campaign_id": "Unique identifier for the advertising campaign.",
+      "label_id": "Unique identifier for the label assigned to the campaign.",
+      "updated_at": "Timestamp when the campaign-label association was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "campaign_targeting_setting_history"
+    },
+    "tableDescription": "Tracks historical changes to campaign targeting settings, including audience criterion configurations over time.",
+    "columnDescriptions": {
+      "campaign_id": "Unique identifier linking the record to a specific ad campaign.",
+      "sequence_id": "Version number indicating the order of changes for this campaign setting.",
+      "updated_at": "Timestamp when the targeting setting was last modified in the source system.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record to the data warehouse.",
+      "criterion_type_group": "Category of targeting criteria applied, such as audience interest or remarketing lists.",
+      "target_all": "Indicates whether the campaign targets all users within the criterion group."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "account"
+    },
+    "tableDescription": "Google Ads accounts synced via Fivetran, representing advertiser or manager account configurations.",
+    "columnDescriptions": {
+      "id": "Unique Google Ads customer account identifier.",
+      "sequence_id": "Ordering sequence for record versioning or deduplication.",
+      "_fivetran_synced": "Timestamp of the last Fivetran sync for this record.",
+      "account_label_id": "Numeric identifier of the label assigned to this account.",
+      "account_label_name": "Display name of the label assigned to this account.",
+      "can_manage_clients": "Indicates whether this account has manager-level client access.",
+      "currency_code": "ISO currency code used for billing and reporting.",
+      "date_timezone": "Timezone used for date-based reporting and scheduling.",
+      "manager_customer_id": "Parent manager account ID if this is a sub-account.",
+      "name": "Business or brand name of the advertising account.",
+      "test_account": "Flags whether this is a test account, not real spend."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_group_criterion_history"
+    },
+    "tableDescription": "Historical snapshots of Google Ads ad group criteria including keywords, audiences, placements, and bidding settings over time.",
+    "columnDescriptions": {
+      "ad_group_id": "Identifier of the ad group this criterion belongs to.",
+      "id": "Unique identifier for the ad group criterion.",
+      "updated_at": "Timestamp when this criterion record was last updated.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "ad_group_criterion_type": "Whether criterion is biddable or negative targeting.",
+      "age_range_type": "Age range demographic targeting segment.",
+      "app_id": "App store identifier for app-based targeting criteria.",
+      "app_payment_model_type": "Payment model type for app targeting (free or paid).",
+      "approval_status": "Google's editorial approval status for this criterion.",
+      "base_adgroup_id": "Original ad group ID for draft or experiment ad groups.",
+      "base_campaign_id": "Original campaign ID for draft or experiment campaigns.",
+      "bid_modifier": "Multiplier adjusting bids for this criterion.",
+      "bidding_strategy_bid_ceiling": "Maximum bid cap allowed by the bidding strategy.",
+      "bidding_strategy_bid_changes_for_raises_only": "Restricts automated bid changes to increases only.",
+      "bidding_strategy_bid_floor": "Minimum bid floor set by the bidding strategy.",
+      "bidding_strategy_bid_modifier": "Bid adjustment multiplier within the bidding strategy.",
+      "bidding_strategy_competitor_domain": "Competitor domain targeted for outranking share strategy.",
+      "bidding_strategy_cpa_bid_amount": "Target cost-per-acquisition bid amount in micros.",
+      "bidding_strategy_cpc_bid_amount": "Cost-per-click bid amount in micros.",
+      "bidding_strategy_cpm_bid_amount": "Cost-per-thousand-impressions bid amount in micros.",
+      "bidding_strategy_enhanced_cpc_enabled": "Whether enhanced CPC bid optimization is enabled.",
+      "bidding_strategy_id": "Identifier of the shared portfolio bidding strategy.",
+      "bidding_strategy_max_cpc_bid_ceiling": "Maximum CPC ceiling within the bidding strategy.",
+      "bidding_strategy_max_cpc_bid_floor": "Minimum CPC floor within the bidding strategy.",
+      "bidding_strategy_name": "Name of the applied bidding strategy.",
+      "bidding_strategy_raise_bid_when_budget_constrained": "Raises bids automatically when campaign is budget-limited.",
+      "bidding_strategy_raise_bid_when_low_quality_score": "Raises bids automatically when quality score is low.",
+      "bidding_strategy_scheme_type": "Class name of the bidding scheme applied.",
+      "bidding_strategy_source": "Level where bidding strategy is set (campaign or ad group).",
+      "bidding_strategy_spend_target": "Target spend amount for the bidding strategy.",
+      "bidding_strategy_strategy_goal": "Optimization goal of the bidding strategy.",
+      "bidding_strategy_target_cpa": "Target CPA goal amount in micros.",
+      "bidding_strategy_target_outrank_share": "Target share of auctions to outrank a competitor.",
+      "bidding_strategy_target_roas": "Target return on ad spend ratio.",
+      "bidding_strategy_target_roas_override": "Criterion-level override for target ROAS.",
+      "bidding_strategy_type": "Type of bidding strategy such as MANUAL_CPC or TARGET_CPA.",
+      "bidding_strategy_viewable_cpm_enabled": "Whether viewable CPM bidding is enabled.",
+      "channel_exclusivity": "Restricts serving to a single channel or allows multiple.",
+      "channel_id": "Identifier for the YouTube or display channel targeted.",
+      "channel_name": "Name of the targeted YouTube or display channel.",
+      "criterion_use": "Whether criterion is used for bidding or exclusion (negative).",
+      "custom_affinity_id": "Identifier for a custom affinity audience segment.",
+      "custom_intent_id": "Identifier for a custom intent audience segment.",
+      "first_page_cpc": "Estimated CPC needed to appear on the first page.",
+      "first_position_cpc": "Estimated CPC needed to appear in the first position.",
+      "gender_type": "Gender demographic targeting segment.",
+      "income_range_type": "Household income range demographic targeting segment.",
+      "keyword_match_type": "Keyword matching type: EXACT, PHRASE, or BROAD.",
+      "keyword_text": "The keyword text used for search targeting.",
+      "mobile_app_category_display_name": "Human-readable name of the mobile app category targeted.",
+      "mobile_app_category_id": "Identifier for the mobile app category targeted.",
+      "mobile_application_display_name": "Display name of the specific mobile application targeted.",
+      "parent_criterion_id": "Parent criterion ID for hierarchical product partition trees.",
+      "parent_type": "Type of the parent criterion in a hierarchy.",
+      "partition_type": "Whether product partition is a subdivision or unit.",
+      "placement_url": "URL of the website or app placement targeted.",
+      "product_adwords_grouping": "Custom grouping label assigned to products in AdWords.",
+      "product_adwords_label": "Custom label applied to products for AdWords targeting.",
+      "product_bidding_category_type": "Level of the Google product bidding category hierarchy.",
+      "product_bidding_category_value": "Numeric value of the product bidding category.",
+      "product_brand_value": "Brand name used for product targeting.",
+      "product_canonical_condition": "Standardized product condition: new, used, or refurbished.",
+      "product_channel": "Sales channel for product targeting: online or local.",
+      "product_custom_attribute_type": "Custom attribute slot type used for product segmentation.",
+      "product_custom_attribute_value": "Value of the custom product attribute for targeting.",
+      "product_legacy_condition": "Legacy condition value for product targeting.",
+      "product_offer_id": "Merchant-assigned offer ID for specific product targeting.",
+      "product_type": "Product type category used for Shopping targeting.",
+      "product_type_full": "Full hierarchical product type string.",
+      "product_type_value": "Specific product type value for targeting.",
+      "quality_info_score": "Quality score indicating ad relevance and landing page quality.",
+      "system_serving_status": "Google's system status indicating if criterion is eligible to serve.",
+      "top_of_page_cpc": "Estimated CPC needed to appear at the top of the page.",
+      "tracking_url_template": "URL template used for click tracking on this criterion.",
+      "user_interest_id": "Identifier for the user interest audience segment.",
+      "user_interest_name": "Name of the user interest audience segment.",
+      "user_interest_parent_id": "Parent category ID for the user interest segment.",
+      "user_list_eligible_for_display": "Whether the user list can be used for display targeting.",
+      "user_list_eligible_for_search": "Whether the user list can be used for search targeting.",
+      "user_list_id": "Identifier for the remarketing or customer match user list.",
+      "user_list_membership_status": "Whether users are currently open or closed for list membership.",
+      "user_list_name": "Name of the targeted user list audience.",
+      "user_status": "Advertiser-set status of the criterion: ENABLED or PAUSED.",
+      "vertical_id": "Identifier for the content vertical category targeted.",
+      "vertical_parent_id": "Parent category ID for the content vertical.",
+      "vertical_path": "Full path of the content vertical hierarchy.",
+      "video_id": "Identifier for the specific YouTube video targeted.",
+      "video_name": "Name of the targeted YouTube video."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_group_criterion_label_history"
+    },
+    "tableDescription": "Historical record of labels assigned to ad group criteria in Google Ads campaigns.",
+    "columnDescriptions": {
+      "ad_group_criterion_id": "Unique identifier for the specific ad group criterion being labeled.",
+      "ad_group_id": "Identifier of the ad group containing the criterion.",
+      "label_id": "Identifier of the label applied to the criterion.",
+      "updated_at": "Timestamp when the label assignment was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_group_explorer_auto_optimizer_setting_history"
+    },
+    "tableDescription": "Tracks historical opt-in status changes for the Explorer auto-optimizer feature at the ad group level.",
+    "columnDescriptions": {
+      "ad_group_id": "Unique identifier for the ad group being configured.",
+      "updated_at": "Timestamp when the optimizer setting was last changed.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "opt_in": "Whether the ad group is enrolled in Explorer auto-optimization."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_group_history"
+    },
+    "tableDescription": "Historical snapshot of Google Ads ad group configurations, bidding strategies, and settings synced via Fivetran.",
+    "columnDescriptions": {
+      "id": "Unique identifier for the ad group.",
+      "updated_at": "Timestamp when the ad group record was last updated.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "ad_group_rotation_mode": "How ads within the group are rotated for serving.",
+      "ad_group_type": "Classification of the ad group, e.g., SEARCH_STANDARD.",
+      "base_ad_group_id": "Original ad group ID for draft or experiment groups.",
+      "base_campaign_id": "Original campaign ID for draft or experiment groups.",
+      "bidding_strategy_bid_ceiling": "Maximum bid cap allowed by the bidding strategy.",
+      "bidding_strategy_bid_changes_for_raises_only": "Restricts automated bid changes to increases only.",
+      "bidding_strategy_bid_floor": "Minimum bid floor set by the bidding strategy.",
+      "bidding_strategy_bid_modifier": "Multiplier applied to adjust bids automatically.",
+      "bidding_strategy_competitor_domain": "Competitor domain targeted for outranking strategies.",
+      "bidding_strategy_cpa_bid_amount": "Target cost-per-acquisition bid in micros.",
+      "bidding_strategy_cpc_bid_amount": "Manual cost-per-click bid amount in micros.",
+      "bidding_strategy_cpm_bid_amount": "Cost-per-thousand-impressions bid amount in micros.",
+      "bidding_strategy_enhanced_cpc_enabled": "Whether enhanced CPC bid adjustments are active.",
+      "bidding_strategy_id": "Identifier of the portfolio bidding strategy applied.",
+      "bidding_strategy_max_cpc_bid_ceiling": "Upper CPC limit for automated bidding strategies.",
+      "bidding_strategy_max_cpc_bid_floor": "Lower CPC limit for automated bidding strategies.",
+      "bidding_strategy_name": "Name of the portfolio bidding strategy used.",
+      "bidding_strategy_raise_bid_when_budget_constrained": "Allows bid increases when campaign budget is limiting delivery.",
+      "bidding_strategy_raise_bid_when_low_quality_score": "Allows bid increases for low quality score keywords.",
+      "bidding_strategy_scheme_type": "Class name of the bidding scheme, e.g., ManualCpcBiddingScheme.",
+      "bidding_strategy_source": "Indicates if strategy is set at ad group or campaign level.",
+      "bidding_strategy_spend_target": "Target spend amount for budget-based bidding strategies.",
+      "bidding_strategy_strategy_goal": "Optimization goal of the bidding strategy.",
+      "bidding_strategy_target_cpa": "Target CPA value used in automated CPA bidding.",
+      "bidding_strategy_target_outrank_share": "Target share of auctions to outrank a competitor.",
+      "bidding_strategy_target_roas": "Target return on ad spend ratio for automated bidding.",
+      "bidding_strategy_target_roas_override": "Ad group level override for target ROAS value.",
+      "bidding_strategy_type": "Type of bidding strategy, e.g., MANUAL_CPC, TARGET_CPA.",
+      "bidding_strategy_viewable_cpm_enabled": "Whether viewable CPM bidding is enabled.",
+      "campaign_id": "Identifier of the parent campaign.",
+      "campaign_name": "Display name of the parent campaign.",
+      "content_bid_criterion_type_group": "Criterion type group used for content network bids.",
+      "final_url_suffix": "Parameters appended to final URLs for tracking.",
+      "name": "Display name of the ad group.",
+      "status": "Current serving status, e.g., ENABLED or PAUSED.",
+      "tracking_url_template": "URL template with ValueTrack parameters for click tracking."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_group_label_history"
+    },
+    "tableDescription": "Tracks historical associations between Google Ads ad groups and their assigned labels over time.",
+    "columnDescriptions": {
+      "ad_group_id": "Unique identifier for the Google Ads ad group.",
+      "label_id": "Unique identifier for the label assigned to the ad group.",
+      "updated_at": "Timestamp when the label-ad group association was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_group_targeting_setting_history"
+    },
+    "tableDescription": "Historical log of ad group targeting settings by criterion type, tracking changes over time.",
+    "columnDescriptions": {
+      "ad_group_id": "Identifier linking the targeting setting to a specific ad group.",
+      "sequence_id": "Version number indicating the order of changes for this record.",
+      "updated_at": "Timestamp when the targeting setting was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source.",
+      "criterion_type_group": "Category of targeting criterion, such as AGE_RANGE, PARENT, or VERTICAL.",
+      "target_all": "Whether all values within the criterion type group are targeted broadly."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_final_mobile_url_history"
+    },
+    "tableDescription": "Historical record of final mobile destination URLs assigned to ads within Google Ads ad groups.",
+    "columnDescriptions": {
+      "ad_group_id": "Identifier for the ad group containing the ad.",
+      "ad_id": "Identifier for the specific ad with the mobile URL.",
+      "sequence_id": "Order index when multiple mobile URLs exist for an ad.",
+      "updated_at": "Timestamp when the mobile URL record was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "url": "Final mobile landing page URL including UTM tracking parameters."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_final_url_history"
+    },
+    "tableDescription": "Tracks historical final destination URLs for ads, capturing changes over time per ad and ad group.",
+    "columnDescriptions": {
+      "ad_group_id": "Identifier for the ad group containing the ad.",
+      "ad_id": "Identifier for the specific ad associated with the URL.",
+      "sequence_id": "Version order of URL changes; zero indicates the original URL.",
+      "updated_at": "Timestamp when the final URL record was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "url": "Final destination landing page URL including tracking parameters."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_history"
+    },
+    "tableDescription": "Historical snapshot of Google Ads individual ad configurations, statuses, and policy approvals synced via Fivetran.",
+    "columnDescriptions": {
+      "ad_group_id": "The ad group this ad belongs to.",
+      "id": "Unique identifier for the individual ad.",
+      "updated_at": "Timestamp when the ad record was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "ad_type": "Format of the ad, e.g., TextAd, ExpandedTextAd, ImageAd.",
+      "automated": "Indicates whether the ad was automatically created by Google.",
+      "base_adgroup_id": "Original ad group ID before any drafts or experiments.",
+      "base_campaign_id": "Original campaign ID before any drafts or experiments.",
+      "device_preference": "Preferred device targeting for the ad.",
+      "display_url": "Visible URL shown to users in the ad.",
+      "final_url_suffix": "Parameters appended to the landing page URL for tracking.",
+      "policy_summary_combined_approval_status": "Overall Google policy approval status for the ad.",
+      "policy_summary_denormalized_status": "Flattened policy status reflecting all policy findings.",
+      "policy_summary_review_state": "Current stage of Google's policy review process.",
+      "status": "Serving status of the ad, e.g., ENABLED or PAUSED.",
+      "system_managed_entity_source": "Source system if the ad is managed automatically by Google.",
+      "tracking_url_template": "URL template used for third-party click tracking.",
+      "url": "Destination URL users are directed to after clicking."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_label_history"
+    },
+    "tableDescription": "Tracks historical associations between ads and their assigned labels over time.",
+    "columnDescriptions": {
+      "ad_id": "Unique identifier for the advertising creative or ad unit.",
+      "label_id": "Unique identifier for the label assigned to the ad.",
+      "updated_at": "Timestamp when the ad-label association was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_stats"
+    },
+    "tableDescription": "Daily Google Ads performance metrics per ad, campaign, ad group, criterion, device, and network placement.",
+    "columnDescriptions": {
+      "_fivetran_id": "Unique row identifier generated by Fivetran for deduplication.",
+      "customer_id": "Internal Google Ads account identifier for the advertiser.",
+      "date": "Calendar date for which the performance metrics are reported.",
+      "_fivetran_synced": "Timestamp of the most recent Fivetran data sync for this row.",
+      "active_view_impressions": "Number of impressions measured as viewable by Active View.",
+      "active_view_measurability": "Percentage of impressions eligible for Active View measurement.",
+      "active_view_measurable_cost": "Cost attributed to Active View measurable impressions.",
+      "active_view_measurable_impressions": "Count of impressions that could be measured for viewability.",
+      "active_view_viewability": "Percentage of measurable impressions that were actually viewable.",
+      "ad_group_id": "Identifier for the ad group containing the ad.",
+      "ad_network_type_1": "Broad network category where the ad was served (e.g., Search, Display).",
+      "ad_network_type_2": "Specific network placement where the ad appeared.",
+      "base_ad_group_id": "Original ad group ID before any drafts or experiments.",
+      "base_campaign_id": "Original campaign ID before any drafts or experiments.",
+      "campaign_id": "Identifier for the campaign containing the ad.",
+      "clicks": "Total number of user clicks on the ad.",
+      "conversion_value": "Total monetary value attributed to recorded conversions.",
+      "conversions": "Number of conversion actions completed after ad interaction.",
+      "cost": "Total spend in account currency for the ad on this date.",
+      "criterion_id": "Identifier for the targeting criterion (e.g., keyword, audience).",
+      "criterion_type": "Type of targeting criterion such as Keyword or Age.",
+      "device": "Device category on which the ad was served.",
+      "external_customer_id": "Advertiser-facing Google Ads account ID shown in the UI.",
+      "id": "Unique identifier for the specific ad creative.",
+      "impressions": "Total number of times the ad was displayed.",
+      "interaction_types": "List of interaction types recorded, such as Clicks.",
+      "interactions": "Total count of user interactions with the ad.",
+      "is_negative": "Indicates whether the criterion is a negative targeting exclusion.",
+      "slot": "Position on the page where the ad appeared.",
+      "view_through_conversions": "Conversions from users who saw but did not click the ad."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_policy_constraint_history"
+    },
+    "tableDescription": "Historical log of ad policy constraints applied to ads, tracking country-level advertising restrictions over time.",
+    "columnDescriptions": {
+      "policy_topic_ad_group_id": "Identifier for the ad group associated with the policy topic constraint.",
+      "policy_topic_ad_id": "Identifier for the specific ad subject to the policy constraint.",
+      "policy_topic_sequence_id": "Sequence number identifying the policy topic entry order.",
+      "sequence_id": "Version or iteration number for tracking constraint record changes.",
+      "updated_at": "Timestamp when the policy constraint record was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source.",
+      "constrained_countries": "Country codes where the ad is restricted or limited from serving.",
+      "constraint_type": "Category of policy restriction applied, such as CountryConstraint.",
+      "total_targeted_countries": "Total number of countries targeted by the associated ad campaign."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_policy_evidence_history"
+    },
+    "tableDescription": "Historical log of policy violation evidence found in Google Ads, tracking flagged ad content over time.",
+    "columnDescriptions": {
+      "policy_topic_ad_group_id": "Identifier for the ad group associated with the policy violation.",
+      "policy_topic_ad_id": "Identifier for the specific ad flagged for a policy violation.",
+      "policy_topic_sequence_id": "Ordering index for multiple policy topics on the same ad.",
+      "sequence_id": "Ordering index for multiple evidence entries within a policy topic.",
+      "updated_at": "Timestamp when the policy evidence record was last updated.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source.",
+      "evidence_text_list": "Specific text within the ad that triggered the policy flag.",
+      "policy_type_evidence_type": "Category of evidence type, such as ad text or URL content."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "ad_policy_topic_history"
+    },
+    "tableDescription": "Historical log of Google Ads policy topic flags applied to individual ads within ad groups.",
+    "columnDescriptions": {
+      "ad_group_id": "Identifier for the ad group containing the flagged ad.",
+      "ad_id": "Identifier for the specific ad that triggered a policy topic.",
+      "sequence_id": "Order index when multiple policy topics apply to one ad.",
+      "updated_at": "Timestamp when the policy topic record was last updated.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "policy_topic_entry_type": "Severity classification: UNKNOWN, LIMITED, or PROHIBITED policy violation.",
+      "policy_topic_help_center_url": "Google support URL explaining the specific policy violation.",
+      "policy_topic_id": "Unique numeric identifier for the Google Ads policy topic.",
+      "policy_topic_name": "Human-readable name of the policy category flagged on the ad."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "budget_history"
+    },
+    "tableDescription": "Historical record of advertising campaign budget configurations and changes over time.",
+    "columnDescriptions": {
+      "campaign_id": "Foreign key linking the budget to its associated advertising campaign.",
+      "id": "Unique identifier for each budget record.",
+      "updated_at": "Timestamp when the budget record was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source.",
+      "amount": "Budget amount in micros; divide by one million for actual currency value.",
+      "delivery_method": "Pacing strategy for ad spend, e.g., STANDARD for even daily distribution.",
+      "is_explicitly_shared": "Indicates whether this budget is intentionally shared across multiple campaigns.",
+      "name": "Descriptive label identifying the campaign and service line for the budget.",
+      "reference_count": "Number of campaigns currently using this budget.",
+      "status": "Current operational state of the budget, e.g., ENABLED or PAUSED."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "disapproval_reason_history"
+    },
+    "tableDescription": "Tracks historical disapproval reasons for Google Ads ad group criteria over time.",
+    "columnDescriptions": {
+      "ad_group_criterion_id": "Unique identifier for the specific keyword or targeting criterion within an ad group.",
+      "ad_group_id": "Identifier of the ad group containing the disapproved criterion.",
+      "sequence_id": "Order index tracking multiple disapproval reasons for the same criterion.",
+      "updated_at": "Timestamp when the disapproval reason record was last updated in Google Ads.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record to the data warehouse.",
+      "disapproval_reason": "Google Ads policy violation reason causing the criterion to be disapproved."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "dynamic_search_ad_history"
+    },
+    "tableDescription": "Historical record of dynamic search ad copy changes over time, synced via Fivetran.",
+    "columnDescriptions": {
+      "ad_group_id": "Identifier for the ad group containing this dynamic search ad.",
+      "ad_id": "Unique identifier for the specific dynamic search ad.",
+      "updated_at": "Timestamp when the ad copy or configuration was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source.",
+      "description_1": "First line of ad copy text shown to users in search results.",
+      "description_2": "Second line of ad copy text shown to users in search results."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "expanded_text_ad_history"
+    },
+    "tableDescription": "Historical snapshots of Google Ads expanded text ad creative content, tracked over time via Fivetran.",
+    "columnDescriptions": {
+      "ad_group_id": "Identifier linking the ad to its parent Google Ads ad group.",
+      "ad_id": "Unique identifier for the specific expanded text ad.",
+      "updated_at": "Timestamp when the ad creative content was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source.",
+      "description": "Primary ad description line shown to users in search results.",
+      "description_2": "Optional second description line for additional ad messaging.",
+      "head_line_part_1": "First headline segment displayed prominently in the ad.",
+      "head_line_part_2": "Second headline segment displayed prominently in the ad.",
+      "head_line_part_3": "Optional third headline segment displayed in the ad.",
+      "path_1": "First optional URL display path appended to the visible URL.",
+      "path_2": "Second optional URL display path appended after path_1."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "fivetran_audit"
+    },
+    "tableDescription": "Tracks Fivetran sync operations, logging status, timing, and row counts for each data pipeline update.",
+    "columnDescriptions": {
+      "id": "Unique identifier for each individual sync operation record.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this audit record.",
+      "done": "Timestamp when the sync operation completed.",
+      "message": "Error or informational message associated with the sync operation.",
+      "progress": "Timestamp marking when progress was last recorded during sync.",
+      "rows_updated_or_inserted": "Count of rows affected during the sync operation.",
+      "schema": "Target database schema where synced data was written.",
+      "start": "Timestamp when the sync operation began processing.",
+      "status": "Outcome of the sync operation, e.g., Ok or error.",
+      "table": "Target database table that was updated during sync.",
+      "update_id": "Unique identifier grouping related sync update operations together.",
+      "update_started": "Timestamp when the overall update batch was initiated."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "final_url_history"
+    },
+    "tableDescription": "Tracks historical final destination URLs assigned to Google Ads ad group criteria over time.",
+    "columnDescriptions": {
+      "ad_group_criterion_id": "Unique identifier for the keyword or targeting criterion within an ad group.",
+      "ad_group_id": "Identifier linking the criterion to its parent Google Ads ad group.",
+      "sequence_id": "Version order of the URL record, supporting historical change tracking.",
+      "updated_at": "Timestamp when the final URL was last modified in Google Ads.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source.",
+      "url": "Final landing page URL including UTM tracking parameters for campaign attribution."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "keyword_stats"
+    },
+    "tableDescription": "Daily Google Ads keyword performance metrics segmented by device, network, and ad placement slot.",
+    "columnDescriptions": {
+      "_fivetran_id": "Unique row identifier assigned by Fivetran for deduplication.",
+      "customer_id": "Internal Google Ads account identifier for the advertiser.",
+      "date": "Date of the reported keyword performance metrics.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "active_view_impressions": "Impressions measured for viewability via Active View.",
+      "active_view_measurability": "Ratio of impressions measurable for viewability to total impressions.",
+      "active_view_measurable_cost": "Cost attributed to Active View measurable impressions.",
+      "active_view_measurable_impressions": "Count of impressions eligible for Active View measurement.",
+      "active_view_viewability": "Ratio of viewable impressions to measurable Active View impressions.",
+      "ad_group_id": "Identifier of the ad group containing the keyword.",
+      "ad_network_type_1": "Broad network category where the ad was served (e.g., Search).",
+      "ad_network_type_2": "Specific network sub-type where the ad appeared.",
+      "base_ad_group_id": "Original ad group ID, relevant for draft or experiment campaigns.",
+      "base_campaign_id": "Original campaign ID, relevant for draft or experiment campaigns.",
+      "campaign_id": "Identifier of the campaign containing the keyword.",
+      "clicks": "Total clicks received by the keyword on the given date.",
+      "conversion_value": "Total monetary value attributed to keyword-driven conversions.",
+      "conversions": "Number of conversion actions attributed to the keyword.",
+      "cost": "Total advertising spend for the keyword in account currency.",
+      "device": "Device type on which the ad was served.",
+      "external_customer_id": "Google Ads account ID visible externally to advertisers.",
+      "id": "Unique identifier for the keyword within the ad group.",
+      "impressions": "Total times the keyword triggered an ad display.",
+      "interaction_types": "Types of user interactions recorded (e.g., clicks).",
+      "interactions": "Total count of all user interactions with the ad.",
+      "slot": "Ad placement position on the search results page.",
+      "view_through_conversions": "Conversions where ad was seen but not clicked before converting."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "image_ad_history"
+    },
+    "tableDescription": "Historical snapshots of Google Ads image ad creatives with metadata, dimensions, and serving URLs.",
+    "columnDescriptions": {
+      "ad_group_id": "Identifier for the ad group containing this image ad.",
+      "ad_id": "Unique identifier for the specific image ad.",
+      "sequence_id": "Version sequence number tracking historical changes to the ad record.",
+      "updated_at": "Timestamp when the ad record was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source.",
+      "image_creation_time": "When the image asset was originally created.",
+      "image_dimensions_height": "Height in pixels for the specified image dimension type.",
+      "image_dimensions_key": "Label for the dimension variant, such as FULL or PREVIEW.",
+      "image_dimensions_width": "Width in pixels for the specified image dimension type.",
+      "image_file_size": "File size of the image asset in bytes.",
+      "image_media_id": "Platform media library identifier for the image asset.",
+      "image_mime_type": "Image format type, such as IMAGE_PNG or IMAGE_JPEG.",
+      "image_name": "Human-readable name assigned to the image asset.",
+      "image_reference_id": "External reference identifier linking to the image asset.",
+      "image_source_url": "Original URL from which the image was sourced.",
+      "image_type": "Category of the media asset, typically IMAGE.",
+      "image_urls_key": "Label for the URL variant, such as FULL or PREVIEW.",
+      "image_urls_value": "Serving URL used to deliver the image to users.",
+      "name": "Display name of the image ad creative."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "location"
+    },
+    "tableDescription": "Geographic location targets associated with ad campaigns for location-based ad targeting.",
+    "columnDescriptions": {
+      "campaign_id": "Foreign key linking this location target to a specific ad campaign.",
+      "id": "Unique identifier for this location targeting record.",
+      "parent_location": "Identifier of the parent geographic region containing this location.",
+      "updated_at": "Timestamp when this location targeting record was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source.",
+      "display_type": "How the location is categorized or displayed in targeting UI.",
+      "name": "Human-readable label for the targeted geographic location.",
+      "targeting_status": "Indicates whether this location is actively included or excluded from targeting."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "label"
+    },
+    "tableDescription": "Stores classification labels used to tag or categorize items, with display styling and status metadata.",
+    "columnDescriptions": {
+      "id": "Unique numeric identifier for each label record.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source.",
+      "attribute_background_color": "Hex color code used to visually display the label background.",
+      "attribute_description": "Optional text describing the label's purpose or usage.",
+      "attribute_type": "Defines how the label attribute is rendered, e.g., DisplayAttribute.",
+      "label_type": "Categorizes the label format, such as TextLabel.",
+      "name": "Human-readable label name shown to users for categorization.",
+      "status": "Indicates whether the label is active; e.g., ENABLED or DISABLED."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "text_ad_history"
+    },
+    "tableDescription": "Historical record of text ad creative content and updates within Google Ads ad groups.",
+    "columnDescriptions": {
+      "ad_group_id": "Identifier linking the ad to its parent Google Ads ad group.",
+      "ad_id": "Unique identifier for the individual text ad creative.",
+      "updated_at": "Timestamp when the ad content was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record from the source.",
+      "description_1": "First line of the ad's body copy shown to users.",
+      "description_2": "Second line of the ad's body copy shown to users.",
+      "headline": "Ad headline, often dynamically populated using keyword insertion."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "adwords_orlando_health",
+      "name": "template_ad_history"
+    },
+    "tableDescription": "Historical record of template-based ads, tracking ad configurations and their template associations over time.",
+    "columnDescriptions": {
+      "ad_group_id": "Identifier for the ad group containing this ad.",
+      "ad_id": "Unique identifier for the individual ad.",
+      "updated_at": "Timestamp when the ad record was last modified.",
+      "_fivetran_synced": "Timestamp when Fivetran last synced this record.",
+      "ad_union_id": "Identifier linking related ads across union groups.",
+      "duration": "Length of the ad in seconds or defined time units.",
+      "name": "Human-readable label or campaign theme for the ad.",
+      "origin_ad_id": "Source ad ID this ad was derived or copied from.",
+      "template_id": "Identifier of the creative template used to build this ad."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "campaign_dim_ad"
+    },
+    "tableDescription": "Google Ads dimension table storing ad creative details across all ad types within campaigns and ad groups.",
+    "columnDescriptions": {
+      "ad_id": "Unique identifier for the individual ad creative.",
+      "ad_group_id": "Identifier of the ad group containing this ad.",
+      "campaign_id": "Identifier of the campaign this ad belongs to.",
+      "customer_id": "Google Ads account identifier owning this ad.",
+      "ad_group_ad_ad_added_by_google_ads": "Indicates if Google automatically created this ad.",
+      "ad_group_ad_ad_app_ad_descriptions": "Description text assets for app promotion ads.",
+      "ad_group_ad_ad_app_ad_headlines": "Headline text assets for app promotion ads.",
+      "ad_group_ad_ad_app_ad_html5_media_bundles": "HTML5 media bundle assets for app ads.",
+      "ad_group_ad_ad_app_ad_images": "Image assets used in app promotion ads.",
+      "ad_group_ad_ad_app_ad_mandatory_ad_text": "Required text element for app promotion ads.",
+      "ad_group_ad_ad_app_ad_youtube_videos": "YouTube video assets linked to app ads.",
+      "ad_group_ad_ad_call_ad_phone_number": "Phone number displayed in call-only ads.",
+      "ad_group_ad_ad_device_preference": "Preferred device targeting for ad delivery.",
+      "ad_group_ad_ad_display_url": "Visible URL shown to users in the ad.",
+      "ad_group_ad_ad_expanded_dynamic_search_ad_description": "Primary description for dynamic search ads.",
+      "ad_group_ad_ad_expanded_dynamic_search_ad_description2": "Secondary description for dynamic search ads.",
+      "ad_group_ad_ad_expanded_text_ad_description": "Primary description line for expanded text ads.",
+      "ad_group_ad_ad_expanded_text_ad_description2": "Secondary description line for expanded text ads.",
+      "ad_group_ad_ad_expanded_text_ad_headline_part1": "First headline segment of expanded text ads.",
+      "ad_group_ad_ad_expanded_text_ad_headline_part2": "Second headline segment of expanded text ads.",
+      "ad_group_ad_ad_expanded_text_ad_headline_part3": "Third headline segment of expanded text ads.",
+      "ad_group_ad_ad_expanded_text_ad_path1": "First URL path appended to display URL.",
+      "ad_group_ad_ad_expanded_text_ad_path2": "Second URL path appended to display URL.",
+      "ad_group_ad_ad_final_app_urls": "Landing URLs for app store destinations.",
+      "ad_group_ad_ad_final_mobile_urls": "Landing URLs specifically for mobile users.",
+      "ad_group_ad_ad_final_urls": "Primary destination URLs users land on after clicking.",
+      "ad_group_ad_ad_group": "Resource name path of the parent ad group.",
+      "ad_group_ad_ad_image_ad_image_url": "Hosted URL of the image ad creative.",
+      "ad_group_ad_ad_image_ad_mime_type": "File format type of the image ad.",
+      "ad_group_ad_ad_image_ad_name": "Filename or label assigned to the image ad.",
+      "ad_group_ad_ad_image_ad_pixel_height": "Height of the image ad in pixels.",
+      "ad_group_ad_ad_image_ad_pixel_width": "Width of the image ad in pixels.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_accent_color": "Accent color used in legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_allow_flexible_color": "Permits Google to adjust colors in legacy display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_business_name": "Advertiser business name in legacy display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_call_to_action_text": "CTA button text for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_description": "Body description text for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_format_setting": "Layout format preference for legacy display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_logo_image": "Logo image asset for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_long_headline": "Long headline text for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_main_color": "Primary brand color for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_marketing_image": "Main marketing image for legacy display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_price_prefix": "Price prefix text shown in legacy display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_promo_text": "Promotional text shown in legacy display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_short_headline": "Short headline for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_square_logo_image": "Square-format logo for legacy display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_square_marketing_image": "Square marketing image for legacy display ads.",
+      "ad_group_ad_ad_name": "Human-readable label assigned to the ad creative.",
+      "ad_group_ad_ad_responsive_display_ad_accent_color": "Accent color for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_business_name": "Advertiser business name in responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_call_to_action_text": "CTA button text for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_descriptions": "Description text assets for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_format_setting": "Layout format preference for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_headlines": "Headline assets for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_logo_images": "Logo image assets for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_long_headline": "Long headline asset for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_main_color": "Primary brand color for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_marketing_images": "Main marketing images for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_price_prefix": "Price prefix text for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_promo_text": "Promotional text shown in responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_square_logo_images": "Square logo images for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_square_marketing_images": "Square marketing images for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_youtube_videos": "YouTube video assets for responsive display ads.",
+      "ad_group_ad_ad_responsive_search_ad_descriptions": "Description assets for responsive search ads.",
+      "ad_group_ad_ad_responsive_search_ad_headlines": "Headline assets for responsive search ads.",
+      "ad_group_ad_ad_responsive_search_ad_path1": "First display URL path for responsive search ads.",
+      "ad_group_ad_ad_responsive_search_ad_path2": "Second display URL path for responsive search ads.",
+      "ad_group_ad_ad_strength": "Google's quality rating of the ad creative.",
+      "ad_group_ad_ad_system_managed_resource_source": "Source system that auto-generated this ad resource.",
+      "ad_group_ad_ad_text_ad_description1": "First description line for standard text ads.",
+      "ad_group_ad_ad_text_ad_description2": "Second description line for standard text ads.",
+      "ad_group_ad_ad_text_ad_headline": "Headline text for standard text ads.",
+      "ad_group_ad_ad_tracking_url_template": "URL template for tracking ad click parameters.",
+      "ad_group_ad_ad_type": "Format category of the ad creative.",
+      "ad_group_ad_ad_url_custom_parameters": "Custom key-value pairs appended to tracking URLs.",
+      "ad_group_ad_policy_summary_approval_status": "Google policy review outcome for the ad.",
+      "ad_group_ad_status": "Current serving status of the ad."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "campaign_dim_adgroup"
+    },
+    "tableDescription": "Dimension table storing Google Ads ad group configuration and bidding settings linked to campaigns and customers.",
+    "columnDescriptions": {
+      "ad_group_id": "Unique identifier for the ad group.",
+      "campaign_id": "Parent campaign this ad group belongs to.",
+      "customer_id": "Google Ads account owner of this ad group.",
+      "ad_group_ad_rotation_mode": "How ads within the group are rotated for serving.",
+      "ad_group_cpc_bid_micros": "Cost-per-click bid amount in micros (millionths of currency unit).",
+      "ad_group_cpm_bid_micros": "Cost-per-thousand-impressions bid in micros.",
+      "ad_group_cpv_bid_micros": "Cost-per-view bid in micros for video ads.",
+      "ad_group_display_custom_bid_dimension": "Custom bid dimension used for display network targeting.",
+      "ad_group_effective_target_cpa_micros": "Resolved target cost-per-acquisition in micros.",
+      "ad_group_effective_target_cpa_source": "Origin of the effective CPA target value.",
+      "ad_group_effective_target_roas": "Resolved target return on ad spend ratio.",
+      "ad_group_effective_target_roas_source": "Origin of the effective ROAS target value.",
+      "ad_group_name": "Human-readable label assigned to the ad group.",
+      "ad_group_status": "Current serving state: ENABLED, PAUSED, or REMOVED.",
+      "ad_group_tracking_url_template": "URL template for tracking ad group click traffic.",
+      "ad_group_type": "Ad group format type, e.g., SEARCH_STANDARD or DISPLAY_STANDARD.",
+      "ad_group_url_custom_parameters": "Custom key-value parameters appended to destination URLs.",
+      "campaign_bidding_strategy": "Resource path of the portfolio bidding strategy applied.",
+      "campaign_bidding_strategy_type": "Bidding strategy type, e.g., MANUAL_CPC or TARGET_SPEND.",
+      "campaign_manual_cpc_enhanced_cpc_enabled": "Whether enhanced CPC is active for manual CPC campaigns.",
+      "campaign_percent_cpc_enhanced_cpc_enabled": "Whether enhanced CPC is active for percent CPC campaigns."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "campaign_dim_customer"
+    },
+    "tableDescription": "Dimension table storing Google Ads customer account attributes used for campaign reporting and segmentation.",
+    "columnDescriptions": {
+      "customer_id": "Unique Google Ads account identifier.",
+      "customer_auto_tagging_enabled": "Indicates if URL auto-tagging for tracking is active on the account.",
+      "customer_currency_code": "Currency used for billing and reporting within the account.",
+      "customer_descriptive_name": "Human-readable display name identifying the advertiser account.",
+      "customer_manager": "Indicates if this account is a manager (MCC) account overseeing others.",
+      "customer_test_account": "Flags whether the account is used for testing purposes only.",
+      "customer_time_zone": "Account's local time zone governing ad scheduling and reporting."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "campaign_dim_campaign"
+    },
+    "tableDescription": "Google Ads campaign dimension table storing configuration, budget, bidding, and targeting details for each advertising campaign.",
+    "columnDescriptions": {
+      "campaign_id": "Unique Google Ads identifier for the campaign.",
+      "customer_id": "Google Ads account identifier owning this campaign.",
+      "entity_key": "Internal UUID linking campaign to a business entity.",
+      "bidding_strategy_name": "Human-readable name of the portfolio bidding strategy applied.",
+      "campaign_advertising_channel_sub_type": "Refined sub-classification of the advertising channel type.",
+      "campaign_advertising_channel_type": "Primary ad channel: SEARCH, DISPLAY, VIDEO, etc.",
+      "campaign_bidding_strategy": "Resource path referencing the portfolio bidding strategy object.",
+      "campaign_bidding_strategy_type": "Bidding method used, e.g., MAXIMIZE_CONVERSIONS, MANUAL_CPC.",
+      "campaign_budget_amount_micros": "Daily or recurring budget in micros (divide by 1M for dollars).",
+      "campaign_budget_explicitly_shared": "Indicates whether budget is shared across multiple campaigns.",
+      "campaign_budget_has_recommended_budget": "Flags if Google has a recommended budget suggestion available.",
+      "campaign_budget_period": "Budget cycle period: DAILY or CUSTOM_PERIOD.",
+      "campaign_budget_recommended_budget_amount_micros": "Google-recommended budget amount in micros.",
+      "campaign_budget_total_amount_micros": "Lifetime total budget cap in micros for custom-period budgets.",
+      "campaign_campaign_budget": "Resource path referencing the associated campaign budget object.",
+      "campaign_end_date": "Scheduled date when the campaign stops serving ads.",
+      "campaign_experiment_type": "Indicates if campaign is a BASE, DRAFT, or EXPERIMENT variant.",
+      "campaign_manual_cpc_enhanced_cpc_enabled": "Whether enhanced CPC adjustments are enabled for manual CPC bidding.",
+      "campaign_maximize_conversion_value_target_roas": "Target return on ad spend for maximize conversion value strategy.",
+      "campaign_name": "Descriptive name identifying the campaign, often including service line.",
+      "campaign_percent_cpc_enhanced_cpc_enabled": "Whether enhanced CPC is enabled for percent CPC bidding.",
+      "campaign_serving_status": "Current delivery status: SERVING, ENDED, or other Google statuses.",
+      "campaign_start_date": "Date the campaign began or is scheduled to begin serving.",
+      "campaign_status": "Operational status set by advertiser: ENABLED, PAUSED, or REMOVED.",
+      "campaign_tracking_url_template": "URL template appended to ads for click tracking purposes.",
+      "campaign_url_custom_parameters": "Key-value pairs substituted into tracking URL templates.",
+      "parsed_service_line": "Business service line extracted from the campaign name.",
+      "parsed_sub_specialty": "Medical or business sub-specialty parsed from the campaign name."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "campaign_fact_ads"
+    },
+    "tableDescription": "Daily performance metrics for individual ads across campaigns, ad groups, networks, devices, and click types.",
+    "columnDescriptions": {
+      "ad_id": "Unique identifier for the individual ad creative.",
+      "ad_group_id": "Identifier for the ad group containing this ad.",
+      "campaign_id": "Identifier for the parent campaign.",
+      "customer_id": "Identifier for the advertiser account.",
+      "entity_key": "UUID linking to a related entity or configuration record.",
+      "active_view_impressions": "Impressions meeting viewability standards for display ads.",
+      "clicks": "Total number of ad clicks recorded.",
+      "micro_conversions": "Count of lower-funnel conversion actions tracked.",
+      "micro_conversions_value": "Monetary value attributed to micro-conversion events.",
+      "cost": "Total ad spend in account currency.",
+      "gmail_forwards": "Number of times a Gmail ad was forwarded.",
+      "gmail_saves": "Number of times a Gmail ad was saved.",
+      "gmail_secondary_click": "Clicks on links within an expanded Gmail ad.",
+      "impressions": "Total times the ad was shown to users.",
+      "interaction_event_types": "List of interaction types recorded for this row.",
+      "interactions": "Total count of meaningful user interactions with the ad.",
+      "ad_network_type": "Network where ad served, e.g., SEARCH, CONTENT, SEARCH_PARTNERS.",
+      "click_type": "Specific type of click recorded, e.g., URL_CLICKS, UNKNOWN.",
+      "date": "Calendar date of the performance data.",
+      "device": "Device category on which the ad was served, e.g., DESKTOP."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "campaign_summary_ad_networks"
+    },
+    "tableDescription": "Daily ad network performance metrics per campaign entity, tracking spend, impressions, and clicks.",
+    "columnDescriptions": {
+      "date": "Calendar date of the recorded ad network performance metrics.",
+      "entity_key": "Unique identifier linking the record to a specific campaign entity.",
+      "ad_network_type": "Distribution channel where ads were served, e.g., SEARCH or DISPLAY.",
+      "cost": "Total advertising spend in currency units for the given day.",
+      "impressions": "Number of times ads were displayed to users.",
+      "clicks": "Number of user clicks recorded on the ads."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ad_dim_account"
+    },
+    "tableDescription": "Dimension table storing advertising account metadata across multiple ad platforms.",
+    "columnDescriptions": {
+      "ad_platform": "Name of the advertising platform, e.g., Google Ads, Meta Ads, Billboards.",
+      "account_id": "Unique numeric identifier for the advertiser account on the platform.",
+      "customer_auto_tagging_enabled": "Indicates if automatic URL tagging is enabled for tracking; Google Ads only.",
+      "customer_currency_code": "Currency used for billing and reporting on the account.",
+      "customer_descriptive_name": "Human-readable label identifying the advertiser or campaign group.",
+      "customer_manager": "Flags whether the account is a manager (MCC) account overseeing sub-accounts.",
+      "customer_test_account": "Indicates if the account is a test account, not used for real spend.",
+      "customer_time_zone": "Time zone setting for the account, affecting reporting and scheduling."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ad_dim_ad"
+    },
+    "tableDescription": "Dimension table storing ad creative attributes across all ad types and formats for Google Ads campaigns.",
+    "columnDescriptions": {
+      "ad_platform": "Advertising platform where the ad runs, e.g., Google Ads.",
+      "ad_id": "Unique identifier for the individual ad creative.",
+      "ad_group_id": "Identifier of the ad group containing this ad.",
+      "campaign_id": "Identifier of the campaign this ad belongs to.",
+      "account_id": "Identifier of the advertiser account owning this ad.",
+      "ad_group_ad_ad_added_by_google_ads": "Indicates if Google automatically created this ad.",
+      "ad_group_ad_ad_app_ad_descriptions": "Description text assets for app promotion ads.",
+      "ad_group_ad_ad_app_ad_headlines": "Headline text assets for app promotion ads.",
+      "ad_group_ad_ad_app_ad_html5_media_bundles": "HTML5 media bundle assets used in app ads.",
+      "ad_group_ad_ad_app_ad_images": "Image assets used in app promotion ads.",
+      "ad_group_ad_ad_app_ad_mandatory_ad_text": "Required text that must appear in app ads.",
+      "ad_group_ad_ad_app_ad_youtube_videos": "YouTube video assets linked to app ads.",
+      "ad_group_ad_ad_call_ad_phone_number": "Phone number displayed in call-only ads.",
+      "ad_group_ad_ad_device_preference": "Preferred device targeting for ad delivery.",
+      "ad_group_ad_ad_display_url": "Visible URL shown to users in the ad.",
+      "ad_group_ad_ad_expanded_dynamic_search_ad_description": "Primary description for dynamic search ads.",
+      "ad_group_ad_ad_expanded_dynamic_search_ad_description2": "Secondary description for dynamic search ads.",
+      "ad_group_ad_ad_expanded_text_ad_description": "Primary description line for expanded text ads.",
+      "ad_group_ad_ad_expanded_text_ad_description2": "Secondary description line for expanded text ads.",
+      "ad_group_ad_ad_expanded_text_ad_headline_part1": "First headline segment of expanded text ads.",
+      "ad_group_ad_ad_expanded_text_ad_headline_part2": "Second headline segment of expanded text ads.",
+      "ad_group_ad_ad_expanded_text_ad_headline_part3": "Third headline segment of expanded text ads.",
+      "ad_group_ad_ad_expanded_text_ad_path1": "First URL path appended to display URL in expanded text ads.",
+      "ad_group_ad_ad_expanded_text_ad_path2": "Second URL path appended to display URL in expanded text ads.",
+      "ad_group_ad_ad_final_app_urls": "Deep link URLs directing users to mobile apps.",
+      "ad_group_ad_ad_final_mobile_urls": "Landing page URLs specifically for mobile users.",
+      "ad_group_ad_ad_final_urls": "Primary landing page URLs users reach after clicking.",
+      "ad_group_ad_ad_group": "Full resource path of the parent ad group.",
+      "ad_group_ad_ad_image_ad_image_url": "Hosted URL of the image ad creative.",
+      "ad_group_ad_ad_image_ad_mime_type": "File format type of the image ad asset.",
+      "ad_group_ad_ad_image_ad_name": "File or asset name of the image ad.",
+      "ad_group_ad_ad_image_ad_pixel_height": "Height in pixels of the image ad creative.",
+      "ad_group_ad_ad_image_ad_pixel_width": "Width in pixels of the image ad creative.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_accent_color": "Accent color hex code for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_allow_flexible_color": "Whether Google can override colors in legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_business_name": "Brand or business name shown in legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_call_to_action_text": "CTA button text in legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_description": "Body description text for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_format_setting": "Display format preference for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_logo_image": "Logo image asset for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_long_headline": "Long headline text for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_main_color": "Primary color hex code for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_marketing_image": "Main marketing image asset for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_price_prefix": "Price prefix text shown in legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_promo_text": "Promotional text shown in legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_short_headline": "Short headline for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_square_logo_image": "Square-format logo asset for legacy responsive display ads.",
+      "ad_group_ad_ad_legacy_responsive_display_ad_square_marketing_image": "Square-format marketing image for legacy responsive display ads.",
+      "ad_group_ad_ad_name": "User-defined name or label for the ad creative.",
+      "ad_group_ad_ad_responsive_display_ad_accent_color": "Accent color hex code for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_business_name": "Brand or business name shown in responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_call_to_action_text": "CTA button text for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_descriptions": "Multiple description text assets for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_format_setting": "Display format preference for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_headlines": "Multiple short headline assets for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_logo_images": "Logo image assets for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_long_headline": "Long headline text asset for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_main_color": "Primary color hex code for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_marketing_images": "Landscape marketing image assets for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_price_prefix": "Price prefix text for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_promo_text": "Promotional text shown in responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_square_logo_images": "Square logo image assets for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_square_marketing_images": "Square marketing image assets for responsive display ads.",
+      "ad_group_ad_ad_responsive_display_ad_youtube_videos": "YouTube video assets linked to responsive display ads.",
+      "ad_group_ad_ad_responsive_search_ad_descriptions": "Multiple description assets for responsive search ads.",
+      "ad_group_ad_ad_responsive_search_ad_headlines": "Multiple headline assets for responsive search ads.",
+      "ad_group_ad_ad_responsive_search_ad_path1": "First display URL path for responsive search ads.",
+      "ad_group_ad_ad_responsive_search_ad_path2": "Second display URL path for responsive search ads.",
+      "ad_group_ad_ad_strength": "Google's quality rating of the ad creative strength.",
+      "ad_group_ad_ad_system_managed_resource_source": "Source system if the ad is automatically managed by Google.",
+      "ad_group_ad_ad_text_ad_description1": "First description line for legacy standard text ads.",
+      "ad_group_ad_ad_text_ad_description2": "Second description line for legacy standard text ads.",
+      "ad_group_ad_ad_text_ad_headline": "Headline text for legacy standard text ads.",
+      "ad_group_ad_ad_tracking_url_template": "URL template used for click tracking and measurement.",
+      "ad_group_ad_ad_type": "Format type of the ad, e.g., TEXT_AD, IMAGE_AD.",
+      "ad_group_ad_ad_url_custom_parameters": "Custom key-value parameters appended to landing page URLs.",
+      "ad_group_ad_policy_summary_approval_status": "Google policy review approval status for the ad.",
+      "ad_group_ad_status": "Current serving status: ENABLED, PAUSED, or REMOVED.",
+      "landscape_image_media_id": "Media ID for landscape-format image asset.",
+      "landscape_logo_media_id": "Media ID for landscape-format logo asset.",
+      "square_image_media_id": "Media ID for square-format image asset.",
+      "square_logo_media_id": "Media ID for square-format logo asset."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ad_dim_ad_platform"
+    },
+    "tableDescription": "Dimension table describing advertising platforms, their vendors, data sources, and ingestion metadata.",
+    "columnDescriptions": {
+      "ad_platform_key": "Surrogate key uniquely identifying each advertising platform record.",
+      "ad_platform": "Name of the advertising platform, such as Pandora or Digital Audio.",
+      "platform_vendor": "Company or vendor managing the advertising platform.",
+      "source_system": "ETL or integration tool used to ingest platform data.",
+      "data_granularity": "Time granularity of reported ad data, e.g., Monthly.",
+      "data_modification_check_frequency": "How often historical data is checked for changes or corrections.",
+      "data_modification_window": "How far back historical data may be retroactively modified.",
+      "data_ingestion_frequency": "How often new data is loaded from the platform.",
+      "data_ingestion_lag": "Typical delay between data availability and ingestion completion."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ad_dim_adgroup"
+    },
+    "tableDescription": "Dimension table storing ad group configuration and bidding settings across advertising platforms like Google and Meta.",
+    "columnDescriptions": {
+      "ad_platform": "Advertising platform where the ad group runs, e.g., Google Ads or Meta Ads.",
+      "ad_group_id": "Unique identifier for the ad group on the platform.",
+      "campaign_id": "Parent campaign identifier this ad group belongs to.",
+      "account_id": "Advertiser account identifier owning this ad group.",
+      "ad_group_ad_rotation_mode": "How ads within the group are rotated for delivery.",
+      "ad_group_cpc_bid_micros": "Cost-per-click bid amount in micros (millionths of currency unit).",
+      "ad_group_cpm_bid_micros": "Cost-per-thousand-impressions bid amount in micros.",
+      "ad_group_cpv_bid_micros": "Cost-per-view bid amount in micros for video ads.",
+      "ad_group_display_custom_bid_dimension": "Custom dimension used for display network bid adjustments.",
+      "ad_group_effective_target_cpa_micros": "Resolved target cost-per-acquisition in micros applied to bidding.",
+      "ad_group_effective_target_cpa_source": "Origin of the effective CPA target, e.g., ad group or campaign.",
+      "ad_group_effective_target_roas": "Resolved target return-on-ad-spend ratio applied to bidding.",
+      "ad_group_effective_target_roas_source": "Origin of the effective ROAS target value.",
+      "ad_group_name": "Human-readable label identifying the ad group.",
+      "ad_group_status": "Current serving status such as ENABLED or REMOVED.",
+      "ad_group_tracking_url_template": "URL template used for tracking ad group click traffic.",
+      "ad_group_type": "Ad group type defining eligible ad formats, e.g., SEARCH_STANDARD.",
+      "ad_group_url_custom_parameters": "Key-value pairs appended to URLs for custom tracking.",
+      "campaign_bidding_strategy": "Named shared bidding strategy assigned to the parent campaign.",
+      "campaign_bidding_strategy_type": "Bidding strategy type of the parent campaign, e.g., MANUAL_CPC.",
+      "campaign_manual_cpc_enhanced_cpc_enabled": "Whether enhanced CPC is active for manual CPC campaigns.",
+      "campaign_percent_cpc_enhanced_cpc_enabled": "Whether enhanced CPC is active for percent CPC campaigns."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ad_dim_campaign"
+    },
+    "tableDescription": "Dimension table storing advertising campaign attributes across platforms like Google Ads and Meta Ads.",
+    "columnDescriptions": {
+      "ad_platform": "Advertising platform where the campaign runs, e.g., Google Ads, Meta Ads, Display.",
+      "campaign_id": "Unique identifier for the campaign on the ad platform.",
+      "account_id": "Identifier for the advertiser account owning the campaign.",
+      "entity_key": "Internal UUID linking the campaign to a business entity.",
+      "bidding_strategy_name": "Name of the custom or portfolio bidding strategy applied.",
+      "campaign_advertising_channel_sub_type": "More granular classification of the advertising channel type.",
+      "campaign_advertising_channel_type": "Primary channel type, e.g., DISPLAY, SEARCH, VIDEO.",
+      "campaign_bidding_strategy": "Resource path reference to the campaign's assigned bidding strategy.",
+      "campaign_bidding_strategy_type": "Bidding method used, e.g., MANUAL_CPC, TARGET_ROAS.",
+      "campaign_budget_amount_micros": "Daily or total budget in micros (millionths of currency unit).",
+      "campaign_budget_explicitly_shared": "Indicates whether the budget is explicitly shared across campaigns.",
+      "campaign_budget_has_recommended_budget": "Flags if Google has a recommended budget for this campaign.",
+      "campaign_budget_period": "Budget cycle period, e.g., DAILY or TOTAL lifetime.",
+      "campaign_budget_recommended_budget_amount_micros": "Platform-recommended budget amount in micros.",
+      "campaign_budget_total_amount_micros": "Total lifetime budget cap in micros.",
+      "campaign_campaign_budget": "Resource path referencing the associated campaign budget object.",
+      "campaign_end_date": "Scheduled end date for the campaign.",
+      "campaign_experiment_type": "Indicates if campaign is a BASE, DRAFT, or EXPERIMENT variant.",
+      "campaign_manual_cpc_enhanced_cpc_enabled": "Whether enhanced CPC is enabled for manual CPC bidding.",
+      "campaign_maximize_conversion_value_target_roas": "Target return on ad spend for maximize conversion value strategy.",
+      "campaign_name": "Human-readable name describing the campaign's purpose or audience.",
+      "campaign_percent_cpc_enhanced_cpc_enabled": "Whether enhanced CPC is enabled for percent CPC bidding.",
+      "campaign_serving_status": "Current delivery status, e.g., SERVING, ENDED, PAUSED.",
+      "campaign_start_date": "Date the campaign began or is scheduled to begin.",
+      "campaign_status": "Administrative status of the campaign, e.g., ENABLED, PAUSED, REMOVED.",
+      "campaign_tracking_url_template": "URL template used for tracking clicks across campaign ads.",
+      "campaign_url_custom_parameters": "Custom key-value parameters appended to campaign tracking URLs.",
+      "parsed_service_line": "Business service line extracted from the campaign name.",
+      "parsed_sub_specialty": "Medical sub-specialty or campaign sub-category parsed from the name.",
+      "budget_owner": "Business unit or brand responsible for the campaign budget."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ad_fact_ads"
+    },
+    "tableDescription": "Daily ad performance metrics by ad, device, network, and click type across platforms.",
+    "columnDescriptions": {
+      "ad_platform": "Advertising platform where the ad ran, e.g. Google Ads.",
+      "ad_id": "Unique identifier for the individual ad creative.",
+      "ad_group_id": "Identifier for the ad group containing this ad.",
+      "campaign_id": "Identifier for the campaign this ad belongs to.",
+      "account_id": "Advertiser account identifier owning the campaign.",
+      "entity_key": "UUID linking this record to an internal entity reference.",
+      "active_view_impressions": "Impressions measured as viewable by Active View standard.",
+      "clicks": "Total clicks recorded on the ad.",
+      "micro_conversions": "Count of lower-funnel conversion events tracked.",
+      "micro_conversions_value": "Monetary value attributed to micro-conversion events.",
+      "cost": "Ad spend in account currency for the reporting period.",
+      "gmail_forwards": "Number of times a Gmail ad was forwarded.",
+      "gmail_saves": "Number of times a Gmail ad was saved.",
+      "gmail_secondary_click": "Clicks on secondary links within a Gmail ad.",
+      "impressions": "Total times the ad was shown to users.",
+      "interaction_event_types": "List of interaction types recorded, e.g. CLICK.",
+      "interactions": "Total user interactions beyond simple impressions.",
+      "ad_network_type": "Network where ad served, e.g. SEARCH or CONTENT.",
+      "click_type": "Specific click category, e.g. URL_CLICKS or LOCATION_EXPANSION.",
+      "date": "Calendar date of the performance data row.",
+      "device": "Device type used by the user, e.g. MOBILE or TABLET."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ad_summary_ad_networks"
+    },
+    "tableDescription": "Daily ad performance metrics aggregated by platform and network type across advertising channels.",
+    "columnDescriptions": {
+      "date": "Calendar date of the advertising activity being reported.",
+      "entity_key": "Unique identifier linking the record to a specific advertiser or account.",
+      "ad_platform": "Advertising platform where the campaign ran, e.g., Google Ads, Meta.",
+      "ad_network_type": "Sub-network within the platform, such as search partners or display.",
+      "cost": "Total spend in currency units for the given date and network.",
+      "impressions": "Number of times ads were displayed to users.",
+      "clicks": "Number of user clicks recorded on the ads."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ga4_dim_users_pseudonymous"
+    },
+    "tableDescription": "GA4 pseudonymous user dimension with lifetime engagement metrics, device info, and geographic data per cookie-based user.",
+    "columnDescriptions": {
+      "pseudo_user_id": "Cookie-based anonymous identifier uniquely representing a device or browser.",
+      "user_last_active_timestamp": "Most recent session activity timestamp for this user.",
+      "user_first_touch_timestamp": "Timestamp when the user first interacted with the property.",
+      "sessions_ltv": "Lifetime total number of sessions attributed to this user.",
+      "engagement_time_millis_ltv": "Lifetime cumulative active engagement time in milliseconds.",
+      "engagement_time_seconds_ltv": "Lifetime cumulative active engagement time in seconds.",
+      "engaged_sessions_ltv": "Lifetime count of sessions meeting GA4 engagement threshold.",
+      "session_duration_micros_ltv": "Lifetime total session duration in microseconds.",
+      "device": "Nested record with OS, device category, brand, and model details.",
+      "geo": "Nested record with city, region, country, and continent location data.",
+      "last_updated_date": "Date this user record was last refreshed in the dataset."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ga4_dim_webpage"
+    },
+    "tableDescription": "Dimension table storing parsed webpage URL components tracked via Google Analytics 4 across Orlando Health web properties.",
+    "columnDescriptions": {
+      "page_url": "Full webpage URL including protocol scheme as recorded in GA4.",
+      "page_url_no_scheme": "Full URL with the http/https protocol prefix stripped out.",
+      "page_hostname": "Domain and subdomain portion of the webpage URL.",
+      "page_path_1": "First segment of the URL path after the hostname.",
+      "page_path_2": "Second segment of the URL path hierarchy.",
+      "page_path_3": "Third segment of the URL path hierarchy.",
+      "page_path_4": "Fourth segment of the URL path hierarchy.",
+      "page_path_5": "Fifth segment of the URL path hierarchy.",
+      "page_path_6": "Sixth segment of the URL path hierarchy.",
+      "page_path_7": "Seventh segment of the URL path hierarchy.",
+      "page_path_8": "Eighth segment of the URL path hierarchy.",
+      "page_path_9": "Ninth segment of the URL path hierarchy."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ga4_dim_event_params"
+    },
+    "tableDescription": "Dimension table storing GA4 event parameters as key-value pairs with typed values for each event.",
+    "columnDescriptions": {
+      "event_key": "Foreign key linking this parameter record to its parent event in the fact table.",
+      "parameter_name_key": "Name identifier of the event parameter, e.g., page_referrer or batch_ordering_id.",
+      "parameter_data_type": "Data type of the parameter value: string, int, float, or double.",
+      "parameter_value": "Structured record holding the parameter value in the appropriate typed field."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ga4_dim_sessions"
+    },
+    "tableDescription": "GA4 session-level dimension table capturing traffic source, engagement quality, and UTM attribution for each website session.",
+    "columnDescriptions": {
+      "session_key": "Surrogate primary key uniquely identifying each session record.",
+      "ga_session_id": "GA4-assigned session identifier; requires device ID and session number for uniqueness.",
+      "is_engaged_session": "True if session exceeded 30 seconds or included multiple pageviews.",
+      "is_bounce_session": "True if session was not engaged; single short-duration visit.",
+      "ga_session_number": "Cumulative count of sessions for a user; proxy lifetime visit number.",
+      "session_duration_micros": "Total session length in microseconds.",
+      "is_there_a_session_start_event": "Indicates presence of session_start event; used for UTM attribution logic.",
+      "source": "Traffic origin from utm_source parameter (e.g., google, pandora).",
+      "medium": "Marketing channel from utm_medium parameter (e.g., organic, display).",
+      "source_medium": "Combined source and medium for traffic channel reporting.",
+      "campaign_id": "Paid campaign identifier from utm_id parameter.",
+      "campaign_name": "Descriptive campaign name from utm_campaign parameter.",
+      "term": "Paid keyword or targeting term from utm_term parameter.",
+      "content": "Ad creative variant identifier from utm_content parameter.",
+      "source_platform": "Platform that managed the campaign delivery.",
+      "creative_format": "Format type of the ad creative served.",
+      "marketing_tactic": "Targeting strategy or tactic applied to the campaign.",
+      "gclid": "Google Click ID for linking Google Ads clicks to sessions.",
+      "dclid": "Display Click ID from Google Display and Video 360.",
+      "srsltid": "Google Shopping result click identifier."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "ga4_fact_events"
+    },
+    "tableDescription": "GA4 website event-level fact table capturing user interactions across Orlando Health web properties.",
+    "columnDescriptions": {
+      "event_timestamp": "Microsecond-precision Unix timestamp when the event fired.",
+      "event_date": "Calendar date the event occurred.",
+      "event_datetime": "Combined date and time the event occurred.",
+      "user_pseudo_id": "GA4 anonymous identifier linking events to a single browser/device.",
+      "is_new_user": "True if this was the user's first-ever session.",
+      "session_key": "Surrogate key uniquely identifying a user session.",
+      "is_engaged_session": "True if the session met GA4 engagement thresholds.",
+      "ga_session_number": "Sequential count of sessions for this user, starting at 1.",
+      "page_hostname": "Domain of the page where the event fired.",
+      "page_url": "Clean page URL without query parameters.",
+      "page_full_url": "Complete URL including query string parameters.",
+      "page_title": "Browser tab title of the page at event time.",
+      "page_referrer": "URL of the page that referred the user here.",
+      "batch_page_id": "Identifier grouping events sent in the same browser batch.",
+      "event_key": "Surrogate key uniquely identifying this individual event row.",
+      "event_name": "Raw GA4 event name such as page_view or click.",
+      "event_display_name": "Human-readable label for the event type.",
+      "event_sequence": "Ordinal position of this event within the session.",
+      "entrances": "Flags the first page_view event of a session.",
+      "engagement_time_msec": "Active engagement duration in milliseconds for this event.",
+      "engagement_time_sec": "Active engagement duration in seconds for this event.",
+      "device": "Nested record with device category, OS, browser, and hardware details.",
+      "geo": "Nested record with city, region, country, and metro location.",
+      "click_event": "Nested record with link URL, domain, classes, text, and ID.",
+      "content_event": "Nested record with content ID, type, group, and hub metadata.",
+      "guided_nav_event": "Nested record capturing guided navigation funnel step selections.",
+      "file_event": "Nested record with downloaded file extension, path, and title.",
+      "search_event": "Nested record with site search term and unique search term.",
+      "form_event": "Nested record with form ID, name, destination, and submit text.",
+      "ua_profile": "User-agent profile string for the visitor's browser.",
+      "ua_metric": "Nested record with additional user-agent derived metrics."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "gsc_fact_site_impression"
+    },
+    "tableDescription": "Google Search Console daily search performance metrics by site, query, country, and device.",
+    "columnDescriptions": {
+      "date": "Calendar date of the search impression data.",
+      "page_hostname": "Website domain where the search traffic was directed.",
+      "query": "Search term entered by the user in Google Search.",
+      "is_anonymized_query": "Indicates if Google anonymized the query for privacy reasons.",
+      "country": "Three-letter country code where the search originated.",
+      "search_type": "Google search surface type, such as WEB, IMAGE, or VIDEO.",
+      "device": "Device category used for the search: MOBILE, DESKTOP, or TABLET.",
+      "impressions": "Number of times the site appeared in search results.",
+      "clicks": "Number of times users clicked through to the site.",
+      "sum_top_results_position": "Summed ranking position across top search result appearances.",
+      "average_results_position": "Mean ranking position in Google search results for the query."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "gsc_summary_monthly_site_impression"
+    },
+    "tableDescription": "Monthly Google Search Console performance metrics aggregated by site, hostname, and search query.",
+    "columnDescriptions": {
+      "month": "First day of the month representing the reporting period.",
+      "page_hostname": "Website domain where search traffic was directed.",
+      "query": "Search term users typed that triggered an impression.",
+      "impressions": "Number of times the site appeared in search results.",
+      "clicks": "Number of times users clicked through from search results.",
+      "ctr": "Ratio of clicks to impressions as a decimal.",
+      "average_results_position": "Mean ranking position in Google search results pages."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "dim_date"
+    },
+    "tableDescription": "Date dimension table providing calendar and fiscal date attributes for time-based reporting and analysis.",
+    "columnDescriptions": {
+      "date": "The full calendar date value serving as the primary key.",
+      "calendar_year": "Four-digit calendar year of the date.",
+      "calendar_quarter": "Calendar quarter number (1–4) within the calendar year.",
+      "calendar_month": "Numeric month (1–12) within the calendar year.",
+      "calendar_day": "Day of the month (1–31).",
+      "month_name": "Full name of the calendar month, e.g., January.",
+      "day_name": "Full name of the day of the week, e.g., Monday.",
+      "day_of_week": "Numeric day of the week, typically 1=Sunday through 7=Saturday.",
+      "day_of_year": "Sequential day number within the calendar year (1–366).",
+      "week_of_year": "ISO or standard week number within the calendar year.",
+      "fiscal_year": "Four-digit fiscal year the date belongs to.",
+      "fiscal_quarter": "Quarter number (1–4) within the fiscal year.",
+      "fiscal_month": "Month number (1–12) within the fiscal year.",
+      "fiscal_day_of_year": "Sequential day number within the fiscal year.",
+      "weekday_weekend": "Indicates whether the date falls on a Weekday or Weekend.",
+      "calendar_year_alt_display": "Short display label for calendar year, e.g., CY23.",
+      "fiscal_year_alt_display": "Short display label for fiscal year, e.g., FY23.",
+      "fiscal_quarter_alt_display": "Short display label for fiscal quarter, e.g., Q1."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "er_wait_time"
+    },
+    "tableDescription": "Tracks real-time emergency department wait times across Orlando Health hospital locations in Florida.",
+    "columnDescriptions": {
+      "EmergencyDepartment": "Full name of the Orlando Health emergency room facility.",
+      "AvgWaitTime": "Average patient wait time displayed as a formatted string with minutes.",
+      "RecentWaitTime": "Most recent wait time in minutes as a numeric value.",
+      "MapLink": "Google Maps directions URL to the emergency department location.",
+      "LastUpdated": "Timestamp indicating when the wait time data was last refreshed."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "er_wait_time_mockup"
+    },
+    "tableDescription": "Tracks emergency department wait times and location info for hospital triage and patient routing decisions.",
+    "columnDescriptions": {
+      "EmergencyDepartment": "Name or identifier of the hospital emergency department facility.",
+      "AvgWaitTime": "Historical average patient wait time, likely formatted as a duration string.",
+      "RecentWaitTime": "Most recent recorded wait time in minutes for the emergency department.",
+      "MapLink": "URL linking to the geographic location of the emergency department.",
+      "LastUpdated": "Timestamp or date string indicating when wait time data was refreshed."
+    }
+  },
+  {
+    "table": {
+      "catalog": "oh-data-warehouse",
+      "db": "gold",
+      "name": "sample_flat_ad_fact"
+    },
+    "tableDescription": "Daily ad performance metrics from Google Ads, segmented by ad, device, network, and organizational hierarchy.",
+    "columnDescriptions": {
+      "ad_platform": "Advertising platform where the ad ran, e.g., Google Ads.",
+      "ad_id": "Unique identifier for the individual ad creative.",
+      "ad_group_id": "Identifier for the ad group containing the ad.",
+      "campaign_id": "Identifier for the campaign containing the ad group.",
+      "account_id": "Identifier for the advertiser account.",
+      "entity_key": "Unique UUID linking the row to an internal entity record.",
+      "active_view_impressions": "Impressions measured as viewable by Active View standard.",
+      "clicks": "Total clicks recorded on the ad.",
+      "micro_conversions": "Count of lower-funnel conversion actions tracked.",
+      "micro_conversions_value": "Monetary value attributed to micro conversions.",
+      "cost": "Total ad spend in account currency.",
+      "gmail_forwards": "Number of times a Gmail ad was forwarded.",
+      "gmail_saves": "Number of times a Gmail ad was saved.",
+      "gmail_secondary_click": "Clicks on expanded Gmail ad content.",
+      "impressions": "Total times the ad was shown to users.",
+      "interaction_event_types": "List of interaction types recorded, e.g., CLICK.",
+      "interactions": "Total user interactions with the ad.",
+      "ad_network_type": "Network where ad served, e.g., SEARCH or SEARCH_PARTNERS.",
+      "click_type": "Type of click recorded, e.g., URL_CLICKS, CALLS, SITELINKS.",
+      "date": "Calendar date of the performance data.",
+      "device": "Device category of the user, e.g., MOBILE, DESKTOP, TABLET.",
+      "Hierarchy_L1": "Top-level organizational entity, e.g., health system name.",
+      "Hierarchy_L2": "Second organizational level, typically geographic region.",
+      "Hierarchy_L3": "Third organizational level, typically health network brand.",
+      "Hierarchy_L4": "Fourth level representing a service line or department.",
+      "Hierarchy_L5": "Fifth level representing a specific facility or program.",
+      "Hierarchy_L6": "Sixth level representing a sub-specialty or service within a facility."
+    }
+  }
+]
