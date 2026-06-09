@@ -259,4 +259,8 @@ async def run_query(query_id: str, request: Request, limit: Optional[int] = None
         "rows": result.rows,
         "row_count": getattr(result, "row_count", len(result.rows or [])),
         "sql": sql,
+        # Full dimension/metric arrays so the Designer can render tables with
+        # the correct dim-vs-metric column split and per-metric formats.
+        "dimensions": qdict.get("dimensions") or [],
+        "metrics": qdict.get("metrics") or [],
     }

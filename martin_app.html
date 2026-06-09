@@ -7137,11 +7137,13 @@ async function rdRenderWidget(el, host){
   if(!qid){ host.innerHTML = '<span class="phint">Pick a query →</span>'; return; }
   try {
     const r = await api('/api/queries/'+encodeURIComponent(qid)+'/run', {method:'POST', headers:{'Content-Type':'application/json'}});
+    const dims = r.dimensions || [];
+    const mets = r.metrics || [];
     const widget = {
       type: el.props.chartType || 'bar',
       title: el.props.queryName || '',
-      query: { primary_table: r.query.primary_table, dimensions: [], metrics: [] },
-      metricFormats: [],
+      query: { primary_table: (r.query&&r.query.primary_table), dimensions: dims, metrics: mets },
+      metricFormats: mets.map(m => m.format || 'number'),
     };
     host.innerHTML = '';
     drawWidget(widget, host, {columns: r.columns||[], rows: r.rows||[]});
@@ -7288,7 +7290,7 @@ async function rdRenderInspector(){
         '<option value="">— pick a query —</option>'+opts+
       '</select></div>'+
       '<div class="rd-field"><label>Chart type</label><select id="rdEdChart">'+
-        ['bar','line','area','pie','donut','combo','kpi'].map(t => '<option value="'+t+'"'+((p.chartType||'bar')===t?' selected':'')+'>'+t+'</option>').join('')+
+        ['bar','line','area','pie','donut','combo','table','kpi'].map(t => '<option value="'+t+'"'+((p.chartType||'bar')===t?' selected':'')+'>'+t+'</option>').join('')+
       '</select></div>'+
       (!RD._queryCache.length ? '<div style="font-size:11px;color:var(--muted);line-height:1.45;">No saved queries yet — build one in the <b>Query Panel</b> and save it.</div>' : '');
   }
@@ -8369,12 +8371,56 @@ function qpOpenFilterModal(flt, editIdx){
   document.getElementById('qpFModal').classList.add('show');
 }
 
-function qpRenderFilterValueInput(){
+// R56 — distinct field values feed the filter value picker. Cached per table|field.
+window._qpDistinctCache = window._qpDistinctCache || {};
+async function qpFetchDistinct(table, field){
+  if(!table || !field) return [];
+  const key = table+'|'+field;
+  if(window._qpDistinctCache[key]) return window._qpDistinctCache[key];
+  const d = await api('/api/semantic/distinct?table='+encodeURIComponent(table)+'&field='+encodeURIComponent(field)+'&limit=500');
+  const vals = (d.values||[]).map(v => v==null ? '' : String(v));
+  window._qpDistinctCache[key] = vals;
+  return vals;
+}
+
+// Renders the IN / NOT IN checkbox picker: real values + search + custom add.
+async function qpPopulateListValues(table, field, selSet){
+  const host = document.getElementById('qpFValList'); if(!host) return;
+  window._qpListSel = selSet; // preserve selection even if the values fetch fails
+  let vals = [];
+  try { vals = await qpFetchDistinct(table, field); }
+  catch(e){ host.innerHTML = '<span class="werr">'+esc(e.message)+' — existing values kept; use the box below to add.</span>'; return; }
+  // Keep any already-selected custom values that aren't in the distinct set.
+  const all = vals.slice();
+  selSet.forEach(s => { if(!all.includes(s)) all.unshift(s); });
+  const search = document.getElementById('qpFValSearch');
+  const renderList = (filterText) => {
+    const ft = (filterText||'').toLowerCase();
+    const shown = all.filter(v => !ft || v.toLowerCase().includes(ft));
+    host.innerHTML = shown.length
+      ? shown.map(v => '<label class="fl-check"><input type="checkbox" value="'+esc(v)+'"'+(selSet.has(v)?' checked':'')+'> '+esc(v===''?'(blank)':v)+'</label>').join('')
+      : '<span class="phint">No matching values.</span>';
+    host.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', () => { cb.checked ? selSet.add(cb.value) : selSet.delete(cb.value); });
+    });
+  };
+  renderList('');
+  window._qpListSel = selSet;
+  if(search) search.addEventListener('input', () => renderList(search.value));
+  const custom = document.getElementById('qpFValCustom');
+  if(custom) custom.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); const v = custom.value.trim();
+      if(v){ selSet.add(v); if(!all.includes(v)) all.unshift(v); custom.value=''; renderList(search?search.value:''); } }
+  });
+}
+
+async function qpRenderFilterValueInput(){
   const op = document.getElementById('qpFOp').value;
   if(window._qpFiltering) window._qpFiltering.op = op;
   const meta = _QP_OPS[op] || {val:'text'};
   const wrap = document.getElementById('qpFValueWrap');
   const cur = window._qpFiltering || {};
+  window._qpListSel = null;
   if(meta.val === 'none'){
     wrap.innerHTML = '<label>Value</label><div style="font-size:12px;color:var(--muted);padding:6px 0;font-style:italic;">No value needed for this operator.</div>';
   } else if(meta.val === 'range'){
@@ -8385,12 +8431,23 @@ function qpRenderFilterValueInput(){
         '<input type="text" id="qpFValB" placeholder="To"   value="'+esc(v[1]||'')+'">'+
       '</div>';
   } else if(meta.val === 'list'){
-    const v = Array.isArray(cur.value) ? cur.value.join(', ') : (cur.value||'');
-    wrap.innerHTML = '<label>Values (comma-separated)</label>'+
-      '<input type="text" id="qpFValue" placeholder="e.g. Paid Search, Display, Email" value="'+esc(v)+'">';
+    // Multi-select from the field's real values (single or multiple).
+    const selSet = new Set(Array.isArray(cur.value) ? cur.value.map(String) : (cur.value!=null && cur.value!=='' ? [String(cur.value)] : []));
+    wrap.innerHTML = '<label>Values <span style="color:var(--muted);font-weight:400;">— select one or more</span></label>'+
+      '<input type="text" id="qpFValSearch" placeholder="Search values…" style="width:100%;margin-bottom:6px;">'+
+      '<div class="fl-values" id="qpFValList" style="max-height:220px;overflow:auto;"><span class="phint">Loading values…</span></div>'+
+      '<input type="text" id="qpFValCustom" placeholder="Add a value not listed, then press Enter" style="width:100%;margin-top:6px;">';
+    qpPopulateListValues(cur.table, cur.field, selSet);
   } else {
+    // Single value: free text + autocomplete suggestions from the field's real values.
     wrap.innerHTML = '<label>Value</label>'+
-      '<input type="text" id="qpFValue" placeholder="Enter value" value="'+esc(cur.value==null?'':String(cur.value))+'">';
+      '<input type="text" id="qpFValue" list="qpFValDL" autocomplete="off" placeholder="Type or pick a value" value="'+esc(cur.value==null?'':String(cur.value))+'">'+
+      '<datalist id="qpFValDL"></datalist>'+
+      '<div id="qpFValHint" style="font-size:11px;color:var(--muted);margin-top:4px;">Loading suggestions…</div>';
+    qpFetchDistinct(cur.table, cur.field).then(vals => {
+      const dl = document.getElementById('qpFValDL'); if(dl) dl.innerHTML = vals.slice(0,500).map(v => '<option value="'+esc(v)+'">').join('');
+      const h = document.getElementById('qpFValHint'); if(h) h.textContent = vals.length ? (vals.length+' known values — start typing to filter') : 'No known values; type a value.';
+    }).catch(() => { const h = document.getElementById('qpFValHint'); if(h) h.textContent = 'Could not load suggestions — type a value.'; });
   }
 }
 
@@ -8401,7 +8458,10 @@ function qpSaveFilter(){
   let value;
   if(meta.val === 'none') value = null;
   else if(meta.val === 'range') value = [document.getElementById('qpFValA').value.trim(), document.getElementById('qpFValB').value.trim()];
-  else if(meta.val === 'list') value = document.getElementById('qpFValue').value.split(',').map(s=>s.trim()).filter(Boolean);
+  else if(meta.val === 'list'){
+    value = Array.from(window._qpListSel || []).filter(v => v !== undefined && v !== null);
+    if(!value.length){ toast('Pick at least one value for this filter', true); return; }
+  }
   else value = document.getElementById('qpFValue').value.trim();
   const out = { table: flt.table, field: flt.field, name: flt.name, op, value, kind: flt.kind || 'dim' };
   if(flt._editIdx == null) QP.filters.push(out);
