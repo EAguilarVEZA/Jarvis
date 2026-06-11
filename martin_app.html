@@ -103,15 +103,16 @@
   .rd-tab .rd-tab-x:hover { opacity: 1; color: var(--orange); }
   .rd-tab-add { padding: 5px 12px; border-radius: 6px; font-size: 12px; color: var(--blue); cursor: pointer; background: transparent; border: 1px dashed var(--line-strong); font-weight: 600; }
   .rd-tab-add:hover { background: #eaf4fb; }
-  .rd-body { display: grid; grid-template-columns: 220px 1fr 280px; height: 100%; min-height: 0; }
-  .rd-palette { background: #fafbfc; border-right: 1px solid var(--line); padding: 14px 12px; overflow-y: auto; }
+  .rd-body { display: grid; grid-template-columns: 184px 1fr 248px; height: 100%; min-height: 0; }
+  .rd-palette { background: #fafbfc; border-right: 1px solid var(--line); padding: 14px 10px; overflow-y: auto; }
   .rd-palette-title { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 4px 0 8px; padding: 0 2px; }
   .rd-palette-title + .rd-palette-title { margin-top: 16px; }
   .rd-pal-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid var(--line); background: #fff; border-radius: 7px; cursor: pointer; margin-bottom: 5px; font-size: 12px; color: var(--ink); transition: all 0.1s ease; }
   .rd-pal-item:hover { background: #e0f2fe; border-color: var(--blue); transform: translateX(2px); }
   .rd-pal-item .rd-pal-ico { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; opacity: 0.85; }
   .rd-pal-item .rd-pal-label { flex: 1; font-weight: 600; }
-  .rd-canvas-area { background: #e2e8f0; display: flex; align-items: flex-start; justify-content: center; padding: 32px; overflow: auto; min-width: 0; min-height: 0; }
+  .rd-canvas-area { background: #e2e8f0; display: flex; align-items: flex-start; justify-content: center; padding: 24px; overflow: auto; min-width: 0; min-height: 0; }
+  body.maximized .rd-canvas-area { padding: 12px; }
   /* The "page" — paper-like canvas where elements live */
   .rd-page {
     position: relative; background: #fff; box-shadow: 0 8px 24px rgba(15,23,42,.12);
@@ -6442,8 +6443,26 @@ const RD = {
   pageW: 1280,
   pageH: 720,
   themeKey: 'oh-classic',  // R46 — brand theme key
+  filters: [],             // global report-level filters applied to every widget/KPI
+  zoom: 1,                 // canvas zoom (1 = 100%); "Fit" scales the whole page into view
   _queryCache: null,       // last loaded /api/queries list
 };
+
+// Pick the global filters that make sense for a given query — only those whose
+// table is referenced by the query, so we never inject a filter on an absent table.
+function rdGlobalFiltersFor(qdict){
+  const flts = RD.filters || [];
+  if(!flts.length) return [];
+  const tables = new Set();
+  if(qdict){
+    if(qdict.primary_table) tables.add(qdict.primary_table);
+    (qdict.dimensions||[]).forEach(d => d && d.table && tables.add(d.table));
+    (qdict.metrics||[]).forEach(m => m && m.table && tables.add(m.table));
+  }
+  return flts
+    .filter(f => f && f.field && (!tables.size || tables.has(f.table)))
+    .map(f => ({ table: f.table, field: f.field, op: f.op, value: f.value }));
+}
 
 // ─── R46 — Brand themes ─────────────────────────────────────────────────
 // Each theme is a palette + typography preset. Applying a theme re-skins
@@ -6847,6 +6866,8 @@ function toggleMaximize(opts){
   try { localStorage.setItem('jarvis_maximized', on ? '1' : '0'); } catch(e){}
   // ECharts and Leaflet need a nudge after the layout changes
   setTimeout(() => { try { window.dispatchEvent(new Event('resize')); } catch(e){} }, 60);
+  // Re-fit the Designer page to the new available space
+  if(typeof rdFitToView === 'function' && document.getElementById('rdCanvasArea')) setTimeout(rdFitToView, 80);
 }
 function _ensureMaxExitPill(){
   if(document.getElementById('jvsMaxExit')) return;
@@ -6879,6 +6900,7 @@ function showDesigner(){
     if(saved && Array.isArray(saved.pages)){
       Object.assign(RD, saved);
       RD.selectedId = null;
+      if(!Array.isArray(RD.filters)) RD.filters = [];
     }
   } catch(e){}
   app.innerHTML =
@@ -6903,6 +6925,22 @@ function showDesigner(){
           '<button class="btn" id="rdTemplates">📐 Templates</button>'+
           // R48 — AI design
           '<button class="btn" id="rdAiDesign">✨ AI design</button>'+
+          // Global report filters — apply across every widget + KPI on the report
+          '<button class="btn" id="rdGlobalFilters" title="Filters applied to every widget and KPI on this report">🔎 Global filters <span id="rdGFCount" style="display:none;background:var(--blue);color:#fff;border-radius:999px;padding:0 6px;font-size:10px;font-weight:700;"></span></button>'+
+          // Page size
+          '<select id="rdPageSize" title="Canvas size" style="padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:12px;background:#fff;">'+
+            '<option value="1280x720">16:9 · 1280×720</option>'+
+            '<option value="1600x900">16:9 · 1600×900</option>'+
+            '<option value="1920x1080">16:9 · 1920×1080</option>'+
+            '<option value="1414x1000">A4 landscape</option>'+
+            '<option value="fit">⛶ Fit screen</option>'+
+          '</select>'+
+          // Zoom controls — start zoomed-to-fit so the whole page is visible
+          '<div style="display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:6px;padding:2px;background:#fff;">'+
+            '<button class="btn" id="rdZoomOut" title="Zoom out" style="padding:4px 8px;border:0;background:transparent;">−</button>'+
+            '<button class="btn" id="rdZoomFit" title="Fit page to view" style="padding:4px 8px;border:0;background:transparent;font-size:11px;min-width:46px;">Fit</button>'+
+            '<button class="btn" id="rdZoomIn" title="Zoom in" style="padding:4px 8px;border:0;background:transparent;">+</button>'+
+          '</div>'+
           // R53 — Maximize (full viewport). Shift-click also hides palette + inspector.
           '<button class="btn" id="rdMaximize" title="Hide top bar + left nav (Shift-click to also hide palette+inspector). Esc to exit.">⤢ Maximize</button>'+
           // R45.2 — Open + Export wired to backend
@@ -6969,6 +7007,21 @@ function showDesigner(){
   document.getElementById('rdAiDesign').addEventListener('click', rdOpenAIDesign);
   // R53 — Maximize (Shift-click also collapses palette + inspector)
   document.getElementById('rdMaximize').addEventListener('click', e => toggleMaximize({ fullCanvas: e.shiftKey }));
+  // Page-size selector
+  const _ps = document.getElementById('rdPageSize');
+  if(_ps){
+    _ps.value = (RD.pageW+'x'+RD.pageH); // reflect current; falls back to no match → first option visually
+    _ps.addEventListener('change', () => rdSetPageSize(_ps.value));
+  }
+  // Zoom controls
+  document.getElementById('rdZoomOut').addEventListener('click', () => rdSetZoom((RD.zoom||1) - 0.1));
+  document.getElementById('rdZoomIn').addEventListener('click', () => rdSetZoom((RD.zoom||1) + 0.1));
+  document.getElementById('rdZoomFit').addEventListener('click', rdFitToView);
+  // Global filters button
+  document.getElementById('rdGlobalFilters').addEventListener('click', rdOpenGlobalFilters);
+  rdUpdateGlobalFilterCount();
+  // Start zoomed-to-fit so the whole page is visible at once
+  setTimeout(rdFitToView, 30);
   try { if(localStorage.getItem('jarvis_maximized')==='1') document.body.classList.add('maximized'); } catch(e){}
   _ensureMaxExitPill();
   // Apply current theme to the page background
@@ -7002,7 +7055,193 @@ function showDesigner(){
 }
 
 function rdPersist(){
-  try { localStorage.setItem('jarvis_rd_state', JSON.stringify({reportName: RD.reportName, pages: RD.pages, showGrid: RD.showGrid, pageW: RD.pageW, pageH: RD.pageH})); } catch(e){}
+  try { localStorage.setItem('jarvis_rd_state', JSON.stringify({reportName: RD.reportName, pages: RD.pages, showGrid: RD.showGrid, pageW: RD.pageW, pageH: RD.pageH, filters: RD.filters})); } catch(e){}
+}
+
+// ─── Canvas sizing ───────────────────────────────────────────────────────
+function rdSetPageSize(val){
+  let w, h;
+  if(val === 'fit'){
+    const area = document.getElementById('rdCanvasArea');
+    const pad = document.body.classList.contains('maximized') ? 24 : 64;
+    if(area){ w = Math.max(640, area.clientWidth - pad); h = Math.max(400, area.clientHeight - pad); }
+    else { w = RD.pageW; h = RD.pageH; }
+  } else {
+    const m = /^(\d+)x(\d+)$/.exec(val); if(!m) return;
+    w = +m[1]; h = +m[2];
+  }
+  RD.pageW = Math.round(w); RD.pageH = Math.round(h);
+  const page = document.getElementById('rdPage');
+  if(page){ page.style.width = RD.pageW+'px'; page.style.height = RD.pageH+'px'; }
+  rdPersist();
+  rdFitToView();
+}
+
+function rdSetZoom(z){
+  RD.zoom = Math.max(0.2, Math.min(2, Math.round(z*100)/100));
+  const page = document.getElementById('rdPage');
+  if(page) page.style.zoom = RD.zoom;
+  const lbl = document.getElementById('rdZoomFit');
+  if(lbl) lbl.textContent = Math.round(RD.zoom*100)+'%';
+}
+
+// Scale the page so the whole thing is visible within the canvas area.
+function rdFitToView(){
+  const area = document.getElementById('rdCanvasArea'); if(!area) return;
+  const pad = document.body.classList.contains('maximized') ? 32 : 56;
+  const availW = Math.max(200, area.clientWidth - pad);
+  const availH = Math.max(200, area.clientHeight - pad);
+  const z = Math.min(availW / RD.pageW, availH / RD.pageH);
+  rdSetZoom(z);
+}
+
+// ─── Global report filters ───────────────────────────────────────────────
+function rdUpdateGlobalFilterCount(){
+  const b = document.getElementById('rdGFCount'); if(!b) return;
+  const n = (RD.filters||[]).length;
+  b.style.display = n ? 'inline-block' : 'none';
+  b.textContent = n;
+}
+
+async function rdOpenGlobalFilters(){
+  try { await ensureGraph(); } catch(e){}
+  const tables = ((S.graph||{}).tables||[]);
+  let modal = document.getElementById('rdGFModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'rdGFModal'; modal.className = 'qp-fmodal';
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if(e.target===modal) modal.classList.remove('show'); });
+  }
+  modal.innerHTML =
+    '<div class="qp-fmodal-card" style="width:540px;">'+
+      '<h3>Global report filters</h3>'+
+      '<div style="font-size:12px;color:var(--muted);margin:-8px 0 10px;">Applied to every query widget and live KPI on this report — but only where the field’s table is used by that query.</div>'+
+      '<div id="rdGFList"></div>'+
+      '<div style="border-top:1px solid var(--line);margin:14px 0 8px;"></div>'+
+      '<label>Add a filter</label>'+
+      '<div class="qp-fmodal-range">'+
+        '<select id="rdGFTable">'+tables.map(t=>'<option value="'+esc(t.key)+'">'+esc(t.display_name||t.key)+'</option>').join('')+'</select>'+
+        '<select id="rdGFField"></select>'+
+      '</div>'+
+      '<select id="rdGFOp" style="margin-top:8px;"></select>'+
+      '<div id="rdGFValWrap" style="margin-top:8px;"></div>'+
+      '<div class="qp-fmodal-acts">'+
+        '<button class="qp-fmodal-cancel" id="rdGFClose">Done</button>'+
+        '<button class="qp-fmodal-save" id="rdGFAdd">+ Add filter</button>'+
+      '</div>'+
+    '</div>';
+  modal.classList.add('show');
+  document.getElementById('rdGFOp').innerHTML = Object.entries(_QP_OPS).map(([k,v])=>'<option value="'+k+'"'+(k==='in'?' selected':'')+'>'+esc(v.label)+'</option>').join('');
+  const fieldsFor = (tk) => { const t = tables.find(x=>x.key===tk); if(!t) return [];
+    return [].concat((t.dimensions||[]).map(f=>({...f})),(t.dates||[]).map(f=>({...f})),(t.metrics||[]).map(f=>({...f}))); };
+  const renderFields = () => {
+    const tk = document.getElementById('rdGFTable').value;
+    document.getElementById('rdGFField').innerHTML = fieldsFor(tk).map(f=>'<option value="'+esc(f.key)+'" data-name="'+esc(f.display_name||f.key)+'">'+esc(f.display_name||f.key)+'</option>').join('');
+    rdGFRenderVal();
+  };
+  document.getElementById('rdGFTable').addEventListener('change', renderFields);
+  document.getElementById('rdGFField').addEventListener('change', rdGFRenderVal);
+  document.getElementById('rdGFOp').addEventListener('change', rdGFRenderVal);
+  document.getElementById('rdGFClose').addEventListener('click', ()=> modal.classList.remove('show'));
+  document.getElementById('rdGFAdd').addEventListener('click', rdGFAddFromForm);
+  renderFields();
+  rdGFRenderList();
+}
+
+async function rdGFRenderVal(){
+  const wrap = document.getElementById('rdGFValWrap'); if(!wrap) return;
+  const op = document.getElementById('rdGFOp').value;
+  const meta = _QP_OPS[op] || {val:'text'};
+  const tk = document.getElementById('rdGFTable').value;
+  const field = document.getElementById('rdGFField').value;
+  window._rdGFSel = null;
+  if(meta.val === 'none'){ wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);font-style:italic;">No value needed for this operator.</div>'; return; }
+  if(meta.val === 'range'){ wrap.innerHTML = '<div class="qp-fmodal-range"><input type="text" id="rdGFvA" placeholder="From"><input type="text" id="rdGFvB" placeholder="To"></div>'; return; }
+  if(meta.val === 'list'){
+    const sel = new Set(); window._rdGFSel = sel;
+    wrap.innerHTML = '<input type="text" id="rdGFsearch" placeholder="Search values…" style="width:100%;margin-bottom:6px;"><div class="fl-values" id="rdGFvals"><span class="phint">Loading…</span></div>';
+    let vals = [];
+    try { vals = await qpFetchDistinct(tk, field); } catch(e){ document.getElementById('rdGFvals').innerHTML = '<span class="werr">'+esc(e.message)+'</span>'; return; }
+    const host = document.getElementById('rdGFvals');
+    const render = (ft) => { const f = (ft||'').toLowerCase(); const shown = vals.filter(v => !f || String(v).toLowerCase().includes(f));
+      host.innerHTML = shown.length ? shown.map(v=>'<label class="fl-check"><input type="checkbox" value="'+esc(v)+'"'+(sel.has(String(v))?' checked':'')+'> '+esc(v===''?'(blank)':v)+'</label>').join('') : '<span class="phint">No matches.</span>';
+      host.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.addEventListener('change',()=>cb.checked?sel.add(cb.value):sel.delete(cb.value))); };
+    render('');
+    document.getElementById('rdGFsearch').addEventListener('input', e => render(e.target.value));
+    return;
+  }
+  wrap.innerHTML = '<input type="text" id="rdGFv" list="rdGFdl" autocomplete="off" placeholder="Type or pick a value"><datalist id="rdGFdl"></datalist>';
+  try { const vals = await qpFetchDistinct(tk, field); const dl = document.getElementById('rdGFdl'); if(dl) dl.innerHTML = vals.slice(0,500).map(v=>'<option value="'+esc(v)+'">').join(''); } catch(e){}
+}
+
+function rdGFAddFromForm(){
+  const tk = document.getElementById('rdGFTable').value;
+  const fsel = document.getElementById('rdGFField'); const opt = fsel.selectedOptions[0];
+  const field = fsel.value, name = opt ? opt.getAttribute('data-name') : field;
+  const op = document.getElementById('rdGFOp').value; const meta = _QP_OPS[op] || {val:'text'};
+  let value;
+  if(meta.val === 'none') value = null;
+  else if(meta.val === 'range') value = [ (document.getElementById('rdGFvA')||{}).value||'', (document.getElementById('rdGFvB')||{}).value||'' ];
+  else if(meta.val === 'list'){ value = Array.from(window._rdGFSel||[]); if(!value.length){ toast('Pick at least one value', true); return; } }
+  else { value = ((document.getElementById('rdGFv')||{}).value||'').trim(); if(!value){ toast('Enter a value', true); return; } }
+  RD.filters = RD.filters || [];
+  RD.filters.push({ table: tk, field, name, op, value });
+  rdPersist(); rdUpdateGlobalFilterCount(); rdGFRenderList();
+  rdRenderPage();
+  toast('Global filter added');
+}
+
+function rdGFRenderList(){
+  const host = document.getElementById('rdGFList'); if(!host) return;
+  const flts = RD.filters || [];
+  if(!flts.length){ host.innerHTML = '<div style="font-size:12px;color:var(--muted);font-style:italic;">No global filters yet.</div>'; return; }
+  host.innerHTML = flts.map((f,i)=>{
+    const opLabel = (_QP_OPS[f.op] && _QP_OPS[f.op].label) || f.op;
+    const val = Array.isArray(f.value) ? f.value.join(', ') : String(f.value==null?'':f.value);
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid #f59e0b;border-radius:6px;margin-bottom:6px;background:#fffbeb;">'+
+      '<span style="font-weight:600;font-size:12px;">'+esc(f.name||f.field)+'</span>'+
+      '<span style="font-family:ui-monospace,monospace;font-size:11px;color:var(--orange);">'+esc(opLabel)+'</span>'+
+      '<span style="font-size:11px;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(val.length>40?val.slice(0,40)+'…':val)+'</span>'+
+      '<span data-rdgfrm="'+i+'" style="cursor:pointer;color:var(--muted);font-weight:700;" title="Remove">✕</span>'+
+    '</div>';
+  }).join('');
+  host.querySelectorAll('[data-rdgfrm]').forEach(x=>x.addEventListener('click',()=>{
+    RD.filters.splice(+x.getAttribute('data-rdgfrm'),1);
+    rdPersist(); rdUpdateGlobalFilterCount(); rdGFRenderList(); rdRenderPage();
+  }));
+}
+
+// ─── Live-data KPI ───────────────────────────────────────────────────────
+async function rdRenderLiveKpi(el){
+  const valEl = document.getElementById('rdkpi_'+el.id); if(!valEl) return;
+  const p = el.props || {};
+  try {
+    const gf = rdGlobalFiltersFor({ primary_table: p.metricTable, metrics: [{table:p.metricTable, field:p.metricField}] });
+    const body = { primary_table: p.metricTable, dimensions: [], metrics: [{table:p.metricTable, field:p.metricField}], filters: gf, limit: 1 };
+    const r = await api('/api/semantic/query?include_sql=false', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    const row = (r.rows||[])[0]; const raw = row ? Number(row[row.length-1]) : 0;
+    valEl.textContent = fmt(raw, p.format||'number');
+  } catch(e){ valEl.textContent = '—'; }
+}
+
+// ─── Shape library renderer ──────────────────────────────────────────────
+const _RD_SHAPES = ['rect','rounded','ellipse','triangle','diamond','line','arrow','star'];
+function rdShapeInnerHTML(s){
+  const fill = s.fill || '#dbeafe', stroke = s.stroke || '#0E76B4';
+  const sw = (s.strokeWidth != null ? s.strokeWidth : 2);
+  const type = s.shapeType || 'rect';
+  if(type === 'ellipse') return '<div class="rd-el-shape" style="width:100%;height:100%;background:'+fill+';border:'+sw+'px solid '+stroke+';border-radius:50%;"></div>';
+  if(type === 'rounded') return '<div class="rd-el-shape" style="width:100%;height:100%;background:'+fill+';border:'+sw+'px solid '+stroke+';border-radius:'+(s.radius||16)+'px;"></div>';
+  if(type === 'rect')    return '<div class="rd-el-shape" style="width:100%;height:100%;background:'+fill+';border:'+sw+'px solid '+stroke+';border-radius:'+(s.radius||0)+'px;"></div>';
+  const svg = '<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style="display:block;">';
+  const w = Math.max(1, sw);
+  if(type === 'line')     return svg+'<line x1="0" y1="50" x2="100" y2="50" stroke="'+stroke+'" stroke-width="'+w+'" vector-effect="non-scaling-stroke"/></svg>';
+  if(type === 'arrow')    return svg+'<line x1="2" y1="50" x2="86" y2="50" stroke="'+stroke+'" stroke-width="'+w+'" vector-effect="non-scaling-stroke"/><polygon points="84,40 100,50 84,60" fill="'+stroke+'"/></svg>';
+  if(type === 'triangle') return svg+'<polygon points="50,4 96,96 4,96" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+w+'" vector-effect="non-scaling-stroke"/></svg>';
+  if(type === 'diamond')  return svg+'<polygon points="50,3 97,50 50,97 3,50" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+w+'" vector-effect="non-scaling-stroke"/></svg>';
+  if(type === 'star')     return svg+'<polygon points="50,3 61,38 98,38 68,60 79,97 50,74 21,97 32,60 2,38 39,38" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+w+'" vector-effect="non-scaling-stroke"/></svg>';
+  return '<div class="rd-el-shape" style="width:100%;height:100%;background:'+fill+';border:'+sw+'px solid '+stroke+';border-radius:'+(s.radius||0)+'px;"></div>';
 }
 
 function rdRenderTabs(){
@@ -7074,12 +7313,17 @@ function rdAddElement(type){
 function rdRenderPage(){
   const page = document.getElementById('rdPage'); if(!page) return;
   const p = rdCurPage();
+  page.style.width = RD.pageW+'px'; page.style.height = RD.pageH+'px';
+  page.style.zoom = (RD.zoom || 1);
   page.innerHTML = (p.elements||[]).map(el => rdElementHTML(el)).join('') + rdHandlesHTML();
   // Render the live widget bodies (after innerHTML so DOM nodes exist)
   (p.elements||[]).forEach(el => {
     if(el.type === 'widget' && el.props.queryId){
       const host = document.getElementById('rdwb_' + el.id);
       if(host) rdRenderWidget(el, host);
+    }
+    if(el.type === 'kpi' && el.props && el.props.live && el.props.metricField){
+      rdRenderLiveKpi(el);
     }
   });
   // Wire drag-to-move + click-to-select
@@ -7108,8 +7352,7 @@ function rdElementHTML(el){
   } else if(el.type === 'divider'){
     inner = '<div class="rd-el-divider" style="width:100%;height:100%;"></div>';
   } else if(el.type === 'shape'){
-    const s = el.props || {};
-    inner = '<div class="rd-el-shape" style="width:100%;height:100%;background:'+(s.fill||'#dbeafe')+';border-color:'+(s.stroke||'#0E76B4')+';border-radius:'+(s.radius||8)+'px;"></div>';
+    inner = rdShapeInnerHTML(el.props || {});
   } else if(el.type === 'image'){
     const s = el.props || {};
     inner = s.src
@@ -7119,9 +7362,10 @@ function rdElementHTML(el){
     const s = el.props || {};
     // R46 — KPI tile inherits the active theme's colors
     const t = _rdTheme();
+    const valTxt = s.live ? (s.metricField ? '…' : 'Pick a metric') : (s.value||'—');
     inner = '<div class="rd-el-kpi" style="width:100%;height:100%;background:'+t.kpi_card_bg+';border-color:'+t.kpi_card_border+';">'+
       '<div class="rd-kpi-label" style="color:'+t.muted+';">'+esc(s.label||'METRIC')+'</div>'+
-      '<div class="rd-kpi-val" style="color:'+t.text+';">'+esc(s.value||'—')+'</div>'+
+      '<div class="rd-kpi-val" id="rdkpi_'+el.id+'" style="color:'+t.text+';">'+esc(valTxt)+'</div>'+
       (s.delta ? '<div class="rd-kpi-delta" style="color:'+t.accent+';">'+esc(s.delta)+'</div>' : '')+
     '</div>';
   } else if(el.type === 'widget'){
@@ -7152,13 +7396,24 @@ async function rdRenderWidget(el, host){
   const qid = el.props.queryId;
   if(!qid){ host.innerHTML = '<span class="phint">Pick a query →</span>'; return; }
   try {
-    const r = await api('/api/queries/'+encodeURIComponent(qid)+'/run', {method:'POST', headers:{'Content-Type':'application/json'}});
-    const dims = r.dimensions || [];
-    const mets = r.metrics || [];
+    // Fetch the saved query definition, merge global report filters, then run.
+    const q = await api('/api/queries/'+encodeURIComponent(qid));
+    const qd = (q && q.qdict) ? q.qdict : {};
+    const dims = qd.dimensions || [];
+    const mets = qd.metrics || [];
+    const body = {
+      primary_table: qd.primary_table,
+      dimensions: dims,
+      metrics: mets,
+      filters: (qd.filters||[]).concat(rdGlobalFiltersFor(qd)),
+      order_by: qd.order_by || [],
+      limit: qd.limit || 100,
+    };
+    const r = await api('/api/semantic/query?include_sql=false', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
     const widget = {
       type: el.props.chartType || 'bar',
-      title: el.props.queryName || '',
-      query: { primary_table: (r.query&&r.query.primary_table), dimensions: dims, metrics: mets },
+      title: el.props.queryName || (q && q.name) || '',
+      query: { primary_table: qd.primary_table, dimensions: dims, metrics: mets },
       metricFormats: mets.map(m => m.format || 'number'),
     };
     host.innerHTML = '';
@@ -7195,16 +7450,17 @@ function rdElementMouseDown(e, elId){
 function _rdDragMove(e){
   if(!_rdDrag) return;
   const el = rdCurPage().elements.find(x => x.id === _rdDrag.id); if(!el) return;
+  const z = RD.zoom || 1; // mouse deltas are in screen px; convert to page px
   if(_rdDrag.kind === 'move'){
-    let nx = _rdDrag.origX + (e.clientX - _rdDrag.startX);
-    let ny = _rdDrag.origY + (e.clientY - _rdDrag.startY);
+    let nx = _rdDrag.origX + (e.clientX - _rdDrag.startX) / z;
+    let ny = _rdDrag.origY + (e.clientY - _rdDrag.startY) / z;
     // Snap to 10px grid when grid visible
     if(RD.showGrid){ nx = Math.round(nx/10)*10; ny = Math.round(ny/10)*10; }
     nx = Math.max(0, Math.min(nx, RD.pageW - el.w));
     ny = Math.max(0, Math.min(ny, RD.pageH - el.h));
     el.x = nx; el.y = ny;
   } else if(_rdDrag.kind === 'resize'){
-    const dx = e.clientX - _rdDrag.startX, dy = e.clientY - _rdDrag.startY;
+    const dx = (e.clientX - _rdDrag.startX) / z, dy = (e.clientY - _rdDrag.startY) / z;
     let nx = _rdDrag.origX, ny = _rdDrag.origY, nw = _rdDrag.origW, nh = _rdDrag.origH;
     if(_rdDrag.h.includes('e')) nw = Math.max(20, _rdDrag.origW + dx);
     if(_rdDrag.h.includes('s')) nh = Math.max(20, _rdDrag.origH + dy);
@@ -7281,19 +7537,43 @@ async function rdRenderInspector(){
       '</div>';
   } else if(el.type === 'shape'){
     bodyHTML +=
+      '<div class="rd-field"><label>Shape</label><select id="rdEdShapeType">'+
+        _RD_SHAPES.map(t => '<option value="'+t+'"'+((p.shapeType||'rect')===t?' selected':'')+'>'+t.charAt(0).toUpperCase()+t.slice(1)+'</option>').join('')+
+      '</select></div>'+
       '<div class="rd-row2">'+
         '<div class="rd-field"><label>Fill</label><input type="color" id="rdEdFill" value="'+(p.fill||'#dbeafe')+'"></div>'+
         '<div class="rd-field"><label>Stroke</label><input type="color" id="rdEdStroke" value="'+(p.stroke||'#0E76B4')+'"></div>'+
       '</div>'+
-      '<div class="rd-field"><label>Corner radius</label><input type="number" id="rdEdRadius" value="'+(p.radius||8)+'" min="0" max="80"></div>';
+      '<div class="rd-row2">'+
+        '<div class="rd-field"><label>Stroke width</label><input type="number" id="rdEdStrokeW" value="'+(p.strokeWidth!=null?p.strokeWidth:2)+'" min="0" max="40"></div>'+
+        '<div class="rd-field"><label>Corner radius</label><input type="number" id="rdEdRadius" value="'+(p.radius||8)+'" min="0" max="80"></div>'+
+      '</div>';
   } else if(el.type === 'image'){
+    const hasImg = !!(p.src);
     bodyHTML +=
-      '<div class="rd-field"><label>Image URL</label><input type="text" id="rdEdSrc" value="'+esc(p.src||'')+'" placeholder="https://..."></div>'+
-      '<div style="font-size:11px;color:var(--muted);line-height:1.45;">Paste any direct image URL. The image fills its frame using object-fit:cover.</div>';
+      '<div class="rd-field"><label>From your computer</label>'+
+        '<input type="file" id="rdEdFile" accept="image/*" style="font-size:12px;">'+
+      '</div>'+
+      (hasImg ? '<div class="rd-field"><img src="'+esc(p.src)+'" style="max-width:100%;max-height:120px;border-radius:6px;border:1px solid var(--line);object-fit:contain;background:#f8fafc;"></div>' : '')+
+      '<div class="rd-field"><label>…or image URL</label><input type="text" id="rdEdSrc" value="'+esc(p.src && p.src.slice(0,5)==='data:' ? '' : (p.src||''))+'" placeholder="https://..."></div>'+
+      '<div style="font-size:11px;color:var(--muted);line-height:1.45;">Click <b>Choose File</b> to browse your computer, or paste a direct image URL. The image fills its frame.</div>';
   } else if(el.type === 'kpi'){
+    const tables = ((S.graph||{}).tables||[]);
+    if(!tables.length){ ensureGraph().then(()=>{ if(RD.selectedId===el.id) rdRenderInspector(); }).catch(()=>{}); }
+    const curT = p.metricTable || (tables[0] && tables[0].key) || '';
+    const curTbl = tables.find(t=>t.key===curT);
+    const metricOpts = (curTbl ? (curTbl.metrics||[]) : []).map(m=>'<option value="'+esc(m.key)+'"'+(p.metricField===m.key?' selected':'')+'>'+esc(m.display_name||m.key)+'</option>').join('');
     bodyHTML +=
       '<div class="rd-field"><label>Label</label><input type="text" id="rdEdLabel" value="'+esc(p.label||'')+'"></div>'+
-      '<div class="rd-field"><label>Value</label><input type="text" id="rdEdValue" value="'+esc(p.value||'')+'"></div>'+
+      '<div class="rd-field"><label style="display:flex;align-items:center;gap:6px;text-transform:none;font-size:12px;font-weight:600;color:var(--ink);"><input type="checkbox" id="rdEdKpiLive" '+(p.live?'checked':'')+' style="width:auto;margin:0;"> Live value from a table metric</label></div>'+
+      '<div id="rdKpiLiveBox" style="'+(p.live?'':'display:none;')+'">'+
+        '<div class="rd-field"><label>Table</label><select id="rdEdKpiTable">'+tables.map(t=>'<option value="'+esc(t.key)+'"'+(curT===t.key?' selected':'')+'>'+esc(t.display_name||t.key)+'</option>').join('')+'</select></div>'+
+        '<div class="rd-field"><label>Metric</label><select id="rdEdKpiField"><option value="">— pick a metric —</option>'+metricOpts+'</select></div>'+
+        '<div class="rd-field"><label>Format</label><select id="rdEdKpiFmt">'+
+          ['number','currency','percent','ratio'].map(f=>'<option value="'+f+'"'+((p.format||'number')===f?' selected':'')+'>'+f+'</option>').join('')+
+        '</select></div>'+
+      '</div>'+
+      '<div class="rd-field" id="rdKpiStaticBox" style="'+(p.live?'display:none;':'')+'"><label>Value</label><input type="text" id="rdEdValue" value="'+esc(p.value||'')+'"></div>'+
       '<div class="rd-field"><label>Delta (optional)</label><input type="text" id="rdEdDelta" value="'+esc(p.delta||'')+'"></div>';
   } else if(el.type === 'widget'){
     // R52 — Always refetch the list. Queries saved in the Query Panel after the
@@ -7337,15 +7617,38 @@ async function rdRenderInspector(){
     onChange('rdEdAlign','align','str');
     onChange('rdEdColor','color','str');
   } else if(el.type === 'shape'){
+    onChange('rdEdShapeType','shapeType','str');
     onChange('rdEdFill','fill','str');
     onChange('rdEdStroke','stroke','str');
+    onChange('rdEdStrokeW','strokeWidth','num');
     onChange('rdEdRadius','radius','num');
   } else if(el.type === 'image'){
     onChange('rdEdSrc','src','str');
+    const fileInput = document.getElementById('rdEdFile');
+    if(fileInput) fileInput.addEventListener('change', () => {
+      const file = fileInput.files && fileInput.files[0]; if(!file) return;
+      if(file.size > 8*1024*1024){ toast('Image is large (>8MB) — it may slow saving.', false); }
+      const reader = new FileReader();
+      reader.onload = () => { el.props.src = reader.result; rdRenderPage(); rdRenderInspector(); rdPersist(); };
+      reader.readAsDataURL(file);
+    });
   } else if(el.type === 'kpi'){
     onChange('rdEdLabel','label','str');
     onChange('rdEdValue','value','str');
     onChange('rdEdDelta','delta','str');
+    const liveChk = document.getElementById('rdEdKpiLive');
+    if(liveChk) liveChk.addEventListener('change', () => {
+      el.props.live = liveChk.checked;
+      const lb = document.getElementById('rdKpiLiveBox'); if(lb) lb.style.display = liveChk.checked ? '' : 'none';
+      const sb = document.getElementById('rdKpiStaticBox'); if(sb) sb.style.display = liveChk.checked ? 'none' : '';
+      rdRenderPage(); rdPersist();
+    });
+    const tSel = document.getElementById('rdEdKpiTable');
+    if(tSel) tSel.addEventListener('change', () => { el.props.metricTable = tSel.value; el.props.metricField = ''; rdRenderInspector(); rdRenderPage(); rdPersist(); });
+    const fSel = document.getElementById('rdEdKpiField');
+    if(fSel) fSel.addEventListener('change', () => { el.props.metricField = fSel.value; if(!el.props.metricTable){ el.props.metricTable = document.getElementById('rdEdKpiTable').value; } rdRenderPage(); rdPersist(); });
+    const fmtSel = document.getElementById('rdEdKpiFmt');
+    if(fmtSel) fmtSel.addEventListener('change', () => { el.props.format = fmtSel.value; rdRenderPage(); rdPersist(); });
   } else if(el.type === 'widget'){
     onChange('rdEdQuery','queryId','str');
     onChange('rdEdChart','chartType','str');
@@ -7680,6 +7983,7 @@ function rdOpenTemplateGallery(){
     rdRenderTabs(); rdRenderPage(); rdRenderInspector();
     rdPersist();
     overlay.remove();
+    rdFitToView(); // zoom so the whole template is visible at once
     toast('Loaded template: '+tpl.name+'. Edit and click ⭐ Save to keep.');
   }));
 }
@@ -7762,6 +8066,7 @@ async function rdSave(){
     pages: RD.pages,
     page_w: RD.pageW,
     page_h: RD.pageH,
+    filters: RD.filters || [],
     scope: 'private',
   };
   try {
@@ -7811,6 +8116,7 @@ async function rdLoadReport(id){
     RD.pages = r.pages || [{name:'Page 1', elements:[]}];
     RD.pageW = r.page_w || 1280;
     RD.pageH = r.page_h || 720;
+    RD.filters = r.filters || [];
     RD.activePageIdx = 0;
     RD.selectedId = null;
     RD._queryCache = null;

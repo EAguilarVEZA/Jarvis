@@ -117,6 +117,7 @@ class ReportCreate(BaseModel):
     page_w: Optional[int] = DESIGN_W_PX
     page_h: Optional[int] = DESIGN_H_PX
     scope: Optional[str] = "private"
+    filters: Optional[list] = None
 
 
 class ReportUpdate(BaseModel):
@@ -126,6 +127,7 @@ class ReportUpdate(BaseModel):
     page_w: Optional[int] = None
     page_h: Optional[int] = None
     scope: Optional[str] = None
+    filters: Optional[list] = None
 
 
 @router.get("")
@@ -166,6 +168,7 @@ async def create_report(body: ReportCreate, request: Request):
             "pages": body.pages or [{"name": "Page 1", "elements": []}],
             "page_w": body.page_w or DESIGN_W_PX,
             "page_h": body.page_h or DESIGN_H_PX,
+            "filters": body.filters or [],
             "owner_email": owner,
             "scope": scope,
             "created_at": _now(),
@@ -194,6 +197,7 @@ async def update_report(report_id: str, body: ReportUpdate, request: Request):
         if body.pages is not None:       r["pages"] = body.pages
         if body.page_w is not None:      r["page_w"] = int(body.page_w)
         if body.page_h is not None:      r["page_h"] = int(body.page_h)
+        if body.filters is not None:     r["filters"] = body.filters
         if body.scope is not None:
             s = body.scope.lower()
             if s in ("private", "group", "corporate"):
