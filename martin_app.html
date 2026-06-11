@@ -268,6 +268,18 @@
   .qp-chip.filter { background: #fffbeb; border-color: #f59e0b; padding: 5px 9px; }
   .qp-chip.filter .qp-chip-op { color: var(--orange); font-weight: 700; font-family: ui-monospace, monospace; font-size: 11px; }
   .qp-chip.filter .qp-chip-val { font-family: ui-monospace, monospace; font-size: 11px; color: var(--ink); background: #fef3c7; padding: 1px 5px; border-radius: 3px; }
+  /* Bucket colors — dimensions blue, metrics red, filters yellow */
+  .qp-chip.dim { background: #eff6ff; border-color: #93c5fd; color: #1e3a8a; }
+  .qp-chip.dim .qp-chip-tbl { color: #3b82f6; }
+  .qp-chip.met { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+  .qp-chip.met .qp-chip-tbl { color: #ef4444; }
+  .qp-shelf[data-shelf=dim] { border-left: 3px solid #3b82f6; }
+  .qp-shelf[data-shelf=met] { border-left: 3px solid #ef4444; }
+  .qp-shelf[data-shelf=flt] { border-left: 3px solid #f59e0b; }
+  .qp-shelf[data-shelf=dim] .qp-shelf-head { color: #1d4ed8; }
+  .qp-shelf[data-shelf=met] .qp-shelf-head { color: #b91c1c; }
+  .qp-shelf[data-shelf=flt] .qp-shelf-head > span:first-child { color: #b45309; }
+  .qp-field.dragging { opacity: 0.45; }
   .qp-shelf-hint { font-size: 11px; color: var(--muted2); font-style: italic; }
   /* Toolbar between shelves and results */
   .qp-toolbar { padding: 8px 16px; background: #fafbfc; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
@@ -288,6 +300,10 @@
   .qp-tab:hover { color: var(--ink); }
   .qp-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
   .qp-sql { font-family: ui-monospace, monospace; font-size: 12px; line-height: 1.55; background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 8px; white-space: pre-wrap; overflow-x: auto; }
+  .qp-sqlwrap { display: flex; flex-direction: column; gap: 8px; height: 100%; }
+  .qp-sql-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .qp-sql-editor { font-family: ui-monospace, monospace; font-size: 12px; line-height: 1.55; background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 8px; border: 1px solid var(--line-strong); width: 100%; min-height: 360px; resize: vertical; tab-size: 2; caret-color: #38bdf8; }
+  .qp-sql-editor:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 2px rgba(14,116,184,.25); }
   /* Filter editor popover */
   .qp-fmodal { position: fixed; z-index: 90; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.4); display: none; align-items: center; justify-content: center; }
   .qp-fmodal.show { display: flex; }
@@ -8066,10 +8082,11 @@ async function showQuery(){
   qpRenderSheetTabs();
   qpRenderRail();
   qpRenderShelves();
+  qpWireShelfDrop();
   // Wire actions
   document.getElementById('qpRailSearch').addEventListener('input', e => qpRenderRail(e.target.value));
   document.getElementById('qpRun').addEventListener('click', qpRun);
-  document.getElementById('qpClear').addEventListener('click', () => { QP.dimensions=[]; QP.metrics=[]; QP.filters=[]; QP.primary_table=null; QP.lastResult=null; qpRenderShelves(); qpRenderResult(); document.getElementById('qpStatus').textContent='Cleared'; });
+  document.getElementById('qpClear').addEventListener('click', () => { QP.dimensions=[]; QP.metrics=[]; QP.filters=[]; QP.primary_table=null; QP.lastResult=null; QP._editedSql=null; qpRenderShelves(); qpRenderResult(); document.getElementById('qpStatus').textContent='Cleared'; });
   document.getElementById('qpSave').addEventListener('click', qpSave);
   document.getElementById('qpDownload').addEventListener('click', qpDownloadCSV);
   document.getElementById('qpLimit').addEventListener('change', e => { QP.limit = Math.max(1, Math.min(10000, parseInt(e.target.value,10)||100)); e.target.value = QP.limit; });
@@ -8240,7 +8257,7 @@ function qpRenderRail(filter){
       '<div class="qp-tbl-fields">'+
         matchingFields.map(x => {
           const kindCls = x._kind === 'met' ? 'met' : x._kind === 'date' ? 'date' : 'dim';
-          return '<div class="qp-field '+kindCls+'" data-qpf-table="'+esc(t.key)+'" data-qpf-key="'+esc(x.key)+'" data-qpf-name="'+esc(x.display_name||x.key)+'" data-qpf-kind="'+esc(x._kind)+'" data-qpf-format="'+esc(x.format||'')+'">'+
+          return '<div class="qp-field '+kindCls+'" draggable="true" data-qpf-table="'+esc(t.key)+'" data-qpf-key="'+esc(x.key)+'" data-qpf-name="'+esc(x.display_name||x.key)+'" data-qpf-kind="'+esc(x._kind)+'" data-qpf-format="'+esc(x.format||'')+'">'+
             '<span class="qp-fkind">'+(x._kind === 'met'?'M':x._kind === 'date'?'D':'·')+'</span>'+
             '<span class="qp-fname" title="'+esc(x.display_name||x.key)+'">'+esc(x.display_name||x.key)+'</span>'+
           '</div>';
@@ -8252,14 +8269,53 @@ function qpRenderRail(filter){
   list.querySelectorAll('.qp-tbl-head').forEach(h => h.addEventListener('click', () => {
     h.parentElement.classList.toggle('open');
   }));
-  // Click field → add to shelf based on kind
-  list.querySelectorAll('.qp-field').forEach(el => el.addEventListener('click', () => qpAddField({
-    table:  el.getAttribute('data-qpf-table'),
-    field:  el.getAttribute('data-qpf-key'),
-    name:   el.getAttribute('data-qpf-name'),
-    kind:   el.getAttribute('data-qpf-kind'),
-    format: el.getAttribute('data-qpf-format') || 'number',
-  })));
+  // Click field → add to shelf based on kind; drag field → drop into a bucket
+  list.querySelectorAll('.qp-field').forEach(el => {
+    const payload = () => ({
+      table:  el.getAttribute('data-qpf-table'),
+      field:  el.getAttribute('data-qpf-key'),
+      name:   el.getAttribute('data-qpf-name'),
+      kind:   el.getAttribute('data-qpf-kind'),
+      format: el.getAttribute('data-qpf-format') || 'number',
+    });
+    el.addEventListener('click', () => qpAddField(payload()));
+    el.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('application/json', JSON.stringify(payload()));
+      e.dataTransfer.effectAllowed = 'copy';
+      el.classList.add('dragging');
+    });
+    el.addEventListener('dragend', () => el.classList.remove('dragging'));
+  });
+}
+
+// Drop targets — drag a rail field onto a bucket to add it in that role.
+function qpWireShelfDrop(){
+  [['qpShelfDim','dim'],['qpShelfMet','met'],['qpShelfFlt','flt']].forEach(([id, role]) => {
+    const el = document.getElementById(id); if(!el || el._dropWired) return;
+    el._dropWired = true;
+    el.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; el.classList.add('over'); });
+    el.addEventListener('dragleave', e => { if(!el.contains(e.relatedTarget)) el.classList.remove('over'); });
+    el.addEventListener('drop', e => {
+      e.preventDefault(); el.classList.remove('over');
+      let f; try { f = JSON.parse(e.dataTransfer.getData('application/json')); } catch(_){ return; }
+      if(f && f.table && f.field) qpAddFieldAs(f, role);
+    });
+  });
+}
+
+// Add a field in an explicit role regardless of its natural kind.
+function qpAddFieldAs(f, role){
+  if(!QP.primary_table) QP.primary_table = f.table;
+  if(role === 'met'){
+    if(!QP.metrics.find(m => m.table===f.table && m.field===f.field)) QP.metrics.push(f);
+    qpRenderShelves();
+  } else if(role === 'flt'){
+    // Open the value picker so the user selects one/many values + operator on the fly.
+    qpOpenFilterModal({ table:f.table, field:f.field, name:f.name, kind: f.kind==='met' ? 'met' : 'dim' }, null);
+  } else {
+    if(!QP.dimensions.find(d => d.table===f.table && d.field===f.field)) QP.dimensions.push(f);
+    qpRenderShelves();
+  }
 }
 
 function qpAddField(f){
@@ -8316,7 +8372,7 @@ function qpRenderShelves(){
 }
 
 function qpChipHTML(f, kind, i){
-  return '<span class="qp-chip" data-qpf-filterize="'+kind+':'+i+'" title="Click to add a filter on this field">'+
+  return '<span class="qp-chip '+(kind==='met'?'met':'dim')+'" data-qpf-filterize="'+kind+':'+i+'" title="Click to add a filter on this field">'+
     '<span class="qp-chip-name">'+esc(f.name||f.field)+'</span>'+
     '<span class="qp-chip-tbl">·'+esc(f.table)+'</span>'+
     '<span class="qp-chip-x" data-qprm="'+kind+':'+i+'" title="Remove">✕</span>'+
@@ -8502,6 +8558,7 @@ async function qpRun(){
       body: JSON.stringify(qdict),
     });
     QP.lastResult = res;
+    QP._editedSql = null; // fresh structured run → SQL tab shows the new generated SQL
     QP.lastResult._elapsed = ((Date.now() - t0)/1000).toFixed(1);
     document.getElementById('qpStatus').textContent = (res.rows||[]).length+' rows · '+QP.lastResult._elapsed+'s';
     document.getElementById('qpDownload').disabled = false;
@@ -8523,7 +8580,19 @@ function qpRenderResult(){
   }
   const r = QP.lastResult;
   if(QP.resultTab === 'sql'){
-    host.innerHTML = '<div class="qp-sql">'+esc(r.sql || '(SQL not returned)')+'</div>';
+    const sqlText = (QP._editedSql != null ? QP._editedSql : (r.sql || ''));
+    host.innerHTML =
+      '<div class="qp-sqlwrap">'+
+        '<div class="qp-sql-bar">'+
+          '<button class="qp-btn primary" id="qpSqlRun">▶ Run edited SQL</button>'+
+          '<button class="qp-btn" id="qpSqlReset">↺ Reset to generated</button>'+
+          '<span style="font-size:11px;color:var(--muted);">Read-only · SELECT / WITH only</span>'+
+          '<span class="qp-status" id="qpSqlStatus" style="margin-left:auto;"></span>'+
+        '</div>'+
+        '<textarea id="qpSqlEditor" class="qp-sql-editor" spellcheck="false">'+esc(sqlText)+'</textarea>'+
+      '</div>';
+    document.getElementById('qpSqlReset').addEventListener('click', () => { QP._editedSql = null; qpRenderResult(); });
+    document.getElementById('qpSqlRun').addEventListener('click', qpRunEditedSql);
     return;
   }
   if(QP.resultTab === 'chart'){
@@ -8540,10 +8609,44 @@ function qpRenderResult(){
     catch(e){ host.innerHTML = '<div class="qp-empty" style="color:var(--orange);">Chart failed: '+esc(e.message)+'</div>'; }
     return;
   }
-  // Default: table tab
-  const dimsLen = QP.dimensions.length;
+  // Default: table tab. Raw (edited-SQL) results have no known dim split, so
+  // render every column as text to keep them readable.
+  const dimsLen = r._raw ? (r.columns||[]).length : QP.dimensions.length;
   host.innerHTML = '<div id="qpTableHost"></div>';
   document.getElementById('qpTableHost').innerHTML = wtableHTML(r.columns||[], r.rows||[], dimsLen);
+}
+
+// Run a hand-edited SQL statement from the SQL tab (read-only on the backend).
+async function qpRunEditedSql(){
+  const ta = document.getElementById('qpSqlEditor'); if(!ta) return;
+  const sql = ta.value;
+  QP._editedSql = sql;
+  const status = document.getElementById('qpSqlStatus');
+  const btn = document.getElementById('qpSqlRun');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Running…'; }
+  if(status) status.textContent = 'Querying…';
+  const t0 = Date.now();
+  try {
+    const res = await api('/api/semantic/run_sql', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ sql }),
+    });
+    QP.lastResult = { columns: res.columns||[], rows: res.rows||[], sql: res.sql||sql,
+                      _elapsed: ((Date.now()-t0)/1000).toFixed(1), _raw: true };
+    QP._editedSql = res.sql || sql;
+    document.getElementById('qpDownload').disabled = false;
+    document.getElementById('qpStatus').textContent = (res.rows||[]).length+' rows · edited SQL · '+QP.lastResult._elapsed+'s';
+    if(status) status.textContent = (res.rows||[]).length+' rows';
+    // Show the results in the Table tab.
+    QP.resultTab = 'table';
+    document.querySelectorAll('.qp-tab').forEach(x => x.classList.toggle('active', x.getAttribute('data-qptab')==='table'));
+    qpRenderResult();
+  } catch(e){
+    if(status) status.textContent = 'Failed: '+e.message;
+    else toast('SQL failed: '+e.message, true);
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = '▶ Run edited SQL'; }
+  }
 }
 
 function qpDownloadCSV(){
