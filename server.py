@@ -1297,6 +1297,19 @@ async def generate_response(
     if memory_ctx:
         system += f"\n\nJARVIS MEMORY:\n{memory_ctx}"
 
+    # Brain — the compounding operating context (operating doc + latest morning
+    # brief + open loops + last synthesis). This is what makes the assistant get
+    # smarter every week instead of answering cold.
+    try:
+        from brain.context import build_brain_context
+        brain_ctx = build_brain_context()
+        if brain_ctx:
+            system += ("\n\nJARVIS BRAIN — your accumulated operating context. "
+                       "Answer grounded in this; it reflects who the user is and what's live:\n"
+                       + brain_ctx)
+    except Exception as _brain_exc:
+        log.debug("brain context unavailable: %s", _brain_exc)
+
     # Three-tier memory — inject rolling summary of earlier conversation
     if session_summary:
         system += f"\n\nSESSION CONTEXT (earlier in this conversation):\n{session_summary}"
@@ -1573,6 +1586,16 @@ async def lifespan(application: FastAPI):
     except Exception as e:
         log.warning(f"BigQuery status check: {e}")
 
+    # Start the brain operating loop — scheduled skills (morning brief, capture
+    # processor, connection finder, weekly synthesis, belief tracker, pattern
+    # detector, decision intelligence). Reads/writes the vault, compounds memory.
+    try:
+        from brain import runner as brain_runner
+        brain_runner.start(lambda: anthropic_client)
+        log.info("[OK] Brain operating loop started (7 scheduled skills)")
+    except Exception as e:
+        log.warning(f"Brain loop not started: {e}")
+
     yield
 
     # (shutdown cleanup would go here if needed)
@@ -1602,6 +1625,15 @@ app.include_router(knowledge_router)
 app.include_router(hierarchies_router)
 app.include_router(automations_router)
 app.include_router(users_router)
+
+# ─── Brain — the active operating loop (vault + scheduled skills + memory) ───
+try:
+    from brain.api import router as brain_router, set_client_getter as _brain_set_client
+    app.include_router(brain_router)
+    _brain_set_client(lambda: anthropic_client)
+    log.info("[OK] Brain API mounted at /api/brain")
+except Exception as _brain_mount_exc:
+    log.warning(f"Brain API not mounted: {_brain_mount_exc}")
 app.include_router(ask_history_router)
 app.include_router(airbyte_router)
 

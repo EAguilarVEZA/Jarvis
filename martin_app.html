@@ -3541,7 +3541,25 @@ function toast(msg,err){const t=document.getElementById('toast');t.textContent=m
 const S = { tables: [], fieldCache: {}, view: null, pageIdx: 0, editing: false, charts: [] };
 
 // ── Number formatting ──
+// Abbreviate large magnitudes with K / M / B / T for readability across all
+// reports & dashboards. e.g. 1500 → "1.5K", 2_300_000 → "2.3M", 4.1e9 → "4.1B".
+function _abbrNum(v){
+  const a = Math.abs(v);
+  let n, suf;
+  if(a >= 1e12){ n = v/1e12; suf = 'T'; }
+  else if(a >= 1e9){ n = v/1e9; suf = 'B'; }
+  else if(a >= 1e6){ n = v/1e6; suf = 'M'; }
+  else if(a >= 1e3){ n = v/1e3; suf = 'K'; }
+  else return v.toLocaleString(undefined,{maximumFractionDigits:1});
+  return n.toFixed(1).replace(/\.0$/,'') + suf;
+}
 function fmt(v, format){ if(typeof v!=='number') return v==null?'—':String(v);
+  if(format==='percent') return (v*100).toFixed(1)+'%';
+  if(format==='ratio') return v.toFixed(2)+'x';
+  if(format==='currency') return (v<0?'-$':'$') + _abbrNum(Math.abs(v));
+  return _abbrNum(v); }
+// Exact, un-abbreviated formatting (e.g. for a precise secondary line / tooltips).
+function fmtFull(v, format){ if(typeof v!=='number') return v==null?'—':String(v);
   if(format==='currency') return '$'+v.toLocaleString(undefined,{maximumFractionDigits:0});
   if(format==='percent') return (v*100).toFixed(1)+'%';
   if(format==='ratio') return v.toFixed(2)+'x';
@@ -11002,7 +11020,7 @@ async function renderKpiCard(w, body, cols, rows){
     '<div class="kpi-label">'+esc(label)+'</div>'+
     '<div class="kpi-row">'+
       '<div class="kpi-val">'+esc(fmt(val, fmtType))+'</div>'+
-      '<div class="kpi-short">'+(Math.abs(val)>=1000 ? esc(_shortFmt(val, fmtType)) : '')+'</div>'+
+      '<div class="kpi-short">'+(Math.abs(val)>=1000 ? esc(fmtFull(val, fmtType)) : '')+'</div>'+
     '</div>'+
     '<div class="kpi-delta-row" id="kpiDelta_'+esc(w.id)+'"></div>'+
     '<div class="kpi-spark" id="kpiSpark_'+esc(w.id)+'"></div>'+
@@ -11070,7 +11088,7 @@ async function renderKpiRow(w, body, cols, rows){
   let html = '<div class="kpi-row-grid cols-'+ncols+'">';
   vals.forEach((v, i) => {
     const fmtType = formats[i] || 'number';
-    const short = (Math.abs(v) >= 1000) ? esc(_shortFmt(v, fmtType)) : '';
+    const short = (Math.abs(v) >= 1000) ? esc(fmtFull(v, fmtType)) : '';
     html += '<div class="kpi-row-cell">'+
       '<div class="kpi-label">'+esc(labels[i])+'</div>'+
       '<div class="kpi-stack">'+

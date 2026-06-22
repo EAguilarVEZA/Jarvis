@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jarvis — Build a Personal Intelligence System inside Obsidian</title>
+<meta name="description" content="Not a voice assistant. A personal intelligence system that reads your notes, runs on a schedule, finds patterns, and gets smarter every week.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#060a17; --bg2:#0a1124; --ink:#eef2fb; --muted:#9fb0d0; --muted2:#6b7da3;
+    --cyan:#4fd6e6; --blue:#3b82f6; --blue2:#2563eb; --violet:#8b7cf6;
+    --line:rgba(120,150,210,.16); --line2:rgba(120,150,210,.28);
+    --card:rgba(18,28,54,.55); --card2:rgba(22,34,66,.7);
+    --glow:0 0 60px rgba(59,130,246,.35);
+    --radius:18px; --maxw:1140px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);
+    line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(900px 600px at 75% -5%, rgba(59,130,246,.22), transparent 60%),
+      radial-gradient(800px 600px at 10% 10%, rgba(79,214,230,.12), transparent 55%),
+      radial-gradient(900px 700px at 50% 110%, rgba(139,124,246,.14), transparent 60%),
+      linear-gradient(180deg,#060a17,#070b1a 40%,#05080f);
+  }
+  body::after{
+    content:'';position:fixed;inset:0;z-index:-1;opacity:.4;pointer-events:none;
+    background-image:radial-gradient(rgba(120,150,210,.10) 1px, transparent 1px);
+    background-size:34px 34px;mask-image:linear-gradient(180deg,transparent,#000 10%,#000 80%,transparent);
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--cyan);background:rgba(79,214,230,.08);
+    border:1px solid rgba(79,214,230,.25);padding:6px 12px;border-radius:999px}
+  .grad{background:linear-gradient(120deg,#7fd4ff,#4fd6e6 40%,#8b7cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:15px;
+    padding:13px 22px;border-radius:12px;border:1px solid var(--line2);transition:.18s;cursor:pointer}
+  .btn-primary{background:linear-gradient(120deg,var(--blue2),var(--blue));border-color:transparent;
+    color:#fff;box-shadow:0 10px 30px rgba(37,99,235,.4)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(37,99,235,.55)}
+  .btn-ghost{background:rgba(255,255,255,.03);color:var(--ink)}
+  .btn-ghost:hover{background:rgba(255,255,255,.07);border-color:var(--line2)}
+
+  /* Nav */
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+    background:rgba(6,10,23,.72);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.02em;font-size:17px}
+  .logo-badge{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--blue),var(--violet));box-shadow:var(--glow);font-size:15px}
+  .nav-links{display:flex;gap:28px;font-size:14px;font-weight:600;color:var(--muted)}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{font-size:13.5px;padding:9px 16px}
+  @media(max-width:820px){.nav-links{display:none}}
+
+  /* Hero */
+  header{position:relative;padding:92px 0 70px;text-align:center}
+  .step-tag{color:var(--muted2);font-weight:700;font-size:13px;letter-spacing:.08em;margin-bottom:18px}
+  h1{font-size:clamp(40px,7vw,76px);line-height:1.02;font-weight:900;letter-spacing:-.02em;margin:10px 0 0}
+  .sub{font-size:clamp(17px,2.3vw,21px);color:var(--muted);max-width:620px;margin:22px auto 0}
+  .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+  .hero-foot{margin-top:26px;color:var(--muted2);font-size:13.5px;font-family:ui-monospace,monospace}
+  .orb-wrap{position:relative;margin:54px auto 0;width:min(560px,92vw);height:300px}
+  .orb{position:absolute;inset:0;margin:auto;width:170px;height:170px;border-radius:50%;
+    background:radial-gradient(circle at 38% 32%, #bfe8ff, #3b82f6 45%, #1b2c7a 75%);
+    box-shadow:0 0 90px rgba(59,130,246,.7),inset 0 0 50px rgba(255,255,255,.25);
+    animation:float 6s ease-in-out infinite}
+  .ring{position:absolute;inset:0;margin:auto;border-radius:50%;border:1px solid rgba(120,170,255,.25);animation:spin 26s linear infinite}
+  .ring.r1{width:240px;height:240px}.ring.r2{width:330px;height:330px;animation-duration:38s;animation-direction:reverse}
+  .ring.r3{width:430px;height:430px;border-color:rgba(120,170,255,.12)}
+  .node{position:absolute;padding:7px 13px;border-radius:10px;font-size:12.5px;font-weight:600;
+    background:var(--card2);border:1px solid var(--line2);backdrop-filter:blur(8px);white-space:nowrap;color:var(--muted)}
+  .node b{color:var(--ink)}
+  .n1{top:6%;left:50%;transform:translateX(-50%)}
+  .n2{top:46%;left:-2%}.n3{top:46%;right:-2%}
+  .n4{bottom:4%;left:18%}.n5{bottom:4%;right:18%}
+  @media(max-width:620px){.node{font-size:11px;padding:5px 9px}.n2,.n3{display:none}}
+  @keyframes float{50%{transform:translateY(-16px)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Sections */
+  section{padding:74px 0;position:relative}
+  .sec-head{text-align:center;max-width:680px;margin:0 auto 46px}
+  .sec-head h2{font-size:clamp(28px,4.2vw,44px);font-weight:850;letter-spacing:-.02em;line-height:1.08}
+  .sec-head p{color:var(--muted);font-size:17px;margin-top:14px}
+  .kicker{font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px;display:block}
+
+  .grid{display:grid;gap:18px}
+  .g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:900px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;
+    position:relative;transition:.2s}
+  .card:hover{border-color:var(--line2);transform:translateY(-3px);background:var(--card2)}
+  .card .ico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:19px;
+    background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.3);margin-bottom:14px}
+  .card h3{font-size:17px;font-weight:750;margin-bottom:7px}
+  .card p{color:var(--muted);font-size:14.5px}
+
+  /* Compare */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:680px){.compare{grid-template-columns:1fr}}
+  .col{border-radius:var(--radius);padding:26px;border:1px solid var(--line)}
+  .col.bad{background:rgba(40,24,30,.4)}
+  .col.good{background:linear-gradient(160deg,rgba(20,40,70,.6),rgba(16,28,54,.5));border-color:rgba(79,214,230,.3)}
+  .col h4{font-size:14px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;color:var(--muted2)}
+  .col.good h4{color:var(--cyan)}
+  .row{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);font-size:15px}
+  .row:first-of-type{border-top:0}
+  .dot{flex-shrink:0;margin-top:7px;width:7px;height:7px;border-radius:50%;background:var(--muted2)}
+  .col.good .dot{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+
+  /* Timeline */
+  .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;position:relative}
+  @media(max-width:760px){.timeline{grid-template-columns:1fr 1fr}}
+  .tl{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .tl .wk{font-size:13px;font-weight:800;color:var(--cyan);letter-spacing:.05em}
+  .tl h3{font-size:16px;margin:8px 0 6px}
+  .tl p{font-size:13.5px;color:var(--muted)}
+
+  /* Skills */
+  .skill{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;transition:.2s;position:relative;overflow:hidden}
+  .skill:hover{border-color:rgba(79,214,230,.35);transform:translateY(-3px)}
+  .skill::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;
+    background:linear-gradient(90deg,var(--blue),var(--cyan))}
+  .skill .num{font-size:12px;font-weight:800;color:var(--muted2);letter-spacing:.1em}
+  .skill h3{font-size:18px;margin:6px 0 4px;font-weight:780}
+  .skill .when{font-size:12.5px;color:var(--cyan);font-weight:700;font-family:ui-monospace,monospace;margin-bottom:11px}
+  .skill p{font-size:14px;color:var(--muted)}
+
+  /* Tree */
+  .tree{background:var(--card2);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;
+    font-family:ui-monospace,'SF Mono',monospace;font-size:14px;line-height:2;color:var(--muted)}
+  .tree b{color:var(--ink)}.tree .c{color:var(--cyan)}.tree .m{color:var(--muted2);font-size:12.5px}
+
+  /* Steps */
+  .steps{counter-reset:s}
+  .stepcard{display:flex;gap:18px;align-items:flex-start;padding:18px 0;border-top:1px solid var(--line)}
+  .stepcard:first-child{border-top:0}
+  .stepcard .n{counter-increment:s;flex-shrink:0;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+    font-weight:800;background:linear-gradient(135deg,var(--blue2),var(--violet));box-shadow:var(--glow)}
+  .stepcard .n::before{content:counter(s)}
+  .stepcard h3{font-size:16.5px;margin-bottom:3px}
+  .stepcard p{color:var(--muted);font-size:14.5px}
+
+  .pill-quote{text-align:center;margin-top:30px;color:var(--muted);font-size:15px}
+  .pill-quote span{color:var(--cyan);font-weight:600}
+
+  /* CTA */
+  .cta{margin:30px auto 0;text-align:center;background:linear-gradient(160deg,rgba(24,44,80,.7),rgba(16,26,52,.6));
+    border:1px solid var(--line2);border-radius:24px;padding:54px 28px;position:relative;overflow:hidden}
+  .cta::after{content:'';position:absolute;width:320px;height:320px;border-radius:50%;
+    background:radial-gradient(circle,rgba(59,130,246,.4),transparent 65%);top:-120px;left:50%;transform:translateX(-50%)}
+  .cta h2{font-size:clamp(28px,4vw,40px);font-weight:850;position:relative}
+  .cta p{color:var(--muted);max-width:520px;margin:14px auto 26px;position:relative}
+
+  footer{border-top:1px solid var(--line);padding:38px 0;color:var(--muted2);font-size:13.5px;text-align:center;margin-top:60px}
+  footer .logo{justify-content:center;margin-bottom:12px;font-size:15px}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-in">
+    <div class="logo"><span class="logo-badge">◆</span> JARVIS</div>
+    <div class="nav-links">
+      <a href="#system">System</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#skills">Skills</a>
+      <a href="#build">Build</a>
+    </div>
+    <a href="#build" class="btn btn-primary nav-cta">Build this weekend</a>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="step-tag">PERSONAL INTELLIGENCE SYSTEM</div>
+    <div class="eyebrow reveal">◆ Built on Obsidian + Claude + MCP</div>
+    <h1 class="reveal">Build <span class="grad">Jarvis</span><br>inside Obsidian</h1>
+    <p class="sub reveal">Not a voice assistant. A system that reads your notes, runs on a schedule,
+      finds the patterns you can't see, and gets smarter every week.</p>
+    <div class="hero-cta reveal">
+      <a href="#build" class="btn btn-primary">Start building →</a>
+      <a href="#system" class="btn btn-ghost">See how it works</a>
+    </div>
+    <div class="hero-foot reveal">vault + claude + memory + skills</div>
+
+    <div class="orb-wrap reveal">
+      <div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
+      <div class="orb"></div>
+      <div class="node n1"><b>Reads</b> your notes</div>
+      <div class="node n2"><b>Runs</b> on schedule</div>
+      <div class="node n3"><b>Finds</b> patterns</div>
+      <div class="node n4"><b>Writes</b> outputs</div>
+      <div class="node n5"><b>Remembers</b> everything</div>
+    </div>
+  </div>
+</header>
+
+<!-- Not a voice assistant -->
+<section id="system">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">This is not a voice assistant</span>
+      <h2>It runs in the <span class="grad">background of your life</span></h2>
+      <p>A typical assistant waits for you. Jarvis works while you don't.</p>
+    </div>
+    <div class="compare reveal">
+      <div class="col bad">
+        <h4>Typical assistant</h4>
+        <div class="row"><span class="dot"></span>Waits for a prompt</div>
+        <div class="row"><span class="dot"></span>Answers one question, then forgets</div>
+        <div class="row"><span class="dot"></span>Easy to forget it exists</div>
+        <div class="row"><span class="dot"></span>Same capability on day 100</div>
+      </div>
+      <div class="col good">
+        <h4>The Jarvis system</h4>
+        <div class="row"><span class="dot"></span>Reads your notes automatically</div>
+        <div class="row"><span class="dot"></span>Tracks projects, decisions &amp; open loops</div>
+        <div class="row"><span class="dot"></span>Surfaces patterns you'd never spot</div>
+        <div class="row"><span class="dot"></span>Improves every single week</div>
+      </div>
+    </div>
+    <p class="pill-quote reveal">From a chat tool to a <span>background intelligence layer.</span></p>
+  </div>
+</section>
+
+<!-- Timeline -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Week 1 → Week 12</span>
+      <h2>Useful becomes <span class="grad">indispensable</span></h2>
+      <p>Compounding context changes the quality of every output.</p>
+    </div>
+    <div class="timeline reveal">
+      <div class="tl"><div class="wk">WEEK 1</div><h3>A real morning brief</h3><p>Beats any manual project recap, day one.</p></div>
+      <div class="tl"><div class="wk">WEEK 4</div><h3>Connects the dots</h3><p>Links last month's decision to today's problem.</p></div>
+      <div class="tl"><div class="wk">WEEK 8</div><h3>Better calibration</h3><p>Outputs sound like how you actually work.</p></div>
+      <div class="tl"><div class="wk">WEEK 12</div><h3>Pattern recognition</h3><p>Surfaces a work pattern hidden for 3 months.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Passive vs active -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Passive vault vs active vault</span>
+      <h2>The difference is not storage.<br><span class="grad">It's execution.</span></h2>
+    </div>
+    <div class="compare reveal">
+      <div class="col bad">
+        <h4>Passive vault</h4>
+        <div class="row"><span class="dot"></span>You write notes</div>
+        <div class="row"><span class="dot"></span>The notes sit there</div>
+        <div class="row"><span class="dot"></span>You search later — maybe you find something</div>
+      </div>
+      <div class="col good">
+        <h4>Active vault</h4>
+        <div class="row"><span class="dot"></span>Reads your notes automatically</div>
+        <div class="row"><span class="dot"></span>Generates outputs on a schedule</div>
+        <div class="row"><span class="dot"></span>Surfaces missed connections</div>
+        <div class="row"><span class="dot"></span>Applies what it learned last week</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Architecture -->
+<section id="architecture">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Core system architecture</span>
+      <h2>Not a plugin stack.<br>An <span class="grad">operating loop.</span></h2>
+      <p>Connection + automation + memory — the pieces that turn notes into an active system.</p>
+    </div>
+    <div class="grid g3 reveal">
+      <div class="card"><div class="ico">🗂️</div><h3>Obsidian Vault</h3><p>Your notes, ideas and projects — organized and routable.</p></div>
+      <div class="card"><div class="ico">🔌</div><h3>Filesystem MCP</h3><p>Lets Claude read, write and search the vault directly.</p></div>
+      <div class="card"><div class="ico">🧠</div><h3>Claude</h3><p>Reasoning, planning and execution at the center of the loop.</p></div>
+      <div class="card"><div class="ico">⚡</div><h3>Skills</h3><p>Reusable capabilities and workflows that run on a schedule.</p></div>
+      <div class="card"><div class="ico">💾</div><h3>Memory DB</h3><p>Long-term memory and preferences that persist across runs.</p></div>
+      <div class="card"><div class="ico">📤</div><h3>Outputs</h3><p>Briefs, syntheses and deliverables written back into the vault.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Why it compounds -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Why it gets smarter</span>
+      <h2>Three <span class="grad">compounding loops</span></h2>
+      <p>Each run leaves residue. The residue improves the next run.</p>
+    </div>
+    <div class="grid g3 reveal">
+      <div class="card"><div class="ico">📚</div><h3>Memory accumulation</h3><p>Every run writes context to persistent memory — more runs, more context.</p></div>
+      <div class="card"><div class="ico">🎯</div><h3>CLAUDE.md calibration</h3><p>Weekly updates to your operating doc sharpen every output.</p></div>
+      <div class="card"><div class="ico">🔧</div><h3>Skill refinement</h3><p>You fix a weak output once; every future run inherits the fix.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Foundation stack + vault -->
+<section id="build">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Foundation first</span>
+      <h2>Install the <span class="grad">core stack</span></h2>
+      <p>A handful of tools, one vault, clear routing. Then it compounds.</p>
+    </div>
+    <div class="grid g2" style="align-items:start">
+      <div class="grid g2 reveal" style="gap:14px">
+        <div class="card"><div class="ico">🧠</div><h3>Claude Desktop</h3><p>The AI brain &amp; executor.</p></div>
+        <div class="card"><div class="ico">⬡</div><h3>Node.js</h3><p>Runtime environment.</p></div>
+        <div class="card"><div class="ico">🗂️</div><h3>Obsidian</h3><p>Your knowledge hub.</p></div>
+        <div class="card"><div class="ico">🔌</div><h3>Filesystem MCP</h3><p>File operations &amp; access.</p></div>
+        <div class="card"><div class="ico">🛰️</div><h3>Orchestrator</h3><p>Runs skills on a schedule, with retries.</p></div>
+        <div class="card"><div class="ico">💾</div><h3>SQLite memory</h3><p>Long-term memory store.</p></div>
+      </div>
+      <div class="tree reveal">
+<b>JARVIS-VAULT/</b>
+  <span class="c">00-INBOX/</span>          <span class="m"># raw capture</span>
+  <span class="c">01-KNOWLEDGE/</span>      <span class="m"># permanent notes</span>
+  <span class="c">02-PROJECTS/</span>       <span class="m"># live work</span>
+  <span class="c">03-DAILY/</span>          <span class="m"># daily notes</span>
+  <span class="c">04-JARVIS-OUTPUTS/</span> <span class="m"># briefs, connections</span>
+  <span class="c">05-RESOURCES/</span>      <span class="m"># templates, playbooks</span>
+  <span class="c">06-ARCHIVE/</span>        <span class="m"># done &amp; cold</span>
+  <span class="c">07-SYSTEM/</span>         <span class="m"># CLAUDE.md, skills, memory</span>
+      </div>
+    </div>
+    <p class="pill-quote reveal">Outputs and system live inside the <span>same vault.</span></p>
+  </div>
+</section>
+
+<!-- Skills -->
+<section id="skills">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Seven scheduled skills</span>
+      <h2>The systems that make it <span class="grad">compound</span></h2>
+      <p>Each skill reads context, writes an output, and stores memory.</p>
+    </div>
+    <div class="grid g3 reveal">
+      <div class="skill"><div class="num">SKILL 01</div><h3>Morning brief</h3><div class="when">Daily · 6AM</div>
+        <p>The one thing, open loops, project status, intelligence and decision flags — under 5 minutes, vault-grounded.</p></div>
+      <div class="skill"><div class="num">SKILL 02</div><h3>Capture processor</h3><div class="when">Daily · 8PM</div>
+        <p>Routes every raw capture — ideas, tasks, decisions, references, insights — to its home. Nothing stays in the inbox.</p></div>
+      <div class="skill"><div class="num">SKILL 03</div><h3>Connection finder</h3><div class="when">Nightly · 11PM</div>
+        <p>Links two notes you'd never connect, explains what it reveals, and why it matters. Surprising links beat obvious overlap.</p></div>
+      <div class="skill"><div class="num">SKILL 04</div><h3>Weekly synthesis</h3><div class="when">Sunday · 7PM</div>
+        <p>Your week in one honest line — what advanced, what stalled, belief updates, the pattern, and next week's single priority.</p></div>
+      <div class="skill"><div class="num">SKILL 05</div><h3>Belief tracker</h3><div class="when">Monday · 8AM</div>
+        <p>Tests your beliefs against the last 7 days of evidence. Confirmed, challenged, or complicated — honest challenge over confirmation bias.</p></div>
+      <div class="skill"><div class="num">SKILL 06</div><h3>Pattern detector</h3><div class="when">1st of month</div>
+        <p>Recurrence, convergence, contradiction, emergence and blind spots across months of notes. One real pattern beats ten superficial ones.</p></div>
+      <div class="skill"><div class="num">SKILL 07</div><h3>Decision intelligence</h3><div class="when">Structure + review</div>
+        <p>Structures new decisions and revisits old ones against today's evidence — continue, pivot, or sunset, and why.</p></div>
+      <div class="skill" style="display:grid;place-items:center;text-align:center;background:linear-gradient(160deg,rgba(24,44,80,.5),rgba(16,26,52,.4))">
+        <div><div style="font-size:30px;margin-bottom:8px">✦</div><h3 style="margin:0">By Week 12,<br>it knows you</h3>
+        <p style="margin-top:8px">…because it has the evidence.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Weekend rollout -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Build foundation this weekend</span>
+      <h2>Start simple. <span class="grad">Let it compound.</span></h2>
+    </div>
+    <div class="card reveal steps" style="padding:14px 26px">
+      <div class="stepcard"><div class="n"></div><div><h3>Saturday AM</h3><p>Install the tools, create the vault, connect the Filesystem MCP.</p></div></div>
+      <div class="stepcard"><div class="n"></div><div><h3>Saturday PM</h3><p>Write CLAUDE.md, then run your first morning brief.</p></div></div>
+      <div class="stepcard"><div class="n"></div><div><h3>Saturday night</h3><p>Build the capture processor and connection finder.</p></div></div>
+      <div class="stepcard"><div class="n"></div><div><h3>Sunday</h3><p>Add the remaining skills and the scheduler.</p></div></div>
+      <div class="stepcard"><div class="n"></div><div><h3>Week 1</h3><p>Let the system run — resist the urge to over-tune.</p></div></div>
+      <div class="stepcard"><div class="n"></div><div><h3>End of Week 1</h3><p>Review the outputs, then refine CLAUDE.md and your skills.</p></div></div>
+    </div>
+    <p class="pill-quote reveal">Write CLAUDE.md tonight → first brief at 6AM → review what's waiting tomorrow.<br>
+      <span>Useful → trusted → indispensable.</span></p>
+  </div>
+</section>
+
+<!-- CTA -->
+<section>
+  <div class="wrap">
+    <div class="cta reveal">
+      <h2>Build your Jarvis this weekend</h2>
+      <p>One vault. Clear routing. Seven skills on a schedule. A system that gets smarter every week.</p>
+      <a href="#system" class="btn btn-primary" style="position:relative">Start from the top →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="logo"><span class="logo-badge">◆</span> JARVIS</div>
+    <div>A personal intelligence system — vault + Claude + memory + skills.</div>
+    <div style="margin-top:8px;opacity:.7">Built as a foundation. Not a plugin stack — an operating loop.</div>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{ el.style.transitionDelay=(Math.min(i,6)*40)+'ms'; io.observe(el); });
+</script>
+</body>
+</html>
