@@ -15628,6 +15628,7 @@ function expWire(){
     body.segment_field=(g('scSegment')&&g('scSegment').value)||'';
     if(!_expDataValid(body)||!body.segment_field){ toast('Fill in all fields including the segment to scan',true); return; }
     body.alpha=parseFloat(g('scAlpha').value); body.robust=false; body.max_segments=12;
+    window._expSegBody=body;
     busy(); try{ const r=await _expPost('segment_scan', body); expRenderSegment(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
   }); }
 
@@ -15731,7 +15732,7 @@ function expRenderSegment(r){
     const seg=b.getAttribute('data-promote');
     const body={ segment_field:r.segment_field, segment_value:seg, metric:r.metric, primary_table:r.primary_table||null,
       expected_lift_pct:parseFloat(b.getAttribute('data-plift'))||null, did_estimate:parseFloat(b.getAttribute('data-pdid'))||null,
-      p_value:parseFloat(b.getAttribute('data-pp'))||null };
+      p_value:parseFloat(b.getAttribute('data-pp'))||null, source_spec:(window._expSegBody||null) };
     try{ const d=await api('/api/stats/rollouts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       toast('Promoted '+seg+' to rollout targets ('+r.segment_field+' = '+seg+')'); b.disabled=true; b.textContent='Promoted'; }
     catch(e){ toast('Promote failed: '+e.message,true); }
@@ -15771,8 +15772,14 @@ function expRenderAnalyze(r, body){
     '</div>'+
     _expRobustRow(r)+
     (r.recommendation?'<div class="exp-rec">'+jvIcon('star')+' <span>'+esc(r.recommendation)+'</span></div>':'')+
-    '<div class="exp-save-row"><input id="expSaveName" placeholder="Name this experiment to save it…"><button class="btn" id="expSaveBtn">'+jvIcon('save')+' Save</button></div>';
+    '<div class="exp-save-row"><input id="expSaveName" placeholder="Name this experiment to save it…"><button class="btn" id="expSaveBtn">'+jvIcon('save')+' Save</button>'+
+      ((body&&body.primary_table)?'<button class="btn" id="expTplBtn" title="Save this setup to re-run later">'+jvIcon('refresh')+' Template</button>':'')+
+    '</div>';
   window._expLast={readout:r, spec:body};
+  { const tb=document.getElementById('expTplBtn'); if(tb) tb.addEventListener('click', async ()=>{
+      const nm=(document.getElementById('expSaveName').value||'').trim()||(body.metric_name||'Experiment')+' template';
+      try{ await _expPost('experiments/templates',{name:nm, spec:body, kind:'experiment'}); toast('Saved as template — re-run it anytime from Saved → Templates'); }
+      catch(e){ toast('Template save failed: '+e.message,true); } }); }
   document.querySelectorAll('[data-headline]').forEach(b=>b.addEventListener('click',()=>{ EXP.headline=b.getAttribute('data-headline'); expRenderAnalyze(r, body); }));
   { const sb=document.getElementById('expSaveBtn'); if(sb) sb.addEventListener('click', async ()=>{
       const nm=(document.getElementById('expSaveName').value||'').trim(); if(!nm){ toast('Enter a name',true); return; }
@@ -15958,6 +15965,7 @@ async function expLoadSaved(){
           '<button class="btn small" data-expemail="'+esc(e.id)+'" title="Email this readout">'+jvIcon('mail')+'</button> '+mon+
           '<button class="btn small danger" data-expdel="'+esc(e.id)+'">'+jvIcon('trash')+'</button></td></tr>';
     }).join('')+'</tbody></table>'+
+    '<div id="expTemplateList"></div>'+
     '<div id="expRolloutList"></div>';
   host.querySelectorAll('[data-expview]').forEach(b=>b.addEventListener('click', async ()=>{
     try{ const r=await api('/api/stats/experiments/'+encodeURIComponent(b.getAttribute('data-expview'))); const e=r.experiment; if(e&&e.readout){ EXP.tab='analyze'; showExperiments(); setTimeout(()=>{ const out=document.getElementById('expOut'); if(out){ expRenderAnalyze(e.readout, e.spec||{}); } }, 60); } }catch(err){ toast('Load failed',true); }
@@ -15975,7 +15983,31 @@ async function expLoadSaved(){
     if(!confirm('Delete this saved experiment?')) return;
     try{ await api('/api/stats/experiments/'+encodeURIComponent(b.getAttribute('data-expdel')),{method:'DELETE'}); expLoadSaved(); }catch(err){ toast('Delete failed',true); }
   }));
+  expLoadTemplates();
   expLoadRollouts();
+}
+async function expLoadTemplates(){
+  const host=document.getElementById('expTemplateList'); if(!host) return;
+  let d; try{ d=await api('/api/stats/experiments/templates'); }catch(e){ return; }
+  const items=(d.templates||[]);
+  if(!items.length){ host.innerHTML=''; return; }
+  host.innerHTML='<div class="exp-subtitle" style="margin-top:22px;">'+jvIcon('refresh')+' Templates</div>'+
+    '<table class="exp-table"><thead><tr><th>Name</th><th>Metric</th><th>Kind</th><th>Actions</th></tr></thead><tbody>'+
+    items.map(t=>'<tr><td><b>'+esc(t.name)+'</b></td><td>'+esc(t.metric||'—')+'</td><td>'+esc(t.kind||'experiment')+'</td>'+
+      '<td style="white-space:nowrap;"><button class="btn small primary" data-tplrun="'+esc(t.id)+'">'+jvIcon('play')+' Run now</button> '+
+        '<button class="btn small danger" data-tpldel="'+esc(t.id)+'">'+jvIcon('trash')+'</button></td></tr>').join('')+
+    '</tbody></table>';
+  host.querySelectorAll('[data-tplrun]').forEach(b=>b.addEventListener('click', async ()=>{
+    b.disabled=true; b.textContent='Running…';
+    try{ const r=await api('/api/stats/experiments/templates/'+encodeURIComponent(b.getAttribute('data-tplrun'))+'/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+      if(r.error){ toast('Run failed: '+r.error,true); b.disabled=false; b.textContent='Run now'; return; }
+      toast('Template run — saved as a new experiment');
+      if(r.readout){ EXP.tab='analyze'; showExperiments(); setTimeout(()=>{ const out=document.getElementById('expOut'); if(out) expRenderAnalyze(r.readout, r.readout.spec||{}); },60); }
+    }catch(e){ toast('Run failed: '+e.message,true); b.disabled=false; b.textContent='Run now'; }
+  }));
+  host.querySelectorAll('[data-tpldel]').forEach(b=>b.addEventListener('click', async ()=>{
+    try{ await api('/api/stats/experiments/templates/'+encodeURIComponent(b.getAttribute('data-tpldel')),{method:'DELETE'}); expLoadTemplates(); }catch(e){ toast('Failed',true); }
+  }));
 }
 const _EXP_ROLL_STATUS={planned:{lbl:'Planned',cls:'exp-st-planned',next:'live',nextLbl:'Mark live'},live:{lbl:'Live',cls:'exp-st-live',next:'measured',nextLbl:'Mark measured'},measured:{lbl:'Measured',cls:'exp-st-measured',next:null},cancelled:{lbl:'Cancelled',cls:'exp-st-cancelled',next:null}};
 async function expLoadRollouts(){
@@ -15990,10 +16022,12 @@ async function expLoadRollouts(){
       const adv=st.next?'<button class="btn small" data-rollnext="'+esc(t.id)+'" data-rollto="'+st.next+'">'+esc(st.nextLbl)+'</button> ':'';
       const canApply=t.primary_table;
       const apply=canApply?'<button class="btn small primary" data-rollapply="'+esc(t.id)+'" title="Open Query Builder filtered to this segment">'+jvIcon('search')+' Apply</button> ':'';
-      return '<tr><td><b>'+esc(t.segment_field)+'</b> = '+esc(t.segment_value)+'</td><td>'+esc(t.metric||'—')+'</td>'+
+      const canMeasure=t.status==='live' && t.source_spec && t.source_spec.primary_table;
+      const measure=canMeasure?'<button class="btn small" data-rollmeasure="'+esc(t.id)+'" title="Re-run the experiment scoped to this segment">'+jvIcon('beaker')+' Measure</button> ':'';
+      return '<tr><td><b>'+esc(t.segment_field)+'</b> = '+esc(t.segment_value)+(t.measured_experiment?' <span class="exp-mon-tag">measured</span>':'')+'</td><td>'+esc(t.metric||'—')+'</td>'+
         '<td>'+_pct(t.expected_lift_pct)+'</td>'+
         '<td><span class="exp-status '+st.cls+'">'+st.lbl+'</span></td>'+
-        '<td style="white-space:nowrap;">'+apply+adv+
+        '<td style="white-space:nowrap;">'+apply+measure+adv+
           (t.status!=='cancelled'&&t.status!=='measured'?'<button class="btn small" data-rollcancel="'+esc(t.id)+'">Cancel</button> ':'')+
           '<button class="btn small danger" data-rmroll="'+esc(t.id)+'">'+jvIcon('trash')+'</button></td></tr>';
     }).join('')+
@@ -16006,6 +16040,14 @@ async function expLoadRollouts(){
   }));
   host.querySelectorAll('[data-rollapply]').forEach(b=>b.addEventListener('click',()=>{
     const t=items.find(x=>x.id===b.getAttribute('data-rollapply')); if(t) expApplyRollout(t);
+  }));
+  host.querySelectorAll('[data-rollmeasure]').forEach(b=>b.addEventListener('click', async ()=>{
+    b.disabled=true; b.textContent='Measuring…';
+    try{ const r=await api('/api/stats/rollouts/'+encodeURIComponent(b.getAttribute('data-rollmeasure'))+'/measure',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+      if(r.error){ toast('Measure failed: '+r.error,true); b.disabled=false; b.textContent='Measure'; return; }
+      toast('Measured — saved as a linked experiment');
+      if(r.readout){ EXP.tab='analyze'; showExperiments(); setTimeout(()=>{ const out=document.getElementById('expOut'); if(out) expRenderAnalyze(r.readout, r.readout.spec||{}); },60); }
+    }catch(e){ toast('Measure failed: '+e.message,true); b.disabled=false; b.textContent='Measure'; }
   }));
 }
 // Open the Query Builder pre-filtered to a promoted segment (best-effort).
