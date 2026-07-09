@@ -2366,6 +2366,55 @@
   .ask-clarify-opt { padding: 9px 15px; border: 1px solid var(--line-strong); border-radius: 9px; background: #fff; font-size: 13.5px; font-weight: 600; color: var(--ink); cursor: pointer; transition: border-color .12s ease, background .12s ease, color .12s ease; }
   .ask-clarify-opt:hover { border-color: var(--blue); background: var(--blue); color: #fff; }
   .ask-clarify-hint { font-size: 11.5px; color: var(--muted); margin-top: 12px; }
+  /* ─── Test & Learn experimentation lab ─────────────────────────────── */
+  .exp-shell { max-width: none; }
+  .exp-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  .exp-tab { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .12s ease; }
+  .exp-tab:hover { border-color: var(--blue); color: var(--blue); }
+  .exp-tab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .exp-tab.active .jvi { color: #fff; }
+  .exp-grid { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 900px){ .exp-grid { grid-template-columns: 1fr; } }
+  .exp-card { border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 18px 20px; box-shadow: 0 1px 3px rgba(15,23,42,.04); }
+  .exp-card-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .exp-hint { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+  .exp-hint code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 11px; }
+  .exp-field { margin-bottom: 12px; display: flex; flex-direction: column; }
+  .exp-field label { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+  .exp-field textarea, .exp-field input, .exp-field select { border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; font-size: 13px; font-family: inherit; }
+  .exp-field textarea { min-height: 46px; resize: vertical; font-family: ui-monospace, monospace; }
+  .exp-row { display: flex; gap: 12px; }
+  .exp-row .exp-field { flex: 1; }
+  .exp-seg { display: inline-flex; background: #f1f5f9; border-radius: 8px; padding: 3px; margin-bottom: 14px; gap: 3px; }
+  .exp-seg-b { padding: 6px 12px; border: 0; background: transparent; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .exp-seg-b.active { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(15,23,42,.12); }
+  .exp-results { min-height: 220px; }
+  .exp-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; height: 100%; min-height: 200px; color: var(--muted2); font-size: 13px; text-align: center; }
+  .exp-empty .jvi { width: 34px; height: 34px; opacity: .5; }
+  .exp-verdict { border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+  .exp-v-pos { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .exp-v-neu { background: #fffbeb; border: 1px solid #fde68a; }
+  .exp-v-info { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .exp-v-head { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .exp-v-pos .exp-v-head .jvi { color: #16a34a; } .exp-v-neu .exp-v-head .jvi { color: #b45309; } .exp-v-info .exp-v-head .jvi { color: var(--blue); }
+  .exp-v-detail { font-size: 12.5px; color: #475569; line-height: 1.55; }
+  .exp-v-stat { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .exp-metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .exp-metric { border: 1px solid var(--line); border-radius: 9px; padding: 11px 13px; background: #fafbfc; }
+  .em-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted2); }
+  .em-val { font-size: 22px; font-weight: 800; color: var(--ink); margin: 3px 0; letter-spacing: -.02em; }
+  .em-sub { font-size: 11px; color: var(--muted); }
+  .exp-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; margin-top: 14px; }
+  .exp-detail-grid > div { display: flex; justify-content: space-between; font-size: 12.5px; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
+  .exp-detail-grid span { color: var(--muted); } .exp-detail-grid b { color: var(--ink); }
+  .exp-rec { display: flex; align-items: flex-start; gap: 8px; margin-top: 14px; padding: 12px 14px; background: #f8fafc; border-radius: 9px; font-size: 12.5px; color: #334155; line-height: 1.55; }
+  .exp-rec .jvi { color: #e0a400; margin-top: 1px; flex-shrink: 0; }
+  .exp-subtitle { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 16px 0 8px; }
+  .exp-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .exp-table th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted2); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .exp-table td { padding: 7px 8px; border-bottom: 1px solid #f1f5f9; }
+  .exp-dist { color: var(--muted2); font-size: 11px; }
+  .exp-good { color: #16a34a; font-weight: 600; } .exp-bad { color: #dc2626; font-weight: 600; }
   .kb-userq-bubble { background: #dbeafe; color: #1e3a8a; padding: 10px 16px; border-radius: 18px 18px 4px 18px; font-size: 13px; max-width: 75%; line-height: 1.5; }
   /* Collapsible Analysis disclosure */
   .kb-analysis { margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; overflow: hidden; }
@@ -3227,6 +3276,7 @@
     <span class="nav-item" data-nav="goals" id="navGoals">Goals <span id="goalsBadge" class="nav-badge"></span></span>
     <span class="nav-item" data-nav="knowledge" id="navKnowledge">Knowledge</span>
     <span class="nav-item" data-nav="funnel" id="navFunnel">Funnel</span>
+    <span class="nav-item" data-nav="experiments" id="navExperiments" style="display:none">Test &amp; Learn</span>
     <span style="width:1px;height:18px;background:var(--line);margin:0 6px;align-self:center;"></span>
     <span class="nav-item" data-nav="automations" id="navAutomations">Automations</span>
     <span class="nav-item" data-nav="admin" id="navAdmin" style="display:none">Admin</span>
@@ -3260,6 +3310,7 @@
     <div class="lnav-item" data-lnav="dashboards" title="Dashboards (legacy Live Dashboard Builder — kept as-is)"><span class="lnav-icon" data-ic="chart"></span><span class="lnav-name">Dashboards</span></div>
     <div class="lnav-item" data-lnav="goals"      title="Goals"><span class="lnav-icon" data-ic="target"></span><span class="lnav-name">Goals</span><span id="lnavGoalsBadge" class="nav-badge" style="display:none"></span></div>
     <div class="lnav-item" data-lnav="funnel"     title="Funnel"><span class="lnav-icon" data-ic="funnel"></span><span class="lnav-name">Funnel</span></div>
+    <div class="lnav-item" data-lnav="experiments" title="Test &amp; Learn — control-group experiments, significance, power &amp; ROI"><span class="lnav-icon" data-ic="beaker"></span><span class="lnav-name">Test &amp; Learn</span></div>
     <div class="lnav-item" data-lnav="metrics"    title="Metrics — browse all metrics, rules & saved queries"><span class="lnav-icon" data-ic="fields"></span><span class="lnav-name">Metrics</span></div>
     <div class="lnav-item" data-lnav="knowledge"  title="Knowledge"><span class="lnav-icon" data-ic="book"></span><span class="lnav-name">Knowledge</span></div>
   </div>
@@ -3779,7 +3830,7 @@ async function getFields(tableKey){ if(S.fieldCache[tableKey]) return S.fieldCac
 
 // ── Nav + voice ──
 function setNav(screen){ S.screen=screen;
-  const map={pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
+  const map={pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
   // Legacy top-nav (hidden) — keep state in sync so badges/handlers still work.
   Object.keys(map).forEach(k=>{ const el=document.getElementById(map[k]); if(el) el.classList.toggle('active', screen===k); });
   // New left vertical sidebar (visible) — mark active item.
@@ -3808,7 +3859,7 @@ function jarvisSignOut(){
     if(!item) return;
     const target = item.getAttribute('data-lnav');
     // Map to legacy element id
-    const idMap = {pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
+    const idMap = {pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
     const legacy = document.getElementById(idMap[target]);
     if(legacy) legacy.click();
   });
@@ -15111,6 +15162,291 @@ document.getElementById('wbPreviewBtn').addEventListener('click',wbPreview);
 document.getElementById('wbSave').addEventListener('click',wbSaveWidget);
 document.getElementById('wbMask').addEventListener('click',e=>{if(e.target.id==='wbMask')closeBuilder();});
 
+// ═══════════════════════════════════════════════════════════════════
+//  TEST & LEARN — experimentation lab (control groups, significance,
+//  difference-in-differences incrementality, power/sample-size, matched
+//  controls). Backed by /api/stats/*. Beats point-and-click A/B tools by
+//  bringing APT / Mastercard Test&Learn-style causal measurement inline.
+// ═══════════════════════════════════════════════════════════════════
+const EXP = { tab: 'analyze', sigMode: 'means', powerKind: 'mean' };
+function _expNums(s){ return String(s||'').split(/[,\s]+/).map(x=>x.trim()).filter(x=>x!=='').map(Number).filter(x=>!isNaN(x)); }
+async function _expPost(path, body){
+  return api('/api/stats/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+}
+function _expVerdictCard(v, extraHtml){
+  if(!v) return '';
+  const sig = v.significant;
+  const cls = sig===true ? 'exp-v-pos' : (sig===false ? 'exp-v-neu' : 'exp-v-info');
+  const ic = sig===true ? 'check' : (sig===false ? 'warn' : 'comment');
+  return '<div class="exp-verdict '+cls+'">'+
+    '<div class="exp-v-head">'+jvIcon(ic)+' '+esc(v.headline||'')+'</div>'+
+    '<div class="exp-v-detail">'+esc(v.detail||'')+'</div>'+
+    (v.p_display?'<div class="exp-v-stat">p-value <b>'+esc(v.p_display)+'</b>'+(v.confidence_pct?' · '+v.confidence_pct+'% confidence':'')+'</div>':'')+
+    (extraHtml||'')+
+  '</div>';
+}
+function _pct(x, d){ return (x==null||isNaN(x))?'—':(x>=0?'+':'')+Number(x).toFixed(d==null?1:d)+'%'; }
+function _num(x, d){ return (x==null||isNaN(x))?'—':Number(x).toLocaleString(undefined,{maximumFractionDigits:d==null?2:d}); }
+function _ci(ci){ return (!ci||ci.length!==2)?'—':'['+_num(ci[0])+', '+_num(ci[1])+']'; }
+
+async function showExperiments(){
+  setNav('experiments');
+  const app=document.getElementById('app');
+  const tabs=[['analyze','Analyze experiment','beaker'],['significance','Significance test','target'],['power','Sample size & power','activity'],['matched','Matched control','users']];
+  app.innerHTML =
+    '<div class="stage-wrap exp-shell">'+
+      '<div class="stage-head"><div><h1>Test &amp; Learn</h1>'+
+        '<div class="desc">Measure true, causal impact — control-group experiments, difference-in-differences incrementality, statistical significance, sample-size &amp; power, and matched-market design. The rigor of Mastercard Test&amp;Learn / APT, built into your data.</div></div></div>'+
+      '<div class="exp-tabs">'+tabs.map(t=>'<button class="exp-tab'+(EXP.tab===t[0]?' active':'')+'" data-exptab="'+t[0]+'">'+jvIcon(t[2])+' '+esc(t[1])+'</button>').join('')+'</div>'+
+      '<div id="expBody" class="exp-body"></div>'+
+    '</div>';
+  document.querySelectorAll('[data-exptab]').forEach(b=>b.addEventListener('click',()=>{ EXP.tab=b.getAttribute('data-exptab'); showExperiments(); }));
+  expRenderTab();
+}
+function expRenderTab(){
+  const host=document.getElementById('expBody'); if(!host) return;
+  if(EXP.tab==='analyze')        host.innerHTML=expAnalyzeForm();
+  else if(EXP.tab==='significance') host.innerHTML=expSigForm();
+  else if(EXP.tab==='power')     host.innerHTML=expPowerForm();
+  else if(EXP.tab==='matched')   host.innerHTML=expMatchForm();
+  expWire();
+}
+
+// ---- Analyze experiment (DiD + significance + lift + ROI) ----
+function expAnalyzeForm(){
+  return '<div class="exp-grid">'+
+    '<div class="exp-card">'+
+      '<div class="exp-card-title">Experiment inputs</div>'+
+      '<div class="exp-hint">Paste one number per unit (store, region, customer). Pre = baseline period, Post = after the initiative.</div>'+
+      '<div class="exp-field"><label>Test group — pre</label><textarea id="expTP" placeholder="e.g. 10, 11, 9, 10, 10"></textarea></div>'+
+      '<div class="exp-field"><label>Test group — post</label><textarea id="expTQ" placeholder="e.g. 14, 15, 13, 14, 14"></textarea></div>'+
+      '<div class="exp-field"><label>Control group — pre</label><textarea id="expCP" placeholder="e.g. 10, 9, 11, 10, 10"></textarea></div>'+
+      '<div class="exp-field"><label>Control group — post</label><textarea id="expCQ" placeholder="e.g. 11, 10, 12, 11, 11"></textarea></div>'+
+      '<div class="exp-row">'+
+        '<div class="exp-field sm"><label>Metric name</label><input id="expMetric" value="daily sales"></div>'+
+        '<div class="exp-field sm"><label>Confidence</label><select id="expAlpha"><option value="0.05">95%</option><option value="0.10">90%</option><option value="0.01">99%</option></select></div>'+
+      '</div>'+
+      '<div class="exp-row">'+
+        '<div class="exp-field sm"><label>Program cost ($, optional)</label><input id="expCost" placeholder="e.g. 1000"></div>'+
+        '<div class="exp-field sm"><label>$ value per unit (optional)</label><input id="expVal" placeholder="e.g. 50"></div>'+
+      '</div>'+
+      '<button class="btn primary" id="expRunAnalyze">'+jvIcon('play')+' Run analysis</button>'+
+    '</div>'+
+    '<div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('beaker')+'<div>Enter your test &amp; control numbers and run the analysis.</div></div></div>'+
+  '</div>';
+}
+
+// ---- Significance test (means t-test / proportions z-test) ----
+function expSigForm(){
+  const modeBtns='<div class="exp-seg">'+
+    '<button class="exp-seg-b'+(EXP.sigMode==='means'?' active':'')+'" data-sigmode="means">Compare means</button>'+
+    '<button class="exp-seg-b'+(EXP.sigMode==='rates'?' active':'')+'" data-sigmode="rates">Compare rates (p-ratio)</button>'+
+  '</div>';
+  let form;
+  if(EXP.sigMode==='means'){
+    form='<div class="exp-field"><label>Test values</label><textarea id="sigA" placeholder="5.1, 4.9, 5.3, 5.0, 5.2"></textarea></div>'+
+      '<div class="exp-field"><label>Control values</label><textarea id="sigB" placeholder="4.6, 4.7, 4.5, 4.9, 4.4"></textarea></div>';
+  } else {
+    form='<div class="exp-row">'+
+      '<div class="exp-field sm"><label>Test conversions</label><input id="sigSA" placeholder="120"></div>'+
+      '<div class="exp-field sm"><label>Test sample size</label><input id="sigNA" placeholder="1000"></div>'+
+    '</div><div class="exp-row">'+
+      '<div class="exp-field sm"><label>Control conversions</label><input id="sigSB" placeholder="90"></div>'+
+      '<div class="exp-field sm"><label>Control sample size</label><input id="sigNB" placeholder="1000"></div>'+
+    '</div>';
+  }
+  return '<div class="exp-grid">'+
+    '<div class="exp-card">'+
+      '<div class="exp-card-title">Significance test</div>'+modeBtns+form+
+      '<div class="exp-field sm"><label>Confidence</label><select id="sigAlpha"><option value="0.05">95%</option><option value="0.10">90%</option><option value="0.01">99%</option></select></div>'+
+      '<button class="btn primary" id="expRunSig">'+jvIcon('play')+' Test significance</button>'+
+    '</div>'+
+    '<div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('target')+'<div>Is the difference real or noise? Enter two groups and test.</div></div></div>'+
+  '</div>';
+}
+
+// ---- Power / sample size ----
+function expPowerForm(){
+  const kindSeg='<div class="exp-seg">'+
+    '<button class="exp-seg-b'+(EXP.powerKind==='mean'?' active':'')+'" data-pkind="mean">Continuous metric</button>'+
+    '<button class="exp-seg-b'+(EXP.powerKind==='proportion'?' active':'')+'" data-pkind="proportion">Rate / conversion</button>'+
+  '</div>';
+  const meanFields='<div class="exp-row">'+
+      '<div class="exp-field sm"><label>Baseline mean</label><input id="pwBase" placeholder="100"></div>'+
+      '<div class="exp-field sm"><label>Std deviation</label><input id="pwSd" placeholder="20"></div>'+
+    '</div>';
+  const propFields='<div class="exp-field sm"><label>Baseline rate (0–1)</label><input id="pwBaseP" placeholder="0.10"></div>';
+  return '<div class="exp-grid">'+
+    '<div class="exp-card">'+
+      '<div class="exp-card-title">Sample size &amp; power</div>'+
+      '<div class="exp-hint">How many units per group do you need to detect the effect you care about?</div>'+kindSeg+
+      (EXP.powerKind==='mean'?meanFields:propFields)+
+      '<div class="exp-field sm"><label>Minimum detectable effect (relative %)</label><input id="pwMde" placeholder="5"></div>'+
+      '<div class="exp-row">'+
+        '<div class="exp-field sm"><label>Confidence</label><select id="pwAlpha"><option value="0.05">95%</option><option value="0.10">90%</option><option value="0.01">99%</option></select></div>'+
+        '<div class="exp-field sm"><label>Power</label><select id="pwPower"><option value="0.8">80%</option><option value="0.9">90%</option><option value="0.95">95%</option></select></div>'+
+      '</div>'+
+      '<div class="exp-field sm"><label>Or: units per group (→ MDE &amp; power)</label><input id="pwN" placeholder="leave blank to size"></div>'+
+      '<button class="btn primary" id="expRunPower">'+jvIcon('play')+' Calculate</button>'+
+    '</div>'+
+    '<div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('activity')+'<div>Design an adequately-powered test before you launch.</div></div></div>'+
+  '</div>';
+}
+
+// ---- Matched control builder ----
+function expMatchForm(){
+  return '<div class="exp-grid">'+
+    '<div class="exp-card">'+
+      '<div class="exp-card-title">Matched control design</div>'+
+      '<div class="exp-hint">One unit per line: <code>id, feature1, feature2, …</code>. Controls are matched to tests by standardized nearest-neighbor distance (the APT "matched market" method).</div>'+
+      '<div class="exp-field sm"><label>Feature names (comma-separated)</label><input id="mtFeat" value="spend, conversion_rate, staff"></div>'+
+      '<div class="exp-field"><label>Test units</label><textarea id="mtTests" placeholder="T1, 100, 0.2, 5&#10;T2, 200, 0.5, 9"></textarea></div>'+
+      '<div class="exp-field"><label>Candidate controls</label><textarea id="mtCands" placeholder="C1, 98, 0.22, 5&#10;C2, 500, 0.9, 20&#10;C3, 205, 0.48, 9&#10;C4, 102, 0.19, 6"></textarea></div>'+
+      '<div class="exp-field sm"><label>Controls per test (k)</label><input id="mtK" value="1"></div>'+
+      '<button class="btn primary" id="expRunMatch">'+jvIcon('play')+' Build matched controls</button>'+
+    '</div>'+
+    '<div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('users')+'<div>Build a bias-minimized control group from your candidate pool.</div></div></div>'+
+  '</div>';
+}
+
+function expWire(){
+  document.querySelectorAll('[data-sigmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.sigMode=b.getAttribute('data-sigmode'); expRenderTab(); }));
+  document.querySelectorAll('[data-pkind]').forEach(b=>b.addEventListener('click',()=>{ EXP.powerKind=b.getAttribute('data-pkind'); expRenderTab(); }));
+  const g=(id)=>document.getElementById(id);
+  const out=()=>document.getElementById('expOut');
+  const busy=()=>{ const o=out(); if(o) o.innerHTML='<div class="exp-empty"><span class="loading">Computing…</span></div>'; };
+
+  { const b=g('expRunAnalyze'); if(b) b.addEventListener('click', async ()=>{
+    const body={ test_pre:_expNums(g('expTP').value), test_post:_expNums(g('expTQ').value),
+      control_pre:_expNums(g('expCP').value), control_post:_expNums(g('expCQ').value),
+      alpha:parseFloat(g('expAlpha').value), metric_name:(g('expMetric').value||'metric') };
+    const cost=parseFloat(g('expCost').value), val=parseFloat(g('expVal').value);
+    if(!isNaN(cost)) body.cost=cost; if(!isNaN(val)) body.value_per_unit=val;
+    if(body.test_pre.length<2||body.test_post.length<2||body.control_pre.length<2||body.control_post.length<2){ toast('Enter at least 2 numbers in each box',true); return; }
+    busy(); try{ const r=await _expPost('experiment', body); expRenderAnalyze(r, body); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+
+  { const b=g('expRunSig'); if(b) b.addEventListener('click', async ()=>{
+    busy();
+    try{
+      if(EXP.sigMode==='means'){
+        const body={ a:_expNums(g('sigA').value), b:_expNums(g('sigB').value), alpha:parseFloat(g('sigAlpha').value), label_a:'Test', label_b:'Control' };
+        if(body.a.length<2||body.b.length<2){ toast('Enter at least 2 values per group',true); return; }
+        const r=await _expPost('ttest', body); expRenderSig(r,'means');
+      } else {
+        const body={ successes_a:parseFloat(g('sigSA').value), n_a:parseInt(g('sigNA').value), successes_b:parseFloat(g('sigSB').value), n_b:parseInt(g('sigNB').value), alpha:parseFloat(g('sigAlpha').value), label_a:'Test', label_b:'Control' };
+        if([body.successes_a,body.n_a,body.successes_b,body.n_b].some(isNaN)){ toast('Fill in all four fields',true); return; }
+        const r=await _expPost('proportions', body); expRenderSig(r,'rates');
+      }
+    }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+
+  { const b=g('expRunPower'); if(b) b.addEventListener('click', async ()=>{
+    const body={ kind:EXP.powerKind, alpha:parseFloat(g('pwAlpha').value), power:parseFloat(g('pwPower').value), two_sided:true };
+    const mde=parseFloat(g('pwMde').value); if(!isNaN(mde)) body.mde_rel=mde/100;
+    const n=parseInt(g('pwN').value); if(!isNaN(n)) body.n_per_group=n;
+    if(EXP.powerKind==='mean'){ body.baseline=parseFloat(g('pwBase').value); body.sd=parseFloat(g('pwSd').value); if(isNaN(body.sd)){ toast('Std deviation is required',true); return; } }
+    else { body.baseline=parseFloat(g('pwBaseP').value); if(isNaN(body.baseline)){ toast('Baseline rate is required',true); return; } }
+    busy(); try{ const r=await _expPost('power', body); expRenderPower(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+
+  { const b=g('expRunMatch'); if(b) b.addEventListener('click', async ()=>{
+    const feats=(g('mtFeat').value||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const parse=(txt)=>String(txt||'').split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=>{ const p=l.split(/[,\t]+/).map(s=>s.trim()); return { id:p[0], features:p.slice(1).map(Number) }; }).filter(u=>u.id&&u.features.length);
+    const body={ test_units:parse(g('mtTests').value), candidate_controls:parse(g('mtCands').value), feature_names:feats, k:Math.max(1,parseInt(g('mtK').value)||1), with_replacement:false };
+    if(!body.test_units.length||!body.candidate_controls.length){ toast('Add test units and candidate controls',true); return; }
+    busy(); try{ const r=await _expPost('match', body); expRenderMatch(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+}
+
+function expRenderAnalyze(r, body){
+  const out=document.getElementById('expOut'); if(!out) return;
+  if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
+  const roi=r.roi;
+  const metrics='<div class="exp-metric-row">'+
+    '<div class="exp-metric"><div class="em-label">Incremental effect</div><div class="em-val">'+_num(r.did_estimate)+'</div><div class="em-sub">per unit vs. control</div></div>'+
+    '<div class="exp-metric"><div class="em-label">Incremental lift</div><div class="em-val">'+_pct(r.incremental_lift_pct)+'</div><div class="em-sub">vs. counterfactual</div></div>'+
+    '<div class="exp-metric"><div class="em-label">95% CI</div><div class="em-val" style="font-size:16px;">'+_ci(r.confidence_interval)+'</div><div class="em-sub">of the effect</div></div>'+
+    (roi?'<div class="exp-metric"><div class="em-label">ROI</div><div class="em-val">'+(roi.roi_multiple!=null?roi.roi_multiple+'×':'—')+'</div><div class="em-sub">net '+_num(roi.net,0)+'</div></div>':'')+
+  '</div>';
+  out.innerHTML =
+    _expVerdictCard(r.verdict)+
+    metrics+
+    '<div id="expChart" style="width:100%;height:230px;margin-top:6px;"></div>'+
+    '<div class="exp-detail-grid">'+
+      '<div><span>Test Δ (post−pre)</span><b>'+_num(r.test_post-r.test_pre)+'</b></div>'+
+      '<div><span>Control Δ (post−pre)</span><b>'+_num(r.control_post-r.control_pre)+'</b></div>'+
+      '<div><span>Difference-in-differences</span><b>'+_num(r.did_estimate)+'</b></div>'+
+      '<div><span>Std error</span><b>'+_num(r.std_error)+'</b></div>'+
+    '</div>'+
+    (r.recommendation?'<div class="exp-rec">'+jvIcon('star')+' <span>'+esc(r.recommendation)+'</span></div>':'');
+  // 4-bar chart: test pre/post, control pre/post
+  try{ if(window.echarts){
+    const el=document.getElementById('expChart'); const ch=echarts.init(el,'martin',{renderer:'canvas'});
+    ch.setOption({
+      tooltip:{trigger:'axis'}, legend:{top:0,textStyle:{fontSize:11}},
+      grid:{left:8,right:12,top:28,bottom:8,containLabel:true},
+      xAxis:{type:'category',data:['Pre','Post'],axisLabel:{fontSize:11}},
+      yAxis:{type:'value',axisLabel:{fontSize:11}},
+      series:[
+        {name:'Test',type:'bar',data:[r.test_pre,r.test_post],itemStyle:{color:'#0E76B4'}},
+        {name:'Control',type:'bar',data:[r.control_pre,r.control_post],itemStyle:{color:'#94a3b8'}},
+      ]
+    });
+    if(!el._ro){ el._ro=new ResizeObserver(()=>{try{ch.resize();}catch(e){}}); el._ro.observe(el); }
+  }}catch(e){}
+}
+
+function expRenderSig(r, mode){
+  const out=document.getElementById('expOut'); if(!out) return;
+  if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
+  const a=r.group_a, b=r.group_b;
+  const va = mode==='means' ? _num(a.mean) : _pct(a.rate*100,2).replace('+','');
+  const vb = mode==='means' ? _num(b.mean) : _pct(b.rate*100,2).replace('+','');
+  out.innerHTML =
+    _expVerdictCard(r.verdict)+
+    '<div class="exp-metric-row">'+
+      '<div class="exp-metric"><div class="em-label">'+esc(a.label)+'</div><div class="em-val">'+va+'</div><div class="em-sub">n='+_num(a.n,0)+'</div></div>'+
+      '<div class="exp-metric"><div class="em-label">'+esc(b.label)+'</div><div class="em-val">'+vb+'</div><div class="em-sub">n='+_num(b.n,0)+'</div></div>'+
+      '<div class="exp-metric"><div class="em-label">Relative lift</div><div class="em-val">'+_pct(r.relative_lift_pct)+'</div><div class="em-sub">'+esc(a.label)+' vs '+esc(b.label)+'</div></div>'+
+      '<div class="exp-metric"><div class="em-label">'+r.confidence_level_pct+'% CI</div><div class="em-val" style="font-size:15px;">'+_ci(r.confidence_interval)+'</div><div class="em-sub">of the difference</div></div>'+
+    '</div>'+
+    '<div class="exp-detail-grid">'+
+      '<div><span>Test statistic</span><b>'+_num(r.t_stat!=null?r.t_stat:r.z_stat,3)+'</b></div>'+
+      '<div><span>Std error</span><b>'+_num(r.std_error,4)+'</b></div>'+
+      (r.df!=null?'<div><span>Degrees of freedom</span><b>'+_num(r.df,1)+'</b></div>':'')+
+      '<div><span>Difference</span><b>'+_num(r.difference,4)+'</b></div>'+
+    '</div>';
+}
+
+function expRenderPower(r){
+  const out=document.getElementById('expOut'); if(!out) return;
+  if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
+  out.innerHTML =
+    '<div class="exp-verdict exp-v-info"><div class="exp-v-head">'+jvIcon('activity')+' Experiment design</div><div class="exp-v-detail">'+esc(r.summary)+'</div></div>'+
+    '<div class="exp-metric-row">'+
+      '<div class="exp-metric"><div class="em-label">Per group</div><div class="em-val">'+_num(r.n_per_group,0)+'</div><div class="em-sub">units needed</div></div>'+
+      '<div class="exp-metric"><div class="em-label">Total</div><div class="em-val">'+_num(r.total_n,0)+'</div><div class="em-sub">test + control</div></div>'+
+      '<div class="exp-metric"><div class="em-label">Min. detectable</div><div class="em-val">'+_num(r.minimum_detectable_effect,3)+'</div><div class="em-sub">'+(r.mde_relative_pct!=null?_pct(r.mde_relative_pct)+' relative':'absolute')+'</div></div>'+
+      '<div class="exp-metric"><div class="em-label">Power</div><div class="em-val">'+Math.round((r.power||0)*100)+'%</div><div class="em-sub">at α='+r.alpha+'</div></div>'+
+    '</div>';
+}
+
+function expRenderMatch(r){
+  const out=document.getElementById('expOut'); if(!out) return;
+  if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
+  const q=r.balance_quality;
+  const qcls = q==='excellent'?'exp-v-pos':(q==='good'?'exp-v-info':'exp-v-neu');
+  const rows=(r.matches||[]).map(m=>'<tr><td><b>'+esc(m.test_id)+'</b></td><td>'+(m.matched_controls||[]).map(c=>esc(c.id)+' <span class="exp-dist">d='+c.distance+'</span>').join(', ')+'</td></tr>').join('');
+  const bal=(r.balance||[]).map(bb=>'<tr><td>'+esc(bb.feature)+'</td><td>'+_num(bb.test_mean)+'</td><td>'+_num(bb.control_mean)+'</td><td class="'+(Math.abs(bb.std_diff)<0.1?'exp-good':(Math.abs(bb.std_diff)<0.25?'':'exp-bad'))+'">'+_num(bb.std_diff,3)+'</td></tr>').join('');
+  out.innerHTML =
+    '<div class="exp-verdict '+qcls+'"><div class="exp-v-head">'+jvIcon('users')+' Match quality: '+esc(q)+'</div><div class="exp-v-detail">'+esc(r.note)+'</div></div>'+
+    '<div class="exp-subtitle">Matched pairs</div>'+
+    '<table class="exp-table"><thead><tr><th>Test unit</th><th>Matched control(s)</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div class="exp-subtitle">Balance check (standardized mean difference)</div>'+
+    '<table class="exp-table"><thead><tr><th>Feature</th><th>Test mean</th><th>Control mean</th><th>Std diff</th></tr></thead><tbody>'+bal+'</tbody></table>';
+}
+
 // Nav + builder AI bar wiring
 document.getElementById('navAsk').addEventListener('click',showAsk);
 document.getElementById('navQuery').addEventListener('click',showQuery);
@@ -15122,6 +15458,7 @@ document.getElementById('navGoals').addEventListener('click',showGoals);
 document.getElementById('navKnowledge').addEventListener('click',showKnowledge);
 document.getElementById('navPulse').addEventListener('click',showPulse);
 document.getElementById('navFunnel').addEventListener('click',showFunnel);
+document.getElementById('navExperiments').addEventListener('click',showExperiments);
 // ═══════════════════════════════════════════════════════════════════
 //  AUTOMATIONS — Reports + Actions tabs (mirrors Kaelio /automations)
 // ═══════════════════════════════════════════════════════════════════

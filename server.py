@@ -65,6 +65,7 @@ from automations_api import router as automations_router
 from users_api import router as users_router
 from ask_history_api import router as ask_history_router
 from airbyte_api import router as airbyte_router
+from experiments_api import router as experiments_router
 
 # Phase 3 — interactive report builder
 from reporting.catalog import WarehouseCatalog
@@ -1702,6 +1703,7 @@ except Exception as _brain_mount_exc:
     log.warning(f"Brain API not mounted: {_brain_mount_exc}")
 app.include_router(ask_history_router)
 app.include_router(airbyte_router)
+app.include_router(experiments_router)
 
 # Scheduled email delivery of Designer reports (inert until SMTP is configured).
 try:
