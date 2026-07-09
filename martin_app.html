@@ -308,6 +308,11 @@
   .qp-showme.active { border-color: var(--blue); background: var(--blue); color: #fff; }
   .qp-showme.rec::after { content: ''; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: #22c55e; }
   .qp-showme.active.rec::after { background: #bbf7d0; }
+  /* Marks card encoding shelves (Color / Size / Label) — drop targets for rail fields */
+  .qp-mark-shelf { display: inline-flex; align-items: center; gap: 5px; padding: 3px 7px 3px 4px; border: 1px dashed var(--line); border-radius: 7px; background: #fafcfe; transition: border-color .12s ease, background .12s ease; }
+  .qp-mark-shelf.over { border-color: var(--blue); border-style: solid; background: #eaf5fc; }
+  .qp-mark-tag { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; background: #eef2f6; padding: 2px 6px; border-radius: 5px; }
+  .qp-mark-sel { padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px; font-size: 12px; background: #fff; max-width: 150px; }
   .qp-toolbar .qp-status { margin-left: auto; font-size: 11px; color: var(--muted); }
   .qp-limit-wrap { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
   .qp-limit-wrap input { width: 64px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; font-size: 12px; text-align: right; }
@@ -493,7 +498,8 @@
   }
   .lnav-item:hover { background: #eef2f7; color: #0f172a; }
   .lnav-item.active { background: #e0f0f8; color: var(--blue); }
-  .lnav-item .lnav-icon { width: 20px; text-align: center; font-size: 16px; flex-shrink: 0; opacity: 0.85; }
+  .lnav-item .lnav-icon { width: 20px; text-align: center; font-size: 16px; flex-shrink: 0; opacity: 0.85; display: inline-flex; align-items: center; justify-content: center; }
+  .lnav-item .lnav-icon svg { width: 17px; height: 17px; }
   .lnav-item .lnav-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .lnav-item .nav-badge { background: #ef4444; color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 999px; font-weight: 700; }
   .lnav-spacer { flex: 1; }
@@ -3210,8 +3216,8 @@
     <span class="nav-item" data-nav="knowledge" id="navKnowledge">Knowledge</span>
     <span class="nav-item" data-nav="funnel" id="navFunnel">Funnel</span>
     <span style="width:1px;height:18px;background:var(--line);margin:0 6px;align-self:center;"></span>
-    <span class="nav-item" data-nav="automations" id="navAutomations">⚡ Automations</span>
-    <span class="nav-item" data-nav="admin" id="navAdmin" style="display:none">⚙ Admin</span>
+    <span class="nav-item" data-nav="automations" id="navAutomations">Automations</span>
+    <span class="nav-item" data-nav="admin" id="navAdmin" style="display:none">Admin</span>
   </div>
   <div class="api" id="apiStatus"><span class="pip"></span><span id="apiLabel">Connecting…</span></div>
 </div>
@@ -3224,34 +3230,34 @@
   <div class="leftnav-section">
     <div class="lnav-label">Dashboard Creation</div>
     <div class="lnav-item lnav-grouped" data-lnav="curate"   title="Step 1 — Schema Layer / Curate the semantic model">
-      <span class="lnav-step">1</span><span class="lnav-icon">✨</span><span class="lnav-name">Schema · Curate</span>
+      <span class="lnav-step">1</span><span class="lnav-icon" data-ic="layers"></span><span class="lnav-name">Schema · Curate</span>
       <span id="lnavCurateBadge" class="nav-badge" style="display:none"></span>
     </div>
     <div class="lnav-item lnav-grouped" data-lnav="query"    title="Step 2 — Query Builder: drag-and-drop a dataset">
-      <span class="lnav-step">2</span><span class="lnav-icon">🧰</span><span class="lnav-name">Query Builder</span>
+      <span class="lnav-step">2</span><span class="lnav-icon" data-ic="table"></span><span class="lnav-name">Query Builder</span>
     </div>
     <div class="lnav-item lnav-grouped" data-lnav="designer" title="Step 3 — Report Designer: picture-perfect layouts">
-      <span class="lnav-step">3</span><span class="lnav-icon">🎨</span><span class="lnav-name">Designer</span>
+      <span class="lnav-step">3</span><span class="lnav-icon" data-ic="palette"></span><span class="lnav-name">Designer</span>
     </div>
   </div>
   <div class="leftnav-section">
     <div class="lnav-label">Daily</div>
-    <div class="lnav-item" data-lnav="pulse"      title="Pulse"><span class="lnav-icon">📊</span><span class="lnav-name">Pulse</span></div>
-    <div class="lnav-item" data-lnav="ask"        title="Ask AI"><span class="lnav-icon">💬</span><span class="lnav-name">Ask AI</span></div>
-    <div class="lnav-item" data-lnav="briefs"     title="Briefs"><span class="lnav-icon">📋</span><span class="lnav-name">Briefs</span></div>
-    <div class="lnav-item" data-lnav="dashboards" title="Dashboards (legacy Live Dashboard Builder — kept as-is)"><span class="lnav-icon">📈</span><span class="lnav-name">Dashboards</span></div>
-    <div class="lnav-item" data-lnav="goals"      title="Goals"><span class="lnav-icon">🎯</span><span class="lnav-name">Goals</span><span id="lnavGoalsBadge" class="nav-badge" style="display:none"></span></div>
-    <div class="lnav-item" data-lnav="funnel"     title="Funnel"><span class="lnav-icon">⬇</span><span class="lnav-name">Funnel</span></div>
-    <div class="lnav-item" data-lnav="metrics"    title="Metrics — browse all metrics, rules & saved queries"><span class="lnav-icon">📐</span><span class="lnav-name">Metrics</span></div>
-    <div class="lnav-item" data-lnav="knowledge"  title="Knowledge"><span class="lnav-icon">📚</span><span class="lnav-name">Knowledge</span></div>
+    <div class="lnav-item" data-lnav="pulse"      title="Pulse"><span class="lnav-icon" data-ic="activity"></span><span class="lnav-name">Pulse</span></div>
+    <div class="lnav-item" data-lnav="ask"        title="Ask AI"><span class="lnav-icon" data-ic="comment"></span><span class="lnav-name">Ask AI</span></div>
+    <div class="lnav-item" data-lnav="briefs"     title="Briefs"><span class="lnav-icon" data-ic="file"></span><span class="lnav-name">Briefs</span></div>
+    <div class="lnav-item" data-lnav="dashboards" title="Dashboards (legacy Live Dashboard Builder — kept as-is)"><span class="lnav-icon" data-ic="chart"></span><span class="lnav-name">Dashboards</span></div>
+    <div class="lnav-item" data-lnav="goals"      title="Goals"><span class="lnav-icon" data-ic="target"></span><span class="lnav-name">Goals</span><span id="lnavGoalsBadge" class="nav-badge" style="display:none"></span></div>
+    <div class="lnav-item" data-lnav="funnel"     title="Funnel"><span class="lnav-icon" data-ic="funnel"></span><span class="lnav-name">Funnel</span></div>
+    <div class="lnav-item" data-lnav="metrics"    title="Metrics — browse all metrics, rules & saved queries"><span class="lnav-icon" data-ic="fields"></span><span class="lnav-name">Metrics</span></div>
+    <div class="lnav-item" data-lnav="knowledge"  title="Knowledge"><span class="lnav-icon" data-ic="book"></span><span class="lnav-name">Knowledge</span></div>
   </div>
   <div class="leftnav-section">
     <div class="lnav-label">Setup</div>
-    <div class="lnav-item" data-lnav="connect"    title="Connect data sources"><span class="lnav-icon">🔌</span><span class="lnav-name">Connect</span></div>
-    <div class="lnav-item" data-lnav="automations" title="Reports + workflows"><span class="lnav-icon">⚡</span><span class="lnav-name">Automations</span></div>
+    <div class="lnav-item" data-lnav="connect"    title="Connect data sources"><span class="lnav-icon" data-ic="plug"></span><span class="lnav-name">Connect</span></div>
+    <div class="lnav-item" data-lnav="automations" title="Reports + workflows"><span class="lnav-icon" data-ic="bolt"></span><span class="lnav-name">Automations</span></div>
   </div>
   <div class="leftnav-section" id="lnavAdminSection" style="display:none">
-    <div class="lnav-item" data-lnav="admin"      title="Admin: users + groups + usage"><span class="lnav-icon">⚙</span><span class="lnav-name">Admin</span></div>
+    <div class="lnav-item" data-lnav="admin"      title="Admin: users + groups + usage"><span class="lnav-icon" data-ic="gear"></span><span class="lnav-name">Admin</span></div>
   </div>
   <div class="lnav-spacer"></div>
   <div class="lnav-user" id="lnavUser" title="Account">
@@ -3543,7 +3549,7 @@
 
 <!-- Builder feature tour (first-time hint card) -->
 <div class="tour-panel" id="tourPanel">
-  <div class="tour-tag">✨ Tip · first time here</div>
+  <div class="tour-tag"><span data-ic="star" style="display:inline-flex;vertical-align:-3px;"></span> Tip · first time here</div>
   <div class="tour-head">The widget builder is more powerful than it looks</div>
   <ul class="tour-list">
     <li><span class="tn">1</span><span>Type a question into the <b>AI prompt bar</b> at the top — I'll pick the table, dimensions, and metric for you. Mic works too.</span></li>
@@ -3624,8 +3630,20 @@ const _JV_ICONS = {
   lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   tag:'<path d="M3 12l9-9h8v8l-9 9z"/><circle cx="16.5" cy="7.5" r="1.4" fill="currentColor" stroke="none"/>',
   megaphone:'<path d="M3 11v2a1 1 0 0 0 1 1h2l6 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a3 3 0 0 1 0 6"/>',
+  layers:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+  palette:'<path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 2-2 0-1.4 1-2 2.4-2H19a2 2 0 0 0 2-2 8 8 0 0 0-9-9z"/><circle cx="7.5" cy="11.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="16.5" cy="11.5" r="1" fill="currentColor" stroke="none"/>',
+  target:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>',
+  book:'<path d="M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 0-2 2z"/><path d="M5 18a2 2 0 0 1 2-2h11"/>',
+  plug:'<path d="M9 2v6M15 2v6"/><path d="M7 8h10v3a5 5 0 0 1-10 0z"/><path d="M12 16v6"/>',
+  bolt:'<polygon points="13 2 4 14 11 14 10 22 20 9 13 9"/>',
+  activity:'<path d="M3 12h4l3 8 4-16 3 8h4"/>',
+  funnel:'<path d="M3 5h18l-7 8v6l-4-2v-4z"/>',
 };
 function jvIcon(name, cls){ const p=_JV_ICONS[name]; if(!p) return ''; return '<svg class="jvi'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'; }
+// Fill any [data-ic] placeholder span with its professional SVG icon (nav, etc.).
+function _fillDataIcons(root){ (root||document).querySelectorAll('[data-ic]').forEach(el => { if(el._icDone) return; const s=jvIcon(el.getAttribute('data-ic')); if(s){ el.innerHTML=s; el._icDone=true; } }); }
+try { _fillDataIcons(); } catch(e){}
+document.addEventListener('DOMContentLoaded', () => { try { _fillDataIcons(); } catch(e){} });
 // Relative time from a unix-seconds timestamp (e.g. "3m ago", "2h ago", "5d ago").
 function _relTime(ts){ if(!ts) return ''; const s=Math.max(0,Math.floor(Date.now()/1000-ts));
   if(s<60) return 'just now'; if(s<3600) return Math.floor(s/60)+'m ago'; if(s<86400) return Math.floor(s/3600)+'h ago';
@@ -7234,7 +7252,7 @@ function showDesigner(){
           '<button class="btn" id="rdToggleInsp" title="Show / hide the properties inspector">'+jvIcon('eye')+'Inspector</button>'+
           // R46 — Brand theme picker
           '<select id="rdThemeSel" title="Apply a brand theme to all elements" style="padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:12px;background:#fff;">'+
-            Object.entries(_RD_THEMES).map(([k,t]) => '<option value="'+esc(k)+'"'+(RD.themeKey===k?' selected':'')+'>'+esc(t.icon)+' '+esc(t.name)+'</option>').join('')+
+            Object.entries(_RD_THEMES).map(([k,t]) => '<option value="'+esc(k)+'"'+(RD.themeKey===k?' selected':'')+'>'+esc(t.name)+'</option>').join('')+
           '</select>'+
           // R47 — Marketing template gallery
           '<button class="btn" id="rdTemplates">'+jvIcon('grid')+'Templates</button>'+
@@ -8612,7 +8630,7 @@ function rdOpenAIDesign(){
   overlay.innerHTML =
     '<div class="rd-gallery" style="max-width:640px;">'+
       '<div class="rd-gallery-head">'+
-        '<h2>✨ Design a report with AI</h2>'+
+        '<h2 style="display:flex;align-items:center;gap:8px;">'+jvIcon('star')+'Design a report with AI</h2>'+
         '<p>Describe what you want — service line, time period, key sections — and AI lays out the pages for you.</p>'+
         '<button class="rd-gallery-close" title="Close">✕</button>'+
       '</div>'+
@@ -9171,7 +9189,7 @@ function _qpApplyFmtState(st){
   QP.showTotals = !!st.showTotals;
   QP._rowNums   = !!st.rowNums;
   QP._wrap      = !!st.wrap;
-  QP.marks      = st.marks || { color:null, label:false };
+  QP.marks      = Object.assign({ color:null, label:false, size:null, labelField:null }, st.marks || {});
   if(st.resultTab) QP.resultTab = st.resultTab;
   QP.sort       = st.sort || null;
   QP.calcFields = (st.calcFields || []).slice();
@@ -10785,17 +10803,34 @@ function qpRenderResult(){
     const hasDim = QP.dimensions.length > 0;
     if(!QP.chartType) QP.chartType = hasDim ? 'bar' : 'kpi';
     const types = ['bar','line','area','pie','donut','combo','dualaxis','scatter','treemap','heatmap','map','waterfall','boxplot','table','kpi'];
-    QP.marks = QP.marks || { color:null, label:false };
+    QP.marks = Object.assign({ color:null, label:false, size:null, labelField:null }, QP.marks || {});
     const _dimsLen = QP.dimensions.length;
     const _dimCols = (r.columns||[]).slice(0, _dimsLen);
-    const _marksApplies = ['bar','line','area'].includes(QP.chartType);
-    // Marks card — Color (split series by a dimension) + Label (show values).
-    const colorOpts = '<option value="">Color: none</option>'+_dimCols.map(c=>'<option value="'+esc(c)+'"'+(QP.marks.color===c?' selected':'')+'>Color: '+esc(c)+'</option>').join('');
-    const marksCard = _marksApplies && _dimCols.length ?
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'+
+    const _metCols0 = (r.columns||[]).slice(_dimsLen);
+    const _isScatter = QP.chartType === 'scatter';
+    const _marksApplies = ['bar','line','area','scatter'].includes(QP.chartType);
+    // Marks card — Tableau-style encoding shelves. Each shelf is a drop target for
+    // a dragged rail field AND a select. Color=series/hue, Size=bubble (scatter),
+    // Label=value labels (optionally by a chosen field).
+    const _shelf = (id, role, current, label, opts) =>
+      '<div class="qp-mark-shelf" data-mark-role="'+role+'" title="Drag a field here or pick one">'+
+        '<span class="qp-mark-tag">'+label+'</span>'+
+        '<select id="'+id+'" class="qp-mark-sel">'+opts+'</select>'+
+      '</div>';
+    const colorOpts = '<option value="">none</option>'+_dimCols.map(c=>'<option value="'+esc(c)+'"'+(QP.marks.color===c?' selected':'')+'>'+esc(c)+'</option>').join('');
+    const sizeOpts  = '<option value="">none</option>'+_metCols0.map(c=>'<option value="'+esc(c)+'"'+(QP.marks.size===c?' selected':'')+'>'+esc(c)+'</option>').join('');
+    const lblFldOpts= '<option value="">value</option>'+_dimCols.map(c=>'<option value="'+esc(c)+'"'+(QP.marks.labelField===c?' selected':'')+'>'+esc(c)+'</option>').join('');
+    const shelves = [];
+    shelves.push(_shelf('qpMarkColor','color', QP.marks.color, 'Color', colorOpts));
+    if(_isScatter) shelves.push(_shelf('qpMarkSize','size', QP.marks.size, 'Size', sizeOpts));
+    if(!_isScatter){
+      shelves.push('<label class="qp-mark-shelf" style="cursor:pointer;"><input type="checkbox" id="qpMarkLabel" '+(QP.marks.label?'checked':'')+'> <span class="qp-mark-tag" style="margin:0;">Label</span></label>');
+      shelves.push(_shelf('qpMarkLblFld','labelField', QP.marks.labelField, 'By', lblFldOpts));
+    }
+    const marksCard = _marksApplies && (_dimCols.length || _isScatter) ?
+      '<div class="qp-marks-card" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">'+
         '<span style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Marks</span>'+
-        '<select id="qpMarkColor" style="padding:4px 8px;border:1px solid var(--line);border-radius:6px;font-size:12px;">'+colorOpts+'</select>'+
-        '<label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" id="qpMarkLabel" '+(QP.marks.label?'checked':'')+'> Show labels</label>'+
+        shelves.join('')+
       '</div>' : '';
     host.innerHTML =
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
@@ -10809,6 +10844,24 @@ function qpRenderResult(){
     { const pb=document.getElementById('qpChartPng'); if(pb) pb.addEventListener('click', qpExportChartPNG); }
     { const mc=document.getElementById('qpMarkColor'); if(mc) mc.addEventListener('change', ()=>{ QP.marks.color = mc.value||null; qpPersistSheets(); qpRenderResult(); }); }
     { const ml=document.getElementById('qpMarkLabel'); if(ml) ml.addEventListener('change', ()=>{ QP.marks.label = ml.checked; qpPersistSheets(); qpRenderResult(); }); }
+    { const ms=document.getElementById('qpMarkSize'); if(ms) ms.addEventListener('change', ()=>{ QP.marks.size = ms.value||null; qpPersistSheets(); qpRenderResult(); }); }
+    { const mlf=document.getElementById('qpMarkLblFld'); if(mlf) mlf.addEventListener('change', ()=>{ QP.marks.labelField = mlf.value||null; if(QP.marks.labelField) QP.marks.label = true; qpPersistSheets(); qpRenderResult(); }); }
+    // Drag a rail field onto a Marks shelf to assign it to that encoding.
+    document.querySelectorAll('#qpResult .qp-mark-shelf[data-mark-role]').forEach(sh => {
+      const role = sh.getAttribute('data-mark-role');
+      sh.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect='copy'; sh.classList.add('over'); });
+      sh.addEventListener('dragleave', e => { if(!sh.contains(e.relatedTarget)) sh.classList.remove('over'); });
+      sh.addEventListener('drop', e => {
+        e.preventDefault(); sh.classList.remove('over');
+        let f; try { f = JSON.parse(e.dataTransfer.getData('application/json')); } catch(_){ return; }
+        if(!f || !f.name) return;
+        const nm = f.name;
+        if(role==='color'){ if(_dimCols.includes(nm)) QP.marks.color = nm; else { toast('Color needs a dimension already in the view', true); return; } }
+        else if(role==='size'){ if(_metCols0.includes(nm)) QP.marks.size = nm; else { toast('Size needs a metric already in the view', true); return; } }
+        else if(role==='labelField'){ if(_dimCols.includes(nm)){ QP.marks.labelField = nm; QP.marks.label = true; } else { toast('Label needs a dimension already in the view', true); return; } }
+        qpPersistSheets(); qpRenderResult();
+      });
+    });
     // Carry the table's per-column formatting into the chart (axis + tooltips).
     const _metricCols = (r.columns||[]).slice(_dimsLen);
     const _metricFormats = _metricCols.map((c,i) => {
@@ -10819,7 +10872,9 @@ function qpRenderResult(){
     });
     const chost = document.getElementById('qpChartHost');
     // Use the Marks renderer when a color encoding or labels are active on a supported type.
-    const useMarks = _marksApplies && ((QP.marks.color && _dimCols.includes(QP.marks.color)) || QP.marks.label);
+    const useMarks = _isScatter
+      ? ((QP.marks.size && _metCols0.includes(QP.marks.size)) || (QP.marks.color && _dimCols.includes(QP.marks.color)))
+      : (_marksApplies && ((QP.marks.color && _dimCols.includes(QP.marks.color)) || QP.marks.label));
     if(useMarks){
       try { qpRenderMarksChart(chost, r, _dimsLen, _metricFormats); }
       catch(e){ chost.innerHTML = '<div class="qp-empty" style="color:var(--orange);">Chart failed: '+esc(e.message)+'</div>'; }
@@ -10897,10 +10952,57 @@ function qpRenderMarksChart(host, r, dimsLen, formats){
   if(host._echartInst){ try{ host._echartInst.dispose(); }catch(e){} host._echartInst=null; }
   host.innerHTML=''; const mount=document.createElement('div'); mount.style.cssText='width:100%;height:100%;min-height:260px;'; host.appendChild(mount);
   const chart = echarts.init(mount, 'martin', { renderer:'canvas' }); host._echartInst = chart;
+
+  // ── Scatter / bubble: x = metric[0], y = metric[1] (or metric[0] if only one),
+  //    Size = a chosen metric (bubble radius), Color = a dimension (hue groups). ──
+  if(type === 'scatter'){
+    const metCols = cols.slice(dimsLen);
+    const xMi = dimsLen, yMi = (cols.length > dimsLen+1) ? dimsLen+1 : dimsLen;
+    const xFmt = (formats && formats[0]) || 'number';
+    const yFmt = (formats && formats[yMi-dimsLen]) || 'number';
+    const sizeCol = (marks.size && metCols.includes(marks.size)) ? marks.size : null;
+    const sIdx = sizeCol ? cols.indexOf(sizeCol) : -1;
+    const labelCol = (marks.labelField && dimCols.includes(marks.labelField)) ? marks.labelField : (dimCols[0] || null);
+    const lIdx = labelCol ? cols.indexOf(labelCol) : -1;
+    let sMin=Infinity, sMax=-Infinity;
+    if(sIdx>=0) rows.forEach(row => { const v=Number(row[sIdx]); if(isFinite(v)){ if(v<sMin)sMin=v; if(v>sMax)sMax=v; } });
+    const scale = v => { if(sIdx<0||!isFinite(v)) return 11; if(sMax<=sMin) return 16; return 6 + 34*((v-sMin)/(sMax-sMin)); };
+    const point = row => ({ value:[Number(row[xMi]), Number(row[yMi])], _s:sIdx>=0?Number(row[sIdx]):null, _l:lIdx>=0?row[lIdx]:null, symbolSize: scale(sIdx>=0?Number(row[sIdx]):0) });
+    let sSeries;
+    if(colorCol){
+      const cIdx = cols.indexOf(colorCol);
+      const groups={}; rows.forEach(row => { const g=row[cIdx]==null?'∅':String(row[cIdx]); (groups[g]=groups[g]||[]).push(point(row)); });
+      sSeries = Object.keys(groups).map(g => ({ name:g, type:'scatter', data:groups[g], symbolSize:p=>p.symbolSize, emphasis:{focus:'series'}, label:{ show:!!marks.label, formatter:p=>p.data._l==null?'':String(p.data._l), fontSize:9, position:'top', color:'#475569' } }));
+    } else {
+      sSeries = [{ type:'scatter', data:rows.map(point), symbolSize:p=>p.symbolSize, label:{ show:!!marks.label, formatter:p=>p.data._l==null?'':String(p.data._l), fontSize:9, position:'top', color:'#475569' } }];
+    }
+    chart.setOption({
+      tooltip:{ trigger:'item', backgroundColor:'#1f2b3a', borderWidth:0, textStyle:{color:'#fff'},
+        formatter:p => (p.data._l!=null?('<b>'+p.data._l+'</b><br/>'):'')+esc(cols[xMi])+': '+fmt(p.value[0],xFmt)+'<br/>'+esc(cols[yMi])+': '+fmt(p.value[1],yFmt)+(sizeCol?('<br/>'+esc(sizeCol)+': '+fmt(p.data._s, (formats&&formats[cols.indexOf(sizeCol)-dimsLen])||'number')):'') },
+      legend: colorCol ? { type:'scroll', top:0, textStyle:{fontSize:11,color:'#475569'} } : undefined,
+      grid:{ left:8, right:16, top: colorCol?30:12, bottom:24, containLabel:true },
+      xAxis:{ type:'value', name:cols[xMi], nameGap:22, nameLocation:'middle', nameTextStyle:{fontSize:11,color:'#64748b'}, axisLabel:{fontSize:11,color:'#64748b',formatter:v=>fmt(v,xFmt)}, splitLine:{lineStyle:{color:'#f1f5f9'}} },
+      yAxis:{ type:'value', name:cols[yMi], axisLabel:{fontSize:11,color:'#64748b',formatter:v=>fmt(v,yFmt)}, splitLine:{lineStyle:{color:'#f1f5f9'}} },
+      series: sSeries
+    });
+    const _ro2 = () => { try{ chart.resize(); }catch(e){} };
+    if(host._qpRO) { try{ host._qpRO.disconnect(); }catch(e){} }
+    try { host._qpRO = new ResizeObserver(_ro2); host._qpRO.observe(host); } catch(e){}
+    return;
+  }
+
   // distinct x categories (in first-seen order)
   const xs=[], xseen=new Set(); rows.forEach(row => { const v = row[xIdx]==null?'∅':String(row[xIdx]); if(!xseen.has(v)){ xseen.add(v); xs.push(v); } });
   const isLine = (type==='line'||type==='area'), stack = (type==='area');
-  const label = { show: !!marks.label, position: (type==='bar'?'top':'top'), fontSize:10, formatter: p => fmt(p.value, mFmt) };
+  // Label: value by default; if a labelField dimension is chosen, show that field's value.
+  const lblFieldCol = (marks.labelField && dimCols.includes(marks.labelField)) ? marks.labelField : null;
+  const lblFieldIdx = lblFieldCol ? cols.indexOf(lblFieldCol) : -1;
+  const labelByX = {};
+  if(lblFieldIdx>=0) rows.forEach(row => { const xv=row[xIdx]==null?'∅':String(row[xIdx]); if(labelByX[xv]==null) labelByX[xv]=row[lblFieldIdx]; });
+  const mkLabelFmt = (vfmt) => (lblFieldIdx>=0
+    ? (p => { const xv = xs[p.dataIndex]; return labelByX[xv]==null?'':String(labelByX[xv]); })
+    : (p => fmt(p.value, vfmt)));
+  const label = { show: !!marks.label, position: 'top', fontSize:10, formatter: mkLabelFmt(mFmt) };
   let series;
   if(colorCol){
     const cIdx = cols.indexOf(colorCol);
@@ -10912,7 +11014,7 @@ function qpRenderMarksChart(host, r, dimsLen, formats){
     series = [];
     for(let m=dimsLen; m<cols.length; m++){
       const rowByX={}; rows.forEach(row => { const xv=row[xIdx]==null?'∅':String(row[xIdx]); rowByX[xv]=(rowByX[xv]||0)+(Number(row[m])||0); });
-      series.push({ name: cols[m], type: isLine?'line':'bar', areaStyle: type==='area'?{}:undefined, smooth:false, symbol:'circle', symbolSize:6, label:{...label, formatter:p=>fmt(p.value, formats[m-dimsLen]||'number')}, emphasis:{focus:'series'}, data: xs.map(xv => rowByX[xv] ?? null) });
+      series.push({ name: cols[m], type: isLine?'line':'bar', areaStyle: type==='area'?{}:undefined, smooth:false, symbol:'circle', symbolSize:6, label:{...label, formatter: mkLabelFmt(formats[m-dimsLen]||'number')}, emphasis:{focus:'series'}, data: xs.map(xv => rowByX[xv] ?? null) });
     }
   }
   chart.setOption({

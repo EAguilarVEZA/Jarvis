@@ -2477,6 +2477,123 @@ def _inject_dashboard_scope(qdict: dict, dashboard_id: Optional[str], model) -> 
             })
 
 
+def _build_qdict(model, spec, prompt, dashboard_id):
+    """Turn a planner spec into a validated qdict + chart_type/title, applying the
+    same server-side defensive fixes used on the first pass. Reused by the
+    self-correction retry so the recovered query gets identical treatment."""
+    chart_type = spec.get("chart_type", "table")
+    title = spec.get("title") or prompt
+    qdict = {
+        "primary_table": spec["primary_table"],
+        "dimensions": spec.get("dimensions", []) if chart_type != "kpi" else [],
+        "metrics": spec.get("metrics", []),
+        "filters": spec.get("filters", []),
+        "limit": 50,
+    }
+    _inject_resolved_date_filter(qdict, prompt, model)
+    _inject_dashboard_scope(qdict, dashboard_id, model)
+    prim_table = model.table(spec["primary_table"])
+    if prim_table:
+        prim_fields = {f.key for f in prim_table.dimensions + prim_table.metrics + prim_table.dates}
+        for bucket in ("dimensions", "metrics", "filters"):
+            for entry in qdict[bucket]:
+                if entry.get("table") != spec["primary_table"] and entry.get("field") in prim_fields:
+                    entry["table"] = spec["primary_table"]
+    if not qdict["dimensions"] and not qdict["metrics"]:
+        prim = model.table(spec["primary_table"])
+        if prim and prim.metrics:
+            qdict["metrics"] = [{"table": spec["primary_table"], "field": prim.metrics[0].key}]
+            if chart_type == "table":
+                chart_type = "kpi"
+    if qdict["dimensions"] and qdict["metrics"]:
+        qdict["order_by"] = [{"field": qdict["metrics"][0]["field"], "direction": "desc"}]
+    return qdict, chart_type, title
+
+
+def _field_catalog(model, table_key):
+    """Human-readable list of the real fields on a table, for the fix prompt."""
+    t = model.table(table_key)
+    if not t:
+        return f"(unknown table '{table_key}')"
+    dims = [f.key for f in t.dimensions]
+    dates = [f.key for f in t.dates]
+    mets = [f.key for f in t.metrics]
+    joins = []
+    try:
+        for other in (model.tables.values() if hasattr(model, "tables") else []):
+            if other.key != table_key and model.join_path(table_key, other.key):
+                joins.append(other.key)
+    except Exception:
+        pass
+    out = f"primary_table '{table_key}':\n  dimensions: {dims}\n  dates: {dates}\n  metrics: {mets}"
+    if joins:
+        out += f"\n  joinable tables: {joins[:12]}"
+    return out
+
+
+async def _planner_retry(client, model, question, spec, err):
+    """Agentic self-correction: show the model the exact build error + the real
+    field catalog and ask it to return a corrected spec. Uses a stronger model
+    since this is a rare, quality-critical fix path. Returns a spec dict or None."""
+    try:
+        prim = spec.get("primary_table")
+        catalog = _field_catalog(model, prim)
+        fix_model = os.getenv("JARVIS_PLANNER_FIX_MODEL", "claude-sonnet-4-6")
+        system = (
+            "You fix a failed structured-data query. Return ONLY a JSON object with this exact "
+            "schema and nothing else: {\"primary_table\": str, \"dimensions\": [{\"table\":str,\"field\":str}], "
+            "\"metrics\": [{\"table\":str,\"field\":str}], \"filters\": [{\"table\":str,\"field\":str,\"op\":str,\"value\":any}], "
+            "\"chart_type\": str, \"title\": str}. Every field MUST exist on its table per the catalog. "
+            "Prefer fields on the primary table. Do not invent field names."
+        )
+        msg = (
+            f"User question: {question}\n\n"
+            f"Your previous query FAILED to build.\n"
+            f"Previous spec: {json.dumps(spec)}\n"
+            f"Build error: {err}\n\n"
+            f"Real field catalog:\n{catalog}\n\n"
+            "Return the corrected JSON spec. Keep it minimal and valid."
+        )
+        resp = await client.messages.create(
+            model=fix_model, max_tokens=600, system=system,
+            messages=[{"role": "user", "content": msg}],
+        )
+        fixed = _extract_json(resp.content[0].text if resp.content else "")
+        return fixed if (fixed and fixed.get("primary_table")) else None
+    except Exception as e:
+        log.warning(f"planner self-correction failed: {e}")
+        return None
+
+
+async def _ktx_hint(prompt: str) -> str:
+    """Leverage KTX's canonical semantic index to ground the planner. Best-effort:
+    short-timeout, silent on any failure (KTX not installed / slow / no match)."""
+    if os.getenv("JARVIS_USE_KTX_CONTEXT", "1") == "0":
+        return ""
+    try:
+        import ktx_client
+        loop = asyncio.get_running_loop()
+        items = await asyncio.wait_for(
+            loop.run_in_executor(None, lambda: ktx_client.search_context(prompt, 4)),
+            timeout=float(os.getenv("JARVIS_KTX_TIMEOUT", "4")),
+        )
+        if not items:
+            return ""
+        lines = ["\n\nKTX canonical matches (authoritative semantic sources — prefer these when they fit the question):"]
+        for it in items[:4]:
+            nm = it.get("name") or "?"
+            desc = (it.get("description") or "").strip().replace("\n", " ")[:120]
+            meta = []
+            if it.get("measures"):
+                meta.append(f"{it['measures']} measures")
+            if it.get("joins"):
+                meta.append(f"{it['joins']} joins")
+            lines.append(f"- {nm}" + (f" — {desc}" if desc else "") + (f" ({', '.join(meta)})" if meta else ""))
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
 @router.post("/ask")
 async def ask(body: AskRequest):
     import time as _t
@@ -2501,6 +2618,9 @@ async def ask(body: AskRequest):
     except Exception:
         always_blk, auto_blk = "", ""
 
+    # Ground the planner in KTX's canonical semantic index (best-effort, tight timeout).
+    ktx_blk = await _ktx_hint(body.prompt)
+
     try:
         import anthropic
         client = anthropic.AsyncAnthropic(api_key=key)
@@ -2510,7 +2630,7 @@ async def ask(body: AskRequest):
             model="claude-haiku-4-5-20251001",
             max_tokens=700,
             system=system_prompt,
-            messages=[{"role": "user", "content": _ask_context(model, body.prompt) + auto_blk + "\n\n" + history_blk + "Question: " + body.prompt}],
+            messages=[{"role": "user", "content": _ask_context(model, body.prompt) + auto_blk + ktx_blk + "\n\n" + history_blk + "Question: " + body.prompt}],
         )
         raw = resp.content[0].text if resp.content else ""
     except Exception as e:
@@ -2563,21 +2683,33 @@ async def ask(body: AskRequest):
         qdict["order_by"] = [{"field": qdict["metrics"][0]["field"], "direction": "desc"}]
 
     # 2. Build + run (validates against the real layer)
+    sql = None
     try:
         sq = StructuredQuery.from_dict(qdict)
         sql = build_sql(sq, model)
     except (QueryBuildError, ResolverError, KeyError) as e:
-        # Surface the planner spec + qdict so callers can see what was chosen
-        # before the failure (helps diagnose planner regressions).
-        return JSONResponse(
-            status_code=422,
-            content={
-                "error": "could not build query",
-                "detail": f"{e}",
-                "planner_spec": spec,
-                "interpreted": qdict,
-            },
-        )
+        # Agentic self-correction: feed the exact error + the real field catalog
+        # back to a stronger model and retry once before giving up.
+        fixed = await _planner_retry(client, model, body.prompt, spec, str(e))
+        if fixed:
+            try:
+                spec = fixed
+                qdict, chart_type, title = _build_qdict(model, spec, body.prompt, body.dashboard_id)
+                sq = StructuredQuery.from_dict(qdict)
+                sql = build_sql(sq, model)
+            except Exception as e2:
+                e = e2
+        if sql is None:
+            return JSONResponse(
+                status_code=422,
+                content={
+                    "error": "could not build query",
+                    "detail": f"{e}",
+                    "planner_spec": spec,
+                    "interpreted": qdict,
+                    "self_corrected": bool(fixed),
+                },
+            )
     try:
         result = await asyncio.get_running_loop().run_in_executor(None, run_query, sql)
     except ExecutorConfigError as e:
@@ -3558,10 +3690,19 @@ async def _generate_brief(client, question: str, columns, rows, formats) -> Opti
     Returns None on failure rather than failing the whole /ask response."""
     try:
         rows_txt = _rows_for_prompt(columns, rows, formats)
-        msg = f"Question: {question}\n\nColumns: {', '.join(columns)}\nRows:\n{rows_txt}"
+        # Richer grounding: give the model the shape + a lightweight data-quality read
+        # so it can call out gaps (nulls, unclassified buckets) instead of glossing them.
+        rc = len(rows or [])
+        dq = _brief_data_quality(columns, rows)
+        dq_line = ("\n\nData-quality signals: " + dq) if dq else ""
+        msg = (f"Question: {question}\n\nColumns: {', '.join(columns)}\nRow count: {rc}\n"
+               f"Rows:\n{rows_txt}{dq_line}")
+        # Briefs are written AFTER the data returns, so latency is non-critical —
+        # use a stronger model for materially better synthesis. Configurable.
+        brief_model = os.getenv("JARVIS_BRIEF_MODEL", "claude-sonnet-4-6")
         resp = await client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=800,
+            model=brief_model,
+            max_tokens=1500,
             system=_BRIEF_SYSTEM,
             messages=[{"role": "user", "content": msg}],
         )
@@ -3569,4 +3710,41 @@ async def _generate_brief(client, question: str, columns, rows, formats) -> Opti
         return _extract_json(raw)
     except Exception as e:
         log.warning(f"brief generation failed: {e}")
-        return None
+        # Fall back to the fast model if the stronger one is unavailable/over quota.
+        try:
+            rows_txt = _rows_for_prompt(columns, rows, formats)
+            msg = f"Question: {question}\n\nColumns: {', '.join(columns)}\nRows:\n{rows_txt}"
+            resp = await client.messages.create(
+                model="claude-haiku-4-5-20251001", max_tokens=900,
+                system=_BRIEF_SYSTEM, messages=[{"role": "user", "content": msg}],
+            )
+            return _extract_json(resp.content[0].text if resp.content else "")
+        except Exception as e2:
+            log.warning(f"brief fallback failed: {e2}")
+            return None
+
+
+def _brief_data_quality(columns, rows) -> str:
+    """A compact data-quality read for the brief: null-heavy columns + unclassified
+    buckets in the leading dimension. Cheap, deterministic, no LLM."""
+    try:
+        if not rows:
+            return "the result set is empty."
+        notes = []
+        n = len(rows)
+        # Null share per column (flag columns >30% null).
+        for ci, col in enumerate(columns or []):
+            nulls = sum(1 for r in rows if ci < len(r) and (r[ci] is None or r[ci] == ""))
+            if n and nulls / n > 0.3:
+                notes.append(f"'{col}' is {round(100*nulls/n)}% null")
+        # 'Unclassified/Other/Brand/null' style buckets in the first column.
+        if columns:
+            junk = {"unclassified", "other", "none", "null", "n/a", "unknown", "(direct)", "brand"}
+            for r in rows[:60]:
+                v = str(r[0]).strip().lower() if r and r[0] is not None else ""
+                if any(j in v for j in junk):
+                    notes.append(f"the leading dimension contains a catch-all bucket ('{r[0]}')")
+                    break
+        return "; ".join(notes[:3]) if notes else ""
+    except Exception:
+        return ""
