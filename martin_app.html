@@ -2415,6 +2415,11 @@
   .exp-table td { padding: 7px 8px; border-bottom: 1px solid #f1f5f9; }
   .exp-dist { color: var(--muted2); font-size: 11px; }
   .exp-good { color: #16a34a; font-weight: 600; } .exp-bad { color: #dc2626; font-weight: 600; }
+  .exp-ask-tag { display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--blue); background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 20px; padding: 5px 12px; margin-bottom: 14px; }
+  .exp-ask-tag .jvi { color: var(--blue); }
+  .exp-ask-actions { margin-top: 16px; }
+  .exp-rank-best { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #166534; background: #dcfce7; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
+  .exp-rank-worst { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #9a3412; background: #ffedd5; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
   .kb-userq-bubble { background: #dbeafe; color: #1e3a8a; padding: 10px 16px; border-radius: 18px 18px 4px 18px; font-size: 13px; max-width: 75%; line-height: 1.5; }
   /* Collapsible Analysis disclosure */
   .kb-analysis { margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; overflow: hidden; }
@@ -4804,6 +4809,10 @@ async function doAsk(opts){
   // Clarifying-question loop: the planner is torn — ask the user one quick question
   // instead of guessing. Choosing an option re-asks with the answer folded in.
   if(d && d.needs_clarification && d.clarify){ renderAskClarify(d.clarify, q.trim(), res); return; }
+  // Experiment intent: a causal 'did it work?' question was auto-run as a Test &
+  // Learn experiment, or routed to the lab when cohorts/dates were missing.
+  if(d && d.mode==='experiment' && d.experiment){ expRenderAskExperiment(d.experiment, q.trim(), res); return; }
+  if(d && d.experiment_intent){ expRenderAskRoute(d, q.trim(), res); return; }
   if(!d||!d.widget){ res.innerHTML='<div class="ask-result"><span class="werr">'+esc((d&&d.error)||'No answer returned. Try rephrasing.')+'</span></div>'; return; }
   ASK_LAST=d.widget;
   ASK_RESPONSE=d;
@@ -15168,7 +15177,10 @@ document.getElementById('wbMask').addEventListener('click',e=>{if(e.target.id===
 //  controls). Backed by /api/stats/*. Beats point-and-click A/B tools by
 //  bringing APT / Mastercard Test&Learn-style causal measurement inline.
 // ═══════════════════════════════════════════════════════════════════
-const EXP = { tab: 'analyze', sigMode: 'means', powerKind: 'mean' };
+const EXP = { tab: 'analyze', sigMode: 'means', powerKind: 'mean', mode: 'paste', dataTables: null, dataFields: null, dataTable: null };
+async function expLoadTables(){ if(EXP.dataTables) return EXP.dataTables; try{ const d=await api('/api/semantic/tables'); EXP.dataTables=(d.tables||[]); }catch(e){ EXP.dataTables=[]; } return EXP.dataTables; }
+async function expLoadFields(tableKey){ try{ const d=await api('/api/semantic/tables/'+encodeURIComponent(tableKey)); EXP.dataFields=d; EXP.dataTable=tableKey; return d; }catch(e){ return null; } }
+function _expOpts(items, cur, valKey, lblKey){ return (items||[]).map(x=>{ const v=x[valKey||'key'], l=x[lblKey||'display_name']||x[valKey||'key']; return '<option value="'+esc(v)+'"'+(cur===v?' selected':'')+'>'+esc(l)+'</option>'; }).join(''); }
 function _expNums(s){ return String(s||'').split(/[,\s]+/).map(x=>x.trim()).filter(x=>x!=='').map(Number).filter(x=>!isNaN(x)); }
 async function _expPost(path, body){
   return api('/api/stats/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -15192,7 +15204,7 @@ function _ci(ci){ return (!ci||ci.length!==2)?'—':'['+_num(ci[0])+', '+_num(ci
 async function showExperiments(){
   setNav('experiments');
   const app=document.getElementById('app');
-  const tabs=[['analyze','Analyze experiment','beaker'],['significance','Significance test','target'],['power','Sample size & power','activity'],['matched','Matched control','users']];
+  const tabs=[['analyze','Analyze experiment','beaker'],['segment','Segment scan','target'],['significance','Significance test','check'],['power','Sample size & power','activity'],['matched','Matched control','users']];
   app.innerHTML =
     '<div class="stage-wrap exp-shell">'+
       '<div class="stage-head"><div><h1>Test &amp; Learn</h1>'+
@@ -15203,20 +15215,101 @@ async function showExperiments(){
   document.querySelectorAll('[data-exptab]').forEach(b=>b.addEventListener('click',()=>{ EXP.tab=b.getAttribute('data-exptab'); showExperiments(); }));
   expRenderTab();
 }
+// Render an auto-run experiment result inside the Ask surface (from AI detection).
+function expRenderAskExperiment(r, q, res){
+  const roi=r.roi;
+  const metrics='<div class="exp-metric-row">'+
+    '<div class="exp-metric"><div class="em-label">Incremental effect</div><div class="em-val">'+_num(r.did_estimate)+'</div><div class="em-sub">per unit vs. control</div></div>'+
+    '<div class="exp-metric"><div class="em-label">Incremental lift</div><div class="em-val">'+_pct(r.incremental_lift_pct)+'</div><div class="em-sub">vs. counterfactual</div></div>'+
+    '<div class="exp-metric"><div class="em-label">'+(r.confidence_level_pct||95)+'% CI</div><div class="em-val" style="font-size:15px;">'+_ci(r.confidence_interval)+'</div><div class="em-sub">of the effect</div></div>'+
+    (roi?'<div class="exp-metric"><div class="em-label">ROI</div><div class="em-val">'+(roi.roi_multiple!=null?roi.roi_multiple+'×':'—')+'</div><div class="em-sub">net '+_num(roi.net,0)+'</div></div>':'')+
+  '</div>';
+  res.innerHTML='<div class="ask-result kbrief">'+
+    '<div class="kb-userq"><div class="kb-userq-bubble">'+esc(q)+'</div></div>'+
+    '<div class="exp-ask-tag">'+jvIcon('beaker')+' Answered as a Test &amp; Learn experiment'+(r.permutation?' · permutation-checked':'')+'</div>'+
+    _expVerdictCard(r.verdict)+ metrics+
+    (r.recommendation?'<div class="exp-rec">'+jvIcon('star')+' <span>'+esc(r.recommendation)+'</span></div>':'')+
+    '<div class="exp-ask-actions"><button class="btn" id="expAskOpen">'+jvIcon('beaker')+' Open in Test &amp; Learn lab</button></div>'+
+  '</div>';
+  const b=document.getElementById('expAskOpen'); if(b) b.addEventListener('click', ()=>{ EXP.tab='analyze'; showExperiments(); });
+}
+// Render the 'this is an experiment question' routing card when auto-run wasn't possible.
+function expRenderAskRoute(d, q, res){
+  res.innerHTML='<div class="ask-result kbrief">'+
+    '<div class="kb-userq"><div class="kb-userq-bubble">'+esc(q)+'</div></div>'+
+    '<div class="exp-verdict exp-v-info">'+
+      '<div class="exp-v-head">'+jvIcon('beaker')+' This is a causal question</div>'+
+      '<div class="exp-v-detail">'+esc(d.message||'Best answered with a test-vs-control experiment.')+'</div>'+
+    '</div>'+
+    '<div class="exp-ask-actions"><button class="btn primary" id="expAskOpen">'+jvIcon('beaker')+' Open Test &amp; Learn lab</button></div>'+
+  '</div>';
+  const b=document.getElementById('expAskOpen'); if(b) b.addEventListener('click', ()=>{ EXP.tab='analyze'; showExperiments(); });
+}
 function expRenderTab(){
   const host=document.getElementById('expBody'); if(!host) return;
   if(EXP.tab==='analyze')        host.innerHTML=expAnalyzeForm();
+  else if(EXP.tab==='segment')   host.innerHTML=expSegmentForm();
   else if(EXP.tab==='significance') host.innerHTML=expSigForm();
   else if(EXP.tab==='power')     host.innerHTML=expPowerForm();
   else if(EXP.tab==='matched')   host.innerHTML=expMatchForm();
   expWire();
+  if((EXP.tab==='analyze'&&EXP.mode==='data')||EXP.tab==='segment') expPopulateDataSelects();
 }
 
-// ---- Analyze experiment (DiD + significance + lift + ROI) ----
-function expAnalyzeForm(){
+// Mode toggle: paste numbers vs pull from the semantic layer / BigQuery.
+function _expModeSeg(){
+  return '<div class="exp-seg" style="margin-bottom:16px;">'+
+    '<button class="exp-seg-b'+(EXP.mode==='paste'?' active':'')+'" data-expmode="paste">Paste numbers</button>'+
+    '<button class="exp-seg-b'+(EXP.mode==='data'?' active':'')+'" data-expmode="data">From my data</button>'+
+  '</div>';
+}
+// Shared data-source picker fields (table, metric, unit, date, cohorts, windows).
+function _expDataFields(prefix, opts){
+  opts = opts||{};
+  return '<div class="exp-field sm"><label>Dataset</label><select id="'+prefix+'Table"></select></div>'+
+    '<div class="exp-row">'+
+      '<div class="exp-field sm"><label>Metric</label><select id="'+prefix+'Metric"></select></div>'+
+      '<div class="exp-field sm"><label>Unit (store/region/…)</label><select id="'+prefix+'Unit"></select></div>'+
+    '</div>'+
+    '<div class="exp-field sm"><label>Date field</label><select id="'+prefix+'Date"></select></div>'+
+    '<div class="exp-field sm"><label>Cohort field (test vs control)</label><select id="'+prefix+'Group"></select></div>'+
+    '<div class="exp-row">'+
+      '<div class="exp-field sm"><label>Test value(s)</label><input id="'+prefix+'TestVals" placeholder="e.g. Pediatrics"></div>'+
+      '<div class="exp-field sm"><label>Control value(s)</label><input id="'+prefix+'CtrlVals" placeholder="e.g. Cardiology, Oncology"></div>'+
+    '</div>'+
+    (opts.segment?'<div class="exp-field sm"><label>Scan by segment</label><select id="'+prefix+'Segment"></select></div>':'')+
+    '<div class="exp-row">'+
+      '<div class="exp-field sm"><label>Pre start</label><input type="date" id="'+prefix+'PreS"></div>'+
+      '<div class="exp-field sm"><label>Pre end</label><input type="date" id="'+prefix+'PreE"></div>'+
+    '</div>'+
+    '<div class="exp-row">'+
+      '<div class="exp-field sm"><label>Post start</label><input type="date" id="'+prefix+'PostS"></div>'+
+      '<div class="exp-field sm"><label>Post end</label><input type="date" id="'+prefix+'PostE"></div>'+
+    '</div>'+
+    '<div class="exp-field sm"><label>Metric label</label><input id="'+prefix+'Name" placeholder="e.g. weekly revenue"></div>';
+}
+function expDataForm(){
   return '<div class="exp-grid">'+
     '<div class="exp-card">'+
-      '<div class="exp-card-title">Experiment inputs</div>'+
+      '<div class="exp-card-title">Experiment inputs</div>'+_expModeSeg()+
+      '<div class="exp-hint">Pick a metric and the cohort field that splits test vs control, then the before/after windows. The engine pulls per-unit data from BigQuery and measures incrementality.</div>'+
+      _expDataFields('ad')+
+      '<div class="exp-field sm"><label>Confidence</label><select id="adAlpha"><option value="0.05">95%</option><option value="0.10">90%</option><option value="0.01">99%</option></select></div>'+
+      '<div class="exp-row">'+
+        '<div class="exp-field sm"><label>Program cost ($, optional)</label><input id="adCost" placeholder="e.g. 1000"></div>'+
+        '<div class="exp-field sm"><label>$ value per unit (optional)</label><input id="adVal" placeholder="e.g. 50"></div>'+
+      '</div>'+
+      '<button class="btn primary" id="expRunData">'+jvIcon('play')+' Run on my data</button>'+
+    '</div>'+
+    '<div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('beaker')+'<div>Pick your metric &amp; cohorts, then run the experiment on live data.</div></div></div>'+
+  '</div>';
+}
+// ---- Analyze experiment (DiD + significance + lift + ROI) ----
+function expAnalyzeForm(){
+  if(EXP.mode==='data') return expDataForm();
+  return '<div class="exp-grid">'+
+    '<div class="exp-card">'+
+      '<div class="exp-card-title">Experiment inputs</div>'+_expModeSeg()+
       '<div class="exp-hint">Paste one number per unit (store, region, customer). Pre = baseline period, Post = after the initiative.</div>'+
       '<div class="exp-field"><label>Test group — pre</label><textarea id="expTP" placeholder="e.g. 10, 11, 9, 10, 10"></textarea></div>'+
       '<div class="exp-field"><label>Test group — post</label><textarea id="expTQ" placeholder="e.g. 14, 15, 13, 14, 14"></textarea></div>'+
@@ -15309,7 +15402,54 @@ function expMatchForm(){
   '</div>';
 }
 
+// ---- Segment scan (heterogeneous effects → targeted rollout) ----
+function expSegmentForm(){
+  return '<div class="exp-grid">'+
+    '<div class="exp-card">'+
+      '<div class="exp-card-title">Segment scan</div>'+
+      '<div class="exp-hint">Run the experiment within each value of a segment (region, service line…) to find where the program worked best — the targeting engine for rollout.</div>'+
+      _expDataFields('sc', {segment:true})+
+      '<div class="exp-field sm"><label>Confidence</label><select id="scAlpha"><option value="0.05">95%</option><option value="0.10">90%</option><option value="0.01">99%</option></select></div>'+
+      '<button class="btn primary" id="expRunSegment">'+jvIcon('play')+' Scan segments</button>'+
+    '</div>'+
+    '<div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('target')+'<div>Discover which segments drive the strongest incremental lift.</div></div></div>'+
+  '</div>';
+}
+// Populate the data-source selects (table → metric/unit/date/group/segment).
+async function expPopulateDataSelects(){
+  const prefix = EXP.tab==='segment' ? 'sc' : 'ad';
+  const tSel=document.getElementById(prefix+'Table'); if(!tSel) return;
+  const tables=await expLoadTables();
+  tSel.innerHTML='<option value="">Choose a dataset…</option>'+_expOpts(tables,'','key','display_name');
+  const fillFields=async(tk)=>{
+    if(!tk){ return; }
+    const f=await expLoadFields(tk); if(!f) return;
+    const dims=f.dimensions||[], mets=(f.metrics||[]).concat(f.calculated_metrics||[]), dates=f.dates||[];
+    const set=(id,items,ph)=>{ const el=document.getElementById(prefix+id); if(el) el.innerHTML=(ph?'<option value="">'+ph+'</option>':'')+_expOpts(items,''); };
+    set('Metric',mets); set('Unit',dims); set('Date',dates); set('Group',dims);
+    if(prefix==='sc') set('Segment',dims);
+  };
+  tSel.addEventListener('change',()=>fillFields(tSel.value));
+  if(tSel.value) fillFields(tSel.value);
+}
+function _expDataBody(prefix){
+  const g=id=>document.getElementById(prefix+id);
+  const splitVals=s=>String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
+  return {
+    primary_table: g('Table').value, metric_field: g('Metric').value, unit_field: g('Unit').value,
+    date_field: g('Date').value, group_field: g('Group').value,
+    test_values: splitVals(g('TestVals').value), control_values: splitVals(g('CtrlVals').value),
+    pre_start: g('PreS').value, pre_end: g('PreE').value, post_start: g('PostS').value, post_end: g('PostE').value,
+    metric_name: (g('Name')&&g('Name').value)||g('Metric').value,
+  };
+}
+function _expDataValid(b){
+  return b.primary_table && b.metric_field && b.unit_field && b.date_field && b.group_field &&
+    b.test_values.length && b.control_values.length && b.pre_start && b.pre_end && b.post_start && b.post_end;
+}
+
 function expWire(){
+  document.querySelectorAll('[data-expmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.mode=b.getAttribute('data-expmode'); expRenderTab(); }));
   document.querySelectorAll('[data-sigmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.sigMode=b.getAttribute('data-sigmode'); expRenderTab(); }));
   document.querySelectorAll('[data-pkind]').forEach(b=>b.addEventListener('click',()=>{ EXP.powerKind=b.getAttribute('data-pkind'); expRenderTab(); }));
   const g=(id)=>document.getElementById(id);
@@ -15357,6 +15497,38 @@ function expWire(){
     if(!body.test_units.length||!body.candidate_controls.length){ toast('Add test units and candidate controls',true); return; }
     busy(); try{ const r=await _expPost('match', body); expRenderMatch(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
   }); }
+
+  { const b=g('expRunData'); if(b) b.addEventListener('click', async ()=>{
+    const body=_expDataBody('ad');
+    if(!_expDataValid(body)){ toast('Fill in dataset, metric, unit, date, cohort field, test/control values and all four dates',true); return; }
+    body.alpha=parseFloat(g('adAlpha').value); body.robust=true;
+    const cost=parseFloat(g('adCost').value), val=parseFloat(g('adVal').value);
+    if(!isNaN(cost)) body.cost=cost; if(!isNaN(val)) body.value_per_unit=val;
+    busy(); try{ const r=await _expPost('experiment_from_data', body); expRenderAnalyze(r, body); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+
+  { const b=g('expRunSegment'); if(b) b.addEventListener('click', async ()=>{
+    const body=_expDataBody('sc');
+    body.segment_field=(g('scSegment')&&g('scSegment').value)||'';
+    if(!_expDataValid(body)||!body.segment_field){ toast('Fill in all fields including the segment to scan',true); return; }
+    body.alpha=parseFloat(g('scAlpha').value); body.robust=false; body.max_segments=12;
+    busy(); try{ const r=await _expPost('segment_scan', body); expRenderSegment(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+}
+
+function expRenderSegment(r){
+  const out=document.getElementById('expOut'); if(!out) return;
+  if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
+  const rows=(r.results||[]).map((s,i)=>{
+    const sigCls = s.significant===true ? 'exp-good' : (s.significant===false?'':'');
+    const rank = i===0 ? '<span class="exp-rank-best">Best</span>' : (i===(r.results.length-1)&&r.results.length>1?'<span class="exp-rank-worst">Weakest</span>':'');
+    return '<tr><td><b>'+esc(s.segment)+'</b> '+rank+'</td><td>'+_num(s.did_estimate)+'</td><td>'+_pct(s.incremental_lift_pct)+'</td><td class="'+sigCls+'">'+esc(s.p_display||'n/a')+'</td><td>'+_num(s.n_test_units,0)+'</td></tr>';
+  }).join('');
+  out.innerHTML =
+    '<div class="exp-verdict exp-v-info"><div class="exp-v-head">'+jvIcon('target')+' Segment scan</div><div class="exp-v-detail">'+esc(r.summary||'')+'</div></div>'+
+    (r.winners&&r.winners.length?'<div class="exp-rec">'+jvIcon('star')+' <span>Prioritize for rollout: <b>'+r.winners.map(esc).join(', ')+'</b></span></div>':'')+
+    '<div class="exp-subtitle">By segment (ranked by incremental effect)</div>'+
+    '<table class="exp-table"><thead><tr><th>Segment</th><th>Incremental</th><th>Lift</th><th>p-value</th><th>n test</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
 function expRenderAnalyze(r, body){

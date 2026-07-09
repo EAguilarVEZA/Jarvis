@@ -2652,6 +2652,111 @@ async def _ktx_hint(prompt: str) -> str:
         return ""
 
 
+_EXPERIMENT_HINTS = (
+    "did the", "did our", "did my", "impact of", "effect of", "incremental",
+    "lift from", "vs control", "versus control", "control group", "test and learn",
+    "test vs", "causal", "before and after", "before vs after", "did the promo",
+    "did the campaign", "roll out", "rollout worth", "was it worth", "attributable to",
+    "move the needle", "drive more", "caused by", "because of the",
+)
+
+
+def _looks_like_experiment(prompt: str) -> bool:
+    """Cheap intent detector for causal / test-vs-control questions."""
+    p = (prompt or "").lower()
+    if any(h in p for h in _EXPERIMENT_HINTS):
+        return True
+    # "did X increase/change Y" pattern
+    if p.startswith("did ") and any(w in p for w in ("increase", "change", "improve", "boost", "raise", "grow", "work")):
+        return True
+    return False
+
+
+_EXPERIMENT_PLANNER_SYSTEM = (
+    "You extract a controlled experiment (test vs control) specification from a business question, "
+    "using ONLY the provided data model field keys. Respond with ONLY JSON.\n"
+    "If the question is NOT about measuring the causal impact of an intervention via a test-vs-control "
+    "comparison, return {\"is_experiment\": false}.\n"
+    "Otherwise return: {\"is_experiment\": true, \"primary_table\": str, \"metric_field\": str, "
+    "\"unit_field\": str, \"date_field\": str, \"pre_start\": \"YYYY-MM-DD\", \"pre_end\": \"YYYY-MM-DD\", "
+    "\"post_start\": \"YYYY-MM-DD\", \"post_end\": \"YYYY-MM-DD\", \"group_field\": str|null, "
+    "\"test_values\": [..]|null, \"control_values\": [..]|null, \"metric_name\": str, "
+    "\"missing\": [..]}.\n"
+    "unit_field = the dimension identifying an experimental unit (store, region, customer, campaign). "
+    "group_field + test_values/control_values define which units are test vs control. "
+    "Put any pieces you cannot determine into \"missing\" (e.g. 'control group', 'pre/post dates'). "
+    "Assume today is the current real date when resolving relative windows."
+)
+
+
+def _experiment_spec_complete(spec: dict) -> bool:
+    req = ("primary_table", "metric_field", "unit_field", "date_field",
+           "pre_start", "pre_end", "post_start", "post_end")
+    if not all(spec.get(k) for k in req):
+        return False
+    return bool(spec.get("group_field") and spec.get("test_values") and spec.get("control_values"))
+
+
+async def _try_experiment(model, prompt, key):
+    """Detect + plan + auto-run a Test & Learn experiment. Returns a response dict
+    to short-circuit /ask, or None to fall back to the normal query planner.
+    Best-effort and fully defensive — any failure returns None."""
+    if os.getenv("JARVIS_EXPERIMENT_DETECT", "1") == "0":
+        return None
+    try:
+        import anthropic
+        client = anthropic.AsyncAnthropic(api_key=key)
+        plan_model = os.getenv("JARVIS_EXPERIMENT_MODEL", "claude-sonnet-4-6")
+        resp = await client.messages.create(
+            model=plan_model, max_tokens=700, system=_EXPERIMENT_PLANNER_SYSTEM,
+            messages=[{"role": "user", "content": _ask_context(model, prompt) + "\n\nQuestion: " + prompt}],
+        )
+        spec = _extract_json(resp.content[0].text if resp.content else "") or {}
+    except Exception as e:
+        log.warning(f"experiment planner failed: {e}")
+        return None
+    if not spec.get("is_experiment"):
+        return None
+
+    # Not enough to auto-run → route the user into the Test & Learn lab with hints.
+    if not _experiment_spec_complete(spec):
+        missing = spec.get("missing") or []
+        if not missing:
+            for k, lbl in (("group_field", "test vs control groups"), ("metric_field", "the metric"),
+                           ("pre_start", "before/after date windows")):
+                if not spec.get(k):
+                    missing.append(lbl)
+        return {
+            "ok": True, "experiment_intent": True, "route": "experiments",
+            "spec": spec, "missing": missing,
+            "message": ("This looks like a causal 'did it work?' question — best answered with a "
+                        "test-vs-control experiment. Open the Test & Learn lab and I'll pre-fill "
+                        "what I could infer; you supply: " + (", ".join(missing) if missing else "the cohorts and dates") + "."),
+        }
+
+    # Auto-run against the semantic layer.
+    try:
+        import experiments_api as _exp
+        req = _exp.ExperimentFromDataRequest(
+            primary_table=spec["primary_table"], metric_field=spec["metric_field"],
+            unit_field=spec["unit_field"], date_field=spec["date_field"],
+            pre_start=spec["pre_start"], pre_end=spec["pre_end"],
+            post_start=spec["post_start"], post_end=spec["post_end"],
+            group_field=spec.get("group_field"), test_values=spec.get("test_values"),
+            control_values=spec.get("control_values"),
+            metric_name=spec.get("metric_name") or spec["metric_field"], robust=True,
+        )
+        readout = await _exp._run_experiment_from_data(req)
+        if readout.get("error"):
+            return {"ok": True, "experiment_intent": True, "route": "experiments",
+                    "spec": spec, "message": "I planned the experiment but couldn't run it: "
+                    + readout["error"] + " Open the Test & Learn lab to adjust cohorts/dates."}
+        return {"ok": True, "mode": "experiment", "experiment": readout, "spec": spec}
+    except Exception as e:
+        log.warning(f"experiment auto-run failed: {e}")
+        return None
+
+
 @router.post("/ask")
 async def ask(body: AskRequest):
     import time as _t
@@ -2665,6 +2770,13 @@ async def ask(body: AskRequest):
         model = load_model()
     except SemanticLoadError as e:
         return _err(400, "semantic.yaml failed to load", str(e))
+
+    # 0. Experiment detection: causal 'did it work?' questions are answered with a
+    # test-vs-control experiment (Test & Learn), not a plain aggregate query.
+    if not body.no_clarify and not body.dashboard_id and _looks_like_experiment(body.prompt):
+        _exp_resp = await _try_experiment(model, body.prompt, key)
+        if _exp_resp is not None:
+            return _exp_resp
 
     # 1. Ask Claude for a structured query — include prior conversation if any
     # Splice in Knowledge rules: "always"-mode rules into system, top "auto"
