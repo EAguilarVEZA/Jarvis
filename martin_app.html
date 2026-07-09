@@ -3295,7 +3295,7 @@
       <!-- Config + shelves -->
       <div style="overflow-y:auto;">
         <div class="wb-ai"><input type="text" id="wbAiPrompt" placeholder="Describe this widget in words…">
-          <button class="ask-mic" id="wbAiMic" title="Speak">🎤</button><button class="ask-go" id="wbAiGo">AI build</button></div>
+          <button class="ask-mic" id="wbAiMic" title="Speak"><span data-ic="mic"></span></button><button class="ask-go" id="wbAiGo">AI build</button></div>
         <div class="field"><label>Title</label><input type="text" id="wbTitleInput" placeholder="e.g. Spend by Service Line"></div>
         <div class="field"><label>Chart type</label>
           <div class="chart-types" id="wbTypes">
@@ -3638,6 +3638,10 @@ const _JV_ICONS = {
   bolt:'<polygon points="13 2 4 14 11 14 10 22 20 9 13 9"/>',
   activity:'<path d="M3 12h4l3 8 4-16 3 8h4"/>',
   funnel:'<path d="M3 5h18l-7 8v6l-4-2v-4z"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17v4M9 21h6"/>',
+  thumbUp:'<path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z"/><path d="M7 11l4-8a2 2 0 0 1 2 2v4h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7z"/>',
+  thumbDown:'<path d="M17 13V4h3a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1z"/><path d="M17 13l-4 8a2 2 0 0 1-2-2v-4H6a2 2 0 0 1-2-2.3l1.2-6A2 2 0 0 1 7.2 4H17z"/>',
+  pin:'<path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/><path d="M12 14v7"/>',
 };
 function jvIcon(name, cls){ const p=_JV_ICONS[name]; if(!p) return ''; return '<svg class="jvi'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'; }
 // Fill any [data-ic] placeholder span with its professional SVG icon (nav, etc.).
@@ -3962,7 +3966,7 @@ function showAsk(){
       '<div class="ask-sub">Type or speak a question — I’ll build a chart and a strategic brief from your curated data.</div>'+
       '<div class="ask-bar">'+
         '<input id="askInput" placeholder="What would you like to know?">'+
-        '<button class="ask-mic" id="askMic" title="Speak">🎤</button>'+
+        '<button class="ask-mic" id="askMic" title="Speak">'+jvIcon('mic')+'</button>'+
         '<button class="ask-go" id="askGo">Ask</button>'+
       '</div>'+
       '<div id="askRecents"></div>'+
@@ -4417,7 +4421,7 @@ function ensureBottomComposer(){
   bar.className = 'ask-bottom-bar';
   bar.innerHTML =
     '<input id="askFollowInput" placeholder="What would you like to know next?">'+
-    '<button class="ask-bottom-mic" id="askFollowMicBottom" title="Speak">🎤</button>'+
+    '<button class="ask-bottom-mic" id="askFollowMicBottom" title="Speak">'+jvIcon('mic')+'</button>'+
     '<button class="ask-bottom-go" id="askFollowGoBottom">Ask ↵</button>';
   wrap.appendChild(bar);
   const inp = document.getElementById('askFollowInput');
@@ -4486,8 +4490,8 @@ function renderResearch(d, question, opts){
           '<div class="kbr-section-chart-head">'+
             '<div class="kbr-chart-title">'+esc((sec.widget && sec.widget.title) || sec.heading || '')+'</div>'+
             '<div class="kbr-chart-acts">'+
-              '<button class="kbr-chart-act" data-kbr-act="copy" data-kbr-sid="'+sid+'" title="Copy data">📋</button>'+
-              '<button class="kbr-chart-act" data-kbr-act="download" data-kbr-sid="'+sid+'" title="Download CSV">⬇</button>'+
+              '<button class="kbr-chart-act" data-kbr-act="copy" data-kbr-sid="'+sid+'" title="Copy data">'+jvIcon('copy')+'</button>'+
+              '<button class="kbr-chart-act" data-kbr-act="download" data-kbr-sid="'+sid+'" title="Download CSV">'+jvIcon('download')+'</button>'+
             '</div>'+
           '</div>'+
           '<div class="kbr-section-body" id="'+sid+'_chart"></div>'+
@@ -4527,13 +4531,13 @@ function renderResearch(d, question, opts){
     '<div class="kb-titlebar">'+
       '<div class="kb-title">'+esc(chatTitle)+'</div>'+
       '<div class="kb-actions">'+
-        '<button class="kb-share" id="kbShare" title="Share">📤 Share</button>'+
+        '<button class="kb-share" id="kbShare" title="Share">'+jvIcon('share')+' Share</button>'+
         '<button class="kb-menu" id="kbMenu" title="More">⋮</button>'+
       '</div>'+
     '</div>'+
     '<div class="kb-userq"><div class="kb-userq-bubble">'+esc(question)+'</div></div>'+
     '<details class="kb-analysis">'+
-      '<summary><span class="kb-an-icon">⚡</span> Analysis <span class="kb-an-detail">'+tools+' tool'+(tools===1?'':'s')+', '+thinking+' thinking step'+(thinking===1?'':'s')+'</span> <span class="kb-an-chev">▾</span></summary>'+
+      '<summary><span class="kb-an-icon">'+jvIcon('bolt')+'</span> Analysis <span class="kb-an-detail">'+tools+' tool'+(tools===1?'':'s')+', '+thinking+' thinking step'+(thinking===1?'':'s')+'</span> <span class="kb-an-chev">▾</span></summary>'+
       '<div class="kb-an-body">'+
         '<div class="kb-an-row"><b>Question:</b> '+esc(question)+'</div>'+
         '<div class="kb-an-row"><b>Sections planned:</b><br>'+sections.map((s,i)=>(i+1)+'. '+esc(s.heading)+' — <code>'+esc(s.intent||'')+'</code>').join('<br>')+'</div>'+
@@ -4549,11 +4553,11 @@ function renderResearch(d, question, opts){
     digHTML+
     // Bottom toolbar
     '<div class="kb-bottom-toolbar">'+
-      '<button class="kb-bt-act" data-kbr-bt="save" title="Save brief">⭐ Save brief</button>'+
+      '<button class="kb-bt-act" data-kbr-bt="save" title="Save brief">'+jvIcon('star')+' Save brief</button>'+
       '<div class="kb-bt-right">'+
-        '<button class="kb-bt-icon" data-kbr-bt="copy-all" title="Copy whole brief">📋</button>'+
-        '<button class="kb-bt-icon" data-kbr-bt="thumbs-up" title="Helpful">👍</button>'+
-        '<button class="kb-bt-icon" data-kbr-bt="thumbs-down" title="Needs work">👎</button>'+
+        '<button class="kb-bt-icon" data-kbr-bt="copy-all" title="Copy whole brief">'+jvIcon('copy')+'</button>'+
+        '<button class="kb-bt-icon" data-kbr-bt="thumbs-up" title="Helpful">'+jvIcon('thumbUp')+'</button>'+
+        '<button class="kb-bt-icon" data-kbr-bt="thumbs-down" title="Needs work">'+jvIcon('thumbDown')+'</button>'+
         '<span class="kb-bt-time">⏱ '+(elapsed||0).toFixed(1)+'s · '+tools+' '+(tools===1?'query':'queries')+'</span>'+
       '</div>'+
     '</div>'+
@@ -4728,7 +4732,7 @@ async function doAsk(){
     '<div class="kb-titlebar">'+
       '<div class="kb-title">'+esc(chatTitle)+'</div>'+
       '<div class="kb-actions">'+
-        '<button class="kb-share" id="kbShare" title="Share">📤 Share</button>'+
+        '<button class="kb-share" id="kbShare" title="Share">'+jvIcon('share')+' Share</button>'+
         '<button class="kb-menu" id="kbMenu" title="More">⋮</button>'+
       '</div>'+
     '</div>'+
@@ -4736,7 +4740,7 @@ async function doAsk(){
     '<div class="kb-userq"><div class="kb-userq-bubble">'+esc(q)+'</div></div>'+
     // Collapsible Analysis disclosure
     '<details class="kb-analysis">'+
-      '<summary><span class="kb-an-icon">⚡</span> Analysis <span class="kb-an-detail">'+esc(analysisDetail)+'</span> <span class="kb-an-chev">▾</span></summary>'+
+      '<summary><span class="kb-an-icon">'+jvIcon('bolt')+'</span> Analysis <span class="kb-an-detail">'+esc(analysisDetail)+'</span> <span class="kb-an-chev">▾</span></summary>'+
       '<div class="kb-an-body">'+
         '<div class="kb-an-row"><b>Question:</b> '+esc(q)+'</div>'+
         (d.sql ? '<div class="kb-an-row"><b>SQL:</b> <code>'+esc((d.sql||'').slice(0,400))+(d.sql && d.sql.length>400?'…':'')+'</code></div>' : '')+
@@ -4753,9 +4757,9 @@ async function doAsk(){
       '<div class="kb-chart-head">'+
         '<div class="kb-chart-title">'+esc(headline)+'</div>'+
         '<div class="kb-chart-actions">'+
-          '<button class="kb-chart-act" data-kb-act="grid" title="Toggle chart / table">📊</button>'+
-          '<button class="kb-chart-act" data-kb-act="copy" title="Copy data">📋</button>'+
-          '<button class="kb-chart-act" data-kb-act="download" title="Download CSV">⬇</button>'+
+          '<button class="kb-chart-act" data-kb-act="grid" title="Toggle chart / table">'+jvIcon('chart')+'</button>'+
+          '<button class="kb-chart-act" data-kb-act="copy" title="Copy data">'+jvIcon('copy')+'</button>'+
+          '<button class="kb-chart-act" data-kb-act="download" title="Download CSV">'+jvIcon('download')+'</button>'+
         '</div>'+
       '</div>'+
       '<div class="kb-chart-body" id="askBody"></div>'+
@@ -4780,7 +4784,7 @@ async function doAsk(){
     (Array.isArray(b.next_questions) && b.next_questions.length?
       '<div class="kb-nextq-stack">'+b.next_questions.map(nq=>'<button class="kb-nextq-pill" data-kb-nextq="'+esc(nq)+'">'+esc(nq)+'</button>').join('')+'</div>'
       : '')+
-    '<details class="kb-supporting"><summary>📋 Supporting data · '+d.row_count+' row'+(d.row_count!==1?'s':'')+'</summary>'+
+    '<details class="kb-supporting"><summary>'+jvIcon('fields')+' Supporting data · '+d.row_count+' row'+(d.row_count!==1?'s':'')+'</summary>'+
       '<div id="askData" class="kb-data-table"></div>'+
     '</details>'+
     // Footer actions
@@ -4788,16 +4792,16 @@ async function doAsk(){
       '<select id="askDash" class="kb-dash-select"></select>'+
       '<button class="btn primary" id="askAdd">+ Add to dashboard</button>'+
       '<button class="btn" id="askNew">New dashboard…</button>'+
-      '<button class="btn" id="askSaveBrief">⭐ Save brief</button>'+
+      '<button class="btn" id="askSaveBrief">'+jvIcon('star')+' Save brief</button>'+
     '</div>'+
     // Bottom toolbar — time, feedback, copy (Kaelio pattern)
     '<div class="kb-bottom-toolbar">'+
-      '<button class="kb-bt-act" data-kb-bt="metric" title="Mark this metric as correct/incorrect">📌 Correct / Save metric</button>'+
+      '<button class="kb-bt-act" data-kb-bt="metric" title="Mark this metric as correct/incorrect">'+jvIcon('pin')+' Correct / Save metric</button>'+
       '<div class="kb-bt-right">'+
-        '<button class="kb-bt-icon" data-kb-bt="copy-brief" title="Copy brief text">📋</button>'+
+        '<button class="kb-bt-icon" data-kb-bt="copy-brief" title="Copy brief text">'+jvIcon('copy')+'</button>'+
         '<button class="kb-bt-icon" data-kb-bt="export-pdf" title="Export conversation as PDF">⎙</button>'+
-        '<button class="kb-bt-icon" data-kb-bt="thumbs-up" title="This was helpful">👍</button>'+
-        '<button class="kb-bt-icon" data-kb-bt="thumbs-down" title="This needs work">👎</button>'+
+        '<button class="kb-bt-icon" data-kb-bt="thumbs-up" title="This was helpful">'+jvIcon('thumbUp')+'</button>'+
+        '<button class="kb-bt-icon" data-kb-bt="thumbs-down" title="This needs work">'+jvIcon('thumbDown')+'</button>'+
         '<span class="kb-bt-time">⏱ '+(d.time_elapsed||0).toFixed(1)+'s</span>'+
       '</div>'+
     '</div>'+
@@ -4806,7 +4810,7 @@ async function doAsk(){
     // Follow-up composer (Kaelio pattern: stays at bottom)
     '<div class="kb-followup">'+
       '<input id="askFollowInput" placeholder="What would you like to know next? Drill into a service line, compare to last year, etc.">'+
-      '<button class="kb-followup-mic" id="askFollowMic" title="Speak">🎤</button>'+
+      '<button class="kb-followup-mic" id="askFollowMic" title="Speak">'+jvIcon('mic')+'</button>'+
       '<button class="kb-followup-go" id="askFollowGo">Ask ↵</button>'+
     '</div>'+
     '</div>';
@@ -4832,7 +4836,8 @@ async function doAsk(){
       const showingChart = body.style.display !== 'none';
       body.style.display = showingChart ? 'none' : '';
       tbl.style.display  = showingChart ? '' : 'none';
-      btn.textContent = showingChart ? '📈' : '📊';
+      btn.innerHTML = showingChart ? jvIcon('table') : jvIcon('chart');
+      btn.title = showingChart ? 'Show table' : 'Show chart';
     } else if(action === 'copy'){
       const rows = [(d.columns||[]).join('\t')].concat((d.rows||[]).map(r => r.join('\t'))).join('\n');
       navigator.clipboard.writeText(rows).then(()=>toast('Copied '+(d.rows||[]).length+' rows to clipboard'));
@@ -4912,7 +4917,7 @@ async function askFollowup(){
     (b.summary?'<p style="font-size:14px;color:#334155;line-height:1.65;margin:6px 0 16px;">'+esc(b.summary)+'</p>':'')+
     '<div class="kb-chart-card"><div class="kb-chart-body" id="'+turnId+'_ch"></div></div>'+
     (Array.isArray(b.key_findings) && b.key_findings.length ? '<div class="kb-section"><h2 style="font-size:15px;">Key Findings</h2><ul class="kb-findings">'+b.key_findings.map(f=>'<li>'+esc(f)+'</li>').join('')+'</ul></div>' : '')+
-    '<details class="kb-supporting"><summary>📋 Supporting data · '+d.row_count+' row'+(d.row_count!==1?'s':'')+'</summary><div id="'+turnId+'_data" class="kb-data-table"></div></details>';
+    '<details class="kb-supporting"><summary>'+jvIcon('fields')+' Supporting data · '+d.row_count+' row'+(d.row_count!==1?'s':'')+'</summary><div id="'+turnId+'_data" class="kb-data-table"></div></details>';
   drawWidget(d.widget, document.getElementById(turnId+'_ch'), {columns:d.columns,rows:d.rows});
   document.getElementById(turnId+'_data').innerHTML=wtableHTML(d.columns||[], d.rows||[], (d.widget.query.dimensions||[]).length, d.widget.metricFormats||[]);
   ASK_THREAD.push({
@@ -4943,7 +4948,7 @@ async function openShareModal(question, response){
   const isAdmin = me.role === 'admin';
   const wrap = document.createElement('div'); wrap.className='mask show';
   wrap.innerHTML = '<div class="modal" style="width:520px;">'+
-    '<div class="modal-head">📤 Share this brief</div>'+
+    '<div class="modal-head" style="display:flex;align-items:center;gap:8px;">'+jvIcon('share')+'Share this brief</div>'+
     '<div class="conn-modal-body">'+
       '<div class="field"><label>Who can see this?</label>'+
         '<div class="scope-options">'+
@@ -5017,9 +5022,9 @@ async function showConnect(){
     '<div class="stage-head"><div><h1>Connect to data</h1>'+
       '<div class="desc">All data connections in one place. <b>Native</b> = warehouses Jarvis talks to directly (BigQuery is live today). <b>Airbyte</b> = 600+ managed connectors that land data into BigQuery for you.</div></div></div>'+
     '<div class="am-tabs" style="margin-bottom:14px;">'+
-      '<button class="am-tab'+(tab==='native'?' active':'')+'" data-conntab="native">🔷 Native warehouses</button>'+
-      '<button class="am-tab'+(tab==='airbyte'?' active':'')+'" data-conntab="airbyte">🔌 Airbyte catalog</button>'+
-      '<button class="am-tab'+(tab==='bi'?' active':'')+'" data-conntab="bi">📊 BI tools import</button>'+
+      '<button class="am-tab'+(tab==='native'?' active':'')+'" data-conntab="native">'+jvIcon('layers')+' Native warehouses</button>'+
+      '<button class="am-tab'+(tab==='airbyte'?' active':'')+'" data-conntab="airbyte">'+jvIcon('plug')+' Airbyte catalog</button>'+
+      '<button class="am-tab'+(tab==='bi'?' active':'')+'" data-conntab="bi">'+jvIcon('chart')+' BI tools import</button>'+
     '</div>'+
     '<div id="connectPanel"></div>'+
     '</div>';
@@ -5110,9 +5115,9 @@ async function renderConnectAirbyte(){
   // mounting them inside the Connect panel. DS state is preserved on the global.
   panel.innerHTML =
     '<div class="am-tabs" style="margin-bottom:14px;">'+
-      '<button class="am-tab'+(DS.tab==='create'?' active':'')+'" data-dstab="create">➕ Create source</button>'+
-      '<button class="am-tab'+(DS.tab==='active'?' active':'')+'" data-dstab="active">🔌 Active sources</button>'+
-      '<button class="am-tab'+(DS.tab==='config'?' active':'')+'" data-dstab="config">⚙ Airbyte config</button>'+
+      '<button class="am-tab'+(DS.tab==='create'?' active':'')+'" data-dstab="create">'+jvIcon('plus')+' Create source</button>'+
+      '<button class="am-tab'+(DS.tab==='active'?' active':'')+'" data-dstab="active">'+jvIcon('plug')+' Active sources</button>'+
+      '<button class="am-tab'+(DS.tab==='config'?' active':'')+'" data-dstab="config">'+jvIcon('gear')+' Airbyte config</button>'+
     '</div>'+
     '<div id="dsPanel">Loading…</div>';
   panel.querySelectorAll('[data-dstab]').forEach(b=>b.addEventListener('click',()=>{
