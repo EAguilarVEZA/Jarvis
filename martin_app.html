@@ -294,6 +294,13 @@
   .qp-toolbar .qp-btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
   .qp-toolbar .qp-btn.primary:hover { background: #0369a1; }
   .qp-toolbar .qp-btn.primary:disabled { background: var(--muted2); cursor: not-allowed; }
+  /* "Show me" visual chart picker */
+  .qp-showme-strip { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; flex: 1; }
+  .qp-showme { width: 38px; height: 30px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; position: relative; transition: border-color .12s ease, background .12s ease, color .12s ease; }
+  .qp-showme:hover { border-color: var(--blue); color: var(--blue); background: #f0f8fc; }
+  .qp-showme.active { border-color: var(--blue); background: var(--blue); color: #fff; }
+  .qp-showme.rec::after { content: ''; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: #22c55e; }
+  .qp-showme.active.rec::after { background: #bbf7d0; }
   .qp-toolbar .qp-status { margin-left: auto; font-size: 11px; color: var(--muted); }
   .qp-limit-wrap { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
   .qp-limit-wrap input { width: 64px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; font-size: 12px; text-align: right; }
@@ -10732,15 +10739,13 @@ function qpRenderResult(){
     if(!QP.chartType) QP.chartType = hasDim ? 'bar' : 'kpi';
     const types = ['bar','line','area','pie','donut','combo','dualaxis','scatter','treemap','heatmap','map','waterfall','boxplot','table','kpi'];
     host.innerHTML =
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'+
-        '<label style="font-size:11px;color:var(--muted);font-weight:600;">Chart type</label>'+
-        '<select id="qpChartType" style="padding:5px 9px;border:1px solid var(--line);border-radius:6px;font-size:12px;">'+
-          types.map(t => '<option value="'+t+'"'+(QP.chartType===t?' selected':'')+'>'+t+'</option>').join('')+
-        '</select>'+
-        '<button class="qp-btn" id="qpChartPng" style="padding:5px 9px;" title="Download chart as PNG">⬇ PNG</button>'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
+        '<span style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">Show me</span>'+
+        '<div class="qp-showme-strip">'+_qpShowMe(types)+'</div>'+
+        '<button class="qp-btn" id="qpChartPng" style="padding:4px 9px;flex-shrink:0;display:inline-flex;align-items:center;" title="Download chart as PNG">'+jvIcon('download')+'PNG</button>'+
       '</div>'+
-      '<div id="qpChartHost" style="width:100%;height:480px;"></div>';
-    document.getElementById('qpChartType').addEventListener('change', e => { QP.chartType = e.target.value; qpRenderResult(); });
+      '<div id="qpChartHost" style="width:100%;height:460px;"></div>';
+    document.querySelectorAll('#qpResult [data-qpchart]').forEach(b => b.addEventListener('click', () => { QP.chartType = b.getAttribute('data-qpchart'); qpRenderResult(); }));
     { const pb=document.getElementById('qpChartPng'); if(pb) pb.addEventListener('click', qpExportChartPNG); }
     // Carry the table's per-column formatting into the chart (axis + tooltips).
     const _dimsLen = QP.dimensions.length;
@@ -10767,6 +10772,47 @@ function qpRenderResult(){
   qpTableRender(r, dimsLen);
 }
 
+// ── "Show Me" visual chart picker (Tableau-style) ────────────────────────────
+const _QP_CHART_GLYPHS = {
+  bar:'<rect x="3" y="9" width="4" height="6" fill="currentColor"/><rect x="11" y="4" width="4" height="11" fill="currentColor"/><rect x="19" y="11" width="4" height="4" fill="currentColor"/>',
+  line:'<polyline points="3 13 9 7 14 10 23 3" fill="none" stroke="currentColor" stroke-width="1.7"/>',
+  area:'<path d="M3 13 9 7 14 10 23 3 23 15 3 15 Z" fill="currentColor" fill-opacity=".45" stroke="currentColor" stroke-width="1.2"/>',
+  pie:'<circle cx="13" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M13 9 L13 2 A7 7 0 0 1 20 9 Z" fill="currentColor"/>',
+  donut:'<circle cx="13" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="18 38"/>',
+  combo:'<rect x="4" y="9" width="3" height="6" fill="currentColor"/><rect x="11" y="6" width="3" height="9" fill="currentColor"/><rect x="18" y="10" width="3" height="5" fill="currentColor"/><polyline points="5 7 12 9 20 4" fill="none" stroke="currentColor" stroke-width="1.4"/>',
+  dualaxis:'<rect x="4" y="9" width="3" height="6" fill="currentColor"/><rect x="11" y="6" width="3" height="9" fill="currentColor"/><rect x="18" y="10" width="3" height="5" fill="currentColor"/><polyline points="5 5 12 9 20 6" fill="none" stroke="currentColor" stroke-width="1.4"/>',
+  scatter:'<circle cx="6" cy="12" r="1.7" fill="currentColor"/><circle cx="11" cy="6" r="1.7" fill="currentColor"/><circle cx="16" cy="10" r="1.7" fill="currentColor"/><circle cx="21" cy="5" r="1.7" fill="currentColor"/>',
+  treemap:'<rect x="3" y="3" width="11" height="12" fill="currentColor" fill-opacity=".5"/><rect x="15" y="3" width="8" height="6" fill="currentColor" fill-opacity=".8"/><rect x="15" y="10" width="8" height="5" fill="currentColor" fill-opacity=".3"/>',
+  heatmap:'<rect x="3" y="4" width="5" height="5" fill="currentColor" fill-opacity=".3"/><rect x="10" y="4" width="5" height="5" fill="currentColor" fill-opacity=".7"/><rect x="17" y="4" width="5" height="5" fill="currentColor" fill-opacity=".45"/><rect x="3" y="10" width="5" height="5" fill="currentColor" fill-opacity=".8"/><rect x="10" y="10" width="5" height="5" fill="currentColor" fill-opacity=".25"/><rect x="17" y="10" width="5" height="5" fill="currentColor" fill-opacity=".6"/>',
+  map:'<path d="M13 2a5 5 0 0 1 5 5c0 4-5 9-5 9s-5-5-5-9a5 5 0 0 1 5-5z" fill="currentColor"/><circle cx="13" cy="7" r="1.8" fill="#fff"/>',
+  waterfall:'<rect x="3" y="10" width="3" height="4" fill="currentColor"/><rect x="9" y="7" width="3" height="4" fill="currentColor"/><rect x="15" y="4" width="3" height="4" fill="currentColor"/><rect x="21" y="6" width="3" height="4" fill="currentColor"/>',
+  boxplot:'<line x1="13" y1="3" x2="13" y2="15" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="6" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="8" y1="9" x2="18" y2="9" stroke="currentColor" stroke-width="1.2"/>',
+  table:'<rect x="3" y="3" width="20" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="7" x2="23" y2="7" stroke="currentColor"/><line x1="10" y1="3" x2="10" y2="15" stroke="currentColor"/>',
+  kpi:'<text x="13" y="13" text-anchor="middle" font-size="11" font-weight="800" fill="currentColor">12</text>',
+};
+const _QP_CHART_LABEL = { bar:'Bar', line:'Line', area:'Area', pie:'Pie', donut:'Donut', combo:'Bar + line', dualaxis:'Dual axis', scatter:'Scatter', treemap:'Treemap', heatmap:'Heatmap', map:'Map', waterfall:'Waterfall', boxplot:'Box plot', table:'Table', kpi:'KPI number' };
+function _qpChartGlyph(t){ const g = _QP_CHART_GLYPHS[t] || _QP_CHART_GLYPHS.bar; return '<svg viewBox="0 0 26 18" width="26" height="17" aria-hidden="true">'+g+'</svg>'; }
+function _qpRecommendedCharts(){
+  const dims = QP.dimensions.length, mets = QP.metrics.length;
+  const hasDate = QP.dimensions.some(d => d.kind === 'date');
+  const rec = new Set();
+  if(dims === 0 && mets >= 1) rec.add('kpi');
+  if(hasDate && mets >= 1){ rec.add('line'); rec.add('area'); }
+  if(dims >= 1 && mets >= 1) rec.add('bar');
+  if(dims === 1 && mets >= 2){ rec.add('combo'); rec.add('dualaxis'); }
+  if(mets >= 2 && dims <= 1) rec.add('scatter');
+  if(dims === 1 && mets === 1 && !hasDate) rec.add('pie');
+  if(dims >= 1 && mets >= 1) rec.add('table');
+  return rec;
+}
+function _qpShowMe(types){
+  const rec = _qpRecommendedCharts();
+  return types.map(t => {
+    const active = QP.chartType === t;
+    const isRec = rec.has(t);
+    return '<button class="qp-showme'+(active?' active':'')+(isRec?' rec':'')+'" data-qpchart="'+t+'" title="'+esc(_QP_CHART_LABEL[t]||t)+(isRec?' · recommended':'')+'">'+_qpChartGlyph(t)+'</button>';
+  }).join('');
+}
 // Download the current Query Panel chart as a PNG (via the ECharts instance).
 function qpExportChartPNG(){
   try {
