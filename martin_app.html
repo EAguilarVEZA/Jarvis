@@ -2420,6 +2420,49 @@
   .exp-ask-actions { margin-top: 16px; }
   .exp-rank-best { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #166534; background: #dcfce7; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
   .exp-rank-worst { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #9a3412; background: #ffedd5; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
+  /* Test & Learn advisor bar */
+  .exp-advisor { display: flex; align-items: center; gap: 10px; background: linear-gradient(90deg,#eff6ff,#f8fbff); border: 1px solid #dbeafe; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; }
+  .exp-adv-label { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: var(--blue); white-space: nowrap; }
+  .exp-adv-label .jvi { color: var(--blue); }
+  .exp-advisor input { flex: 1; border: 1px solid var(--line); border-radius: 7px; padding: 8px 11px; font-size: 13px; }
+  .exp-adv-card { border: 1px solid #bfdbfe; background: #f8fbff; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+  .exp-adv-head { font-size: 14px; color: var(--ink); margin-bottom: 6px; display: flex; align-items: center; gap: 7px; }
+  .exp-adv-head .jvi { color: #e0a400; }
+  .exp-adv-why { font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 6px; }
+  .exp-adv-method { font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 8px; }
+  .exp-adv-steps { margin: 0 0 12px; padding-left: 20px; font-size: 12.5px; color: #334155; }
+  .exp-adv-steps li { margin: 3px 0; }
+  .exp-robust { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+  .exp-robust-b { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: #475569; background: #f1f5f9; border-radius: 7px; padding: 5px 10px; }
+  .exp-robust-b .jvi { width: 13px; height: 13px; color: var(--blue); }
+  .exp-save-row { display: flex; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #f1f5f9; }
+  .exp-save-row input { flex: 1; border: 1px solid var(--line); border-radius: 7px; padding: 8px 11px; font-size: 13px; }
+  .exp-saved-date { font-size: 10.5px; color: var(--muted2); margin-top: 2px; }
+  .btn.small { padding: 4px 9px; font-size: 11.5px; }
+  /* Global assistant FAB + panel */
+  .asst-fab { position: fixed; right: 22px; bottom: 22px; z-index: 850; display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border: 0; border-radius: 24px; background: var(--blue); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(14,118,180,.4); transition: transform .12s ease, box-shadow .12s ease; }
+  .asst-fab:hover { transform: translateY(-1px); box-shadow: 0 9px 26px rgba(14,118,180,.5); }
+  .asst-fab .jvi { color: #fff; }
+  @media (max-width: 640px){ .asst-fab span { display: none; } .asst-fab { padding: 12px; border-radius: 50%; } }
+  .asst-back { position: fixed; inset: 0; z-index: 950; background: rgba(15,23,42,.28); display: flex; justify-content: flex-end; }
+  .asst-panel { width: 420px; max-width: 94vw; height: 100%; background: #fff; display: flex; flex-direction: column; box-shadow: -12px 0 40px rgba(15,23,42,.25); animation: asstIn .18s ease; }
+  @keyframes asstIn { from { transform: translateX(30px); opacity: .6; } to { transform: none; opacity: 1; } }
+  .asst-head { display: flex; align-items: center; gap: 9px; padding: 14px 16px; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .asst-head .jvi { color: var(--blue); }
+  .asst-screen { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); background: #f1f5f9; padding: 2px 8px; border-radius: 10px; }
+  .asst-x { margin-left: auto; background: transparent; border: 0; cursor: pointer; color: var(--muted); padding: 4px; border-radius: 6px; }
+  .asst-x:hover { background: #f1f5f9; }
+  .asst-body { flex: 1; overflow: auto; padding: 16px; font-size: 13.5px; color: var(--ink); }
+  .asst-hello { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+  .asst-sugg { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
+  .asst-chip { text-align: left; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fafbfc; font-size: 12.5px; color: var(--ink); cursor: pointer; }
+  .asst-chip:hover { border-color: var(--blue); color: var(--blue); }
+  .asst-q { background: #eaf5fc; color: #0c4a6e; padding: 9px 13px; border-radius: 10px; font-size: 13px; margin: 14px 0 8px; align-self: flex-end; max-width: 90%; margin-left: auto; }
+  .asst-a { font-size: 13.5px; line-height: 1.6; color: #1e293b; }
+  .asst-a p { margin: 6px 0; } .asst-a ol, .asst-a ul { margin: 6px 0; padding-left: 22px; } .asst-a li { margin: 3px 0; }
+  .asst-a code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .asst-inputbar { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--line); }
+  .asst-inputbar input { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; }
   .kb-userq-bubble { background: #dbeafe; color: #1e3a8a; padding: 10px 16px; border-radius: 18px 18px 4px 18px; font-size: 13px; max-width: 75%; line-height: 1.5; }
   /* Collapsible Analysis disclosure */
   .kb-analysis { margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; overflow: hidden; }
@@ -15200,19 +15243,40 @@ function _expVerdictCard(v, extraHtml){
 function _pct(x, d){ return (x==null||isNaN(x))?'—':(x>=0?'+':'')+Number(x).toFixed(d==null?1:d)+'%'; }
 function _num(x, d){ return (x==null||isNaN(x))?'—':Number(x).toLocaleString(undefined,{maximumFractionDigits:d==null?2:d}); }
 function _ci(ci){ return (!ci||ci.length!==2)?'—':'['+_num(ci[0])+', '+_num(ci[1])+']'; }
+// Robustness strip: permutation p-value + CUPED variance reduction (tighter CI).
+function _expRobustRow(r){
+  const bits=[];
+  if(r.permutation) bits.push('<span class="exp-robust-b">'+jvIcon('refresh')+' Permutation p '+_fmtP(r.permutation.p_value)+'</span>');
+  if(r.cuped) bits.push('<span class="exp-robust-b" title="Variance-reduced estimate using the pre-period as a covariate">'+jvIcon('activity')+' CUPED: '+r.cuped.variance_reduction_pct+'% variance cut · effect '+_num(r.cuped.adjusted_effect)+' · CI '+_ci(r.cuped.confidence_interval)+' · p '+_fmtP(r.cuped.p_value)+'</span>');
+  return bits.length?'<div class="exp-robust">'+bits.join('')+'</div>':'';
+}
+function _fmtP(p){ return (p==null||isNaN(p))?'n/a':(p<0.001?'<0.001':Number(p).toFixed(3)); }
 
 async function showExperiments(){
   setNav('experiments');
   const app=document.getElementById('app');
-  const tabs=[['analyze','Analyze experiment','beaker'],['segment','Segment scan','target'],['significance','Significance test','check'],['power','Sample size & power','activity'],['matched','Matched control','users']];
+  const tabs=[['analyze','Analyze experiment','beaker'],['segment','Segment scan','target'],['significance','Significance test','check'],['power','Sample size & power','activity'],['matched','Matched control','users'],['saved','Saved','folder']];
   app.innerHTML =
     '<div class="stage-wrap exp-shell">'+
       '<div class="stage-head"><div><h1>Test &amp; Learn</h1>'+
         '<div class="desc">Measure true, causal impact — control-group experiments, difference-in-differences incrementality, statistical significance, sample-size &amp; power, and matched-market design. The rigor of Mastercard Test&amp;Learn / APT, built into your data.</div></div></div>'+
+      '<div class="exp-advisor">'+
+        '<span class="exp-adv-label">'+jvIcon('comment')+' Not sure which tool?</span>'+
+        '<input id="expAdvInput" placeholder="Describe your goal — e.g. did our loyalty promo lift spend vs control?">'+
+        '<button class="btn" id="expAdvGo">Advise me</button>'+
+      '</div>'+
+      '<div id="expAdvOut"></div>'+
       '<div class="exp-tabs">'+tabs.map(t=>'<button class="exp-tab'+(EXP.tab===t[0]?' active':'')+'" data-exptab="'+t[0]+'">'+jvIcon(t[2])+' '+esc(t[1])+'</button>').join('')+'</div>'+
       '<div id="expBody" class="exp-body"></div>'+
     '</div>';
   document.querySelectorAll('[data-exptab]').forEach(b=>b.addEventListener('click',()=>{ EXP.tab=b.getAttribute('data-exptab'); showExperiments(); }));
+  { const gi=document.getElementById('expAdvInput'), gb=document.getElementById('expAdvGo');
+    const run=async()=>{ const goal=(gi.value||'').trim(); if(!goal){ toast('Describe your goal first',true); return; }
+      const out=document.getElementById('expAdvOut'); out.innerHTML='<div class="exp-adv-card"><span class="loading">Thinking…</span></div>';
+      try{ const d=await api('/api/assistant/advise',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal})}); expRenderAdvice(d); }
+      catch(e){ out.innerHTML='<div class="werr">'+esc(e.message)+'</div>'; } };
+    if(gb) gb.addEventListener('click',run);
+    if(gi) gi.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();run();} }); }
   expRenderTab();
 }
 // Render an auto-run experiment result inside the Ask surface (from AI detection).
@@ -15252,6 +15316,7 @@ function expRenderTab(){
   else if(EXP.tab==='significance') host.innerHTML=expSigForm();
   else if(EXP.tab==='power')     host.innerHTML=expPowerForm();
   else if(EXP.tab==='matched')   host.innerHTML=expMatchForm();
+  else if(EXP.tab==='saved')     { host.innerHTML='<div class="exp-card"><div class="exp-card-title">Saved experiments</div><div id="expSavedList"><div class="exp-empty"><span class="loading">Loading…</span></div></div></div>'; expLoadSaved(); return; }
   expWire();
   if((EXP.tab==='analyze'&&EXP.mode==='data')||EXP.tab==='segment') expPopulateDataSelects();
 }
@@ -15516,6 +15581,28 @@ function expWire(){
   }); }
 }
 
+// Render the data-science advisor's recommendation + a "Use this tool" button.
+function expRenderAdvice(d){
+  const out=document.getElementById('expAdvOut'); if(!out) return;
+  if(!d || d.error || !d.tool){ out.innerHTML='<div class="werr">'+esc((d&&d.error)||'No recommendation.')+'</div>'; return; }
+  const toolLabel={experiment:'Analyze experiment',segment:'Segment scan',ttest:'Significance test (means)',proportions:'Significance test (rates)',power:'Sample size & power',matched:'Matched control'}[d.tool]||d.tool;
+  const steps=(d.steps||[]).map(s=>'<li>'+esc(s)+'</li>').join('');
+  out.innerHTML='<div class="exp-adv-card">'+
+    '<div class="exp-adv-head">'+jvIcon('star')+' Recommended: <b>'+esc(d.title||toolLabel)+'</b></div>'+
+    (d.rationale?'<div class="exp-adv-why">'+esc(d.rationale)+'</div>':'')+
+    (d.method?'<div class="exp-adv-method"><b>What it does:</b> '+esc(d.method)+'</div>':'')+
+    (steps?'<ol class="exp-adv-steps">'+steps+'</ol>':'')+
+    '<button class="btn primary" id="expAdvUse">Use '+esc(toolLabel)+' →</button>'+
+  '</div>';
+  const useBtn=document.getElementById('expAdvUse');
+  if(useBtn) useBtn.addEventListener('click',()=>{
+    if(d.tab) EXP.tab=d.tab;
+    if(d.mode && (d.tab==='analyze'||!d.tab)) EXP.mode=(d.mode==='data'?'data':'paste');
+    if(d.tab==='significance' && d.tool==='proportions') EXP.sigMode='rates';
+    if(d.tab==='significance' && d.tool==='ttest') EXP.sigMode='means';
+    showExperiments();
+  });
+}
 function expRenderSegment(r){
   const out=document.getElementById('expOut'); if(!out) return;
   if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
@@ -15551,7 +15638,14 @@ function expRenderAnalyze(r, body){
       '<div><span>Difference-in-differences</span><b>'+_num(r.did_estimate)+'</b></div>'+
       '<div><span>Std error</span><b>'+_num(r.std_error)+'</b></div>'+
     '</div>'+
-    (r.recommendation?'<div class="exp-rec">'+jvIcon('star')+' <span>'+esc(r.recommendation)+'</span></div>':'');
+    _expRobustRow(r)+
+    (r.recommendation?'<div class="exp-rec">'+jvIcon('star')+' <span>'+esc(r.recommendation)+'</span></div>':'')+
+    '<div class="exp-save-row"><input id="expSaveName" placeholder="Name this experiment to save it…"><button class="btn" id="expSaveBtn">'+jvIcon('save')+' Save</button></div>';
+  window._expLast={readout:r, spec:body};
+  { const sb=document.getElementById('expSaveBtn'); if(sb) sb.addEventListener('click', async ()=>{
+      const nm=(document.getElementById('expSaveName').value||'').trim(); if(!nm){ toast('Enter a name',true); return; }
+      try{ await _expPost('experiments/save',{name:nm, spec:(window._expLast.spec||{}), readout:(window._expLast.readout||{})}); toast('Experiment saved'); }
+      catch(e){ toast('Save failed: '+e.message,true); } }); }
   // 4-bar chart: test pre/post, control pre/post
   try{ if(window.echarts){
     const el=document.getElementById('expChart'); const ch=echarts.init(el,'martin',{renderer:'canvas'});
@@ -15618,6 +15712,95 @@ function expRenderMatch(r){
     '<div class="exp-subtitle">Balance check (standardized mean difference)</div>'+
     '<table class="exp-table"><thead><tr><th>Feature</th><th>Test mean</th><th>Control mean</th><th>Std diff</th></tr></thead><tbody>'+bal+'</tbody></table>';
 }
+
+// ═══════════════════════════════════════════════════════════════════
+//  GLOBAL AI ASSISTANT — "How do I…?" help on every screen
+// ═══════════════════════════════════════════════════════════════════
+function _mdLite(s){
+  s = esc(s||'');
+  s = s.replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
+  const lines=s.split(/\n/); let html=''; let inUl=false, inOl=false;
+  const close=()=>{ if(inUl){html+='</ul>';inUl=false;} if(inOl){html+='</ol>';inOl=false;} };
+  lines.forEach(ln=>{ const t=ln.trim();
+    if(/^\d+\.\s+/.test(t)){ if(!inOl){close();html+='<ol>';inOl=true;} html+='<li>'+t.replace(/^\d+\.\s+/,'')+'</li>'; }
+    else if(/^[-*]\s+/.test(t)){ if(!inUl){close();html+='<ul>';inUl=true;} html+='<li>'+t.replace(/^[-*]\s+/,'')+'</li>'; }
+    else if(t===''){ close(); }
+    else { close(); html+='<p>'+t+'</p>'; }
+  });
+  close(); return html;
+}
+function _asstScreen(){ return (typeof S==='object' && S.screen) ? S.screen : ''; }
+function _asstDefaultSugg(scr){
+  const m={ query:['How do I add a calculated field?','How do I change the chart type?','How do I save & schedule this query?'],
+    experiments:['Which test should I use?','How do I run an experiment on my data?','What is difference-in-differences?'],
+    designer:['How do I add a chart to a page?','How do I email this on a schedule?','How do I apply a brand theme?'],
+    ask:['What can I ask?','Can it run a control-group experiment?','How do I turn an answer into a report?'],
+    pulse:['How do I set a goal?','How do I create an alert?','Where are my saved briefs?'] };
+  return m[scr]||['How do I run a Test & Learn experiment?','How do I build a report?','How do I ask a data question?'];
+}
+function assistantOpen(preset){
+  if(document.getElementById('asstPanel')){ const i=document.getElementById('asstInput'); if(i) i.focus(); if(preset) _asstSend(preset); return; }
+  const scr=_asstScreen();
+  const back=document.createElement('div'); back.id='asstPanel'; back.className='asst-back';
+  back.innerHTML=
+    '<div class="asst-panel">'+
+      '<div class="asst-head">'+jvIcon('comment')+'<b>Assistant</b>'+(scr?'<span class="asst-screen">'+esc(scr)+'</span>':'')+'<button class="asst-x" id="asstClose" title="Close">'+jvIcon('x')+'</button></div>'+
+      '<div class="asst-body" id="asstBody"><div class="asst-hello">Ask me how to do anything on this screen — or anywhere in Jarvis.</div><div class="asst-sugg" id="asstSugg"></div></div>'+
+      '<div class="asst-inputbar"><input id="asstInput" placeholder="How do I…?" autocomplete="off"><button class="btn primary" id="asstSend" title="Ask">'+jvIcon('play')+'</button></div>'+
+    '</div>';
+  document.body.appendChild(back);
+  back.addEventListener('click',e=>{ if(e.target===back) assistantClose(); });
+  document.getElementById('asstClose').addEventListener('click',assistantClose);
+  const inp=document.getElementById('asstInput'); inp.focus();
+  document.getElementById('asstSend').addEventListener('click',()=>_asstSend());
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();_asstSend();} if(e.key==='Escape')assistantClose(); });
+  _asstRenderSugg(_asstDefaultSugg(scr));
+  if(preset) _asstSend(preset);
+}
+function assistantClose(){ const el=document.getElementById('asstPanel'); if(el) el.remove(); }
+function _asstRenderSugg(list){ const s=document.getElementById('asstSugg'); if(!s) return; s.innerHTML=(list||[]).map(q=>'<button class="asst-chip" data-asstq="'+esc(q)+'">'+esc(q)+'</button>').join(''); s.querySelectorAll('[data-asstq]').forEach(b=>b.addEventListener('click',()=>_asstSend(b.getAttribute('data-asstq')))); }
+async function _asstSend(q){
+  const inp=document.getElementById('asstInput'); q=(q||(inp&&inp.value)||'').trim(); if(!q) return; if(inp) inp.value='';
+  const scr=_asstScreen(); const body=document.getElementById('asstBody'); if(!body) return;
+  const sg=document.getElementById('asstSugg'); if(sg) sg.innerHTML='';
+  body.innerHTML += '<div class="asst-q">'+esc(q)+'</div><div class="asst-a" id="asstPending"><span class="loading">Thinking…</span></div>';
+  body.scrollTop=body.scrollHeight;
+  try{ const d=await api('/api/assistant/help',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,screen:scr})});
+    const p=document.getElementById('asstPending'); if(p){ p.removeAttribute('id'); p.innerHTML=_mdLite(d.answer||'No answer.'); }
+    if(d.suggestions&&d.suggestions.length) _asstRenderSugg(d.suggestions);
+  }catch(e){ const p=document.getElementById('asstPending'); if(p) p.innerHTML='<span class="werr">'+esc(e.message)+'</span>'; }
+  body.scrollTop=body.scrollHeight;
+}
+(function initAssistantFab(){
+  if(document.getElementById('asstFab')) return;
+  const fab=document.createElement('button'); fab.id='asstFab'; fab.className='asst-fab'; fab.title='AI assistant — how do I…?';
+  fab.innerHTML=jvIcon('comment')+'<span>Assistant</span>';
+  fab.addEventListener('click',()=>assistantOpen());
+  document.body.appendChild(fab);
+})();
+
+async function expLoadSaved(){
+  const host=document.getElementById('expSavedList'); if(!host) return;
+  let d; try{ d=await api('/api/stats/experiments'); }catch(e){ host.innerHTML='<div class="werr">'+esc(e.message)+'</div>'; return; }
+  const items=(d.experiments||[]);
+  if(!items.length){ host.innerHTML='<div class="exp-empty">'+jvIcon('folder')+'<div>No saved experiments yet. Run one and click Save.</div></div>'; return; }
+  host.innerHTML='<table class="exp-table"><thead><tr><th>Name</th><th>Metric</th><th>Incremental</th><th>Lift</th><th>p</th><th></th></tr></thead><tbody>'+
+    items.map(e=>{
+      const sig=e.significant===true?'exp-good':(e.significant===false?'':'');
+      return '<tr><td><b>'+esc(e.name)+'</b><div class="exp-saved-date">'+esc(_relSavedTime(e.created_at))+'</div></td>'+
+        '<td>'+esc(e.metric||'—')+'</td><td>'+_num(e.did_estimate)+'</td><td>'+_pct(e.incremental_lift_pct)+'</td>'+
+        '<td class="'+sig+'">'+_fmtP(e.p_value)+'</td>'+
+        '<td style="white-space:nowrap;"><button class="btn small" data-expview="'+esc(e.id)+'">View</button> <button class="btn small danger" data-expdel="'+esc(e.id)+'">'+jvIcon('trash')+'</button></td></tr>';
+    }).join('')+'</tbody></table>';
+  host.querySelectorAll('[data-expview]').forEach(b=>b.addEventListener('click', async ()=>{
+    try{ const r=await api('/api/stats/experiments/'+encodeURIComponent(b.getAttribute('data-expview'))); const e=r.experiment; if(e&&e.readout){ EXP.tab='analyze'; showExperiments(); setTimeout(()=>{ const out=document.getElementById('expOut'); if(out){ expRenderAnalyze(e.readout, e.spec||{}); } }, 60); } }catch(err){ toast('Load failed',true); }
+  }));
+  host.querySelectorAll('[data-expdel]').forEach(b=>b.addEventListener('click', async ()=>{
+    if(!confirm('Delete this saved experiment?')) return;
+    try{ await api('/api/stats/experiments/'+encodeURIComponent(b.getAttribute('data-expdel')),{method:'DELETE'}); expLoadSaved(); }catch(err){ toast('Delete failed',true); }
+  }));
+}
+function _relSavedTime(ts){ if(!ts) return ''; try{ return new Date(ts*1000).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return ''; } }
 
 // Nav + builder AI bar wiring
 document.getElementById('navAsk').addEventListener('click',showAsk);
