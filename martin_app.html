@@ -108,7 +108,12 @@
   .rd-tab .rd-tab-x:hover { opacity: 1; color: var(--orange); }
   .rd-tab-add { padding: 5px 12px; border-radius: 6px; font-size: 12px; color: var(--blue); cursor: pointer; background: transparent; border: 1px dashed var(--line-strong); font-weight: 600; }
   .rd-tab-add:hover { background: #eaf4fb; }
-  .rd-body { display: grid; grid-template-columns: 184px 1fr 248px; height: 100%; min-height: 0; }
+  .rd-body { display: grid; grid-template-columns: 184px 1fr 248px; height: 100%; min-height: 0; transition: grid-template-columns .16s ease; }
+  .rd-body.pal-collapsed { grid-template-columns: 0 1fr 248px; }
+  .rd-body.insp-collapsed { grid-template-columns: 184px 1fr 0; }
+  .rd-body.pal-collapsed.insp-collapsed { grid-template-columns: 0 1fr 0; }
+  .rd-body.pal-collapsed .rd-palette { display: none; }
+  .rd-body.insp-collapsed .rd-insp { display: none; }
   .rd-palette { background: #fafbfc; border-right: 1px solid var(--line); padding: 14px 10px; overflow-y: auto; }
   .rd-palette-title { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 4px 0 8px; padding: 0 2px; }
   .rd-palette-title + .rd-palette-title { margin-top: 16px; }
@@ -212,7 +217,9 @@
   .qp-head h1 { margin: 0; font-size: 17px; font-weight: 700; color: var(--ink); }
   .qp-head .qp-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .qp-head .qp-actions { display: flex; gap: 8px; }
-  .qp-body { display: grid; grid-template-columns: 280px 1fr; min-height: 0; height: 100%; overflow: hidden; }
+  .qp-body { display: grid; grid-template-columns: 280px 1fr; min-height: 0; height: 100%; overflow: hidden; transition: grid-template-columns .16s ease; }
+  .qp-body.rail-collapsed { grid-template-columns: 0 1fr; }
+  .qp-body.rail-collapsed .qp-rail { opacity: 0; pointer-events: none; }
   /* Left rail: field catalog */
   .qp-rail { background: #fafbfc; border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
   .qp-rail-head { padding: 10px 12px; border-bottom: 1px solid var(--line); }
@@ -339,7 +346,12 @@
   .sl-head .desc { font-size: 12px; color: var(--muted); max-width: 980px; line-height: 1.35; }
   .sl-head .sl-actions { display: flex; gap: 8px; flex-shrink: 0; }
   .sl-pubbar { padding: 6px 24px; border-bottom: 1px solid var(--line); background: #fff; }
-  .sl-body { display: grid; grid-template-columns: 240px 6px 1fr 6px 340px; min-height: 0; height: 100%; overflow: hidden; }
+  .sl-body { display: grid; grid-template-columns: 240px 6px 1fr 6px 340px; min-height: 0; height: 100%; overflow: hidden; transition: grid-template-columns .16s ease; }
+  .sl-body.rail-collapsed { grid-template-columns: 0 0 1fr 6px 340px; }
+  .sl-body.insp-collapsed { grid-template-columns: 240px 6px 1fr 0 0; }
+  .sl-body.rail-collapsed.insp-collapsed { grid-template-columns: 0 0 1fr 0 0; }
+  .sl-body.rail-collapsed .sl-rail, .sl-body.rail-collapsed .sl-resizer:first-of-type { opacity: 0; pointer-events: none; }
+  .sl-body.insp-collapsed .sl-rail-right { opacity: 0; pointer-events: none; }
   .sl-rail { background: #fafbfc; border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
   .sl-rail.sl-rail-right { border-right: 0; border-left: 1px solid var(--line); }
   .sl-rail-head { padding: 12px 14px 8px; border-bottom: 1px solid var(--line); }
@@ -5371,6 +5383,8 @@ async function showCurate(){
             '</div>'+
             '<button class="sl-tbtn" id="slRedraw">'+jvIcon('refresh')+'Auto-arrange</button>'+
             '<span class="sl-tspacer"></span>'+
+            '<button class="sl-tbtn" id="slToggleRail" title="Show / hide the raw tables panel">'+jvIcon('columns')+'Tables</button>'+
+            '<button class="sl-tbtn" id="slToggleInsp" title="Show / hide the inspector">'+jvIcon('eye')+'Inspector</button>'+
             '<span class="sl-thint" id="slCanvasMeta">—</span>'+
           '</div>'+
           // Mount point for erdLayout(). We reuse #erdCards id so existing layout
@@ -5428,6 +5442,15 @@ async function showCurate(){
     try { erdOpenJoinEditor({ left: ((CUR_STATE.graph||{}).tables||[])[0]?.key, right: ((CUR_STATE.graph||{}).tables||[])[1]?.key, on: '' }); } catch(e){}
   });
   document.getElementById('slRedraw').addEventListener('click', () => { try { _erdResetPos(); } catch(e){ renderSLCanvas(); } toast('Auto-arranged'); });
+  // Collapsible panels — hide the raw-tables rail and/or the inspector for a bigger canvas.
+  (function(){
+    const body = document.querySelector('.sl-body'); if(!body) return;
+    try { if(localStorage.getItem('jarvis_sl_rail')==='0') body.classList.add('rail-collapsed'); if(localStorage.getItem('jarvis_sl_insp')==='0') body.classList.add('insp-collapsed'); } catch(e){}
+    const tr=document.getElementById('slToggleRail'), ti=document.getElementById('slToggleInsp');
+    const redraw = () => { try{ if(typeof erdLayout==='function') setTimeout(erdLayout,180); }catch(e){} };
+    if(tr) tr.addEventListener('click', ()=>{ const on=body.classList.toggle('rail-collapsed'); try{ localStorage.setItem('jarvis_sl_rail', on?'0':'1'); }catch(e){} redraw(); });
+    if(ti) ti.addEventListener('click', ()=>{ const on=body.classList.toggle('insp-collapsed'); try{ localStorage.setItem('jarvis_sl_insp', on?'0':'1'); }catch(e){} redraw(); });
+  })();
   // R38 — Suggested joins dropdown
   document.getElementById('slSuggestBtn').addEventListener('click', toggleSuggestPanel);
   // Click outside the panel closes it
@@ -7207,6 +7230,8 @@ function showDesigner(){
           '<label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;cursor:pointer;">'+
             '<input type="checkbox" id="rdGridChk" '+(RD.showGrid?'checked':'')+' style="margin:0;cursor:pointer;"> Grid'+
           '</label>'+
+          '<button class="btn" id="rdTogglePal" title="Show / hide the elements palette">'+jvIcon('columns')+'Palette</button>'+
+          '<button class="btn" id="rdToggleInsp" title="Show / hide the properties inspector">'+jvIcon('eye')+'Inspector</button>'+
           // R46 — Brand theme picker
           '<select id="rdThemeSel" title="Apply a brand theme to all elements" style="padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:12px;background:#fff;">'+
             Object.entries(_RD_THEMES).map(([k,t]) => '<option value="'+esc(k)+'"'+(RD.themeKey===k?' selected':'')+'>'+esc(t.icon)+' '+esc(t.name)+'</option>').join('')+
@@ -7285,6 +7310,15 @@ function showDesigner(){
   // Wire actions
   document.getElementById('rdName').addEventListener('blur', e => { RD.reportName = e.target.textContent.trim() || 'Untitled report'; rdPersist(); });
   document.getElementById('rdGridChk').addEventListener('change', e => { RD.showGrid = e.target.checked; document.getElementById('rdPage').classList.toggle('grid', RD.showGrid); rdPersist(); });
+  // Collapsible palette + inspector — more canvas room on demand.
+  (function(){
+    const rb = document.querySelector('.rd-body');
+    if(rb){ try { if(localStorage.getItem('jarvis_rd_pal')==='0') rb.classList.add('pal-collapsed'); if(localStorage.getItem('jarvis_rd_insp')==='0') rb.classList.add('insp-collapsed'); } catch(e){} }
+    const reflow = () => { setTimeout(()=>{ try{ if(typeof rdRenderPage==='function') rdRenderPage(); }catch(e){} }, 180); };
+    const tp=document.getElementById('rdTogglePal'), ti=document.getElementById('rdToggleInsp');
+    if(tp&&rb) tp.addEventListener('click', ()=>{ const on=rb.classList.toggle('pal-collapsed'); try{ localStorage.setItem('jarvis_rd_pal', on?'0':'1'); }catch(e){} reflow(); });
+    if(ti&&rb) ti.addEventListener('click', ()=>{ const on=rb.classList.toggle('insp-collapsed'); try{ localStorage.setItem('jarvis_rd_insp', on?'0':'1'); }catch(e){} reflow(); });
+  })();
   document.getElementById('rdNewReport').addEventListener('click', () => {
     if(!confirm('Discard current report and start a new one?')) return;
     RD.reportName = 'Untitled report';
@@ -9334,6 +9368,7 @@ async function showQuery(){
       '<div class="qp-head">'+
         '<div><h1>Query Panel</h1><div class="qp-sub">Drag fields from the catalog onto a shelf, add filters, then Run. Save the query to use it in dashboards or reports.</div></div>'+
         '<div class="qp-actions">'+
+          '<button class="qp-btn" id="qpToggleRail" title="Show / hide the field catalog for a wider workspace">'+jvIcon('columns')+'Fields</button>'+
           '<button class="qp-btn" id="qpClear">Clear</button>'+
           '<button class="qp-btn" id="qpSave">'+jvIcon('star')+'Save query</button>'+
           '<button class="qp-btn" id="qpSchedule" title="Email this saved query on a schedule">'+jvIcon('clock')+'Schedule</button>'+
@@ -9439,6 +9474,12 @@ async function showQuery(){
   document.getElementById('qpRailSearch').addEventListener('input', e => qpRenderRail(e.target.value));
   document.getElementById('qpRun').addEventListener('click', qpRun);
   document.getElementById('qpClear').addEventListener('click', () => { QP.dimensions=[]; QP.metrics=[]; QP.filters=[]; QP.primary_table=null; QP.lastResult=null; QP._editedSql=null; QP._loadedQueryId=null; qpRenderShelves(); qpRenderResult(); document.getElementById('qpStatus').textContent='Cleared'; });
+  // Collapsible field catalog — hide it for a wider building/results area.
+  (function(){
+    const body = document.querySelector('.qp-body'); const tg = document.getElementById('qpToggleRail');
+    if(body){ try { if(localStorage.getItem('jarvis_qp_rail')==='0') body.classList.add('rail-collapsed'); } catch(e){} }
+    if(tg && body) tg.addEventListener('click', ()=>{ const on = body.classList.toggle('rail-collapsed'); try{ localStorage.setItem('jarvis_qp_rail', on?'0':'1'); }catch(e){} setTimeout(()=>{ try{ if(QP.lastResult) qpRenderResult(); }catch(e){} }, 180); });
+  })();
   document.getElementById('qpSave').addEventListener('click', qpSave);
   { const _sb = document.getElementById('qpSchedule'); if(_sb) _sb.addEventListener('click', qpOpenScheduleModal); }
   document.getElementById('qpDownload').addEventListener('click', function(){ qpOpenExportMenu(this); });
