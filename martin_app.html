@@ -2461,6 +2461,10 @@
   .asst-a { font-size: 13.5px; line-height: 1.6; color: #1e293b; }
   .asst-a p { margin: 6px 0; } .asst-a ol, .asst-a ul { margin: 6px 0; padding-left: 22px; } .asst-a li { margin: 3px 0; }
   .asst-a code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .asst-jump { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 10px 14px 0; }
+  .asst-jump-lbl { font-size: 11px; font-weight: 600; color: var(--muted); }
+  .asst-jump-b { font-size: 11.5px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 14px; background: #fff; color: var(--blue); cursor: pointer; font-weight: 600; }
+  .asst-jump-b:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
   .asst-inputbar { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--line); }
   .asst-inputbar input { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; }
   .kb-userq-bubble { background: #dbeafe; color: #1e3a8a; padding: 10px 16px; border-radius: 18px 18px 4px 18px; font-size: 13px; max-width: 75%; line-height: 1.5; }
@@ -15220,7 +15224,7 @@ document.getElementById('wbMask').addEventListener('click',e=>{if(e.target.id===
 //  controls). Backed by /api/stats/*. Beats point-and-click A/B tools by
 //  bringing APT / Mastercard Test&Learn-style causal measurement inline.
 // ═══════════════════════════════════════════════════════════════════
-const EXP = { tab: 'analyze', sigMode: 'means', powerKind: 'mean', mode: 'paste', dataTables: null, dataFields: null, dataTable: null };
+const EXP = { tab: 'analyze', sigMode: 'means', powerKind: 'mean', mode: 'paste', headline: 'did', dataTables: null, dataFields: null, dataTable: null };
 async function expLoadTables(){ if(EXP.dataTables) return EXP.dataTables; try{ const d=await api('/api/semantic/tables'); EXP.dataTables=(d.tables||[]); }catch(e){ EXP.dataTables=[]; } return EXP.dataTables; }
 async function expLoadFields(tableKey){ try{ const d=await api('/api/semantic/tables/'+encodeURIComponent(tableKey)); EXP.dataFields=d; EXP.dataTable=tableKey; return d; }catch(e){ return null; } }
 function _expOpts(items, cur, valKey, lblKey){ return (items||[]).map(x=>{ const v=x[valKey||'key'], l=x[lblKey||'display_name']||x[valKey||'key']; return '<option value="'+esc(v)+'"'+(cur===v?' selected':'')+'>'+esc(l)+'</option>'; }).join(''); }
@@ -15255,7 +15259,7 @@ function _fmtP(p){ return (p==null||isNaN(p))?'n/a':(p<0.001?'<0.001':Number(p).
 async function showExperiments(){
   setNav('experiments');
   const app=document.getElementById('app');
-  const tabs=[['analyze','Analyze experiment','beaker'],['segment','Segment scan','target'],['significance','Significance test','check'],['power','Sample size & power','activity'],['matched','Matched control','users'],['saved','Saved','folder']];
+  const tabs=[['analyze','Analyze experiment','beaker'],['segment','Segment scan','target'],['significance','Significance test','check'],['power','Sample size & power','activity'],['matched','Matched control','users'],['synthetic','Synthetic control','layers'],['saved','Saved','folder']];
   app.innerHTML =
     '<div class="stage-wrap exp-shell">'+
       '<div class="stage-head"><div><h1>Test &amp; Learn</h1>'+
@@ -15316,6 +15320,7 @@ function expRenderTab(){
   else if(EXP.tab==='significance') host.innerHTML=expSigForm();
   else if(EXP.tab==='power')     host.innerHTML=expPowerForm();
   else if(EXP.tab==='matched')   host.innerHTML=expMatchForm();
+  else if(EXP.tab==='synthetic') host.innerHTML=expSyntheticForm();
   else if(EXP.tab==='saved')     { host.innerHTML='<div class="exp-card"><div class="exp-card-title">Saved experiments</div><div id="expSavedList"><div class="exp-empty"><span class="loading">Loading…</span></div></div></div>'; expLoadSaved(); return; }
   expWire();
   if((EXP.tab==='analyze'&&EXP.mode==='data')||EXP.tab==='segment') expPopulateDataSelects();
@@ -15513,6 +15518,23 @@ function _expDataValid(b){
     b.test_values.length && b.control_values.length && b.pre_start && b.pre_end && b.post_start && b.post_end;
 }
 
+// ---- Synthetic control (weighted counterfactual when no clean control) ----
+function expSyntheticForm(){
+  return '<div class="exp-grid">'+
+    '<div class="exp-card">'+
+      '<div class="exp-card-title">Synthetic control</div>'+
+      '<div class="exp-hint">No clean control? Build one. Give the test group\'s metric over time (pre &amp; post), then several candidate "donor" units. The engine weights donors to replicate the test\'s pre-period, then projects that blend as the counterfactual.</div>'+
+      '<div class="exp-field"><label>Test — pre periods (time-ordered)</label><textarea id="syTP" placeholder="e.g. 12, 13, 12.5, 14, 13.5"></textarea></div>'+
+      '<div class="exp-field"><label>Test — post periods</label><textarea id="syTQ" placeholder="e.g. 19, 20"></textarea></div>'+
+      '<div class="exp-field"><label>Donor units — one per line: <code>id, pre… | post…</code></label>'+
+        '<textarea id="syDonors" style="min-height:110px;" placeholder="A, 10,12,11,13,14 | 15,16&#10;B, 20,19,21,22,20 | 23,24&#10;C, 5,5,6,4,5 | 6,6"></textarea></div>'+
+      '<div class="exp-field sm"><label>Metric label</label><input id="syName" value="metric"></div>'+
+      '<button class="btn primary" id="expRunSynth">'+jvIcon('play')+' Build synthetic control</button>'+
+    '</div>'+
+    '<div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('layers')+'<div>Construct a weighted counterfactual and read the incremental effect.</div></div></div>'+
+  '</div>';
+}
+
 function expWire(){
   document.querySelectorAll('[data-expmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.mode=b.getAttribute('data-expmode'); expRenderTab(); }));
   document.querySelectorAll('[data-sigmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.sigMode=b.getAttribute('data-sigmode'); expRenderTab(); }));
@@ -15579,6 +15601,54 @@ function expWire(){
     body.alpha=parseFloat(g('scAlpha').value); body.robust=false; body.max_segments=12;
     busy(); try{ const r=await _expPost('segment_scan', body); expRenderSegment(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
   }); }
+
+  { const b=g('expRunSynth'); if(b) b.addEventListener('click', async ()=>{
+    const donors=String(g('syDonors').value||'').split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=>{
+      const parts=l.split('|'); const head=(parts[0]||'').split(/[,\t]/).map(s=>s.trim()).filter(Boolean);
+      const id=head.shift(); const pre=head.map(Number); const post=_expNums(parts[1]||'');
+      return {id, pre, post};
+    }).filter(d=>d.id&&d.pre.length);
+    const body={ test_pre:_expNums(g('syTP').value), test_post:_expNums(g('syTQ').value), controls:donors, metric_name:(g('syName').value||'metric'), alpha:0.05 };
+    if(body.test_pre.length<2||donors.length<2){ toast('Need ≥2 test pre points and ≥2 donors',true); return; }
+    busy(); try{ const r=await _expPost('synthetic_control', body); expRenderSynthetic(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+}
+
+function expRenderSynthetic(r){
+  const out=document.getElementById('expOut'); if(!out) return;
+  if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
+  const wq=r.fit_quality;
+  const qcls = wq==='excellent'?'exp-v-pos':(wq==='good'?'exp-v-info':'exp-v-neu');
+  const weights=(r.weights||[]).filter(w=>w.weight>0.001).map(w=>'<span class="exp-robust-b">'+esc(w.id)+' '+(w.weight*100).toFixed(0)+'%</span>').join('');
+  out.innerHTML =
+    _expVerdictCard(r.verdict)+
+    '<div class="exp-metric-row">'+
+      '<div class="exp-metric"><div class="em-label">Avg effect</div><div class="em-val">'+_num(r.avg_effect)+'</div><div class="em-sub">per period vs. synthetic</div></div>'+
+      '<div class="exp-metric"><div class="em-label">Incremental lift</div><div class="em-val">'+_pct(r.incremental_lift_pct)+'</div><div class="em-sub">vs. counterfactual</div></div>'+
+      '<div class="exp-metric"><div class="em-label">Pre-fit RMSE</div><div class="em-val">'+_num(r.pre_fit_rmse,3)+'</div><div class="em-sub">'+esc(wq)+' fit</div></div>'+
+    '</div>'+
+    '<div class="exp-subtitle">Donor weights</div><div class="exp-robust" style="margin-top:0;">'+(weights||'<span class="exp-robust-b">—</span>')+'</div>'+
+    '<div id="synChart" style="width:100%;height:240px;margin-top:10px;"></div>'+
+    (r.note?'<div class="exp-rec">'+jvIcon('star')+' <span>'+esc(r.note)+'</span></div>':'');
+  try{ if(window.echarts){
+    const el=document.getElementById('synChart'); const ch=echarts.init(el,'martin',{renderer:'canvas'});
+    const nPre=(r.test_pre||[]).length, nPost=(r.test_post||[]).length;
+    const xs=[]; for(let i=0;i<nPre;i++) xs.push('pre '+(i+1)); for(let i=0;i<nPost;i++) xs.push('post '+(i+1));
+    const testSeries=(r.test_pre||[]).concat(r.test_post||[]);
+    const synthSeries=(r.synthetic_pre||[]).concat(r.synthetic_post||[]);
+    ch.setOption({
+      tooltip:{trigger:'axis'}, legend:{top:0,textStyle:{fontSize:11}},
+      grid:{left:8,right:14,top:28,bottom:8,containLabel:true},
+      xAxis:{type:'category',data:xs,axisLabel:{fontSize:10}},
+      yAxis:{type:'value',axisLabel:{fontSize:11}},
+      series:[
+        {name:'Test (actual)',type:'line',data:testSeries,smooth:false,symbol:'circle',symbolSize:5,lineStyle:{width:2.5,color:'#0E76B4'},itemStyle:{color:'#0E76B4'}},
+        {name:'Synthetic control',type:'line',data:synthSeries,smooth:false,symbol:'circle',symbolSize:4,lineStyle:{width:2,type:'dashed',color:'#94a3b8'},itemStyle:{color:'#94a3b8'}},
+        {name:'Intervention',type:'line',markLine:{silent:true,symbol:'none',lineStyle:{color:'#e0a400',type:'dashed'},data:[{xAxis:nPre-0.5}]},data:[]},
+      ]
+    });
+    if(!el._ro){ el._ro=new ResizeObserver(()=>{try{ch.resize();}catch(e){}}); el._ro.observe(el); }
+  }}catch(e){}
 }
 
 // Render the data-science advisor's recommendation + a "Use this tool" button.
@@ -15622,14 +15692,25 @@ function expRenderAnalyze(r, body){
   const out=document.getElementById('expOut'); if(!out) return;
   if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
   const roi=r.roi;
+  // CUPED headline toggle: swap the effect/CI to the variance-reduced estimate.
+  const hasCuped = !!r.cuped;
+  const useCuped = hasCuped && EXP.headline==='cuped';
+  const eff = useCuped ? r.cuped.adjusted_effect : r.did_estimate;
+  const effCi = useCuped ? r.cuped.confidence_interval : r.confidence_interval;
+  const effLabel = useCuped ? 'CUPED effect' : 'Incremental effect';
+  const toggle = hasCuped ? '<div class="exp-seg" style="margin-bottom:12px;">'+
+      '<button class="exp-seg-b'+(!useCuped?' active':'')+'" data-headline="did">DiD estimate</button>'+
+      '<button class="exp-seg-b'+(useCuped?' active':'')+'" data-headline="cuped" title="Variance-reduced — tighter CI">CUPED (−'+r.cuped.variance_reduction_pct+'% var)</button>'+
+    '</div>' : '';
   const metrics='<div class="exp-metric-row">'+
-    '<div class="exp-metric"><div class="em-label">Incremental effect</div><div class="em-val">'+_num(r.did_estimate)+'</div><div class="em-sub">per unit vs. control</div></div>'+
+    '<div class="exp-metric"><div class="em-label">'+effLabel+'</div><div class="em-val">'+_num(eff)+'</div><div class="em-sub">per unit vs. control</div></div>'+
     '<div class="exp-metric"><div class="em-label">Incremental lift</div><div class="em-val">'+_pct(r.incremental_lift_pct)+'</div><div class="em-sub">vs. counterfactual</div></div>'+
-    '<div class="exp-metric"><div class="em-label">95% CI</div><div class="em-val" style="font-size:16px;">'+_ci(r.confidence_interval)+'</div><div class="em-sub">of the effect</div></div>'+
+    '<div class="exp-metric"><div class="em-label">95% CI</div><div class="em-val" style="font-size:16px;">'+_ci(effCi)+'</div><div class="em-sub">of the effect'+(useCuped?' (CUPED)':'')+'</div></div>'+
     (roi?'<div class="exp-metric"><div class="em-label">ROI</div><div class="em-val">'+(roi.roi_multiple!=null?roi.roi_multiple+'×':'—')+'</div><div class="em-sub">net '+_num(roi.net,0)+'</div></div>':'')+
   '</div>';
   out.innerHTML =
     _expVerdictCard(r.verdict)+
+    toggle+
     metrics+
     '<div id="expChart" style="width:100%;height:230px;margin-top:6px;"></div>'+
     '<div class="exp-detail-grid">'+
@@ -15642,6 +15723,7 @@ function expRenderAnalyze(r, body){
     (r.recommendation?'<div class="exp-rec">'+jvIcon('star')+' <span>'+esc(r.recommendation)+'</span></div>':'')+
     '<div class="exp-save-row"><input id="expSaveName" placeholder="Name this experiment to save it…"><button class="btn" id="expSaveBtn">'+jvIcon('save')+' Save</button></div>';
   window._expLast={readout:r, spec:body};
+  document.querySelectorAll('[data-headline]').forEach(b=>b.addEventListener('click',()=>{ EXP.headline=b.getAttribute('data-headline'); expRenderAnalyze(r, body); }));
   { const sb=document.getElementById('expSaveBtn'); if(sb) sb.addEventListener('click', async ()=>{
       const nm=(document.getElementById('expSaveName').value||'').trim(); if(!nm){ toast('Enter a name',true); return; }
       try{ await _expPost('experiments/save',{name:nm, spec:(window._expLast.spec||{}), readout:(window._expLast.readout||{})}); toast('Experiment saved'); }
@@ -15746,11 +15828,17 @@ function assistantOpen(preset){
     '<div class="asst-panel">'+
       '<div class="asst-head">'+jvIcon('comment')+'<b>Assistant</b>'+(scr?'<span class="asst-screen">'+esc(scr)+'</span>':'')+'<button class="asst-x" id="asstClose" title="Close">'+jvIcon('x')+'</button></div>'+
       '<div class="asst-body" id="asstBody"><div class="asst-hello">Ask me how to do anything on this screen — or anywhere in Jarvis.</div><div class="asst-sugg" id="asstSugg"></div></div>'+
+      '<div class="asst-jump" id="asstJump"></div>'+
       '<div class="asst-inputbar"><input id="asstInput" placeholder="How do I…?" autocomplete="off"><button class="btn primary" id="asstSend" title="Ask">'+jvIcon('play')+'</button></div>'+
     '</div>';
   document.body.appendChild(back);
   back.addEventListener('click',e=>{ if(e.target===back) assistantClose(); });
   document.getElementById('asstClose').addEventListener('click',assistantClose);
+  // Deep-link jump buttons — the assistant doesn't just explain, it takes you there.
+  { const jumps=[['Ask AI','showAsk'],['Query Builder','showQuery'],['Designer','showDesigner'],['Test & Learn','showExperiments']];
+    const jh=document.getElementById('asstJump');
+    if(jh) jh.innerHTML='<span class="asst-jump-lbl">Jump to:</span>'+jumps.map(j=>'<button class="asst-jump-b" data-jump="'+j[1]+'">'+esc(j[0])+'</button>').join('');
+    if(jh) jh.querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click',()=>{ const fn=window[b.getAttribute('data-jump')]; assistantClose(); if(typeof fn==='function') fn(); })); }
   const inp=document.getElementById('asstInput'); inp.focus();
   document.getElementById('asstSend').addEventListener('click',()=>_asstSend());
   inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();_asstSend();} if(e.key==='Escape')assistantClose(); });
