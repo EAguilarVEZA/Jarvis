@@ -203,6 +203,12 @@ async def _loop():
                 asyncio.create_task(_alerts.tick(now))
             except Exception as e:
                 log.debug("alerts tick skipped: %s", e)
+            # Test & Learn experiment monitors (re-run + notify on significance).
+            try:
+                import experiments_api
+                asyncio.create_task(experiments_api.monitor_tick(now))
+            except Exception as e:
+                log.debug("experiment monitor tick skipped: %s", e)
         except Exception as e:
             log.warning("scheduler tick error: %s", e)
         await asyncio.sleep(max(5, 61 - _dt.datetime.now().second))

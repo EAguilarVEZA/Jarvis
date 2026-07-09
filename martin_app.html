@@ -2440,6 +2440,11 @@
   .exp-saved-date { font-size: 10.5px; color: var(--muted2); margin-top: 2px; }
   .btn.small { padding: 4px 9px; font-size: 11.5px; }
   .exp-mon-tag { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #0c4a6e; background: #e0f2fe; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
+  .exp-status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 10px; }
+  .exp-st-planned { color: #475569; background: #f1f5f9; }
+  .exp-st-live { color: #166534; background: #dcfce7; }
+  .exp-st-measured { color: #0c4a6e; background: #e0f2fe; }
+  .exp-st-cancelled { color: #9a3412; background: #ffedd5; }
   /* Global assistant FAB + panel */
   .asst-fab { position: fixed; right: 22px; bottom: 22px; z-index: 850; display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border: 0; border-radius: 24px; background: var(--blue); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(14,118,180,.4); transition: transform .12s ease, box-shadow .12s ease; }
   .asst-fab:hover { transform: translateY(-1px); box-shadow: 0 9px 26px rgba(14,118,180,.5); }
@@ -15724,7 +15729,7 @@ function expRenderSegment(r){
     '<table class="exp-table"><thead><tr><th>Segment</th><th>Incremental</th><th>Lift</th><th>p-value</th><th>n test</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
   out.querySelectorAll('[data-promote]').forEach(b=>b.addEventListener('click', async ()=>{
     const seg=b.getAttribute('data-promote');
-    const body={ segment_field:r.segment_field, segment_value:seg, metric:r.metric,
+    const body={ segment_field:r.segment_field, segment_value:seg, metric:r.metric, primary_table:r.primary_table||null,
       expected_lift_pct:parseFloat(b.getAttribute('data-plift'))||null, did_estimate:parseFloat(b.getAttribute('data-pdid'))||null,
       p_value:parseFloat(b.getAttribute('data-pp'))||null };
     try{ const d=await api('/api/stats/rollouts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -15972,20 +15977,53 @@ async function expLoadSaved(){
   }));
   expLoadRollouts();
 }
+const _EXP_ROLL_STATUS={planned:{lbl:'Planned',cls:'exp-st-planned',next:'live',nextLbl:'Mark live'},live:{lbl:'Live',cls:'exp-st-live',next:'measured',nextLbl:'Mark measured'},measured:{lbl:'Measured',cls:'exp-st-measured',next:null},cancelled:{lbl:'Cancelled',cls:'exp-st-cancelled',next:null}};
 async function expLoadRollouts(){
   const host=document.getElementById('expRolloutList'); if(!host) return;
   let d; try{ d=await api('/api/stats/rollouts'); }catch(e){ return; }
   const items=(d.targets||[]);
   if(!items.length){ host.innerHTML=''; return; }
   host.innerHTML='<div class="exp-subtitle" style="margin-top:22px;">'+jvIcon('target')+' Rollout targets</div>'+
-    '<table class="exp-table"><thead><tr><th>Segment</th><th>Metric</th><th>Expected lift</th><th>Filter</th><th></th></tr></thead><tbody>'+
-    items.map(t=>'<tr><td><b>'+esc(t.segment_field)+'</b> = '+esc(t.segment_value)+'</td><td>'+esc(t.metric||'—')+'</td>'+
-      '<td>'+_pct(t.expected_lift_pct)+'</td><td><code>'+esc(t.segment_field)+' = '+esc(t.segment_value)+'</code></td>'+
-      '<td><button class="btn small danger" data-rmroll="'+esc(t.id)+'">'+jvIcon('trash')+'</button></td></tr>').join('')+
+    '<table class="exp-table"><thead><tr><th>Segment</th><th>Metric</th><th>Expected lift</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
+    items.map(t=>{
+      const st=_EXP_ROLL_STATUS[t.status||'planned']||_EXP_ROLL_STATUS.planned;
+      const adv=st.next?'<button class="btn small" data-rollnext="'+esc(t.id)+'" data-rollto="'+st.next+'">'+esc(st.nextLbl)+'</button> ':'';
+      const canApply=t.primary_table;
+      const apply=canApply?'<button class="btn small primary" data-rollapply="'+esc(t.id)+'" title="Open Query Builder filtered to this segment">'+jvIcon('search')+' Apply</button> ':'';
+      return '<tr><td><b>'+esc(t.segment_field)+'</b> = '+esc(t.segment_value)+'</td><td>'+esc(t.metric||'—')+'</td>'+
+        '<td>'+_pct(t.expected_lift_pct)+'</td>'+
+        '<td><span class="exp-status '+st.cls+'">'+st.lbl+'</span></td>'+
+        '<td style="white-space:nowrap;">'+apply+adv+
+          (t.status!=='cancelled'&&t.status!=='measured'?'<button class="btn small" data-rollcancel="'+esc(t.id)+'">Cancel</button> ':'')+
+          '<button class="btn small danger" data-rmroll="'+esc(t.id)+'">'+jvIcon('trash')+'</button></td></tr>';
+    }).join('')+
     '</tbody></table>';
+  const setStatus=async(id,status)=>{ try{ await api('/api/stats/rollouts/'+encodeURIComponent(id)+'/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})}); expLoadRollouts(); }catch(e){ toast('Failed',true); } };
+  host.querySelectorAll('[data-rollnext]').forEach(b=>b.addEventListener('click',()=>setStatus(b.getAttribute('data-rollnext'), b.getAttribute('data-rollto'))));
+  host.querySelectorAll('[data-rollcancel]').forEach(b=>b.addEventListener('click',()=>setStatus(b.getAttribute('data-rollcancel'),'cancelled')));
   host.querySelectorAll('[data-rmroll]').forEach(b=>b.addEventListener('click', async ()=>{
     try{ await api('/api/stats/rollouts/'+encodeURIComponent(b.getAttribute('data-rmroll')),{method:'DELETE'}); expLoadRollouts(); }catch(e){ toast('Failed',true); }
   }));
+  host.querySelectorAll('[data-rollapply]').forEach(b=>b.addEventListener('click',()=>{
+    const t=items.find(x=>x.id===b.getAttribute('data-rollapply')); if(t) expApplyRollout(t);
+  }));
+}
+// Open the Query Builder pre-filtered to a promoted segment (best-effort).
+async function expApplyRollout(t){
+  try{
+    if(typeof showQuery==='function') await showQuery();
+    setTimeout(()=>{
+      try{
+        if(typeof QP==='object'){
+          if(t.primary_table && !QP.primary_table) QP.primary_table=t.primary_table;
+          QP.filters=QP.filters||[];
+          QP.filters.push({table:t.primary_table||QP.primary_table, field:t.segment_field, name:t.segment_field, op:'eq', value:t.segment_value, kind:'dim'});
+          if(typeof qpRenderShelves==='function') qpRenderShelves();
+          toast('Applied filter: '+t.segment_field+' = '+t.segment_value);
+        }
+      }catch(e){ toast('Opened Query Builder — add filter '+t.segment_field+' = '+t.segment_value+' manually',true); }
+    }, 350);
+  }catch(e){ toast('Could not open Query Builder',true); }
 }
 function _relSavedTime(ts){ if(!ts) return ''; try{ return new Date(ts*1000).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return ''; } }
 
