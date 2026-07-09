@@ -3608,6 +3608,10 @@ const _JV_ICONS = {
   eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
   check:'<path d="M4 12l5 5L20 6"/>',
   x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6.5 8-6.5S20 17 20 21"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  tag:'<path d="M3 12l9-9h8v8l-9 9z"/><circle cx="16.5" cy="7.5" r="1.4" fill="currentColor" stroke="none"/>',
+  megaphone:'<path d="M3 11v2a1 1 0 0 0 1 1h2l6 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a3 3 0 0 1 0 6"/>',
 };
 function jvIcon(name, cls){ const p=_JV_ICONS[name]; if(!p) return ''; return '<svg class="jvi'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'; }
 // Relative time from a unix-seconds timestamp (e.g. "3m ago", "2h ago", "5d ago").
@@ -4224,7 +4228,7 @@ function loadInsightsFeed(force){
     ins.forEach((it,i)=>{
       const card=document.createElement('div'); card.className='feed-card'; card.setAttribute('data-fi',i);
       grid.appendChild(card);
-      card.innerHTML='<div class="fc-tag">✨ AI insight</div><div class="fc-headline fc-loading"></div><div class="fc-chart"></div><div class="fc-q">'+esc(it.question)+'</div>';
+      card.innerHTML='<div class="fc-tag">AI insight</div><div class="fc-headline fc-loading"></div><div class="fc-chart"></div><div class="fc-q">'+esc(it.question)+'</div>';
       const head=card.querySelector('.fc-headline'); const ch=card.querySelector('.fc-chart');
       const b=it.brief||{};
       head.classList.remove('fc-loading'); head.textContent=b.headline||(it.widget&&it.widget.title)||it.question;
@@ -6427,7 +6431,7 @@ async function showPulse(){
 
     // Today's insights (auto-discovered, moved here from Ask page)
     '<div class="pulse-section">'+
-      '<div class="pulse-section-title"><h2>✨ Today’s insights</h2><span class="ps-count">auto-discovered from live data</span>'+
+      '<div class="pulse-section-title"><h2>Today’s insights</h2><span class="ps-count">auto-discovered from live data</span>'+
         '<a id="feedRefresh">↻ refresh</a></div>'+
       '<div class="feed-grid" id="feedGrid"></div>'+
     '</div>'+
@@ -6435,7 +6439,7 @@ async function showPulse(){
     // Jump back in — most recent query + report
     (((typeof _qpRecents==='function' && _qpRecents().length) || (typeof _rdRecents==='function' && _rdRecents().length)) ?
       '<div class="pulse-section">'+
-        '<div class="pulse-section-title"><h2>↩ Jump back in</h2></div>'+
+        '<div class="pulse-section-title"><h2>Jump back in</h2></div>'+
         '<div style="display:flex;flex-wrap:wrap;gap:8px;">'+
           ((typeof _qpRecents==='function'?_qpRecents():[]).slice(0,1).map(r=>'<span data-pulsequery="'+esc(r.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">🔎 '+esc(r.name)+'</span>').join(''))+
           ((typeof _rdRecents==='function'?_rdRecents():[]).slice(0,1).map(r=>'<span data-pulsereport="'+esc(r.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">📊 '+esc(r.name)+'</span>').join(''))+
@@ -6445,7 +6449,7 @@ async function showPulse(){
     // Pinned reports (from Designer favorites)
     ((typeof _rdFavs==='function' && _rdFavs().length) ?
       '<div class="pulse-section">'+
-        '<div class="pulse-section-title"><h2>⭐ Pinned reports</h2></div>'+
+        '<div class="pulse-section-title"><h2>Pinned reports</h2></div>'+
         '<div style="display:flex;flex-wrap:wrap;gap:8px;">'+
           _rdFavs().map(f=>'<span data-pulsereport="'+esc(f.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">📊 '+esc(f.name)+'</span>').join('')+
         '</div>'+
@@ -6454,7 +6458,7 @@ async function showPulse(){
     // Pinned queries (from Query Panel favorites)
     ((typeof _qpFavs==='function' && _qpFavs().length) ?
       '<div class="pulse-section">'+
-        '<div class="pulse-section-title"><h2>⭐ Pinned queries</h2></div>'+
+        '<div class="pulse-section-title"><h2>Pinned queries</h2></div>'+
         '<div style="display:flex;flex-wrap:wrap;gap:8px;">'+
           _qpFavs().map(f=>'<span data-pulsequery="'+esc(f.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">🔎 '+esc(f.name)+'</span>').join('')+
         '</div>'+
@@ -6462,7 +6466,7 @@ async function showPulse(){
 
     // Recent activity (comments, alert fires, deliveries)
     '<div class="pulse-section">'+
-      '<div class="pulse-section-title"><h2>📣 Recent activity</h2><span class="ps-count" id="pulseActCount"></span><a id="pulseActAll" style="cursor:pointer;">view all →</a></div>'+
+      '<div class="pulse-section-title"><h2>Recent activity</h2><span class="ps-count" id="pulseActCount"></span><a id="pulseActAll" style="cursor:pointer;">view all →</a></div>'+
       '<div id="pulseActivity" style="background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;"><div class="loading" style="padding:14px;font-size:12px;">Loading activity…</div></div>'+
     '</div>'+
 
@@ -9123,6 +9127,7 @@ function qpSnapshot(){
     rowNums:       !!QP._rowNums,
     wrap:          !!QP._wrap,
     resultTab:     QP.resultTab || 'table',
+    marks:         QP.marks || null,
   };
 }
 function _qpApplyFmtState(st){
@@ -9132,6 +9137,7 @@ function _qpApplyFmtState(st){
   QP.showTotals = !!st.showTotals;
   QP._rowNums   = !!st.rowNums;
   QP._wrap      = !!st.wrap;
+  QP.marks      = st.marks || { color:null, label:false };
   if(st.resultTab) QP.resultTab = st.resultTab;
   QP.sort       = st.sort || null;
   QP.calcFields = (st.calcFields || []).slice();
@@ -10738,17 +10744,31 @@ function qpRenderResult(){
     const hasDim = QP.dimensions.length > 0;
     if(!QP.chartType) QP.chartType = hasDim ? 'bar' : 'kpi';
     const types = ['bar','line','area','pie','donut','combo','dualaxis','scatter','treemap','heatmap','map','waterfall','boxplot','table','kpi'];
+    QP.marks = QP.marks || { color:null, label:false };
+    const _dimsLen = QP.dimensions.length;
+    const _dimCols = (r.columns||[]).slice(0, _dimsLen);
+    const _marksApplies = ['bar','line','area'].includes(QP.chartType);
+    // Marks card — Color (split series by a dimension) + Label (show values).
+    const colorOpts = '<option value="">Color: none</option>'+_dimCols.map(c=>'<option value="'+esc(c)+'"'+(QP.marks.color===c?' selected':'')+'>Color: '+esc(c)+'</option>').join('');
+    const marksCard = _marksApplies && _dimCols.length ?
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'+
+        '<span style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Marks</span>'+
+        '<select id="qpMarkColor" style="padding:4px 8px;border:1px solid var(--line);border-radius:6px;font-size:12px;">'+colorOpts+'</select>'+
+        '<label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" id="qpMarkLabel" '+(QP.marks.label?'checked':'')+'> Show labels</label>'+
+      '</div>' : '';
     host.innerHTML =
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
         '<span style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">Show me</span>'+
         '<div class="qp-showme-strip">'+_qpShowMe(types)+'</div>'+
         '<button class="qp-btn" id="qpChartPng" style="padding:4px 9px;flex-shrink:0;display:inline-flex;align-items:center;" title="Download chart as PNG">'+jvIcon('download')+'PNG</button>'+
       '</div>'+
-      '<div id="qpChartHost" style="width:100%;height:460px;"></div>';
+      marksCard+
+      '<div id="qpChartHost" style="width:100%;height:'+(marksCard?430:460)+'px;"></div>';
     document.querySelectorAll('#qpResult [data-qpchart]').forEach(b => b.addEventListener('click', () => { QP.chartType = b.getAttribute('data-qpchart'); qpRenderResult(); }));
     { const pb=document.getElementById('qpChartPng'); if(pb) pb.addEventListener('click', qpExportChartPNG); }
+    { const mc=document.getElementById('qpMarkColor'); if(mc) mc.addEventListener('change', ()=>{ QP.marks.color = mc.value||null; qpPersistSheets(); qpRenderResult(); }); }
+    { const ml=document.getElementById('qpMarkLabel'); if(ml) ml.addEventListener('change', ()=>{ QP.marks.label = ml.checked; qpPersistSheets(); qpRenderResult(); }); }
     // Carry the table's per-column formatting into the chart (axis + tooltips).
-    const _dimsLen = QP.dimensions.length;
     const _metricCols = (r.columns||[]).slice(_dimsLen);
     const _metricFormats = _metricCols.map((c,i) => {
       const cf = QP.colFormats && QP.colFormats[c];
@@ -10756,14 +10776,22 @@ function qpRenderResult(){
       const m = QP.metrics[i];
       return (m && m.format) || 'number';
     });
+    const chost = document.getElementById('qpChartHost');
+    // Use the Marks renderer when a color encoding or labels are active on a supported type.
+    const useMarks = _marksApplies && ((QP.marks.color && _dimCols.includes(QP.marks.color)) || QP.marks.label);
+    if(useMarks){
+      try { qpRenderMarksChart(chost, r, _dimsLen, _metricFormats); }
+      catch(e){ chost.innerHTML = '<div class="qp-empty" style="color:var(--orange);">Chart failed: '+esc(e.message)+'</div>'; }
+      return;
+    }
     const widget = {
       type: QP.chartType,
       title: 'Query result',
       query: { primary_table: QP.primary_table, dimensions: QP.dimensions, metrics: QP.metrics },
       metricFormats: _metricFormats,
     };
-    try { drawWidget(widget, document.getElementById('qpChartHost'), {columns: r.columns||[], rows: r.rows||[]}); }
-    catch(e){ document.getElementById('qpChartHost').innerHTML = '<div class="qp-empty" style="color:var(--orange);">Chart failed: '+esc(e.message)+'</div>'; }
+    try { drawWidget(widget, chost, {columns: r.columns||[], rows: r.rows||[]}); }
+    catch(e){ chost.innerHTML = '<div class="qp-empty" style="color:var(--orange);">Chart failed: '+esc(e.message)+'</div>'; }
     return;
   }
   // Default: table tab — sortable + per-column formatting (easy reporting UX).
@@ -10812,6 +10840,51 @@ function _qpShowMe(types){
     const isRec = rec.has(t);
     return '<button class="qp-showme'+(active?' active':'')+(isRec?' rec':'')+'" data-qpchart="'+t+'" title="'+esc(_QP_CHART_LABEL[t]||t)+(isRec?' · recommended':'')+'">'+_qpChartGlyph(t)+'</button>';
   }).join('');
+}
+// Render a chart with Marks encodings (Color = series split, Label = value labels).
+// Supports bar / line / area. Self-contained ECharts render (does not touch drawWidget).
+function qpRenderMarksChart(host, r, dimsLen, formats){
+  if(!window.echarts){ host.innerHTML = '<div class="qp-empty">Charting library not loaded.</div>'; return; }
+  const cols = r.columns || [], rows = r.rows || [];
+  const type = QP.chartType, marks = QP.marks || {};
+  const dimCols = cols.slice(0, dimsLen);
+  const colorCol = (marks.color && dimCols.includes(marks.color)) ? marks.color : null;
+  const xCol = dimCols.find(c => c !== colorCol) || dimCols[0];
+  const xIdx = cols.indexOf(xCol);
+  const mIdx = dimsLen;                    // first metric column
+  const mFmt = (formats && formats[0]) || 'number';
+  if(host._echartInst){ try{ host._echartInst.dispose(); }catch(e){} host._echartInst=null; }
+  host.innerHTML=''; const mount=document.createElement('div'); mount.style.cssText='width:100%;height:100%;min-height:260px;'; host.appendChild(mount);
+  const chart = echarts.init(mount, 'martin', { renderer:'canvas' }); host._echartInst = chart;
+  // distinct x categories (in first-seen order)
+  const xs=[], xseen=new Set(); rows.forEach(row => { const v = row[xIdx]==null?'∅':String(row[xIdx]); if(!xseen.has(v)){ xseen.add(v); xs.push(v); } });
+  const isLine = (type==='line'||type==='area'), stack = (type==='area');
+  const label = { show: !!marks.label, position: (type==='bar'?'top':'top'), fontSize:10, formatter: p => fmt(p.value, mFmt) };
+  let series;
+  if(colorCol){
+    const cIdx = cols.indexOf(colorCol);
+    const cs=[], cseen=new Set(); rows.forEach(row => { const v = row[cIdx]==null?'∅':String(row[cIdx]); if(!cseen.has(v)){ cseen.add(v); cs.push(v); } });
+    const agg={}; rows.forEach(row => { const k=(row[xIdx]==null?'∅':String(row[xIdx]))+''+(row[cIdx]==null?'∅':String(row[cIdx])); agg[k]=(agg[k]||0)+(Number(row[mIdx])||0); });
+    series = cs.map(cv => ({ name: cv, type: isLine?'line':'bar', stack: stack?'st':undefined, areaStyle: type==='area'?{}:undefined, smooth:false, symbol:'circle', symbolSize:6, label, emphasis:{focus:'series'}, data: xs.map(xv => agg[xv+''+cv] ?? null) }));
+  } else {
+    // No color: one series per metric column, with labels.
+    series = [];
+    for(let m=dimsLen; m<cols.length; m++){
+      const rowByX={}; rows.forEach(row => { const xv=row[xIdx]==null?'∅':String(row[xIdx]); rowByX[xv]=(rowByX[xv]||0)+(Number(row[m])||0); });
+      series.push({ name: cols[m], type: isLine?'line':'bar', areaStyle: type==='area'?{}:undefined, smooth:false, symbol:'circle', symbolSize:6, label:{...label, formatter:p=>fmt(p.value, formats[m-dimsLen]||'number')}, emphasis:{focus:'series'}, data: xs.map(xv => rowByX[xv] ?? null) });
+    }
+  }
+  chart.setOption({
+    tooltip:{ trigger:'axis', backgroundColor:'#1f2b3a', borderWidth:0, textStyle:{color:'#fff'}, valueFormatter:v=>fmt(v, mFmt) },
+    legend:{ type:'scroll', top:0, textStyle:{fontSize:11,color:'#475569'} },
+    grid:{ left:8, right:16, top: (colorCol||series.length>1)?30:12, bottom:8, containLabel:true },
+    xAxis:{ type:'category', data:xs, axisLabel:{fontSize:11,color:'#64748b'}, axisLine:{lineStyle:{color:'#e2e8f0'}} },
+    yAxis:{ type:'value', axisLabel:{fontSize:11,color:'#64748b',formatter:v=>fmt(v,mFmt)}, splitLine:{lineStyle:{color:'#f1f5f9'}} },
+    series
+  });
+  const _ro = () => { try{ chart.resize(); }catch(e){} };
+  if(host._qpRO) { try{ host._qpRO.disconnect(); }catch(e){} }
+  try { host._qpRO = new ResizeObserver(_ro); host._qpRO.observe(host); } catch(e){}
 }
 // Download the current Query Panel chart as a PNG (via the ECharts instance).
 function qpExportChartPNG(){
@@ -15556,16 +15629,16 @@ async function showAdmin(){
       '<div class="am-head"><h1>Admin · Team</h1>'+
         '<div class="am-sub">Manage users, groups, and platform usage</div></div>'+
       '<div class="am-tabs">'+
-        '<button class="am-tab'+(TM.tab==='users'?' active':'')+'" data-tmtab="users">👥 Users</button>'+
-        '<button class="am-tab'+(TM.tab==='groups'?' active':'')+'" data-tmtab="groups">🏷️ Groups</button>'+
-        '<button class="am-tab'+(TM.tab==='usage'?' active':'')+'" data-tmtab="usage">📊 Usage</button>'+
-        '<button class="am-tab'+(TM.tab==='security'?' active':'')+'" data-tmtab="security">🔒 Security</button>'+
-        '<button class="am-tab'+(TM.tab==='sqlreviews'?' active':'')+'" data-tmtab="sqlreviews">📝 SQL Reviews</button>'+
-        '<button class="am-tab'+(TM.tab==='evals'?' active':'')+'" data-tmtab="evals">✓ Evaluations</button>'+
-        '<button class="am-tab'+(TM.tab==='settings'?' active':'')+'" data-tmtab="settings">⚙️ Settings</button>'+
-        '<button class="am-tab'+(TM.tab==='jobs'?' active':'')+'" data-tmtab="jobs">⚙ Jobs</button>'+
-        '<button class="am-tab'+(TM.tab==='alerts'?' active':'')+'" data-tmtab="alerts">🔔 Alerts</button>'+
-        '<button class="am-tab'+(TM.tab==='activity'?' active':'')+'" data-tmtab="activity">📣 Activity</button>'+
+        '<button class="am-tab'+(TM.tab==='users'?' active':'')+'" data-tmtab="users">'+jvIcon('user')+'Users</button>'+
+        '<button class="am-tab'+(TM.tab==='groups'?' active':'')+'" data-tmtab="groups">'+jvIcon('tag')+'Groups</button>'+
+        '<button class="am-tab'+(TM.tab==='usage'?' active':'')+'" data-tmtab="usage">'+jvIcon('chart')+'Usage</button>'+
+        '<button class="am-tab'+(TM.tab==='security'?' active':'')+'" data-tmtab="security">'+jvIcon('lock')+'Security</button>'+
+        '<button class="am-tab'+(TM.tab==='sqlreviews'?' active':'')+'" data-tmtab="sqlreviews">'+jvIcon('file')+'SQL Reviews</button>'+
+        '<button class="am-tab'+(TM.tab==='evals'?' active':'')+'" data-tmtab="evals">'+jvIcon('check')+'Evaluations</button>'+
+        '<button class="am-tab'+(TM.tab==='settings'?' active':'')+'" data-tmtab="settings">'+jvIcon('gear')+'Settings</button>'+
+        '<button class="am-tab'+(TM.tab==='jobs'?' active':'')+'" data-tmtab="jobs">'+jvIcon('clock')+'Jobs</button>'+
+        '<button class="am-tab'+(TM.tab==='alerts'?' active':'')+'" data-tmtab="alerts">'+jvIcon('bell')+'Alerts</button>'+
+        '<button class="am-tab'+(TM.tab==='activity'?' active':'')+'" data-tmtab="activity">'+jvIcon('megaphone')+'Activity</button>'+
       '</div>'+
       '<div id="tmPanel">Loading…</div>'+
     '</div>';
