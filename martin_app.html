@@ -6724,7 +6724,11 @@ async function showPulse(){
         (d.dashboards||[]).map(v=>'<div class="pulse-card" data-viewid="'+esc(v.id)+'"><h3>'+esc(v.name)+'</h3>'+
           '<p>'+esc(v.description||'')+' · '+(v.widget_count||0)+' widgets</p></div>').join('')+
       '</div></div>' : '')+
+
+    // Test & Learn experiments digest (populated async)
+    '<div class="pulse-section" id="pulseExpSection" style="display:none;"></div>'+
   '</div>';
+  _pulseLoadExperiments();
   // Wire navigation
   // Coach refresh wiring + initial load
   const cr=document.getElementById('coachRefresh');
@@ -15224,7 +15228,7 @@ document.getElementById('wbMask').addEventListener('click',e=>{if(e.target.id===
 //  controls). Backed by /api/stats/*. Beats point-and-click A/B tools by
 //  bringing APT / Mastercard Test&Learn-style causal measurement inline.
 // ═══════════════════════════════════════════════════════════════════
-const EXP = { tab: 'analyze', sigMode: 'means', powerKind: 'mean', mode: 'paste', headline: 'did', dataTables: null, dataFields: null, dataTable: null };
+const EXP = { tab: 'analyze', sigMode: 'means', powerKind: 'mean', mode: 'paste', synMode: 'paste', headline: 'did', dataTables: null, dataFields: null, dataTable: null };
 async function expLoadTables(){ if(EXP.dataTables) return EXP.dataTables; try{ const d=await api('/api/semantic/tables'); EXP.dataTables=(d.tables||[]); }catch(e){ EXP.dataTables=[]; } return EXP.dataTables; }
 async function expLoadFields(tableKey){ try{ const d=await api('/api/semantic/tables/'+encodeURIComponent(tableKey)); EXP.dataFields=d; EXP.dataTable=tableKey; return d; }catch(e){ return null; } }
 function _expOpts(items, cur, valKey, lblKey){ return (items||[]).map(x=>{ const v=x[valKey||'key'], l=x[lblKey||'display_name']||x[valKey||'key']; return '<option value="'+esc(v)+'"'+(cur===v?' selected':'')+'>'+esc(l)+'</option>'; }).join(''); }
@@ -15323,7 +15327,7 @@ function expRenderTab(){
   else if(EXP.tab==='synthetic') host.innerHTML=expSyntheticForm();
   else if(EXP.tab==='saved')     { host.innerHTML='<div class="exp-card"><div class="exp-card-title">Saved experiments</div><div id="expSavedList"><div class="exp-empty"><span class="loading">Loading…</span></div></div></div>'; expLoadSaved(); return; }
   expWire();
-  if((EXP.tab==='analyze'&&EXP.mode==='data')||EXP.tab==='segment') expPopulateDataSelects();
+  if((EXP.tab==='analyze'&&EXP.mode==='data')||EXP.tab==='segment'||(EXP.tab==='synthetic'&&EXP.synMode==='data')) expPopulateDataSelects();
 }
 
 // Mode toggle: paste numbers vs pull from the semantic layer / BigQuery.
@@ -15487,7 +15491,7 @@ function expSegmentForm(){
 }
 // Populate the data-source selects (table → metric/unit/date/group/segment).
 async function expPopulateDataSelects(){
-  const prefix = EXP.tab==='segment' ? 'sc' : 'ad';
+  const prefix = EXP.tab==='segment' ? 'sc' : (EXP.tab==='synthetic' ? 'syd' : 'ad');
   const tSel=document.getElementById(prefix+'Table'); if(!tSel) return;
   const tables=await expLoadTables();
   tSel.innerHTML='<option value="">Choose a dataset…</option>'+_expOpts(tables,'','key','display_name');
@@ -15519,10 +15523,28 @@ function _expDataValid(b){
 }
 
 // ---- Synthetic control (weighted counterfactual when no clean control) ----
-function expSyntheticForm(){
+function _synModeSeg(){
+  return '<div class="exp-seg" style="margin-bottom:16px;">'+
+    '<button class="exp-seg-b'+(EXP.synMode==='paste'?' active':'')+'" data-synmode="paste">Paste series</button>'+
+    '<button class="exp-seg-b'+(EXP.synMode==='data'?' active':'')+'" data-synmode="data">From my data</button>'+
+  '</div>';
+}
+function expSyntheticDataForm(){
   return '<div class="exp-grid">'+
     '<div class="exp-card">'+
-      '<div class="exp-card-title">Synthetic control</div>'+
+      '<div class="exp-card-title">Synthetic control</div>'+_synModeSeg()+
+      '<div class="exp-hint">Test cohort = the treated group (aggregated per period). Donor pool = the control values; each control unit becomes a donor. The engine pulls per-period series from BigQuery and builds the counterfactual.</div>'+
+      _expDataFields('syd')+
+      '<button class="btn primary" id="expRunSynthData">'+jvIcon('play')+' Build from my data</button>'+
+    '</div>'+
+    '<div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('layers')+'<div>Pick the treated cohort &amp; donor pool, then build the synthetic control on live data.</div></div></div>'+
+  '</div>';
+}
+function expSyntheticForm(){
+  if(EXP.synMode==='data') return expSyntheticDataForm();
+  return '<div class="exp-grid">'+
+    '<div class="exp-card">'+
+      '<div class="exp-card-title">Synthetic control</div>'+_synModeSeg()+
       '<div class="exp-hint">No clean control? Build one. Give the test group\'s metric over time (pre &amp; post), then several candidate "donor" units. The engine weights donors to replicate the test\'s pre-period, then projects that blend as the counterfactual.</div>'+
       '<div class="exp-field"><label>Test — pre periods (time-ordered)</label><textarea id="syTP" placeholder="e.g. 12, 13, 12.5, 14, 13.5"></textarea></div>'+
       '<div class="exp-field"><label>Test — post periods</label><textarea id="syTQ" placeholder="e.g. 19, 20"></textarea></div>'+
@@ -15537,6 +15559,7 @@ function expSyntheticForm(){
 
 function expWire(){
   document.querySelectorAll('[data-expmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.mode=b.getAttribute('data-expmode'); expRenderTab(); }));
+  document.querySelectorAll('[data-synmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.synMode=b.getAttribute('data-synmode'); expRenderTab(); }));
   document.querySelectorAll('[data-sigmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.sigMode=b.getAttribute('data-sigmode'); expRenderTab(); }));
   document.querySelectorAll('[data-pkind]').forEach(b=>b.addEventListener('click',()=>{ EXP.powerKind=b.getAttribute('data-pkind'); expRenderTab(); }));
   const g=(id)=>document.getElementById(id);
@@ -15612,6 +15635,13 @@ function expWire(){
     if(body.test_pre.length<2||donors.length<2){ toast('Need ≥2 test pre points and ≥2 donors',true); return; }
     busy(); try{ const r=await _expPost('synthetic_control', body); expRenderSynthetic(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
   }); }
+
+  { const b=g('expRunSynthData'); if(b) b.addEventListener('click', async ()=>{
+    const body=_expDataBody('syd');
+    if(!_expDataValid(body)){ toast('Fill in dataset, metric, unit, date, cohort field, test/donor values and all four dates',true); return; }
+    body.placebo=true;
+    busy(); try{ const r=await _expPost('synthetic_control_from_data', body); expRenderSynthetic(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
 }
 
 function expRenderSynthetic(r){
@@ -15627,6 +15657,9 @@ function expRenderSynthetic(r){
       '<div class="exp-metric"><div class="em-label">Incremental lift</div><div class="em-val">'+_pct(r.incremental_lift_pct)+'</div><div class="em-sub">vs. counterfactual</div></div>'+
       '<div class="exp-metric"><div class="em-label">Pre-fit RMSE</div><div class="em-val">'+_num(r.pre_fit_rmse,3)+'</div><div class="em-sub">'+esc(wq)+' fit</div></div>'+
     '</div>'+
+    (r.placebo?'<div class="exp-robust">'+
+       '<span class="exp-robust-b" title="Abadie placebo test — refit each donor as fake-treated">'+jvIcon('refresh')+' Placebo p '+_fmtP(r.placebo.p_value)+' · rank #'+r.placebo.rank+' of '+(r.placebo.n_placebos+1)+(r.placebo.outlier?' · clear outlier':'')+'</span>'+
+     '</div>':'')+
     '<div class="exp-subtitle">Donor weights</div><div class="exp-robust" style="margin-top:0;">'+(weights||'<span class="exp-robust-b">—</span>')+'</div>'+
     '<div id="synChart" style="width:100%;height:240px;margin-top:10px;"></div>'+
     (r.note?'<div class="exp-rec">'+jvIcon('star')+' <span>'+esc(r.note)+'</span></div>':'');
@@ -15867,6 +15900,31 @@ async function _asstSend(q){
   document.body.appendChild(fab);
 })();
 
+// Surface saved Test & Learn experiments on the Pulse home screen.
+async function _pulseLoadExperiments(){
+  const sec=document.getElementById('pulseExpSection'); if(!sec) return;
+  let d; try{ d=await api('/api/stats/experiments'); }catch(e){ return; }
+  const items=(d.experiments||[]).slice(0,6);
+  if(!items.length) return;
+  sec.style.display='';
+  sec.innerHTML='<div class="pulse-section-title"><h2 style="display:flex;align-items:center;gap:7px;">'+jvIcon('beaker')+' Experiments</h2><a data-go="experiments">Open Test &amp; Learn →</a></div>'+
+    '<div class="pulse-cards">'+
+    items.map(e=>{
+      const sig=e.significant===true?'#16a34a':(e.significant===false?'#b45309':'var(--muted)');
+      const lift=(e.incremental_lift_pct==null||isNaN(e.incremental_lift_pct))?'':((e.incremental_lift_pct>=0?'+':'')+Number(e.incremental_lift_pct).toFixed(1)+'%');
+      return '<div class="pulse-card" data-expopen="'+esc(e.id)+'"><h3>'+esc(e.name)+'</h3>'+
+        '<p><span style="color:'+sig+';font-weight:600;">'+(e.significant===true?'Significant':(e.significant===false?'Not significant':'—'))+'</span>'+
+        (lift?' · '+lift+' lift':'')+(e.metric?' · '+esc(e.metric):'')+'</p></div>';
+    }).join('')+
+    '</div>';
+  sec.querySelectorAll('[data-go="experiments"]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();showExperiments();}));
+  sec.querySelectorAll('[data-expopen]').forEach(el=>el.addEventListener('click', async ()=>{
+    const id=el.getAttribute('data-expopen');
+    try{ const r=await api('/api/stats/experiments/'+encodeURIComponent(id)); const ex=r.experiment;
+      if(ex&&ex.readout){ EXP.tab='analyze'; showExperiments(); setTimeout(()=>{ const out=document.getElementById('expOut'); if(out) expRenderAnalyze(ex.readout, ex.spec||{}); },60); } }
+    catch(err){ showExperiments(); }
+  }));
+}
 async function expLoadSaved(){
   const host=document.getElementById('expSavedList'); if(!host) return;
   let d; try{ d=await api('/api/stats/experiments'); }catch(e){ host.innerHTML='<div class="werr">'+esc(e.message)+'</div>'; return; }
