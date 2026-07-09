@@ -2358,6 +2358,14 @@
   .kb-userq { display: flex; justify-content: flex-end; margin-bottom: 18px; }
   .kb-corrected { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; color: #92600a; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 9px 12px; margin: -6px 0 16px; }
   .kb-corrected .jvi { color: #b45309; margin-top: 1px; }
+  .ask-clarify-card { border: 1px solid var(--line); background: linear-gradient(180deg,#f8fbfd,#fff); border-radius: 12px; padding: 18px 20px; margin-top: 6px; box-shadow: 0 1px 3px rgba(15,23,42,.05); }
+  .ask-clarify-head { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--blue); margin-bottom: 8px; }
+  .ask-clarify-head .jvi { color: var(--blue); }
+  .ask-clarify-q { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 14px; }
+  .ask-clarify-opts { display: flex; flex-wrap: wrap; gap: 9px; }
+  .ask-clarify-opt { padding: 9px 15px; border: 1px solid var(--line-strong); border-radius: 9px; background: #fff; font-size: 13.5px; font-weight: 600; color: var(--ink); cursor: pointer; transition: border-color .12s ease, background .12s ease, color .12s ease; }
+  .ask-clarify-opt:hover { border-color: var(--blue); background: var(--blue); color: #fff; }
+  .ask-clarify-hint { font-size: 11.5px; color: var(--muted); margin-top: 12px; }
   .kb-userq-bubble { background: #dbeafe; color: #1e3a8a; padding: 10px 16px; border-radius: 18px 18px 4px 18px; font-size: 13px; max-width: 75%; line-height: 1.5; }
   /* Collapsible Analysis disclosure */
   .kb-analysis { margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; overflow: hidden; }
@@ -4294,7 +4302,7 @@ function runFallbackFeed(){
   const grid=document.getElementById('feedGrid'); if(!grid) return;
   grid.innerHTML = FALLBACK_INSIGHT_QUESTIONS.map((q,i)=>'<div class="feed-card" data-fi="'+i+'"><div class="fc-tag">Insight</div><div class="fc-headline fc-loading">Loading…</div><div class="fc-chart"></div><div class="fc-q">'+esc(q)+'</div></div>').join('');
   grid.querySelectorAll('.feed-card').forEach((el,i)=>el.addEventListener('click',()=>askFromInsight(FALLBACK_INSIGHT_QUESTIONS[i])));
-  Promise.all(FALLBACK_INSIGHT_QUESTIONS.map(q=>api('/api/semantic/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:q})}).catch(e=>({_err:e.message}))))
+  Promise.all(FALLBACK_INSIGHT_QUESTIONS.map(q=>api('/api/semantic/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:q,no_clarify:true})}).catch(e=>({_err:e.message}))))
     .then(rs=>rs.forEach((d,i)=>renderFeedCard(i,d,FALLBACK_INSIGHT_QUESTIONS[i])));
 }
 function renderFeedCard(i, d, q){
@@ -4695,9 +4703,37 @@ function renderResearch(d, question, opts){
   } catch(e){}
 }
 
-async function doAsk(){
-  const q=(document.getElementById('askInput')||{}).value; if(!q||!q.trim())return;
-  pushRecent(q.trim()); renderRecents();
+// Render the planner's clarifying question with option chips. Picking one
+// re-asks the same question with the chosen answer folded in (and no_clarify),
+// so the planner commits to a concrete interpretation.
+let _ASK_CLARIFY_CTX = null;
+function renderAskClarify(clarify, origPrompt, res){
+  _ASK_CLARIFY_CTX = { prompt: origPrompt, question: clarify.question, options: clarify.options||[] };
+  const kindLabel = clarify.kind==='date' ? 'time range' : (clarify.kind==='dimension' ? 'breakdown' : 'metric');
+  const chips = (clarify.options||[]).map((o,i)=>
+    '<button class="ask-clarify-opt" data-clarify-i="'+i+'">'+esc(o)+'</button>').join('');
+  res.innerHTML =
+    '<div class="ask-result kbrief">'+
+      '<div class="kb-userq"><div class="kb-userq-bubble">'+esc(origPrompt)+'</div></div>'+
+      '<div class="ask-clarify-card">'+
+        '<div class="ask-clarify-head">'+jvIcon('comment')+' Quick question — which '+esc(kindLabel)+' did you mean?</div>'+
+        '<div class="ask-clarify-q">'+esc(clarify.question)+'</div>'+
+        '<div class="ask-clarify-opts">'+chips+'</div>'+
+        '<div class="ask-clarify-hint">Pick one and I’ll pull the exact answer.</div>'+
+      '</div>'+
+    '</div>';
+  res.querySelectorAll('.ask-clarify-opt').forEach(btn => btn.addEventListener('click', () => {
+    const i = +btn.getAttribute('data-clarify-i');
+    const choice = (_ASK_CLARIFY_CTX.options||[])[i]; if(choice==null) return;
+    const merged = origPrompt + '\n\n(Clarification — the user means: ' + choice + ')';
+    doAsk({ promptOverride: merged, no_clarify: true });
+  }));
+}
+async function doAsk(opts){
+  opts = opts || {};
+  const q = (opts.promptOverride != null ? opts.promptOverride : (document.getElementById('askInput')||{}).value);
+  if(!q||!q.trim())return;
+  if(opts.promptOverride == null){ pushRecent(q.trim()); renderRecents(); }
   ASK_PROMPT=q.trim(); ASK_THREAD=[];     // new top-level question resets the thread
   // Hide the home-style insight grid + examples + recents so the answer takes the spotlight.
   const insightsSec = document.getElementById('askInsightsSection'); if(insightsSec) insightsSec.style.display='none';
@@ -4710,9 +4746,13 @@ async function doAsk(){
   const _askTimer = startAskThinking();
   // Extra B: inherit hierarchy + date scope from the active dashboard, if any.
   const askBody = withDashboardScope({prompt:q.trim()});
+  if(opts.no_clarify) askBody.no_clarify = true;   // committing after a clarification answer
   let d; try{ d=await api('/api/semantic/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(askBody)}); }
   catch(e){ stopAskThinking(_askTimer); res.innerHTML='<div class="ask-result"><span class="werr">'+esc(e.message)+'</span></div>'; return; }
   stopAskThinking(_askTimer);
+  // Clarifying-question loop: the planner is torn — ask the user one quick question
+  // instead of guessing. Choosing an option re-asks with the answer folded in.
+  if(d && d.needs_clarification && d.clarify){ renderAskClarify(d.clarify, q.trim(), res); return; }
   if(!d||!d.widget){ res.innerHTML='<div class="ask-result"><span class="werr">'+esc((d&&d.error)||'No answer returned. Try rephrasing.')+'</span></div>'; return; }
   ASK_LAST=d.widget;
   ASK_RESPONSE=d;
@@ -4926,12 +4966,13 @@ async function askFollowup(){
   thread.insertAdjacentHTML('beforeend',
     '<div class="thread-turn" id="'+turnId+'" style="margin-top:24px;">'+
       '<div class="kb-userq" style="margin-bottom:14px;"><div class="kb-userq-bubble">'+esc(q)+'</div></div>'+
-      '<div class="tt-body"><span class="loading">⏳ Thinking…</span></div>'+
+      '<div class="tt-body"><span class="loading">Thinking…</span></div>'+
     '</div>');
   inp.value=''; thread.scrollTop=thread.scrollHeight;
   // Build the lightweight history payload (don't ship full row arrays)
   const hist=ASK_THREAD.map(t=>({question:t.question,headline:t.headline,summary:t.summary,rows_preview:t.rows_preview}));
-  let d; try{ d=await api('/api/semantic/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(withDashboardScope({prompt:q,history:hist}))}); }
+  // Follow-ups carry thread context, so let the planner commit rather than clarify.
+  let d; try{ d=await api('/api/semantic/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(withDashboardScope({prompt:q,history:hist,no_clarify:true}))}); }
   catch(e){ document.querySelector('#'+turnId+' .tt-body').innerHTML='<span class="werr">'+esc(e.message)+'</span>'; return; }
   const b=d.brief||{};
   const body=document.querySelector('#'+turnId+' .tt-body');
@@ -11799,7 +11840,7 @@ async function askAddNew(){ if(!ASK_LAST)return; const name=prompt('New dashboar
 async function wbAiGo(){
   const q=(document.getElementById('wbAiPrompt')||{}).value; if(!q||!q.trim())return;
   toast('Asking AI…');
-  let d; try{ d=await api('/api/semantic/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:q.trim()})}); }
+  let d; try{ d=await api('/api/semantic/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:q.trim(),no_clarify:true})}); }
   catch(e){ toast('AI: '+e.message,true); return; }
   const w=d.widget; await ensureGraph();
   WB.type=w.type; document.querySelectorAll('#wbTypes .ct').forEach(x=>x.classList.toggle('active',x.getAttribute('data-ct')===WB.type));

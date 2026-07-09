@@ -2206,6 +2206,25 @@ class AskRequest(BaseModel):
     # server resolves them into qdict.filters automatically. So "top campaigns"
     # asked from a dashboard scoped to Pediatrics returns Pediatrics-only.
     dashboard_id: Optional[str] = None
+    # Set true on the follow-up call after the user answered a clarifying
+    # question, so the planner commits to a spec instead of clarifying again.
+    no_clarify: bool = False
+
+
+# Instruction appended to the planner when clarifying questions are enabled.
+# The planner may return a clarify object INSTEAD of a spec, but only when
+# genuinely torn — otherwise it should pick the best interpretation and answer.
+_ASK_CLARIFY_ADDENDUM = (
+    "\n\nClarify-when-torn: If — and ONLY if — the question is genuinely ambiguous in a way that would "
+    "materially change the answer, you MAY return this object INSTEAD of a query spec:\n"
+    '{"clarify": {"question": "<one short question>", "options": ["<opt1>","<opt2>", "<opt3?>"], "kind": "metric|date|dimension"}}\n'
+    "Only clarify for real forks, such as:\n"
+    "  • two or more distinct candidate metrics that would give very different answers "
+    "(e.g. 'performance' could mean spend, conversions, or ROAS),\n"
+    "  • a clearly time-sensitive question with no derivable date window and where the default would likely mislead.\n"
+    "Do NOT clarify for minor wording, chart choice, or anything you can reasonably infer. Prefer answering. "
+    "Give 2-4 concise, mutually exclusive options phrased as the user would pick them. Never combine clarify with a spec."
+)
 
 
 def _history_for_prompt(history: list) -> str:
@@ -2664,7 +2683,8 @@ async def ask(body: AskRequest):
         import anthropic
         client = anthropic.AsyncAnthropic(api_key=key)
         history_blk = _history_for_prompt(body.history or [])
-        system_prompt = _ASK_SYSTEM + always_blk
+        _clarify_on = (os.getenv("JARVIS_CLARIFY", "1") != "0") and not body.no_clarify
+        system_prompt = _ASK_SYSTEM + always_blk + (_ASK_CLARIFY_ADDENDUM if _clarify_on else "")
         resp = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=700,
@@ -2676,6 +2696,23 @@ async def ask(body: AskRequest):
         return _err(502, "AI request failed", str(e))
 
     spec = _extract_json(raw)
+    # Clarifying-question loop: when the planner is genuinely torn it returns a
+    # clarify object instead of a spec. Surface it to the user (no query runs);
+    # the follow-up call arrives with no_clarify=True and the chosen answer folded
+    # into the prompt, so the planner then commits.
+    if _clarify_on and isinstance(spec, dict) and spec.get("clarify") and not spec.get("primary_table"):
+        clr = spec["clarify"] or {}
+        opts = [str(o) for o in (clr.get("options") or []) if str(o).strip()][:4]
+        if clr.get("question") and len(opts) >= 2:
+            return {
+                "ok": True,
+                "needs_clarification": True,
+                "clarify": {
+                    "question": str(clr.get("question")),
+                    "options": opts,
+                    "kind": clr.get("kind") or "metric",
+                },
+            }
     if not spec or not spec.get("primary_table"):
         return _err(422, "could not interpret", "The AI couldn't map that to your data. Try rephrasing.", )
 
