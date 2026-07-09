@@ -92,6 +92,9 @@ def _summary(q: dict) -> dict:
         "scope": q.get("scope") or "private",
         "created_at": q.get("created_at"),
         "updated_at": q.get("updated_at"),
+        "last_run_at": q.get("last_run_at"),
+        "last_row_count": q.get("last_row_count"),
+        "folder": q.get("folder") or None,
     }
 
 
@@ -112,6 +115,8 @@ class QueryCreate(BaseModel):
     name: str
     description: Optional[str] = ""
     qdict: dict
+    report: Optional[dict] = None  # formatting/derived-field config that travels with the query
+    folder: Optional[str] = None   # organizational collection
     scope: Optional[str] = "private"  # private | group | corporate
 
 
@@ -119,6 +124,8 @@ class QueryUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     qdict: Optional[dict] = None
+    report: Optional[dict] = None
+    folder: Optional[str] = None
     scope: Optional[str] = None
 
 
@@ -160,6 +167,8 @@ async def create_query(body: QueryCreate, request: Request):
             "name": body.name.strip(),
             "description": (body.description or "").strip(),
             "qdict": body.qdict,
+            "report": body.report or None,
+            "folder": (body.folder or "").strip() or None,
             "owner_email": owner,
             "scope": scope,
             "created_at": _now(),
@@ -187,6 +196,8 @@ async def update_query(query_id: str, body: QueryUpdate, request: Request):
         if body.name is not None:        q["name"] = body.name.strip() or q["name"]
         if body.description is not None: q["description"] = body.description.strip()
         if body.qdict is not None:       q["qdict"] = body.qdict
+        if body.report is not None:      q["report"] = body.report or None
+        if body.folder is not None:      q["folder"] = (body.folder or "").strip() or None
         if body.scope is not None:
             scope = body.scope.lower()
             if scope in ("private", "group", "corporate"):
@@ -219,6 +230,29 @@ async def delete_query(query_id: str, request: Request):
         except OSError as e:
             return _err(500, "save failed", str(e))
     return {"ok": True, "deleted": query_id}
+
+
+class TouchBody(BaseModel):
+    rows: Optional[int] = None
+
+
+@router.post("/{query_id}/touch")
+async def touch_query(query_id: str, body: TouchBody, request: Request):
+    """Record that a saved query was just executed (for freshness display).
+    Lightweight — updates last_run_at / last_row_count only, no re-run."""
+    with _lock:
+        data = _load()
+        q = next((x for x in data["queries"] if x.get("id") == query_id), None)
+        if not q:
+            return _err(404, "not found", f"No query '{query_id}'")
+        q["last_run_at"] = _now()
+        if body.rows is not None:
+            q["last_row_count"] = int(body.rows)
+        try:
+            _atomic_write(data)
+        except OSError:
+            pass
+    return {"ok": True, "last_run_at": q["last_run_at"], "last_row_count": q.get("last_row_count")}
 
 
 @router.post("/{query_id}/run")

@@ -1,4 +1,88 @@
-connections: {}
+setup:
+  database_connection_ids:
+  - bigquery-warehouse
+connections:
+  bigquery-warehouse:
+    driver: bigquery
+    # ─── gold dataset — 18 enabled (matches Kaelio; campaign_* tables disabled) ───
+    enabled_tables:
+    - oh-data-warehouse.gold.ad_dim_account
+    - oh-data-warehouse.gold.ad_dim_ad
+    - oh-data-warehouse.gold.ad_dim_ad_platform
+    - oh-data-warehouse.gold.ad_dim_adgroup
+    - oh-data-warehouse.gold.ad_dim_campaign
+    - oh-data-warehouse.gold.ad_fact_ads
+    - oh-data-warehouse.gold.ad_summary_ad_networks
+    - oh-data-warehouse.gold.dim_date
+    - oh-data-warehouse.gold.er_wait_time
+    - oh-data-warehouse.gold.er_wait_time_mockup
+    - oh-data-warehouse.gold.ga4_dim_event_params
+    - oh-data-warehouse.gold.ga4_dim_sessions
+    - oh-data-warehouse.gold.ga4_dim_users_pseudonymous
+    - oh-data-warehouse.gold.ga4_dim_webpage
+    - oh-data-warehouse.gold.ga4_fact_events
+    - oh-data-warehouse.gold.gsc_fact_site_impression
+    - oh-data-warehouse.gold.gsc_summary_monthly_site_impression
+    - oh-data-warehouse.gold.sample_flat_ad_fact
+    # ─── roi_exercise dataset (revenue + expense + attribution) ───
+    - oh-data-warehouse.roi_exercise.revenue_attributed_to_marketing
+    - oh-data-warehouse.roi_exercise.dim_date
+    - oh-data-warehouse.roi_exercise.marketing_operation_expense
+    - oh-data-warehouse.roi_exercise.campaign_expense
+    - oh-data-warehouse.roi_exercise.net_charges
+    # ─── data_mart_er dataset (leads + ER campaign stats) ───
+    - oh-data-warehouse.data_mart_er.combined_campaign_stats
+    - oh-data-warehouse.data_mart_er.combined_campaign_stats_dashboard
+    - oh-data-warehouse.data_mart_er.digital_ads
+    - oh-data-warehouse.data_mart_er.digital_ads_w_leads
+    - oh-data-warehouse.data_mart_er.digital_ads_w_leads_dashboard
+    - oh-data-warehouse.data_mart_er.er_facilities_region
+    - oh-data-warehouse.data_mart_er.leads
+    - oh-data-warehouse.data_mart_er.paid_keywords_w_leads
+    # ─── data_mart_facilities dataset (facility-level rollups) ───
+    - oh-data-warehouse.data_mart_facilities.combined_campaign_stats
+    - oh-data-warehouse.data_mart_facilities.combined_campaign_stats_ER
+    - oh-data-warehouse.data_mart_facilities.view_er_gsc
+    # ─── data_mart_all dataset (Big Query DWH — marketing reports) ───
+    - oh-data-warehouse.data_mart_all.combined_campaign_stats
+    - oh-data-warehouse.data_mart_all.digital_ads
+    - oh-data-warehouse.data_mart_all.digital_ads_w_leads
+    - oh-data-warehouse.data_mart_all.dim_date
+    - oh-data-warehouse.data_mart_all.efficiency_media_campaigns
+    - oh-data-warehouse.data_mart_all.leads
+    - oh-data-warehouse.data_mart_all.paid_keywords_w_leads
+    - oh-data-warehouse.data_mart_all.report_combined_campaign_stats
+    - oh-data-warehouse.data_mart_all.report_digital_ads
+    - oh-data-warehouse.data_mart_all.report_digital_ads_w_leads
+    - oh-data-warehouse.data_mart_all.report_efficiency_media_campaigns
+    - oh-data-warehouse.data_mart_all.report_executive_summary_view
+    - oh-data-warehouse.data_mart_all.report_leads
+    - oh-data-warehouse.data_mart_all.report_paid_keywords_w_leads
+    - oh-data-warehouse.data_mart_all.report_v2_combined_campaign_stats
+    - oh-data-warehouse.data_mart_all.report_v2_digital_ads
+    - oh-data-warehouse.data_mart_all.report_v2_keywords_w_leads
+    - oh-data-warehouse.data_mart_all.report_v2_leads
+    - oh-data-warehouse.data_mart_all.report_yext_metrics
+    - oh-data-warehouse.data_mart_all.sfmc_metrics
+    - oh-data-warehouse.data_mart_all.view_entity_ids
+    - oh-data-warehouse.data_mart_all.view_web_exec_summary
+    - oh-data-warehouse.data_mart_all.view_yext_entities
+    credentials_json: file:/Users/developer/.config/jarvis/bigquery-key.json
+    location: US
+    context:
+      queryHistory:
+        enabled: false
+        filters:
+          dropTrivialProbes: true
+        windowDays: 90
+        redactionPatterns: []
+      depth: deep
+    dataset_ids:
+    - gold
+    - roi_exercise
+    - data_mart_er
+    - data_mart_facilities
+    - data_mart_all
 storage:
   state: sqlite
   search: sqlite-fts5
@@ -7,29 +91,39 @@ storage:
     author: ktx <ktx@example.com>
 llm:
   provider:
-    backend: none
-  models: {}
+    backend: anthropic
+    anthropic:
+      api_key: file:/Users/developer/Jarvis/ktx-project/.ktx/secrets/anthropic-api-key
+  models:
+    default: claude-sonnet-4-6
+  promptCaching:
+    enabled: true
 ingest:
   embeddings:
-    backend: none
-    dimensions: 8
+    backend: sentence-transformers
+    model: all-MiniLM-L6-v2
+    dimensions: 384
   workUnits:
     stepBudget: 40
-    maxConcurrency: 1
+    maxConcurrency: 6
     failureMode: continue
 agent:
   run_research:
     enabled: false
     max_iterations: 20
     default_toolset:
-      - sl_query
-      - wiki_search
-      - sl_read_source
+    - sl_query
+    - wiki_search
+    - sl_read_source
 memory:
   auto_commit: true
 scan:
   enrichment:
-    mode: none
+    mode: llm
+    embeddings:
+      backend: sentence-transformers
+      model: all-MiniLM-L6-v2
+      dimensions: 384
   relationships:
     enabled: true
     llmProposals: true

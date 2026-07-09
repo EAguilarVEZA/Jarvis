@@ -25,6 +25,8 @@ import json
 import os
 import time
 import uuid
+import hashlib
+import secrets
 import shutil
 import threading
 import urllib.request
@@ -92,6 +94,9 @@ def _summary(r: dict) -> dict:
         "description": r.get("description"),
         "page_count": len(pages),
         "element_count": sum(len(p.get("elements") or []) for p in pages),
+        "comment_count": len(r.get("comments") or []),
+        "open_comment_count": sum(1 for c in (r.get("comments") or []) if not c.get("resolved")),
+        "folder": r.get("folder") or None,
         "owner_email": r.get("owner_email"),
         "scope": r.get("scope") or "private",
         "created_at": r.get("created_at"),
@@ -118,6 +123,8 @@ class ReportCreate(BaseModel):
     page_h: Optional[int] = DESIGN_H_PX
     scope: Optional[str] = "private"
     filters: Optional[list] = None
+    vars: Optional[dict] = None
+    folder: Optional[str] = None
 
 
 class ReportUpdate(BaseModel):
@@ -128,6 +135,8 @@ class ReportUpdate(BaseModel):
     page_h: Optional[int] = None
     scope: Optional[str] = None
     filters: Optional[list] = None
+    vars: Optional[dict] = None
+    folder: Optional[str] = None
 
 
 @router.get("")
@@ -169,6 +178,8 @@ async def create_report(body: ReportCreate, request: Request):
             "page_w": body.page_w or DESIGN_W_PX,
             "page_h": body.page_h or DESIGN_H_PX,
             "filters": body.filters or [],
+            "vars": body.vars or {},
+            "folder": (body.folder or "").strip() or None,
             "owner_email": owner,
             "scope": scope,
             "created_at": _now(),
@@ -198,6 +209,8 @@ async def update_report(report_id: str, body: ReportUpdate, request: Request):
         if body.page_w is not None:      r["page_w"] = int(body.page_w)
         if body.page_h is not None:      r["page_h"] = int(body.page_h)
         if body.filters is not None:     r["filters"] = body.filters
+        if body.vars is not None:        r["vars"] = body.vars
+        if body.folder is not None:      r["folder"] = (body.folder or "").strip() or None
         if body.scope is not None:
             s = body.scope.lower()
             if s in ("private", "group", "corporate"):
@@ -226,6 +239,246 @@ async def delete_report(report_id: str, request: Request):
         except OSError as e:
             return _err(500, "save failed", str(e))
     return {"ok": True, "deleted": report_id}
+
+
+# ─── PUBLIC SHARE LINKS ──────────────────────────────────────────────────
+# A report can be published behind an unguessable token, optionally with an
+# expiration, a friendly alias, embed permission, and password protection.
+# The password is never stored in plaintext — only a salted SHA-256 hash.
+
+def _hash_pw(password: str, salt: str) -> str:
+    return hashlib.sha256((salt + ":" + (password or "")).encode("utf-8")).hexdigest()
+
+
+def _public_report(r: dict) -> dict:
+    """A sanitized, read-only projection safe to hand to an anonymous viewer.
+    Strips owner, share secrets, and anything not needed to render."""
+    return {
+        "id": r.get("id"),
+        "name": r.get("name"),
+        "description": r.get("description"),
+        "pages": r.get("pages") or [],
+        "page_w": r.get("page_w") or DESIGN_W_PX,
+        "page_h": r.get("page_h") or DESIGN_H_PX,
+        "filters": r.get("filters") or [],
+        "vars": r.get("vars") or {},
+        "comments": r.get("comments") or [],
+        "readonly": True,
+    }
+
+
+class ShareRequest(BaseModel):
+    enabled: bool = True
+    expires: Optional[str] = None          # ISO date, e.g. "2026-12-31"; None = never
+    alias: Optional[str] = None            # friendly label (not a security control)
+    protection: Optional[str] = "none"     # "none" | "password"
+    password: Optional[str] = None         # set only when (re)configuring a password
+    embed: bool = False                    # allow iframe embedding
+
+
+@router.post("/{report_id}/share")
+async def set_share(report_id: str, body: ShareRequest, request: Request):
+    viewer = _viewer_email(request)
+    with _lock:
+        data = _load()
+        r = next((x for x in data["reports"] if x.get("id") == report_id), None)
+        if not r:
+            return _err(404, "not found", f"No report '{report_id}'")
+        if r.get("owner_email") and viewer != r.get("owner_email"):
+            return _err(403, "forbidden", "Only the owner can share a report.")
+        share = dict(r.get("share") or {})
+        if not share.get("token"):
+            share["token"] = secrets.token_urlsafe(16)
+            share["salt"] = secrets.token_hex(8)
+        share["enabled"] = bool(body.enabled)
+        share["expires"] = (body.expires or "").strip() or None
+        share["alias"] = (body.alias or "").strip() or None
+        share["embed"] = bool(body.embed)
+        prot = (body.protection or "none").lower()
+        if prot not in ("none", "password"):
+            prot = "none"
+        share["protection"] = prot
+        if prot == "password":
+            if body.password:  # only overwrite when a new password is provided
+                share["password_hash"] = _hash_pw(body.password, share["salt"])
+            if not share.get("password_hash"):
+                return _err(400, "password required", "Set a password or choose protection 'none'.")
+        else:
+            share.pop("password_hash", None)
+        r["share"] = share
+        r["updated_at"] = _now()
+        try:
+            _atomic_write(data)
+        except OSError as e:
+            return _err(500, "save failed", str(e))
+    return {"ok": True, "token": share["token"], "enabled": share["enabled"],
+            "protection": share["protection"], "expires": share.get("expires"),
+            "alias": share.get("alias"), "embed": share.get("embed")}
+
+
+@router.delete("/{report_id}/share")
+async def revoke_share(report_id: str, request: Request):
+    viewer = _viewer_email(request)
+    with _lock:
+        data = _load()
+        r = next((x for x in data["reports"] if x.get("id") == report_id), None)
+        if not r:
+            return _err(404, "not found", f"No report '{report_id}'")
+        if r.get("owner_email") and viewer != r.get("owner_email"):
+            return _err(403, "forbidden", "Only the owner can revoke sharing.")
+        # Rotate the token so old links die immediately.
+        r["share"] = {"enabled": False}
+        r["updated_at"] = _now()
+        try:
+            _atomic_write(data)
+        except OSError:
+            pass
+    return {"ok": True, "revoked": True}
+
+
+# NOTE: public prefix is registered on the same router; full path is
+# /api/reports/public/{token} to keep it under the mounted router.
+@router.get("/public/{token}")
+async def get_public_report(token: str, pw: Optional[str] = None):
+    data = _load()
+    r = next((x for x in data["reports"]
+              if (x.get("share") or {}).get("token") == token), None)
+    if not r:
+        return _err(404, "not found", "This share link is invalid or has been revoked.")
+    share = r.get("share") or {}
+    if not share.get("enabled"):
+        return _err(403, "disabled", "Sharing is turned off for this report.")
+    exp = share.get("expires")
+    if exp:
+        try:
+            # expires is an inclusive date; treat as end-of-day UTC
+            exp_ts = time.mktime(time.strptime(exp, "%Y-%m-%d")) + 86400
+            if time.time() > exp_ts:
+                return _err(410, "expired", "This share link has expired.")
+        except ValueError:
+            pass
+    if share.get("protection") == "password":
+        if not pw or _hash_pw(pw, share.get("salt", "")) != share.get("password_hash"):
+            return JSONResponse(status_code=401,
+                                content={"protected": True, "protection": "password",
+                                         "alias": share.get("alias")})
+    return _public_report(r)
+
+
+# ─── Commentary / annotations ───────────────────────────────────────────────
+class CommentBody(BaseModel):
+    text: str
+    author: Optional[str] = None
+    page: Optional[int] = None     # optional page index the note refers to
+    element_id: Optional[str] = None  # pin to a specific widget/element
+    parent_id: Optional[str] = None  # reply threading
+
+
+import re as _re
+_MENTION_RE = _re.compile(r"@([A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,})")
+
+
+def _notify_mentions(report: dict, comment: dict) -> None:
+    """Best-effort email to any @email addresses mentioned. Inert without SMTP."""
+    try:
+        mentions = list(dict.fromkeys(_MENTION_RE.findall(comment.get("text", ""))))
+        if not mentions:
+            return
+        import smtp_mailer
+        if not smtp_mailer.is_configured():
+            return
+        subject = f"You were mentioned in “{report.get('name', 'a report')}”"
+        body = (f"{comment.get('author', 'Someone')} mentioned you:\n\n"
+                f"{comment.get('text', '')}\n")
+        html = (f"<div style='font-family:system-ui,sans-serif;'>"
+                f"<p><b>{_html_escape(comment.get('author', 'Someone'))}</b> mentioned you in "
+                f"<b>{_html_escape(report.get('name', 'a report'))}</b>:</p>"
+                f"<blockquote style='border-left:3px solid #3a7a9b;padding-left:10px;color:#334155;'>"
+                f"{_html_escape(comment.get('text', ''))}</blockquote></div>")
+        smtp_mailer.send(", ".join(mentions), subject, body, html)
+    except Exception:
+        pass
+
+
+def _html_escape(s: str) -> str:
+    import html as _h
+    return _h.escape(s or "")
+
+
+@router.get("/{report_id}/comments")
+async def list_comments(report_id: str):
+    r = next((x for x in _load()["reports"] if x.get("id") == report_id), None)
+    if not r:
+        return _err(404, "not found", f"No report '{report_id}'")
+    items = sorted(r.get("comments") or [], key=lambda c: c.get("at") or 0)
+    return {"comments": items, "count": len(items)}
+
+
+@router.post("/{report_id}/comments")
+async def add_comment(report_id: str, body: CommentBody, request: Request):
+    text = (body.text or "").strip()
+    if not text:
+        return _err(400, "empty", "Comment text is required.")
+    author = (body.author or "").strip() or _viewer_email(request) or "anonymous"
+    with _lock:
+        data = _load()
+        r = next((x for x in data["reports"] if x.get("id") == report_id), None)
+        if not r:
+            return _err(404, "not found", f"No report '{report_id}'")
+        comment = {"id": uuid.uuid4().hex[:8], "text": text[:4000], "author": author,
+                   "page": body.page, "element_id": body.element_id or None,
+                   "parent_id": body.parent_id or None,
+                   "resolved": False, "at": _now()}
+        r.setdefault("comments", []).append(comment)
+        r["updated_at"] = _now()
+        try:
+            _atomic_write(data)
+        except OSError as e:
+            return _err(500, "save failed", str(e))
+    _notify_mentions(r, comment)
+    return comment
+
+
+@router.post("/{report_id}/comments/{comment_id}/resolve")
+async def toggle_resolve(report_id: str, comment_id: str):
+    with _lock:
+        data = _load()
+        r = next((x for x in data["reports"] if x.get("id") == report_id), None)
+        if not r:
+            return _err(404, "not found", f"No report '{report_id}'")
+        c = next((x for x in (r.get("comments") or []) if x.get("id") == comment_id), None)
+        if not c:
+            return _err(404, "not found", "No such comment.")
+        c["resolved"] = not c.get("resolved")
+        try:
+            _atomic_write(data)
+        except OSError:
+            pass
+    return {"ok": True, "resolved": c["resolved"]}
+
+
+@router.delete("/{report_id}/comments/{comment_id}")
+async def delete_comment(report_id: str, comment_id: str, request: Request):
+    viewer = _viewer_email(request)
+    with _lock:
+        data = _load()
+        r = next((x for x in data["reports"] if x.get("id") == report_id), None)
+        if not r:
+            return _err(404, "not found", f"No report '{report_id}'")
+        before = len(r.get("comments") or [])
+        # Author or report owner can delete.
+        def _keep(c):
+            if c.get("id") != comment_id:
+                return True
+            return not (viewer and (viewer == c.get("author") or viewer == r.get("owner_email")))
+        r["comments"] = [c for c in (r.get("comments") or []) if _keep(c)]
+        if len(r["comments"]) == before:
+            return _err(403, "forbidden", "Only the author or report owner can delete a comment.")
+        try:
+            _atomic_write(data)
+        except OSError:
+            pass
+    return {"ok": True, "deleted": comment_id}
 
 
 # ─── PPTX EXPORT ─────────────────────────────────────────────────────────

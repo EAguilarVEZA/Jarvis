@@ -35,7 +35,7 @@ from functools import partial
 from pathlib import Path
 from typing import Any, Optional
 
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
@@ -323,7 +323,7 @@ class RawSqlRequest(BaseModel):
 
 
 @router.post("/run_sql")
-async def post_run_sql(body: RawSqlRequest):
+async def post_run_sql(body: RawSqlRequest, request: Request):
     """Execute a user-edited SQL statement against the warehouse (read-only).
 
     Power-user escape hatch from the Query Panel's SQL tab. Guarded to a single
@@ -342,14 +342,28 @@ async def post_run_sql(body: RawSqlRequest):
         return _err(400, "read-only only", "Only SELECT / WITH queries can be run from this editor.")
     if re.search(r"\b(insert|update|delete|merge|drop|create|alter|truncate|grant|revoke|call)\b", sql, re.I):
         return _err(400, "read-only only", "This editor runs read-only queries only.")
+    # Governance — resolve {{user.x}} row-security tokens + enforce the SQL policy.
+    # Fail-closed: a query referencing security properties the user lacks is refused.
+    from sql_security import enforce as _sec_enforce, SecurityError as _SecErr
+    from sql_reviews import record as _rec_review
+    email = (request.headers.get("X-Jarvis-User") or "").strip() or None
+    _tmpl = sql
+    try:
+        sql = _sec_enforce(sql, email)
+    except _SecErr as e:
+        _rec_review(_tmpl, user=email, error=str(e), blocked=True)
+        return _err(403, "blocked by security policy", str(e))
     try:
         result = await asyncio.get_running_loop().run_in_executor(None, run_query, sql)
     except ExecutorConfigError as e:
         return _err(503, "BigQuery not configured", str(e))
     except QueryExecutionError as e:
+        _rec_review(sql, user=email, error=str(e))
         return _err(400, "query execution failed", str(e))
     except ExecutorError as e:
+        _rec_review(sql, user=email, error=str(e))
         return _err(500, "executor error", str(e))
+    _rec_review(sql, user=email, rows=result.row_count)
     return {
         "columns": result.columns,
         "rows": result.rows,
@@ -553,6 +567,78 @@ async def get_raw_rows(
         "rows": result.rows,
         "row_count": result.row_count,
         "fqn": f"{project}.{dataset}.{table}",
+    }
+
+
+# ─── 7c. POST /api/semantic/detail — drill to underlying record-grain rows ──
+class DetailRequest(BaseModel):
+    primary_table: str
+    filters: list = []
+    limit: int = 200
+
+
+@router.post("/detail")
+async def post_detail(body: DetailRequest, request: Request):
+    """Drill-to-detail: return raw, record-grain rows from the primary table,
+    filtered to a clicked row's dimension values. `SELECT *` with no aggregation
+    so the user sees the individual underlying records behind an aggregate cell.
+
+    Only filters that live on the primary table are applied (no joins), and the
+    same security enforcement + review logging as /run_sql runs on the SQL.
+    """
+    from semantic.query_builder import _filter_sql, _aliased, Filter as _Filter
+
+    try:
+        model = load_model()
+    except SemanticLoadError as e:
+        return _err(400, "semantic.yaml failed to load", str(e))
+
+    prim = model.table(body.primary_table)
+    if not prim:
+        return _err(400, "unknown table", f"Unknown primary table: {body.primary_table}")
+    try:
+        fqn, alias = _aliased(body.primary_table, model)
+    except Exception as e:
+        return _err(400, "resolve failed", str(e))
+
+    # Build WHERE from dimension filters that belong to the primary table.
+    where_parts = []
+    for fd in (body.filters or []):
+        if (fd.get("table") or body.primary_table) != body.primary_table:
+            continue  # skip joined-table filters — detail is single-table
+        try:
+            filt = _Filter.from_dict({**fd, "table": body.primary_table})
+            frag, kind = _filter_sql(filt, model, use_aliases=False)
+            if kind == "where":
+                where_parts.append(frag)
+        except Exception:
+            continue
+
+    limit = max(1, min(int(body.limit or 200), 5000))
+    where_sql = ("WHERE " + "\n  AND ".join(where_parts)) if where_parts else ""
+    sql = f"SELECT * FROM {fqn} AS {alias}\n{where_sql}\nLIMIT {limit}"
+
+    from sql_security import enforce as _sec_enforce, SecurityError as _SecErr
+    from sql_reviews import record as _rec_review
+    email = (request.headers.get("X-Jarvis-User") or "").strip() or None
+    try:
+        sql = _sec_enforce(sql, email)
+    except _SecErr as e:
+        _rec_review(sql, user=email, error=str(e), blocked=True)
+        return _err(403, "blocked by security policy", str(e))
+    try:
+        result = await asyncio.get_running_loop().run_in_executor(None, run_query, sql)
+    except ExecutorConfigError as e:
+        return _err(503, "BigQuery not configured", str(e))
+    except Exception as e:
+        _rec_review(sql, user=email, error=str(e))
+        return _err(400, "detail query failed", str(e))
+    _rec_review(sql, user=email, rows=result.row_count)
+    return {
+        "columns": result.columns,
+        "rows": result.rows,
+        "row_count": result.row_count,
+        "sql": sql,
     }
 
 

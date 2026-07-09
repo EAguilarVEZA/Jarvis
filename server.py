@@ -1626,6 +1626,72 @@ app.include_router(hierarchies_router)
 app.include_router(automations_router)
 app.include_router(users_router)
 
+# ─── SQL governance — row-level security ({{user.x}}) + policy enforcement ───
+try:
+    from sql_security import router as security_router
+    app.include_router(security_router)
+    log.info("[OK] SQL security (governance) mounted at /api/admin/security")
+except Exception as _sec_mount_exc:
+    log.warning(f"SQL security not mounted: {_sec_mount_exc}")
+
+try:
+    from sql_reviews import router as sql_reviews_router
+    app.include_router(sql_reviews_router)
+    log.info("[OK] SQL reviews mounted at /api/admin/sql-reviews")
+except Exception as _rev_mount_exc:
+    log.warning(f"SQL reviews not mounted: {_rev_mount_exc}")
+
+try:
+    from evaluations import router as evaluations_router
+    app.include_router(evaluations_router)
+    log.info("[OK] Evaluations mounted at /api/evaluations")
+except Exception as _eval_mount_exc:
+    log.warning(f"Evaluations not mounted: {_eval_mount_exc}")
+
+try:
+    from settings_api import router as settings_router
+    app.include_router(settings_router)
+    log.info("[OK] Settings mounted at /api/admin/settings")
+except Exception as _set_mount_exc:
+    log.warning(f"Settings not mounted: {_set_mount_exc}")
+
+try:
+    from jobs import router as jobs_router
+    if jobs_router is not None:
+        app.include_router(jobs_router)
+        log.info("[OK] Jobs mounted at /api/admin/jobs")
+except Exception as _jobs_mount_exc:
+    log.warning(f"Jobs not mounted: {_jobs_mount_exc}")
+
+# ─── Auth — login + sessions; opt-in gate for hosting (JARVIS_REQUIRE_AUTH) ───
+try:
+    import auth as _auth
+    app.include_router(_auth.router)
+    if _auth.REQUIRED:
+        @app.middleware("http")
+        async def _auth_gate(request, call_next):
+            try:
+                if _auth.is_public_path(request.url.path, request.method):
+                    return await call_next(request)
+                ident = _auth.identify(request)
+                if not ident:
+                    from fastapi.responses import JSONResponse as _JR
+                    return _JR(status_code=401, content={"error": "authentication required"})
+                # Trust the verified identity for ownership scoping — overwrite any
+                # client-claimed X-Jarvis-User so it can't be spoofed once auth is on.
+                if "@" in ident:
+                    hdrs = [(k, v) for (k, v) in request.scope.get("headers", []) if k != b"x-jarvis-user"]
+                    hdrs.append((b"x-jarvis-user", ident.encode()))
+                    request.scope["headers"] = hdrs
+                return await call_next(request)
+            except Exception:
+                return await call_next(request)
+        log.info("[OK] Auth gate ENABLED (JARVIS_REQUIRE_AUTH) — /api/* requires a session or API key")
+    else:
+        log.info("[OK] Auth mounted at /api/auth (gate off — set JARVIS_REQUIRE_AUTH=1 to enforce)")
+except Exception as _auth_mount_exc:
+    log.warning(f"Auth not mounted: {_auth_mount_exc}")
+
 # ─── Brain — the active operating loop (vault + scheduled skills + memory) ───
 try:
     from brain.api import router as brain_router, set_client_getter as _brain_set_client
@@ -1636,6 +1702,38 @@ except Exception as _brain_mount_exc:
     log.warning(f"Brain API not mounted: {_brain_mount_exc}")
 app.include_router(ask_history_router)
 app.include_router(airbyte_router)
+
+# Scheduled email delivery of Designer reports (inert until SMTP is configured).
+try:
+    from report_email import router as report_email_router
+    app.include_router(report_email_router)
+    log.info("[OK] Report email schedules mounted at /api/reports/email")
+except Exception as _re_exc:
+    log.warning(f"Report email schedules not mounted: {_re_exc}")
+
+# Metric threshold alerts (inert until SMTP is configured).
+try:
+    from alerts import router as alerts_router
+    app.include_router(alerts_router)
+    log.info("[OK] Metric alerts mounted at /api/alerts")
+except Exception as _al_exc:
+    log.warning(f"Metric alerts not mounted: {_al_exc}")
+
+# Cross-cutting activity feed (comments + alert fires + email deliveries).
+try:
+    from activity_api import router as activity_router
+    app.include_router(activity_router)
+    log.info("[OK] Activity feed mounted at /api/activity")
+except Exception as _act_exc:
+    log.warning(f"Activity feed not mounted: {_act_exc}")
+
+# Global search (command palette).
+try:
+    from search_api import router as search_router
+    app.include_router(search_router)
+    log.info("[OK] Global search mounted at /api/search")
+except Exception as _srch_exc:
+    log.warning(f"Global search not mounted: {_srch_exc}")
 
 app.add_middleware(
     CORSMiddleware,

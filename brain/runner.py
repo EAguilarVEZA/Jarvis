@@ -91,10 +91,45 @@ def _record(name: str, **fields) -> None:
     _save_state(state)
 
 
+# ── scheduled-report email delivery ─────────────────────────────────────────
+async def _email_output(skill, result) -> None:
+    """Email digest-style outputs (briefs, syntheses) to configured recipients.
+    Completely inert until SMTP is configured and recipients are set."""
+    try:
+        if getattr(skill, "subdir", "") not in ("briefings", "syntheses"):
+            return
+        import asyncio
+        import html as _html
+        import smtp_mailer
+        import settings_api
+        if not smtp_mailer.is_configured():
+            return
+        notif = (settings_api.load_settings().get("notifications") or {})
+        if not notif.get("email_reports", True):
+            return
+        recips = (notif.get("recipients") or "").strip()
+        if not recips:
+            return
+        body_html = ("<div style='font-family:Inter,system-ui,sans-serif;max-width:640px;'>"
+                     "<pre style='white-space:pre-wrap;font-family:inherit;font-size:14px;line-height:1.5;'>"
+                     + _html.escape(result.body or "") + "</pre></div>")
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, smtp_mailer.send, recips, result.title, result.body, body_html)
+        log.info("emailed %s to %s", getattr(skill, "name", "?"), recips)
+    except Exception as e:
+        log.debug("email delivery skipped: %s", e)
+
+
 # ── execution ─────────────────────────────────────────────────────────────
 async def execute(skill: skills.Skill, client, trigger: str = "schedule") -> dict:
     """Run one skill end-to-end; returns a small result dict."""
     last_err = None
+    _jid = None
+    try:
+        import jobs as _jobs
+        _jid = _jobs.start(skill.label, "skill", f"trigger={trigger}")
+    except Exception:
+        _jobs = None
     for attempt in range(2):
         try:
             result = await skill.run(client)
@@ -110,6 +145,11 @@ async def execute(skill: skills.Skill, client, trigger: str = "schedule") -> dic
                     last_run=_dt.datetime.now().isoformat(timespec="seconds"),
                     last_output=rel, error=None)
             log.info("brain skill ok: %s -> %s (%s)", skill.name, rel, trigger)
+            try:
+                if _jid and _jobs: _jobs.finish(_jid, "success", rel)
+            except Exception:
+                pass
+            await _email_output(skill, result)  # scheduled-report delivery (no-op unless SMTP set)
             return {"ok": True, "skill": skill.name, "output": rel}
         except Exception as e:
             last_err = e
@@ -117,6 +157,10 @@ async def execute(skill: skills.Skill, client, trigger: str = "schedule") -> dic
             await asyncio.sleep(2)
     _record(skill.name, status="error", trigger=trigger,
             last_run=_dt.datetime.now().isoformat(timespec="seconds"), error=str(last_err))
+    try:
+        if _jid and _jobs: _jobs.finish(_jid, "failed", str(last_err))
+    except Exception:
+        pass
     return {"ok": False, "skill": skill.name, "error": str(last_err)}
 
 
@@ -147,6 +191,18 @@ async def _loop():
                     asyncio.create_task(execute(skill, client, trigger="schedule"))
                 else:
                     log.warning("skill %s due but no LLM client", skill.name)
+            # Scheduled report-email delivery (independent of LLM client).
+            try:
+                import report_email
+                asyncio.create_task(report_email.tick(now))
+            except Exception as e:
+                log.debug("report_email tick skipped: %s", e)
+            # Metric threshold alerts.
+            try:
+                import alerts as _alerts
+                asyncio.create_task(_alerts.tick(now))
+            except Exception as e:
+                log.debug("alerts tick skipped: %s", e)
         except Exception as e:
             log.warning("scheduler tick error: %s", e)
         await asyncio.sleep(max(5, 61 - _dt.datetime.now().second))
