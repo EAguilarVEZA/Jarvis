@@ -2439,6 +2439,7 @@
   .exp-save-row input { flex: 1; border: 1px solid var(--line); border-radius: 7px; padding: 8px 11px; font-size: 13px; }
   .exp-saved-date { font-size: 10.5px; color: var(--muted2); margin-top: 2px; }
   .btn.small { padding: 4px 9px; font-size: 11.5px; }
+  .exp-mon-tag { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #0c4a6e; background: #e0f2fe; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
   /* Global assistant FAB + panel */
   .asst-fab { position: fixed; right: 22px; bottom: 22px; z-index: 850; display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border: 0; border-radius: 24px; background: var(--blue); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(14,118,180,.4); transition: transform .12s ease, box-shadow .12s ease; }
   .asst-fab:hover { transform: translateY(-1px); box-shadow: 0 9px 26px rgba(14,118,180,.5); }
@@ -15712,13 +15713,24 @@ function expRenderSegment(r){
   const rows=(r.results||[]).map((s,i)=>{
     const sigCls = s.significant===true ? 'exp-good' : (s.significant===false?'':'');
     const rank = i===0 ? '<span class="exp-rank-best">Best</span>' : (i===(r.results.length-1)&&r.results.length>1?'<span class="exp-rank-worst">Weakest</span>':'');
-    return '<tr><td><b>'+esc(s.segment)+'</b> '+rank+'</td><td>'+_num(s.did_estimate)+'</td><td>'+_pct(s.incremental_lift_pct)+'</td><td class="'+sigCls+'">'+esc(s.p_display||'n/a')+'</td><td>'+_num(s.n_test_units,0)+'</td></tr>';
+    const winner = s.significant===true && (s.did_estimate||0)>0;
+    const promote = winner ? '<button class="btn small primary" data-promote="'+esc(s.segment)+'" data-plift="'+(s.incremental_lift_pct==null?'':s.incremental_lift_pct)+'" data-pdid="'+(s.did_estimate==null?'':s.did_estimate)+'" data-pp="'+(s.p_value==null?'':s.p_value)+'">'+jvIcon('target')+' Promote</button>' : '';
+    return '<tr><td><b>'+esc(s.segment)+'</b> '+rank+'</td><td>'+_num(s.did_estimate)+'</td><td>'+_pct(s.incremental_lift_pct)+'</td><td class="'+sigCls+'">'+esc(s.p_display||'n/a')+'</td><td>'+_num(s.n_test_units,0)+'</td><td>'+promote+'</td></tr>';
   }).join('');
   out.innerHTML =
     '<div class="exp-verdict exp-v-info"><div class="exp-v-head">'+jvIcon('target')+' Segment scan</div><div class="exp-v-detail">'+esc(r.summary||'')+'</div></div>'+
     (r.winners&&r.winners.length?'<div class="exp-rec">'+jvIcon('star')+' <span>Prioritize for rollout: <b>'+r.winners.map(esc).join(', ')+'</b></span></div>':'')+
     '<div class="exp-subtitle">By segment (ranked by incremental effect)</div>'+
-    '<table class="exp-table"><thead><tr><th>Segment</th><th>Incremental</th><th>Lift</th><th>p-value</th><th>n test</th></tr></thead><tbody>'+rows+'</tbody></table>';
+    '<table class="exp-table"><thead><tr><th>Segment</th><th>Incremental</th><th>Lift</th><th>p-value</th><th>n test</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+  out.querySelectorAll('[data-promote]').forEach(b=>b.addEventListener('click', async ()=>{
+    const seg=b.getAttribute('data-promote');
+    const body={ segment_field:r.segment_field, segment_value:seg, metric:r.metric,
+      expected_lift_pct:parseFloat(b.getAttribute('data-plift'))||null, did_estimate:parseFloat(b.getAttribute('data-pdid'))||null,
+      p_value:parseFloat(b.getAttribute('data-pp'))||null };
+    try{ const d=await api('/api/stats/rollouts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      toast('Promoted '+seg+' to rollout targets ('+r.segment_field+' = '+seg+')'); b.disabled=true; b.textContent='Promoted'; }
+    catch(e){ toast('Promote failed: '+e.message,true); }
+  }));
 }
 
 function expRenderAnalyze(r, body){
@@ -15930,20 +15942,49 @@ async function expLoadSaved(){
   let d; try{ d=await api('/api/stats/experiments'); }catch(e){ host.innerHTML='<div class="werr">'+esc(e.message)+'</div>'; return; }
   const items=(d.experiments||[]);
   if(!items.length){ host.innerHTML='<div class="exp-empty">'+jvIcon('folder')+'<div>No saved experiments yet. Run one and click Save.</div></div>'; return; }
-  host.innerHTML='<table class="exp-table"><thead><tr><th>Name</th><th>Metric</th><th>Incremental</th><th>Lift</th><th>p</th><th></th></tr></thead><tbody>'+
+  host.innerHTML='<table class="exp-table"><thead><tr><th>Name</th><th>Metric</th><th>Incremental</th><th>Lift</th><th>p</th><th>Actions</th></tr></thead><tbody>'+
     items.map(e=>{
       const sig=e.significant===true?'exp-good':(e.significant===false?'':'');
-      return '<tr><td><b>'+esc(e.name)+'</b><div class="exp-saved-date">'+esc(_relSavedTime(e.created_at))+'</div></td>'+
+      const mon=e.data_backed?'<button class="btn small'+(e.monitor?' primary':'')+'" data-expmon="'+esc(e.id)+'" data-monon="'+(e.monitor?'1':'0')+'" title="'+(e.monitor?'Monitoring — click to stop':'Monitor for significance')+'">'+jvIcon('bell')+'</button> ':'';
+      return '<tr><td><b>'+esc(e.name)+'</b>'+(e.monitor?' <span class="exp-mon-tag">monitored</span>':'')+'<div class="exp-saved-date">'+esc(_relSavedTime(e.created_at))+'</div></td>'+
         '<td>'+esc(e.metric||'—')+'</td><td>'+_num(e.did_estimate)+'</td><td>'+_pct(e.incremental_lift_pct)+'</td>'+
         '<td class="'+sig+'">'+_fmtP(e.p_value)+'</td>'+
-        '<td style="white-space:nowrap;"><button class="btn small" data-expview="'+esc(e.id)+'">View</button> <button class="btn small danger" data-expdel="'+esc(e.id)+'">'+jvIcon('trash')+'</button></td></tr>';
-    }).join('')+'</tbody></table>';
+        '<td style="white-space:nowrap;"><button class="btn small" data-expview="'+esc(e.id)+'">View</button> '+
+          '<button class="btn small" data-expemail="'+esc(e.id)+'" title="Email this readout">'+jvIcon('mail')+'</button> '+mon+
+          '<button class="btn small danger" data-expdel="'+esc(e.id)+'">'+jvIcon('trash')+'</button></td></tr>';
+    }).join('')+'</tbody></table>'+
+    '<div id="expRolloutList"></div>';
   host.querySelectorAll('[data-expview]').forEach(b=>b.addEventListener('click', async ()=>{
     try{ const r=await api('/api/stats/experiments/'+encodeURIComponent(b.getAttribute('data-expview'))); const e=r.experiment; if(e&&e.readout){ EXP.tab='analyze'; showExperiments(); setTimeout(()=>{ const out=document.getElementById('expOut'); if(out){ expRenderAnalyze(e.readout, e.spec||{}); } }, 60); } }catch(err){ toast('Load failed',true); }
+  }));
+  host.querySelectorAll('[data-expemail]').forEach(b=>b.addEventListener('click', async ()=>{
+    const to=prompt('Email this experiment readout to (comma-separated addresses):'); if(!to||!to.trim()) return;
+    try{ const r=await api('/api/stats/experiments/'+encodeURIComponent(b.getAttribute('data-expemail'))+'/email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipients:to.trim()})}); toast(r.ok?('Emailed: '+(r.detail||'')):('Not sent: '+(r.detail||r.error||''))," ",!r.ok); }catch(err){ toast('Email failed: '+err.message,true); }
+  }));
+  host.querySelectorAll('[data-expmon]').forEach(b=>b.addEventListener('click', async ()=>{
+    const on=b.getAttribute('data-monon')==='1';
+    let recips=''; if(!on){ recips=prompt('Notify these emails when it reaches significance (optional):')||''; }
+    try{ await api('/api/stats/experiments/'+encodeURIComponent(b.getAttribute('data-expmon'))+'/monitor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:!on, recipients:recips.trim()})}); toast(on?'Monitoring stopped':'Monitoring on'); expLoadSaved(); }catch(err){ toast('Failed: '+err.message,true); }
   }));
   host.querySelectorAll('[data-expdel]').forEach(b=>b.addEventListener('click', async ()=>{
     if(!confirm('Delete this saved experiment?')) return;
     try{ await api('/api/stats/experiments/'+encodeURIComponent(b.getAttribute('data-expdel')),{method:'DELETE'}); expLoadSaved(); }catch(err){ toast('Delete failed',true); }
+  }));
+  expLoadRollouts();
+}
+async function expLoadRollouts(){
+  const host=document.getElementById('expRolloutList'); if(!host) return;
+  let d; try{ d=await api('/api/stats/rollouts'); }catch(e){ return; }
+  const items=(d.targets||[]);
+  if(!items.length){ host.innerHTML=''; return; }
+  host.innerHTML='<div class="exp-subtitle" style="margin-top:22px;">'+jvIcon('target')+' Rollout targets</div>'+
+    '<table class="exp-table"><thead><tr><th>Segment</th><th>Metric</th><th>Expected lift</th><th>Filter</th><th></th></tr></thead><tbody>'+
+    items.map(t=>'<tr><td><b>'+esc(t.segment_field)+'</b> = '+esc(t.segment_value)+'</td><td>'+esc(t.metric||'—')+'</td>'+
+      '<td>'+_pct(t.expected_lift_pct)+'</td><td><code>'+esc(t.segment_field)+' = '+esc(t.segment_value)+'</code></td>'+
+      '<td><button class="btn small danger" data-rmroll="'+esc(t.id)+'">'+jvIcon('trash')+'</button></td></tr>').join('')+
+    '</tbody></table>';
+  host.querySelectorAll('[data-rmroll]').forEach(b=>b.addEventListener('click', async ()=>{
+    try{ await api('/api/stats/rollouts/'+encodeURIComponent(b.getAttribute('data-rmroll')),{method:'DELETE'}); expLoadRollouts(); }catch(e){ toast('Failed',true); }
   }));
 }
 function _relSavedTime(ts){ if(!ts) return ''; try{ return new Date(ts*1000).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return ''; } }
