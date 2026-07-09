@@ -2565,6 +2565,45 @@ async def _planner_retry(client, model, question, spec, err):
         return None
 
 
+async def _planner_retry_empty(client, model, question, spec, qdict):
+    """Result-grounded self-correction: the query built and ran fine but returned
+    ZERO rows — almost always an over-restrictive filter or a wrong/served date
+    window. Ask the stronger model to relax or fix the offending filter(s) and
+    return a corrected spec. Returns a spec dict or None. Best-effort."""
+    try:
+        prim = spec.get("primary_table")
+        catalog = _field_catalog(model, prim)
+        filters = (qdict or {}).get("filters", [])
+        fix_model = os.getenv("JARVIS_PLANNER_FIX_MODEL", "claude-sonnet-4-6")
+        system = (
+            "You fix a structured-data query that returned ZERO rows. The query was valid but "
+            "too restrictive. Return ONLY a JSON object with this exact schema and nothing else: "
+            "{\"primary_table\": str, \"dimensions\": [{\"table\":str,\"field\":str}], "
+            "\"metrics\": [{\"table\":str,\"field\":str}], \"filters\": [{\"table\":str,\"field\":str,\"op\":str,\"value\":any}], "
+            "\"chart_type\": str, \"title\": str}. Diagnose the most likely cause of the empty result "
+            "(an over-narrow value filter, a mistyped category, or a date window with no data) and "
+            "relax or correct it — e.g. drop a doubtful equality filter, widen the date range, or fix a "
+            "misspelled category value. Keep the dimensions/metrics the user clearly asked for. Every "
+            "field MUST exist on its table per the catalog. Do not invent field names."
+        )
+        msg = (
+            f"User question: {question}\n\n"
+            f"This spec built and ran but returned 0 rows:\n{json.dumps(spec)}\n\n"
+            f"Applied filters: {json.dumps(filters)}\n\n"
+            f"Real field catalog:\n{catalog}\n\n"
+            "Return a corrected JSON spec that is most likely to return the data the user wanted."
+        )
+        resp = await client.messages.create(
+            model=fix_model, max_tokens=600, system=system,
+            messages=[{"role": "user", "content": msg}],
+        )
+        fixed = _extract_json(resp.content[0].text if resp.content else "")
+        return fixed if (fixed and fixed.get("primary_table")) else None
+    except Exception as e:
+        log.warning(f"empty-result self-correction failed: {e}")
+        return None
+
+
 async def _ktx_hint(prompt: str) -> str:
     """Leverage KTX's canonical semantic index to ground the planner. Best-effort:
     short-timeout, silent on any failure (KTX not installed / slow / no match)."""
@@ -2717,6 +2756,25 @@ async def ask(body: AskRequest):
     except Exception as e:
         return _err(500, "query failed", str(e))
 
+    # Result-grounded self-correction: a valid query that returns ZERO rows is
+    # usually an over-restrictive filter or an empty date window. Try once to
+    # relax/fix the spec and re-run; only adopt the retry if it yields rows.
+    _empty_corrected = False
+    if getattr(result, "row_count", None) == 0 and qdict.get("filters") \
+            and os.getenv("JARVIS_EMPTY_RETRY", "1") != "0":
+        fixed2 = await _planner_retry_empty(client, model, body.prompt, spec, qdict)
+        if fixed2:
+            try:
+                qdict2, chart_type2, title2 = _build_qdict(model, fixed2, body.prompt, body.dashboard_id)
+                sq2 = StructuredQuery.from_dict(qdict2)
+                sql2 = build_sql(sq2, model)
+                result2 = await asyncio.get_running_loop().run_in_executor(None, run_query, sql2)
+                if getattr(result2, "row_count", 0) > 0:
+                    spec, qdict, chart_type, title, sql, result = fixed2, qdict2, chart_type2, title2, sql2, result2
+                    _empty_corrected = True
+            except Exception as e:
+                log.warning(f"empty-result retry rebuild failed: {e}")
+
     formats = [_metric_format(model, m["table"], m["field"]) for m in qdict["metrics"]]
     widget = {
         "type": chart_type, "title": title, "query": qdict, "metricFormats": formats,
@@ -2737,6 +2795,7 @@ async def ask(body: AskRequest):
         "columns": result.columns, "rows": result.rows, "row_count": result.row_count,
         "time_elapsed": _t_elapsed,      # seconds, for the bottom toolbar
         "engine": "BigQuery via curated semantic layer",
+        "empty_corrected": _empty_corrected,  # true if a 0-row result was auto-relaxed
     }
 
 

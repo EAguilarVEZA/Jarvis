@@ -81,6 +81,8 @@
   .btn { background: #fff; }
   /* Professional inline icons */
   .jvi { vertical-align: -3px; flex-shrink: 0; opacity: .85; }
+  .jvi.big { width: 30px; height: 30px; vertical-align: middle; opacity: .9; }
+  .jvi.med { width: 22px; height: 22px; }
   button .jvi, .qp-btn .jvi, .sl-tbtn .jvi, .btn .jvi, .am-tab .jvi { margin-right: 6px; }
   .qp-toolbar .qp-btn, .sl-canvas-toolbar .sl-tbtn { display: inline-flex; align-items: center; }
   .qp-toolbar .qp-btn.primary .jvi, .sl-canvas-toolbar .sl-tbtn.primary .jvi { opacity: 1; }
@@ -2354,6 +2356,8 @@
   .kb-menu:hover { background: #f1f5f9; }
   /* User question bubble — right-aligned, Kaelio style */
   .kb-userq { display: flex; justify-content: flex-end; margin-bottom: 18px; }
+  .kb-corrected { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; color: #92600a; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 9px 12px; margin: -6px 0 16px; }
+  .kb-corrected .jvi { color: #b45309; margin-top: 1px; }
   .kb-userq-bubble { background: #dbeafe; color: #1e3a8a; padding: 10px 16px; border-radius: 18px 18px 4px 18px; font-size: 13px; max-width: 75%; line-height: 1.5; }
   /* Collapsible Analysis disclosure */
   .kb-analysis { margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; overflow: hidden; }
@@ -3429,7 +3433,7 @@
       <!-- Mode picker -->
       <div style="display:flex;gap:6px;margin-bottom:18px;background:var(--bg-soft);padding:4px;border-radius:8px;">
         <span class="cd-mode active" data-cdmode="groups" style="flex:1;text-align:center;padding:8px;border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:600;">⊞ Groups <span style="font-weight:400;color:var(--muted);font-size:11px;">— bucket categorical values</span></span>
-        <span class="cd-mode" data-cdmode="bins" style="flex:1;text-align:center;padding:8px;border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:600;">📊 Bins <span style="font-weight:400;color:var(--muted);font-size:11px;">— bucket a numeric field into ranges</span></span>
+        <span class="cd-mode" data-cdmode="bins" style="flex:1;text-align:center;padding:8px;border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:600;"><span data-ic="chart" style="vertical-align:-3px;"></span> Bins <span style="font-weight:400;color:var(--muted);font-size:11px;">— bucket a numeric field into ranges</span></span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div class="field"><label>Display name</label><input id="cdName" placeholder="e.g. Region"></div>
@@ -3642,6 +3646,20 @@ const _JV_ICONS = {
   thumbUp:'<path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z"/><path d="M7 11l4-8a2 2 0 0 1 2 2v4h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7z"/>',
   thumbDown:'<path d="M17 13V4h3a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1z"/><path d="M17 13l-4 8a2 2 0 0 1-2-2v-4H6a2 2 0 0 1-2-2.3l1.2-6A2 2 0 0 1 7.2 4H17z"/>',
   pin:'<path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/><path d="M12 14v7"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3z"/>',
+  building:'<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/><path d="M10 21v-3h4v3"/>',
+  warn:'<path d="M12 3l9 16H3z"/><path d="M12 9v5"/><path d="M12 17.5v.5"/>',
+  save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3"/><rect x="8" y="13" width="8" height="5"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/>',
+  phone:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/><path d="M17 5.2a3.5 3.5 0 0 1 0 6.6M17.5 14.6c2.6.5 4.5 2.4 4.5 5.4"/>',
+  beaker:'<path d="M9 3h6M10 3v6l-5 9a1.6 1.6 0 0 0 1.4 2.4h11.2A1.6 1.6 0 0 0 20 18l-5-9V3"/><path d="M7.5 14h9"/>',
+  note:'<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+  antenna:'<path d="M12 9v12"/><path d="M7 21h10"/><path d="M8 8a5.5 5.5 0 0 1 8 0M5.5 5.5a9 9 0 0 1 13 0"/><circle cx="12" cy="7" r="1.5" fill="currentColor" stroke="none"/>',
+  hook:'<path d="M17 4v9a5 5 0 0 1-10 0V11"/><circle cx="7" cy="10" r="2"/>',
+  pause:'<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
+  key:'<circle cx="8" cy="8" r="4.5"/><path d="M11 11l8 8M16 16l2-2M19 19l2-2"/>',
+  inbox:'<path d="M3 12l3-8h12l3 8v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 12h5l1 2h6l1-2h5"/>',
 };
 function jvIcon(name, cls){ const p=_JV_ICONS[name]; if(!p) return ''; return '<svg class="jvi'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'; }
 // Fill any [data-ic] placeholder span with its professional SVG icon (nav, etc.).
@@ -3690,7 +3708,7 @@ function renderLogin(err){
   document.body.classList.add('public-view');  // hide nav chrome
   app.innerHTML =
     '<div style="max-width:340px;margin:100px auto;font-family:Inter,system-ui,sans-serif;text-align:center;">'+
-      '<div style="font-size:30px;">🔒</div><h2 style="margin:8px 0 16px;">Sign in to Jarvis</h2>'+
+      '<div style="color:var(--blue);margin-bottom:4px;">'+jvIcon('lock','big')+'</div><h2 style="margin:8px 0 16px;">Sign in to Jarvis</h2>'+
       '<input id="loginEmail" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;margin-bottom:8px;box-sizing:border-box;">'+
       '<input id="loginPw" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;margin-bottom:10px;box-sizing:border-box;">'+
       '<button class="btn primary" id="loginBtn" style="width:100%;">Sign in</button>'+
@@ -3989,7 +4007,7 @@ function showAsk(){
         '</div>'+
         '<button class="ah-collapse" id="ahCollapse" title="Collapse history">▶</button>'+
       '</div>'+
-      '<div class="ah-search-wrap"><input type="text" class="ah-search" id="ahSearch" placeholder="🔍 Search chats…"></div>'+
+      '<div class="ah-search-wrap"><input type="text" class="ah-search" id="ahSearch" placeholder="Search chats…"></div>'+
       '<div class="ah-list" id="ahList"><div class="ah-loading">Loading…</div></div>'+
     '</aside>'+
   '</div>'+
@@ -4080,14 +4098,14 @@ async function loadAskHistory(){
     };
     list.innerHTML = items.map(it => {
       const title = (it.question||'(untitled)').slice(0,80);
-      const scopeBadge = it.scope === 'corporate' ? '<span class="ah-scope corp">🌐</span>'
-                      : it.scope === 'group' ? '<span class="ah-scope group">🏢</span>'
-                      : it.scope === 'pending' ? '<span class="ah-scope pending">⏳</span>'
-                      : '<span class="ah-scope private">👤</span>';
+      const scopeBadge = it.scope === 'corporate' ? '<span class="ah-scope corp" title="Corporate">'+jvIcon('globe')+'</span>'
+                      : it.scope === 'group' ? '<span class="ah-scope group" title="Group">'+jvIcon('building')+'</span>'
+                      : it.scope === 'pending' ? '<span class="ah-scope pending" title="Pending">'+jvIcon('clock')+'</span>'
+                      : '<span class="ah-scope private" title="Private">'+jvIcon('user')+'</span>';
       const owner = (filter === 'all' && it.author_name) ? '<span class="ah-owner">'+esc(it.author_name)+'</span>' : '';
       return '<div class="ah-item" data-ah-id="'+esc(it.id)+'">'+
         '<div class="ah-item-title">'+scopeBadge+esc(title)+'</div>'+
-        '<div class="ah-item-meta"><span class="ah-date">🕐 '+fmtDate(it.at||0)+'</span>'+owner+'</div>'+
+        '<div class="ah-item-meta"><span class="ah-date">'+jvIcon('clock')+' '+fmtDate(it.at||0)+'</span>'+owner+'</div>'+
         '</div>';
     }).join('');
     list.querySelectorAll('.ah-item').forEach(el => el.addEventListener('click', ()=>{
@@ -4727,6 +4745,10 @@ async function doAsk(){
     ? toolCount+' tool'+(toolCount===1?'':'s')+', '+thinkSteps+' thinking step'+(thinkSteps===1?'':'s')
     : (d.engine || 'semantic layer')+' query';
 
+  // When the planner auto-relaxed an over-restrictive filter (0-row → data), tell the user.
+  const correctedNote = d.empty_corrected
+    ? '<div class="kb-corrected">'+jvIcon('refresh')+' Your first query returned no rows, so a filter was automatically relaxed to find the closest matching data.</div>'
+    : '';
   res.innerHTML='<div class="ask-result kbrief">'+
     // Title bar (Kaelio header pattern)
     '<div class="kb-titlebar">'+
@@ -4738,6 +4760,7 @@ async function doAsk(){
     '</div>'+
     // User question chip (right-aligned, light blue, like ChatGPT/Kaelio)
     '<div class="kb-userq"><div class="kb-userq-bubble">'+esc(q)+'</div></div>'+
+    correctedNote+
     // Collapsible Analysis disclosure
     '<details class="kb-analysis">'+
       '<summary><span class="kb-an-icon">'+jvIcon('bolt')+'</span> Analysis <span class="kb-an-detail">'+esc(analysisDetail)+'</span> <span class="kb-an-chev">▾</span></summary>'+
@@ -4953,15 +4976,15 @@ async function openShareModal(question, response){
       '<div class="field"><label>Who can see this?</label>'+
         '<div class="scope-options">'+
           '<label class="scope-opt"><input type="radio" name="kbScope" value="private" checked>'+
-            '<span class="scope-icon">👤</span>'+
+            '<span class="scope-icon">'+jvIcon('user','med')+'</span>'+
             '<span class="scope-text"><b>Just me</b><br><span class="muted">Only you can see this brief.</span></span>'+
           '</label>'+
           '<label class="scope-opt"><input type="radio" name="kbScope" value="group">'+
-            '<span class="scope-icon">🏢</span>'+
+            '<span class="scope-icon">'+jvIcon('building','med')+'</span>'+
             '<span class="scope-text"><b>Company / Group</b><br><span class="muted">Members of the chosen group can see it.</span></span>'+
           '</label>'+
           '<label class="scope-opt"><input type="radio" name="kbScope" value="corporate">'+
-            '<span class="scope-icon">🌐</span>'+
+            '<span class="scope-icon">'+jvIcon('globe','med')+'</span>'+
             '<span class="scope-text"><b>Corporate</b><br><span class="muted">Everyone in the organization can see it. '+(isAdmin?'':'<i>Will go to admin queue for approval.</i>')+'</span></span>'+
           '</label>'+
         '</div>'+
@@ -4996,7 +5019,7 @@ async function openShareModal(question, response){
         chart_spec: {type: (response||{}).widget?.type, title: (response||{}).widget?.title}
       })});
       const msg = scope === 'corporate' && !isAdmin ? 'Submitted for admin approval' : 'Shared as '+scope;
-      toast('✅ '+msg);
+      toast(msg);
       wrap.remove();
       if(typeof loadAskHistory === 'function') loadAskHistory();
     }catch(e){ toast('Share failed: '+e.message, true); }
@@ -5087,7 +5110,7 @@ async function renderConnectNative(){
     const ds=await api('/api/semantic/datasets').catch(()=>({project:'oh-data-warehouse',datasets:[]}));
     document.getElementById('connectActiveSource').innerHTML=
       '<div style="display:flex;align-items:center;gap:14px;">'+
-        '<div style="font-size:26px;">🔷</div>'+
+        '<div style="color:var(--blue);">'+jvIcon('layers','big')+'</div>'+
         '<div style="flex:1;"><div style="font-size:14px;font-weight:650;">'+esc(ds.project||'oh-data-warehouse')+' <span class="cat-badge installed" style="margin-left:8px;">LIVE SOURCE</span></div>'+
           '<div style="font-size:11.5px;color:var(--muted);margin-top:3px;">BigQuery · '+(ds.count||0)+' datasets · '+((S.graph||{}).table_count||0)+' curated tables</div></div>'+
         '<div style="font-size:11px;color:var(--muted);">~/.config/jarvis/bigquery-key.json</div>'+
@@ -5287,7 +5310,7 @@ async function openUploadModal(connId){
         new Date((h.at||0)*1000).toLocaleString()+'</div>').join('')+'</div>'
     : '';
   const html='<div class="mask show" id="upMask"><div class="modal" style="width:560px;">'+
-    '<div class="modal-head">📤 Upload to "'+esc(conn.name)+'"</div>'+
+    '<div class="modal-head" style="display:flex;align-items:center;gap:8px;">'+jvIcon('download')+'Upload to "'+esc(conn.name)+'"</div>'+
     '<div class="conn-modal-body">'+
       '<div style="font-size:13px;color:var(--muted);margin-bottom:14px;">'+
         'Accepts <b>CSV</b>, <b>TSV</b>, <b>Excel</b> (.xlsx / .xls). The file is parsed in-memory and the rows are loaded into:<br>'+
@@ -6487,8 +6510,8 @@ async function showPulse(){
       '<div class="pulse-section">'+
         '<div class="pulse-section-title"><h2>Jump back in</h2></div>'+
         '<div style="display:flex;flex-wrap:wrap;gap:8px;">'+
-          ((typeof _qpRecents==='function'?_qpRecents():[]).slice(0,1).map(r=>'<span data-pulsequery="'+esc(r.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">🔎 '+esc(r.name)+'</span>').join(''))+
-          ((typeof _rdRecents==='function'?_rdRecents():[]).slice(0,1).map(r=>'<span data-pulsereport="'+esc(r.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">📊 '+esc(r.name)+'</span>').join(''))+
+          ((typeof _qpRecents==='function'?_qpRecents():[]).slice(0,1).map(r=>'<span data-pulsequery="'+esc(r.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">'+jvIcon('search')+' '+esc(r.name)+'</span>').join(''))+
+          ((typeof _rdRecents==='function'?_rdRecents():[]).slice(0,1).map(r=>'<span data-pulsereport="'+esc(r.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">'+jvIcon('chart')+' '+esc(r.name)+'</span>').join(''))+
         '</div>'+
       '</div>' : '')+
 
@@ -6497,7 +6520,7 @@ async function showPulse(){
       '<div class="pulse-section">'+
         '<div class="pulse-section-title"><h2>Pinned reports</h2></div>'+
         '<div style="display:flex;flex-wrap:wrap;gap:8px;">'+
-          _rdFavs().map(f=>'<span data-pulsereport="'+esc(f.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">📊 '+esc(f.name)+'</span>').join('')+
+          _rdFavs().map(f=>'<span data-pulsereport="'+esc(f.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">'+jvIcon('chart')+' '+esc(f.name)+'</span>').join('')+
         '</div>'+
       '</div>' : '')+
 
@@ -6506,7 +6529,7 @@ async function showPulse(){
       '<div class="pulse-section">'+
         '<div class="pulse-section-title"><h2>Pinned queries</h2></div>'+
         '<div style="display:flex;flex-wrap:wrap;gap:8px;">'+
-          _qpFavs().map(f=>'<span data-pulsequery="'+esc(f.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">🔎 '+esc(f.name)+'</span>').join('')+
+          _qpFavs().map(f=>'<span data-pulsequery="'+esc(f.id)+'" style="cursor:pointer;padding:6px 12px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:13px;">'+jvIcon('search')+' '+esc(f.name)+'</span>').join('')+
         '</div>'+
       '</div>' : '')+
 
@@ -6518,14 +6541,14 @@ async function showPulse(){
 
     // Off-track goals
     '<div class="pulse-section">'+
-      '<div class="pulse-section-title"><h2>⚠ Needs attention</h2><span class="ps-count">'+(g.off||[]).length+' off-track</span>'+
+      '<div class="pulse-section-title"><h2 style="display:flex;align-items:center;gap:7px;">'+jvIcon('warn')+' Needs attention</h2><span class="ps-count">'+(g.off||[]).length+' off-track</span>'+
         '<a data-go="goals">Manage goals →</a></div>'+
       ((g.off||[]).length ? '<div class="pulse-cards">'+
         (g.off||[]).map(x=>{ const ev=x.evaluation||{}; const dp=ev.delta_pct; const dpS=(typeof dp==='number')?(dp>=0?'+':'')+dp.toFixed(1)+'%':'—';
           return '<div class="pulse-card flag" data-goalid="'+esc(x.id)+'"><h3>'+esc(x.name)+'</h3>'+
             '<p>'+esc(x.metric)+' on '+esc(x.table)+' · '+esc(x.period)+'</p>'+
             '<div class="pc-delta" style="color:var(--orange);">'+esc(dpS)+' vs target</div></div>'; }).join('')+
-        '</div>' : '<div class="pulse-empty">Everything is on track. 🎯</div>')+
+        '</div>' : '<div class="pulse-empty">Everything is on track.</div>')+
     '</div>'+
 
     // On-track highlights
@@ -6585,7 +6608,7 @@ async function loadPulseActivity(){
   catch(e){ host.innerHTML = '<div style="padding:14px;color:var(--muted);font-size:12px;">Activity unavailable.</div>'; return; }
   const cnt = document.getElementById('pulseActCount'); if(cnt) cnt.textContent = items.length ? (items.length+' recent') : '';
   if(!items.length){ host.innerHTML = '<div style="padding:14px;color:var(--muted);font-size:12px;font-style:italic;">No recent comments, alerts, or deliveries yet.</div>'; return; }
-  const ic = {comment:'💬', alert:'🔔', email:'📧'};
+  const ic = {comment:jvIcon('comment'), alert:jvIcon('bell'), email:jvIcon('mail')};
   host.innerHTML = items.map(it => {
     const when = it.at ? _relTime(it.at) : '';
     let body = '';
@@ -7788,7 +7811,7 @@ function rdElementHTML(el){
       '</div>';
     } else {
       inner = '<div class="rd-el-widget empty" style="width:100%;height:100%;">'+
-        '<div>📊 Query widget</div>'+
+        '<div style="display:flex;align-items:center;gap:6px;justify-content:center;">'+jvIcon('chart')+' Query widget</div>'+
         '<div style="font-size:11px;">Pick a saved query in the inspector →</div>'+
       '</div>';
     }
@@ -7911,7 +7934,7 @@ function renderPublicGate(token, info, err){
   const app = document.getElementById('app');
   app.innerHTML =
     '<div style="max-width:360px;margin:90px auto;text-align:center;font-family:Inter,system-ui,sans-serif;">'+
-      '<div style="font-size:34px;">🔒</div>'+
+      '<div style="color:var(--muted);">'+jvIcon('lock','big')+'</div>'+
       '<h2 style="margin:10px 0 4px;">Protected report</h2>'+
       '<p style="color:#64748b;">'+(info && info.alias ? esc(info.alias) : 'This report')+' is password-protected.</p>'+
       '<input type="password" id="pubPw" placeholder="Password" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;margin:10px 0;box-sizing:border-box;">'+
@@ -8216,7 +8239,7 @@ async function rdRenderInspector(){
       '</select></div>'+
       (mode==='sql'
         ? '<div class="rd-field"><label>SQL template</label><textarea id="rdEdSqlTpl" rows="6" style="width:100%;font-family:ui-monospace,monospace;font-size:11px;" placeholder="SELECT ... WHERE d BETWEEN {{date_start}} AND {{date_end}}">'+esc(p.sqlTemplate||'')+'</textarea></div>'+
-          '<div style="font-size:11px;color:var(--muted);line-height:1.45;">Use <code>{{name}}</code> tokens; set their values in <b>🔣 Variables</b> on the toolbar. Read-only SELECT/WITH.</div>'
+          '<div style="font-size:11px;color:var(--muted);line-height:1.45;">Use <code>{{name}}</code> tokens; set their values in <b>Variables</b> on the toolbar. Read-only SELECT/WITH.</div>'
         : '<div class="rd-field"><label>Saved query</label><select id="rdEdQuery">'+
             '<option value="">— pick a query —</option>'+opts+
           '</select></div>'+
@@ -8623,7 +8646,7 @@ function rdOpenTemplateGallery(){
     rdPersist();
     overlay.remove();
     rdFitToView(); // zoom so the whole template is visible at once
-    toast('Loaded template: '+tpl.name+'. Edit and click ⭐ Save to keep.');
+    toast('Loaded template: '+tpl.name+'. Edit and click Save to keep.');
   }));
 }
 
@@ -8685,7 +8708,7 @@ function rdOpenAIDesign(){
       rdApplyTheme(RD.themeKey, false);
       rdRenderTabs(); rdRenderPage(); rdRenderInspector(); rdPersist();
       overlay.remove();
-      toast('AI designed your report — edit and ⭐ Save to keep.');
+      toast('AI designed your report — edit and Save to keep.');
     } catch(e){
       btn.disabled = false; btn.textContent = 'Generate';
       toast('AI design failed: '+e.message, true);
@@ -8761,7 +8784,7 @@ function rdRenderQuickBar(){
   if(!favs.length && !recents.length){ host.innerHTML = '<div style="padding:5px 0;">'+pinBtn+'<span style="font-size:11px;color:var(--muted);">Pin reports for one-click access</span></div>'; return; }
   const chip = (item, star) => '<span data-rdquick="'+esc(item.id)+'" title="Open '+esc(item.name)+'" '+
     'style="display:inline-flex;align-items:center;gap:4px;max-width:170px;padding:3px 9px;margin:2px 3px 2px 0;border:1px solid var(--line);border-radius:14px;background:'+(star?'#fff7e6':'var(--bg2)')+';cursor:pointer;font-size:11px;color:var(--ink);">'+
-    (star?'<span style="color:#e0a400;">★</span>':'<span style="color:var(--muted2);">🕘</span>')+
+    (star?'<span style="color:#e0a400;">★</span>':'<span style="color:var(--muted2);">'+jvIcon('clock')+'</span>')+
     '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(item.name)+'</span></span>';
   host.innerHTML = '<div style="padding:5px 0;display:flex;flex-wrap:wrap;align-items:center;">'+pinBtn+
     favs.map(f=>chip(f,true)).join('')+recents.map(r=>chip(r,false)).join('')+'</div>';
@@ -8775,16 +8798,16 @@ async function rdLoadReportList(){
   try {
     const r = await api('/api/reports');
     const items = r.reports || [];
-    const opt = rep => { const cc = rep.open_comment_count||0; return '<option value="'+esc(rep.id)+'"'+(rep.id===RD.id?' selected':'')+'>'+esc(rep.name)+' ('+rep.page_count+'p'+(cc?', 💬'+cc:'')+')</option>'; };
+    const opt = rep => { const cc = rep.open_comment_count||0; return '<option value="'+esc(rep.id)+'"'+(rep.id===RD.id?' selected':'')+'>'+esc(rep.name)+' ('+rep.page_count+'p'+(cc?', '+cc+' notes':'')+')</option>'; };
     const groups = {}; items.forEach(rep => { const f = rep.folder || ''; (groups[f]=groups[f]||[]).push(rep); });
     const fnames = Object.keys(groups).filter(f=>f).sort();
     let html = '<option value="">— Open saved report —</option>';
-    fnames.forEach(f => { html += '<optgroup label="📁 '+esc(f)+'">'+groups[f].map(opt).join('')+'</optgroup>'; });
+    fnames.forEach(f => { html += '<optgroup label="'+esc(f)+'">'+groups[f].map(opt).join('')+'</optgroup>'; });
     if(groups['']){ html += fnames.length ? '<optgroup label="Ungrouped">'+groups[''].map(opt).join('')+'</optgroup>' : groups[''].map(opt).join(''); }
     sel.innerHTML = html;
     // Reflect the open-comment count on the Notes button for the current report.
     const cur = items.find(x=>x.id===RD.id); const nb = document.getElementById('rdNotesBtn');
-    if(nb) nb.textContent = '💬 Notes'+((cur && cur.open_comment_count) ? ' ('+cur.open_comment_count+')' : '');
+    if(nb) nb.innerHTML = jvIcon('comment')+' Notes'+((cur && cur.open_comment_count) ? ' ('+cur.open_comment_count+')' : '');
   } catch(e){
     sel.innerHTML = '<option value="">(could not load)</option>';
   }
@@ -8983,8 +9006,8 @@ async function rdOpenEmailModal(){
   try {
     const st = await api('/api/admin/settings/email');
     document.getElementById('rdEmStatus').innerHTML = st.configured
-      ? '✅ Email is configured ('+esc(st.host||'')+'). Schedules will send automatically.'
-      : '⚠️ SMTP is not configured yet — schedules are saved but won\'t send until SMTP_HOST / SMTP_FROM are set. You can still use “Send now” to test after configuring.';
+      ? jvIcon('check')+' Email is configured ('+esc(st.host||'')+'). Schedules will send automatically.'
+      : jvIcon('warn')+' SMTP is not configured yet — schedules are saved but won\'t send until SMTP_HOST / SMTP_FROM are set. You can still use “Send now” to test after configuring.';
   } catch(e){ document.getElementById('rdEmStatus').textContent = ''; }
   card.querySelector('#rdEmSave').addEventListener('click', async ()=>{
     const recipients = document.getElementById('rdEmRecips').value.trim();
@@ -9042,13 +9065,13 @@ function rdOpenNotes(){
   pane.style.cssText = 'position:fixed;top:0;right:0;width:360px;max-width:92vw;height:100%;z-index:450;background:#fff;border-left:1px solid var(--line-strong);box-shadow:-8px 0 28px rgba(15,23,42,.18);display:flex;flex-direction:column;font-size:13px;';
   pane.innerHTML =
     '<div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line-strong);background:var(--bg2);">'+
-      '<b style="flex:1;">💬 Notes — '+esc(RD.reportName||'report')+'</b>'+
+      '<b style="flex:1;display:flex;align-items:center;gap:7px;">'+jvIcon('comment')+' Notes — '+esc(RD.reportName||'report')+'</b>'+
       '<button class="btn" id="rdNotesClose" style="padding:3px 9px;">✕</button></div>'+
     '<div style="padding:6px 14px 0;"><label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;"><input type="checkbox" id="rdNotesHideResolved"> Hide resolved</label></div>'+
     '<div id="rdNotesList" style="flex:1;overflow:auto;padding:10px 14px;">Loading…</div>'+
     '<div style="border-top:1px solid var(--line-strong);padding:10px 14px;">'+
       '<div id="rdReplyBanner" style="display:none;font-size:11px;color:var(--muted);margin-bottom:5px;"></div>'+
-      '<label id="rdPinRow" style="display:none;font-size:11px;color:var(--ink);margin-bottom:5px;align-items:center;gap:6px;"><input type="checkbox" id="rdNotePin"> 📍 Pin to selected widget</label>'+
+      '<label id="rdPinRow" style="display:none;font-size:11px;color:var(--ink);margin-bottom:5px;align-items:center;gap:6px;"><input type="checkbox" id="rdNotePin"> '+jvIcon('pin')+' Pin to selected widget</label>'+
       '<textarea id="rdNoteText" rows="3" placeholder="Add a note… use @name@email.com to mention" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font:inherit;resize:vertical;"></textarea>'+
       '<button class="btn primary" id="rdNoteAdd" style="margin-top:6px;width:100%;">Add note</button></div>';
   document.body.appendChild(pane);
@@ -9105,7 +9128,7 @@ async function rdNotesRender(){
         (canDel ? '<span data-noteDel="'+esc(c.id)+'" style="cursor:pointer;color:var(--muted2);">Delete</span>' : '')+
       '</div>';
       const replies = (byParent[c.id]||[]).map(rc => card(rc, true)).join('');
-      const pin = c.element_id ? ' · <span data-noteEl="'+esc(c.element_id)+'" style="cursor:pointer;color:#3a7a9b;" title="Select this widget">📍 widget</span>' : '';
+      const pin = c.element_id ? ' · <span data-noteEl="'+esc(c.element_id)+'" style="cursor:pointer;color:#3a7a9b;" title="Select this widget">'+jvIcon('pin')+' widget</span>' : '';
       return '<div style="border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:9px;'+(isReply?'margin-left:16px;background:var(--bg2);':'')+(c.resolved&&!isReply?'opacity:.7;':'')+'">'+
         '<div style="font-size:11px;color:var(--muted);margin-bottom:4px;">'+esc(c.author||'anonymous')+' · '+esc(when)+pg+pin+(c.resolved?' · <span style="color:#166534;">resolved</span>':'')+'</div>'+
         '<div style="white-space:pre-wrap;color:var(--ink);">'+_rdMentionHtml(c.text||'')+'</div>'+ acts +
@@ -9433,7 +9456,7 @@ async function showQuery(){
               '<div class="qp-shelf-head">'+
                 '<span>Filters <span class="qp-shelf-count" id="qpCntFlt">0</span></span>'+
                 // R42 — Saved-filter library button (Business Rules)
-                '<button id="qpRulesBtn" title="Pick a saved Business Rule" style="background:transparent;border:0;color:var(--muted);font-size:11px;cursor:pointer;padding:0;font-weight:600;">📚 Library</button>'+
+                '<button id="qpRulesBtn" title="Pick a saved Business Rule" style="background:transparent;border:0;color:var(--muted);font-size:11px;cursor:pointer;padding:0;font-weight:600;">'+jvIcon('book')+' Library</button>'+
               '</div>'+
               '<div class="qp-shelf-items" id="qpItemsFlt"><span class="qp-shelf-hint">Click any field then choose an operator</span></div>'+
               // Popover with saved business rules (R42)
@@ -9623,7 +9646,7 @@ async function qpOpenScheduleModal(){
   const inp='width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font:inherit;';
   const cronOpts=Object.keys(_QP_SCHED_CRON).map(c=>'<option value="'+c+'">'+esc(_QP_SCHED_CRON[c])+'</option>').join('');
   back.innerHTML='<div style="background:#fff;border-radius:12px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(15,23,42,.3);">'+
-    '<div style="display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line-strong);"><b style="flex:1;">⏰ Email this query on a schedule</b><button class="qp-btn" id="qpSchClose">✕</button></div>'+
+    '<div style="display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line-strong);"><b style="flex:1;display:flex;align-items:center;gap:7px;">'+jvIcon('clock')+' Email this query on a schedule</b><button class="qp-btn" id="qpSchClose">✕</button></div>'+
     '<div style="padding:16px 18px;">'+
       '<div id="qpSchStatus" style="font-size:12px;color:var(--muted);margin-bottom:10px;">Checking email…</div>'+
       '<label style="font-size:11px;font-weight:700;color:var(--muted);">Recipients</label><input id="qpSchRecips" placeholder="you@co.com, team@co.com" style="'+inp+'margin:3px 0 10px;">'+
@@ -9636,7 +9659,7 @@ async function qpOpenScheduleModal(){
   document.body.appendChild(back);
   back.addEventListener('click',e=>{if(e.target===back)back.remove();});
   document.getElementById('qpSchClose').addEventListener('click',()=>back.remove());
-  try { const st=await api('/api/admin/settings/email'); document.getElementById('qpSchStatus').innerHTML = st.configured?'✅ Email configured — schedules will send automatically.':'⚠️ SMTP not configured yet — schedules save but won\'t send until set.'; } catch(e){}
+  try { const st=await api('/api/admin/settings/email'); document.getElementById('qpSchStatus').innerHTML = st.configured?(jvIcon('check')+' Email configured — schedules will send automatically.'):(jvIcon('warn')+' SMTP not configured yet — schedules save but won\'t send until set.'); } catch(e){}
   { const ht=document.getElementById('qpSchHookTest'); if(ht) ht.addEventListener('click', async ()=>{ const url=document.getElementById('qpSchHook').value.trim(); if(!url){ toast('Enter a webhook URL', true); return; } try{ const r=await api('/api/alerts/test-webhook',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})}); toast(r.ok?'Test delivered ✓':('Failed: '+(r.detail||'')), !r.ok);}catch(e){toast('Failed: '+e.message,true);} }); }
   document.getElementById('qpSchAdd').addEventListener('click', async ()=>{
     const recipients=document.getElementById('qpSchRecips').value.trim(); if(!recipients){ toast('Add a recipient', true); return; }
@@ -9753,20 +9776,20 @@ function jvClosePalette(){ const el=document.getElementById('jvPalette'); if(el)
 function _jvCommands(){
   const goAdmin = tab => { try { if(typeof TM==='object') TM.tab = tab; if(typeof showAdmin==='function') showAdmin(); } catch(e){} };
   const cmds = [
-    ['New query', 'Open the Query Panel', '➕', ()=>{ if(typeof showQuery==='function') showQuery(); }],
-    ['New report', 'Open the Report Designer', '🖼', ()=>{ if(typeof showDesigner==='function') showDesigner(); }],
-    ['Dashboards', 'Browse saved dashboards', '📊', ()=>{ if(typeof showList==='function') showList(); }],
-    ['Metrics', 'Browse metrics', '📈', ()=>{ if(typeof showMetrics==='function') showMetrics(); }],
-    ['Knowledge', 'Business rules & notes', '📓', ()=>{ if(typeof showKnowledge==='function') showKnowledge(); }],
-    ['Ask', 'Conversational data chat', '💬', ()=>{ if(typeof showAsk==='function') showAsk(); }],
-    ['Pulse (home)', 'Today’s overview', '🏠', ()=>{ if(typeof showPulse==='function') showPulse(); }],
-    ['Alerts', 'Metric threshold alerts', '🔔', ()=>goAdmin('alerts')],
-    ['Activity', 'Recent activity feed', '📣', ()=>goAdmin('activity')],
-    ['Report schedules / Jobs', 'Email schedules & jobs', '⏰', ()=>goAdmin('jobs')],
-    ['Settings', 'Appearance, email, API keys', '⚙️', ()=>goAdmin('settings')],
-    ['Connect data', 'Data sources & connections', '🔌', ()=>{ if(typeof showConnect==='function') showConnect(); }],
-    ['Curate', 'Semantic layer', '🧬', ()=>{ if(typeof showCurate==='function') showCurate(); }],
-    ['Keyboard shortcuts', 'Show the cheatsheet', '⌨', ()=>{ if(typeof jvShowShortcuts==='function') jvShowShortcuts(); }],
+    ['New query', 'Open the Query Panel', jvIcon('plus'), ()=>{ if(typeof showQuery==='function') showQuery(); }],
+    ['New report', 'Open the Report Designer', jvIcon('palette'), ()=>{ if(typeof showDesigner==='function') showDesigner(); }],
+    ['Dashboards', 'Browse saved dashboards', jvIcon('chart'), ()=>{ if(typeof showList==='function') showList(); }],
+    ['Metrics', 'Browse metrics', jvIcon('fields'), ()=>{ if(typeof showMetrics==='function') showMetrics(); }],
+    ['Knowledge', 'Business rules & notes', jvIcon('book'), ()=>{ if(typeof showKnowledge==='function') showKnowledge(); }],
+    ['Ask', 'Conversational data chat', jvIcon('comment'), ()=>{ if(typeof showAsk==='function') showAsk(); }],
+    ['Pulse (home)', 'Today’s overview', jvIcon('activity'), ()=>{ if(typeof showPulse==='function') showPulse(); }],
+    ['Alerts', 'Metric threshold alerts', jvIcon('bell'), ()=>goAdmin('alerts')],
+    ['Activity', 'Recent activity feed', jvIcon('megaphone'), ()=>goAdmin('activity')],
+    ['Report schedules / Jobs', 'Email schedules & jobs', jvIcon('clock'), ()=>goAdmin('jobs')],
+    ['Settings', 'Appearance, email, API keys', jvIcon('gear'), ()=>goAdmin('settings')],
+    ['Connect data', 'Data sources & connections', jvIcon('plug'), ()=>{ if(typeof showConnect==='function') showConnect(); }],
+    ['Curate', 'Semantic layer', jvIcon('layers'), ()=>{ if(typeof showCurate==='function') showCurate(); }],
+    ['Keyboard shortcuts', 'Show the cheatsheet', jvIcon('code'), ()=>{ if(typeof jvShowShortcuts==='function') jvShowShortcuts(); }],
   ];
   return cmds.map(([title, subtitle, icon, run]) => ({type:'action', title, subtitle, icon, run}));
 }
@@ -9774,7 +9797,7 @@ function _jvRecents(){
   const out = [];
   try {
     const rs = JSON.parse(localStorage.getItem('jarvis_pal_searches')||'[]')||[];
-    rs.slice(0,3).forEach(q=>out.push({type:'action', icon:'🕘', title:q, subtitle:'recent search', run:()=>{ const i=document.getElementById('jvPalInput'); if(i){ i.value=q; jvPalSearch(q); i.focus(); } }}));
+    rs.slice(0,3).forEach(q=>out.push({type:'action', icon:jvIcon('clock'), title:q, subtitle:'recent search', run:()=>{ const i=document.getElementById('jvPalInput'); if(i){ i.value=q; jvPalSearch(q); i.focus(); } }}));
   } catch(e){}
   try { (typeof _qpRecents==='function'?_qpRecents():[]).slice(0,4).forEach(r=>out.push({type:'query', id:r.id, title:r.name||'(query)', subtitle:'recent query'})); } catch(e){}
   try { (typeof _rdRecents==='function'?_rdRecents():[]).slice(0,4).forEach(r=>out.push({type:'report', id:r.id, title:r.name||'(report)', subtitle:'recent report'})); } catch(e){}
@@ -9800,12 +9823,12 @@ async function jvPalSearch(q){
 function jvPalRender(){
   const list = document.getElementById('jvPalList'); if(!list) return;
   if(!_jvPalResults.length){ list.innerHTML = '<div style="padding:16px 18px;color:var(--muted);font-size:13px;">No matches. Try another term.</div>'; return; }
-  const ic = {query:'🔎', report:'📊', metric:'📈', knowledge:'📓', alert:'🔔', action:'⚡'};
+  const ic = {query:jvIcon('search'), report:jvIcon('chart'), metric:jvIcon('fields'), knowledge:jvIcon('book'), alert:jvIcon('bell'), action:jvIcon('bolt')};
   const _nonAction = _jvPalResults.filter(r=>r.type!=='action').length;
   const countLine = _nonAction ? '<div style="padding:5px 18px;font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;">'+_nonAction+' result'+(_nonAction>1?'s':'')+'</div>' : '';
   list.innerHTML = countLine + _jvPalResults.map((r,i)=>
     '<div data-jvpal="'+i+'" style="display:flex;gap:11px;padding:10px 18px;cursor:pointer;align-items:center;'+(i===_jvPalSel?'background:#eef4f8;':'')+'">'+
-      '<div style="font-size:16px;">'+esc(r.icon || ic[r.type] || '•')+'</div>'+
+      '<div style="display:flex;align-items:center;justify-content:center;width:20px;color:var(--muted);">'+(r.icon || ic[r.type] || '•')+'</div>'+
       '<div style="flex:1;min-width:0;"><div style="font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(r.title)+'</div>'+
         '<div style="font-size:11px;color:var(--muted);">'+esc(r.subtitle||'')+'</div></div>'+
       '<div style="font-size:10px;color:var(--muted2);text-transform:uppercase;">'+esc(r.type==='action'?'go':r.type)+'</div>'+
@@ -9832,7 +9855,7 @@ function qpRenderQuickBar(){
   if(!favs.length && !recents.length){ host.innerHTML = ''; return; }
   const chip = (item, star) => '<span data-qpquick="'+esc(item.id)+'" title="Open '+esc(item.name)+'" '+
     'style="display:inline-flex;align-items:center;gap:4px;max-width:150px;padding:3px 9px;margin:2px 3px 2px 0;border:1px solid var(--line);border-radius:14px;background:'+(star?'#fff7e6':'var(--bg2)')+';cursor:pointer;font-size:11px;color:var(--ink);">'+
-    (star?'<span style="color:#e0a400;">★</span>':'<span style="color:var(--muted2);">🕘</span>')+
+    (star?'<span style="color:#e0a400;">★</span>':'<span style="color:var(--muted2);">'+jvIcon('clock')+'</span>')+
     '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(item.name)+'</span></span>';
   let h = '';
   if(favs.length) h += '<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">★ Favorites</div>'+favs.map(f=>chip(f,true)).join('');
@@ -9850,7 +9873,7 @@ async function qpLoadSavedQueries(){
     const r = await api('/api/queries');
     const items = r.queries || [];
     if(!items.length){
-      el.innerHTML = '<span style="font-style:italic;color:var(--muted2);">No saved queries yet. Build one above and click ⭐ Save query.</span>';
+      el.innerHTML = '<span style="font-style:italic;color:var(--muted2);">No saved queries yet. Build one above and click Save query.</span>';
       return;
     }
     // Group by folder — folders first (alphabetical), ungrouped last.
@@ -9863,7 +9886,7 @@ async function qpLoadSavedQueries(){
         '<div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;">'+
           esc(q.name)+
           '<span style="margin-left:auto;cursor:pointer;font-size:11px;color:'+(qpIsFav(q.id)?'#e0a400':'var(--muted2)')+';" data-qpqfav="'+esc(q.id)+'" title="'+(qpIsFav(q.id)?'Unpin':'Pin to favorites')+'">'+(qpIsFav(q.id)?'★':'☆')+'</span>'+
-          '<span style="cursor:pointer;color:var(--muted2);font-size:11px;" data-qpqfolder="'+esc(q.id)+'" title="Move to folder">📁</span>'+
+          '<span style="cursor:pointer;color:var(--muted2);font-size:11px;" data-qpqfolder="'+esc(q.id)+'" title="Move to folder">'+jvIcon('folder')+'</span>'+
           '<span style="cursor:pointer;color:var(--muted2);font-size:11px;" data-qpqdup="'+esc(q.id)+'" title="Duplicate">⧉</span>'+
           '<span style="cursor:pointer;color:var(--muted2);font-size:10px;" data-qpqdel="'+esc(q.id)+'" title="Delete">✕</span>'+
         '</div>'+
@@ -9885,7 +9908,7 @@ async function qpLoadSavedQueries(){
     el.innerHTML = countLine + chips + shown.map(f => {
       const label = f || 'Ungrouped';
       const isCol = collapsed.includes(f);
-      const header = (f || folderNames.length) ? '<div data-qpfold="'+esc(f)+'" style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;margin:8px 0 2px;cursor:pointer;">'+(isCol?'▸':'▾')+' '+(f?'📁 ':'')+esc(label)+' <span style="opacity:.6;">('+groups[f].length+')</span></div>' : '';
+      const header = (f || folderNames.length) ? '<div data-qpfold="'+esc(f)+'" style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;margin:8px 0 2px;cursor:pointer;">'+(isCol?'▸':'▾')+' '+(f?jvIcon('folder')+' ':'')+esc(label)+' <span style="opacity:.6;">('+groups[f].length+')</span></div>' : '';
       return header + (isCol ? '' : groups[f].map(rowHtml).join(''));
     }).join('');
     el.querySelectorAll('[data-qpfchip]').forEach(c=>c.addEventListener('click', ()=>{ window._qpFolderFilter = c.getAttribute('data-qpfchip'); qpLoadSavedQueries(); }));
@@ -10785,7 +10808,7 @@ function qpRenderResult(){
         '<div class="qp-sql-bar">'+
           '<button class="qp-btn primary" id="qpSqlRun">▶ Run edited SQL</button>'+
           '<button class="qp-btn" id="qpSqlReset">↺ Reset to generated</button>'+
-          '<button class="qp-btn" id="qpSqlDetect" title="Detect {{variables}} in the SQL">🔎 Params</button>'+
+          '<button class="qp-btn" id="qpSqlDetect" title="Detect {{variables}} in the SQL">'+jvIcon('search')+' Params</button>'+
           '<button class="qp-btn" id="qpSqlCopy" title="Copy SQL">⧉ Copy</button>'+
           '<button class="qp-btn" id="qpSqlDl" title="Download .sql">⬇ .sql</button>'+
           '<span style="font-size:11px;color:var(--muted);">Use <code>{{name}}</code> for parameters · read-only SELECT/WITH</span>'+
@@ -11224,7 +11247,7 @@ function qpInspectRow(row, allCols, dimsLen){
   let drill = '';
   if(dimCols.length && QP.dimensions && QP.dimensions.length && !(QP.lastResult && QP.lastResult._raw)){
     drill = '<div style="padding:10px 14px;border-top:1px solid var(--line-strong);display:flex;gap:8px;flex-wrap:wrap;">'+
-      '<button class="qp-btn primary" id="qpDrillDetail" style="padding:5px 11px;">🔍 Detail rows</button>'+
+      '<button class="qp-btn primary" id="qpDrillDetail" style="padding:5px 11px;">'+jvIcon('search')+' Detail rows</button>'+
       '<button class="qp-btn" id="qpDrillKeep" style="padding:5px 11px;">✓ Keep only this</button>'+
       '<button class="qp-btn" id="qpDrillExcl" style="padding:5px 11px;">✕ Exclude this</button>'+
       '<button class="qp-btn" id="qpDrillCopy" style="padding:5px 11px;">⧉ Copy row</button></div>';
@@ -11480,7 +11503,7 @@ function qpRenderSqlVars(){
         '<select id="qpVarPreset" style="margin-left:auto;font-size:12px;padding:4px 8px;border:1px solid var(--line);border-radius:6px;">'+
           '<option value="">Apply preset…</option>'+Object.keys(presets).map(p => '<option value="'+esc(p)+'">'+esc(p)+'</option>').join('')+
         '</select>'+
-        '<button class="qp-btn" id="qpVarSave" style="padding:4px 10px;">💾 Save preset</button>'+
+        '<button class="qp-btn" id="qpVarSave" style="padding:4px 10px;">'+jvIcon('save')+' Save preset</button>'+
       '</div>'+
       '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;">'+
         names.map(n => {
@@ -11720,7 +11743,7 @@ async function showBriefs(){
     '<div style="font-size:13px;color:var(--muted);margin-bottom:18px;">Saved strategic briefs. Opening one re-runs the query so the data is always fresh.</div>'+
     '<div id="briefsList"><div class="loading">Loading…</div></div>';
   try{ const d=await api('/api/briefs'); const list=document.getElementById('briefsList');
-    if(!d.count){ list.innerHTML='<div class="empty-state">No saved briefs yet.<br>Ask a question, then click ⭐ Save brief.</div>'; return; }
+    if(!d.count){ list.innerHTML='<div class="empty-state">No saved briefs yet.<br>Ask a question, then click Save brief.</div>'; return; }
     list.className='grid-views';
     list.innerHTML = d.briefs.map(b =>
       '<div class="view-card" data-bid="'+esc(b.id)+'">'+
@@ -11800,10 +11823,10 @@ async function showList(){
     '<div class="spacer"></div>'+
     '<button class="btn primary" id="newViewBtn">+ New dashboard</button></div>'+
     '<div class="am-tabs" id="viewScopeTabs" style="margin-bottom:18px;">'+
-      '<button class="am-tab'+(tab==='all'?' active':'')+'" data-vtab="all">📚 All views <span class="tab-count" id="cntAll">·</span></button>'+
-      '<button class="am-tab'+(tab==='mine'?' active':'')+'" data-vtab="mine">👤 Mine <span class="tab-count" id="cntMine">·</span></button>'+
-      '<button class="am-tab'+(tab==='group'?' active':'')+'" data-vtab="group">🏢 Company <span class="tab-count" id="cntGroup">·</span></button>'+
-      '<button class="am-tab'+(tab==='corporate'?' active':'')+'" data-vtab="corporate">🌐 Corporate <span class="tab-count" id="cntCorp">·</span></button>'+
+      '<button class="am-tab'+(tab==='all'?' active':'')+'" data-vtab="all">'+jvIcon('book')+' All views <span class="tab-count" id="cntAll">·</span></button>'+
+      '<button class="am-tab'+(tab==='mine'?' active':'')+'" data-vtab="mine">'+jvIcon('user')+' Mine <span class="tab-count" id="cntMine">·</span></button>'+
+      '<button class="am-tab'+(tab==='group'?' active':'')+'" data-vtab="group">'+jvIcon('building')+' Company <span class="tab-count" id="cntGroup">·</span></button>'+
+      '<button class="am-tab'+(tab==='corporate'?' active':'')+'" data-vtab="corporate">'+jvIcon('globe')+' Corporate <span class="tab-count" id="cntCorp">·</span></button>'+
     '</div>'+
     '<div id="viewsList"><div class="loading">Loading…</div></div>';
   document.getElementById('newViewBtn').addEventListener('click', createView);
@@ -11872,9 +11895,9 @@ function renderViewsList(allViews, searchQ){
   list.className='grid-views';
   const scopeBadge = scope => {
     const s = (scope||'personal').toLowerCase();
-    if(s==='corporate') return '<span class="scope scope-corp">🌐 Corporate</span>';
-    if(s==='group'||s==='company') return '<span class="scope scope-group">🏢 Company</span>';
-    return '<span class="scope scope-personal">👤 Personal</span>';
+    if(s==='corporate') return '<span class="scope scope-corp">'+jvIcon('globe')+' Corporate</span>';
+    if(s==='group'||s==='company') return '<span class="scope scope-group">'+jvIcon('building')+' Company</span>';
+    return '<span class="scope scope-personal">'+jvIcon('user')+' Personal</span>';
   };
   list.innerHTML = views.map(v =>
     '<div class="view-card" data-id="'+esc(v.id)+'">'+
@@ -12007,7 +12030,7 @@ function renderDashboard(){
   (v.params||[]).forEach(applyDashParamFilter);  // reflect current param values as filters
   _dashHL = null;  // clear any brushing when a dashboard (re)opens
   const scope=v.scope||'personal';
-  const scopeChip='<span class="scope-chip scope-'+scope+'" id="scopeChip" title="'+(S.editing?'Click to change':'')+'">'+(scope==='company'?'🏢 Company':'👤 Personal')+'</span>';
+  const scopeChip='<span class="scope-chip scope-'+scope+'" id="scopeChip" title="'+(S.editing?'Click to change':'')+'">'+(scope==='company'?jvIcon('building')+' Company':jvIcon('user')+' Personal')+'</span>';
   const editAttr = S.editing ? ' contenteditable="true" spellcheck="false"' : '';
   const descText = v.description || (S.editing?'Add a description…':'');
   const descCls = !v.description && S.editing ? 'desc desc-placeholder' : 'desc';
@@ -12024,7 +12047,7 @@ function renderDashboard(){
         ['off','hourly','daily','weekly'].map(o => '<option value="'+o+'"'+((v.refresh||'off')===o?' selected':'')+'>'+(o==='off'?'⏱ Auto: Off':'⏱ '+o.charAt(0).toUpperCase()+o.slice(1))+'</option>').join('')+
       '</select>'+
       '<select class="btn" id="clickActionSel" title="What happens when you click a chart mark" style="padding:8px 10px;">'+
-        [['filter','🖱 Click: Filter'],['highlight','🖱 Click: Highlight'],['param','🖱 Click: Set parameter'],['none','🖱 Click: Off']].map(o => '<option value="'+o[0]+'"'+((v.clickAction||'filter')===o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+
+        [['filter','Click: Filter'],['highlight','Click: Highlight'],['param','Click: Set parameter'],['none','Click: Off']].map(o => '<option value="'+o[0]+'"'+((v.clickAction||'filter')===o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+
       '</select>'+
       '<button class="btn" id="dashParamBtn" title="Dashboard parameters">⎇ Parameters</button>'+
       '<button class="btn" id="printBtn" title="Save as PDF (uses browser print)">⎙ PDF</button>'+
@@ -12063,13 +12086,13 @@ function renderDashboard(){
       const items = g.items.map(({page,idx})=>{
         const editing = S.editing;
         const controls = editing ? '<span class="ptedit" data-ptedit="'+idx+'" title="Rename">✎</span><span class="ptdel" data-ptdel="'+idx+'" title="Delete page">✕</span>' : '';
-        const icon = page.section==='Overview' ? '🏠'
-                   : page.section==='Summary' ? '📋'
-                   : page.section==='Campaign Analytics' ? '📈'
-                   : page.section==='Website Analytics' ? '🌐'
-                   : page.section==='Local Listings' ? '📍'
-                   : page.section==='Content' ? '📰'
-                   : page.section==='Detailed Metrics' ? '📊'
+        const icon = page.section==='Overview' ? jvIcon('activity')
+                   : page.section==='Summary' ? jvIcon('file')
+                   : page.section==='Campaign Analytics' ? jvIcon('chart')
+                   : page.section==='Website Analytics' ? jvIcon('globe')
+                   : page.section==='Local Listings' ? jvIcon('pin')
+                   : page.section==='Content' ? jvIcon('book')
+                   : page.section==='Detailed Metrics' ? jvIcon('fields')
                    : '•';
         return '<button class="side-nav-item'+(idx===S.pageIdx?' active':'')+'" data-pg="'+idx+'">'+
                  '<span class="snav-icon">'+icon+'</span>'+
@@ -12312,7 +12335,7 @@ function renderPageHeader(){
         '</div>'+
         // Mobile app icon
         '<button class="ph-mobile-btn" id="phMobileBtn" title="Download the Jarvis mobile app">'+
-          '<span class="ph-mobile-icon">📱</span>'+
+          '<span class="ph-mobile-icon">'+jvIcon('phone')+'</span>'+
         '</button>'+
         // Filter icon
         '<button class="ph-filter-btn" id="phFilterBtn" title="Open page filters">'+
@@ -12378,21 +12401,21 @@ function renderPageHeader(){
     menu.innerHTML =
       '<div class="ph-share-section">Share with</div>'+
       '<button class="ph-share-item" id="phShareScopePrivate">'+
-        '<span class="ph-share-icon-lg">🔒</span>'+
+        '<span class="ph-share-icon-lg">'+jvIcon('lock')+'</span>'+
         '<span><div class="psi-title">Private '+(curScope==='private'?'✓':'')+'</div><div class="psi-sub">Only you can see this dashboard</div></span>'+
       '</button>'+
       '<button class="ph-share-item" id="phShareScopeGroup">'+
-        '<span class="ph-share-icon-lg">👥</span>'+
+        '<span class="ph-share-icon-lg">'+jvIcon('users')+'</span>'+
         '<span><div class="psi-title">Publish to a group '+(curScope==='group'?'✓':'')+'</div><div class="psi-sub">Share with one of your teams</div></span>'+
       '</button>'+
       '<button class="ph-share-item" id="phShareScopeCorp">'+
-        '<span class="ph-share-icon-lg">🏢</span>'+
+        '<span class="ph-share-icon-lg">'+jvIcon('building')+'</span>'+
         '<span><div class="psi-title">Publish to corporate '+(curScope==='corporate'?'✓':(curScope==='pending'?'⏳':''))+'</div>'+
         '<div class="psi-sub">'+(window._meUser?.role==='admin'?'Visible to everyone in the organization':'Sent to admin queue for approval')+'</div></span>'+
       '</button>'+
       '<div class="ph-share-divider"></div>'+
       '<button class="ph-share-item" id="phShareBuild">'+
-        '<span class="ph-share-icon-lg">📊</span>'+
+        '<span class="ph-share-icon-lg">'+jvIcon('file')+'</span>'+
         '<span><div class="psi-title">Build PDF Report</div><div class="psi-sub">Render every page with current filters</div></span>'+
       '</button>'+
       '<button class="ph-share-item" id="phShareQuick">'+
@@ -12605,7 +12628,7 @@ function openMobileAppModal(){
   overlay.innerHTML =
     '<div class="mob-card">'+
       '<button class="mob-x" title="Close">✕</button>'+
-      '<div class="mob-head"><span class="mob-phone-icon">📱</span><b>Install Jarvis on Your Phone</b></div>'+
+      '<div class="mob-head"><span class="mob-phone-icon">'+jvIcon('phone')+'</span><b>Install Jarvis on Your Phone</b></div>'+
       '<p class="mob-sub">Jarvis is a Progressive Web App — install it from your phone\'s browser and it appears on your home screen like any native app. Scan a QR code below to begin, or click <b>Install Now</b> if you\'re already on the device.</p>'+
 
       // Install Now button — only shown when the browser has fired beforeinstallprompt
@@ -12700,7 +12723,7 @@ async function printAllPages(){
         '<div class="print-page-header">'+
           (p.section ? '<span class="pp-section">'+esc(p.section)+'</span>' : '')+
           '<h2 class="pp-title">'+esc(p.name || ('Page '+(i+1)))+'</h2>'+
-          '<span class="pp-date">📅 '+esc(niceRange)+'</span>'+
+          '<span class="pp-date">'+jvIcon('calendar')+' '+esc(niceRange)+'</span>'+
         '</div>'+
         '<div class="widget-grid print-widget-grid" id="ppgrid_'+i+'"></div>'+
       '</section>';
@@ -13695,7 +13718,7 @@ async function renderSnapAdPreview(w, body, start, end, limit){
     <div class="ad-card">
       <div class="ad-thumb">
         ${thumbHtml}
-        <span class="placeholder-icon" style="${c.thumb?'display:none;':''}">${isVideo?'▶':'🖼'}</span>
+        <span class="placeholder-icon" style="${c.thumb?'display:none;':''}">${isVideo?'▶':jvIcon('image')}</span>
         <span class="ad-platform">Snapchat</span>
         ${c.status ? `<span class="ad-status ${esc((c.status||'').toLowerCase())}">${esc(c.status)}</span>` : ''}
       </div>
@@ -15073,8 +15096,8 @@ async function showAutomations(){
         '<div class="am-sub">Schedule reports + trigger app-to-app actions when conditions are met</div>'+
       '</div>'+
       '<div class="am-tabs">'+
-        '<button class="am-tab'+(AM.tab==='reports'?' active':'')+'" data-amtab="reports">📅 Scheduled Reports</button>'+
-        '<button class="am-tab'+(AM.tab==='actions'?' active':'')+'" data-amtab="actions">⚡ Actions</button>'+
+        '<button class="am-tab'+(AM.tab==='reports'?' active':'')+'" data-amtab="reports">'+jvIcon('calendar')+' Scheduled Reports</button>'+
+        '<button class="am-tab'+(AM.tab==='actions'?' active':'')+'" data-amtab="actions">'+jvIcon('bolt')+' Actions</button>'+
       '</div>'+
       '<div class="am-toolbar">'+
         '<input class="am-search" placeholder="Search automations…" id="amSearch">'+
@@ -15096,7 +15119,7 @@ async function loadAndRenderAutomations(){
     const r = await api(ep);
     AM[AM.tab] = r[AM.tab] || [];
     if(!AM[AM.tab].length){
-      list.innerHTML = '<div class="am-empty"><div class="am-empty-icon">'+(AM.tab==='reports'?'📅':'⚡')+'</div>'+
+      list.innerHTML = '<div class="am-empty"><div class="am-empty-icon">'+(AM.tab==='reports'?jvIcon('calendar','big'):jvIcon('bolt','big'))+'</div>'+
         '<div class="am-empty-title">No '+(AM.tab==='reports'?'scheduled reports':'actions')+' yet</div>'+
         '<div class="am-empty-sub">Create one to '+(AM.tab==='reports'?'auto-deliver dashboards on a cadence':'react when conditions in your data are met')+'.</div></div>';
       return;
@@ -15112,7 +15135,7 @@ async function loadAndRenderAutomations(){
         if(userCount)  distBits.push(userCount+' user'+(userCount===1?'':'s'));
         if(groupCount) distBits.push(groupCount+' group'+(groupCount===1?'':'s'));
         if(a.mobile_push) distBits.push('mobile push');
-        const distLabel = distBits.length ? distBits.join(' · ') : '⚠️ no recipients';
+        const distLabel = distBits.length ? distBits.join(' · ') : 'no recipients';
         const fmtTag = '<span class="am-card-tag am-card-tag-fmt">'+esc((a.output_format||'pdf').toUpperCase())+'</span>';
         const schedLabel = a.frequency==='weekly' ? (a.frequency+' · '+(a.day_of_week||'mon')+' @ '+(a.time_utc||'09:00')+' UTC')
                          : a.frequency==='monthly' ? (a.frequency+' · day '+(a.day_of_month||1)+' @ '+(a.time_utc||'09:00')+' UTC')
@@ -15125,7 +15148,7 @@ async function loadAndRenderAutomations(){
             '<span>Next: '+fmtAt(a.next_run_at)+'</span>'+
             '<span>Last: '+fmtAt(a.last_run_at)+'</span>'+
             '<span>'+(a.run_count||0)+' runs</span>'+
-            '<span class="'+(distBits.length?'':'am-warn')+'">📨 '+esc(distLabel)+'</span>'+
+            '<span class="'+(distBits.length?'':'am-warn')+'">'+jvIcon('mail')+' '+esc(distLabel)+'</span>'+
           '</div>'+
           '<div class="am-card-actions">'+
             '<button class="btn" data-amrun="'+esc(a.id)+'">▶ Run now</button>'+
@@ -15143,7 +15166,7 @@ async function loadAndRenderAutomations(){
             '<span>Last fire: '+fmtAt(a.last_fire_at)+'</span>'+
           '</div>'+
           '<div class="am-card-actions">'+
-            '<button class="btn" data-amtest="'+esc(a.id)+'">🧪 Test trigger</button>'+
+            '<button class="btn" data-amtest="'+esc(a.id)+'">'+jvIcon('beaker')+' Test trigger</button>'+
             '<button class="btn primary" data-amaction-run="'+esc(a.id)+'">▶ Run action now</button>'+
             '<button class="btn" data-amedit="'+esc(a.id)+'">Edit</button>'+
             '<button class="btn danger" data-amdel="'+esc(a.id)+'">Delete</button>'+
@@ -15165,8 +15188,8 @@ async function loadAndRenderAutomations(){
       try{
         const r = await api('/api/automations/actions/'+encodeURIComponent(aid)+'/run',{method:'POST'});
         const summary = r.action_type==='airbyte_sync'
-          ? (r.ok ? '✅ Airbyte sync triggered — status '+r.airbyte_status : '❌ Sync failed — '+(r.airbyte_response||r.detail||'see logs'))
-          : (r.message || (r.ok ? '✅ Action executed' : '❌ Action failed'));
+          ? (r.ok ? 'Airbyte sync triggered — status '+r.airbyte_status : 'Sync failed — '+(r.airbyte_response||r.detail||'see logs'))
+          : (r.message || (r.ok ? 'Action executed' : 'Action failed'));
         toast(summary, !r.ok);
         loadAndRenderAutomations();
       }catch(e){ toast('Run failed: '+e.message, true); b.textContent = '▶ Run action now'; b.disabled = false; }
@@ -15232,16 +15255,16 @@ async function openReportAutomationModal(it){
     '<div class="modal-head">'+(it?'Edit':'Create')+' Scheduled Report</div>'+
     '<div class="conn-modal-body">'+
 
-    '<div class="form-section"><div class="form-section-head">📝 Basic Information</div>'+
+    '<div class="form-section"><div class="form-section-head">'+jvIcon('note')+' Basic Information</div>'+
       '<div class="field"><label>Report Name *</label><input type="text" id="amName" value="'+esc(it?.name||'')+'" placeholder="e.g. Weekly Cancer Marketing Report"></div>'+
       '<div class="field"><label>Description</label><textarea id="amDesc" placeholder="What this report contains and who should care.">'+esc(it?.description||'')+'</textarea></div>'+
     '</div>'+
 
-    '<div class="form-section"><div class="form-section-head">📊 Pick a Dashboard</div>'+
+    '<div class="form-section"><div class="form-section-head">'+jvIcon('chart')+' Pick a Dashboard</div>'+
       '<div class="field">'+
         '<div class="rep-pick-toggle">'+
-          '<label class="rep-pick-opt'+(viewMode==='mine'?' active':'')+'"><input type="radio" name="amViewMode" value="mine" '+(viewMode==='mine'?'checked':'')+'> 👤 Mine ('+myViews.length+')</label>'+
-          (isAdmin ? '<label class="rep-pick-opt'+(viewMode==='all'?' active':'')+'"><input type="radio" name="amViewMode" value="all" '+(viewMode==='all'?'checked':'')+'> 🌐 All ('+allViews.length+')</label>' : '')+
+          '<label class="rep-pick-opt'+(viewMode==='mine'?' active':'')+'"><input type="radio" name="amViewMode" value="mine" '+(viewMode==='mine'?'checked':'')+'> '+jvIcon('user')+' Mine ('+myViews.length+')</label>'+
+          (isAdmin ? '<label class="rep-pick-opt'+(viewMode==='all'?' active':'')+'"><input type="radio" name="amViewMode" value="all" '+(viewMode==='all'?'checked':'')+'> '+jvIcon('globe')+' All ('+allViews.length+')</label>' : '')+
         '</div>'+
         '<label>Dashboard *</label>'+
         '<select id="amViewId" class="dash-picker">'+
@@ -15254,7 +15277,7 @@ async function openReportAutomationModal(it){
       '</div>'+
     '</div>'+
 
-    '<div class="form-section"><div class="form-section-head">📅 Schedule</div>'+
+    '<div class="form-section"><div class="form-section-head">'+jvIcon('calendar')+' Schedule</div>'+
       '<div class="grid-2">'+
         '<div class="field"><label>Frequency</label><select id="amFreq">'+
           ['hourly','daily','weekly','monthly'].map(f=>'<option value="'+f+'"'+((it?.frequency||'weekly')===f?' selected':'')+'>'+f.charAt(0).toUpperCase()+f.slice(1)+'</option>').join('')+'</select></div>'+
@@ -15280,7 +15303,7 @@ async function openReportAutomationModal(it){
       '</div>'+
     '</div>'+
 
-    '<div class="form-section"><div class="form-section-head">📨 Recipients</div>'+
+    '<div class="form-section"><div class="form-section-head">'+jvIcon('mail')+' Recipients</div>'+
       '<div class="field"><label>Send to users</label>'+
         '<div class="recip-picker" id="amUserPicker">'+
           (users.length
@@ -15301,7 +15324,7 @@ async function openReportAutomationModal(it){
         ['pdf','csv','both'].map(o=>'<option value="'+o+'"'+((it?.output_format||'pdf')===o?' selected':'')+'>'+o.toUpperCase()+'</option>').join('')+'</select></div>'+
     '</div>'+
 
-    '<div class="form-section"><div class="form-section-head">🎯 Conditional Reporting (optional)</div>'+
+    '<div class="form-section"><div class="form-section-head">'+jvIcon('target')+' Conditional Reporting (optional)</div>'+
       '<div class="field"><label><input type="checkbox" id="amCond"'+(it?.conditional?' checked':'')+'> Only send when criteria are met</label></div>'+
       '<div class="field"><label>Criteria (expression)</label><input type="text" id="amCondExpr" value="'+esc(it?.conditional_expr||'')+'" placeholder="e.g. total_leads > 100 AND cpl < 200"></div>'+
     '</div>'+
@@ -15356,7 +15379,7 @@ async function openReportAutomationModal(it){
     else if(f==='weekly') summary = 'Weekly on '+dowName+' at '+tm+' UTC';
     else if(f==='monthly') summary = 'Monthly on day '+dom+' at '+tm+' UTC';
     const summEl = document.getElementById('amSchedSummary');
-    if(summEl) summEl.textContent = '📅 '+summary;
+    if(summEl) summEl.textContent = summary;
   };
   ['amFreq','amDow','amDom','amTime'].forEach(id => {
     const el = document.getElementById(id);
@@ -15454,10 +15477,10 @@ function showReportPreviewModal(r){
     '</div></div>'
   ).join('') || '<div class="muted">No groups selected.</div>';
   const missing = (rs.missing_groups||[]).length
-    ? '<div class="prev-warn">⚠️ '+rs.missing_groups.length+' group id(s) not found: '+esc(rs.missing_groups.join(', '))+'</div>' : '';
+    ? '<div class="prev-warn">'+jvIcon('warn')+' '+rs.missing_groups.length+' group id(s) not found: '+esc(rs.missing_groups.join(', '))+'</div>' : '';
   const issuesHtml = (r.issues||[]).length
     ? '<div class="prev-issues"><b>Issues to fix:</b><ul>'+r.issues.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul></div>'
-    : '<div class="prev-ok">✅ Looks ready to send.</div>';
+    : '<div class="prev-ok">'+jvIcon('check')+' Looks ready to send.</div>';
   const v = r.view||{};
   const dw = r.date_window||{};
   const upcomingHtml = (r.upcoming_runs||[]).map(ts=>'<li>'+fmtAt(ts)+'</li>').join('');
@@ -15467,20 +15490,20 @@ function showReportPreviewModal(r){
     '<div class="modal-head">▶ Test Send — Distribution Preview</div>'+
     '<div class="conn-modal-body">'+
       issuesHtml+
-      '<div class="prev-section"><h4>📊 Dashboard</h4>'+
+      '<div class="prev-section"><h4>'+jvIcon('chart')+' Dashboard</h4>'+
         '<div class="prev-row"><b>'+esc(v.name||'(none)')+'</b>'+
         (v.page_count!=null ? ' <span class="muted">· '+v.page_count+' pages · '+v.widget_count+' widgets</span>' : '')+
         '</div></div>'+
-      '<div class="prev-section"><h4>📅 Date window</h4>'+
+      '<div class="prev-section"><h4>'+jvIcon('calendar')+' Date window</h4>'+
         '<div class="prev-row"><b>'+esc(dw.label||'')+'</b> '+
         '<span class="muted">'+esc(dw.start||'')+' → '+esc(dw.end||'')+'</span></div></div>'+
-      '<div class="prev-section"><h4>📨 Recipients ('+(rs.total||0)+' total emails)</h4>'+
+      '<div class="prev-section"><h4>'+jvIcon('mail')+' Recipients ('+(rs.total||0)+' total emails)</h4>'+
         ((bs.direct||[]).length ? '<div class="prev-row"><b>Direct emails:</b> '+bs.direct.map(esc).join(', ')+'</div>' : '')+
         ((bs.users||[]).length  ? '<div class="prev-row"><b>From users:</b> '+bs.users.map(esc).join(', ')+'</div>' : '')+
         '<div class="prev-row"><b>Groups:</b></div>'+groupRows+missing+
       '</div>'+
-      '<div class="prev-section"><h4>🗓 Next 3 scheduled runs</h4><ul>'+upcomingHtml+'</ul></div>'+
-      '<div class="prev-section"><h4>📤 Delivery</h4>'+
+      '<div class="prev-section"><h4>'+jvIcon('calendar')+' Next 3 scheduled runs</h4><ul>'+upcomingHtml+'</ul></div>'+
+      '<div class="prev-section"><h4>'+jvIcon('download')+' Delivery</h4>'+
         '<div class="prev-row">Format: <b>'+esc((r.format||'').toUpperCase())+'</b>'+
         ' · Notify on arrival: <b>'+(r.notify?'yes':'no')+'</b>'+
         ' · Mobile push: <b>'+(r.mobile_push?'yes':'no')+'</b></div>'+
@@ -15501,8 +15524,8 @@ async function openActionAutomationModal(it){
   // Native sources show first (Edgar's existing BQ/data-mart sources), then
   // Airbyte sources (prefixed "Airbyte: <connector>") if Airbyte is wired up.
   let dataSources = [];
-  try { const c = await api('/api/connections'); dataSources = (c.connections||[]).map(x => '🔷 '+x.name); } catch(e){}
-  if(!dataSources.length) dataSources = ['🔷 BigQuery DWH','🔷 Data Mart: Facilities','🔷 Data Mart: ER','🔷 Gold','🔷 Orlando Health Website'];
+  try { const c = await api('/api/connections'); dataSources = (c.connections||[]).map(x => x.name); } catch(e){}
+  if(!dataSources.length) dataSources = ['BigQuery DWH','Data Mart: Facilities','Data Mart: ER','Gold','Orlando Health Website'];
   // Add Airbyte sources — they show up in the same dropdown so Actions can
   // trigger against any Airbyte-synced dataset (Google Ads, GA4, HubSpot, etc.)
   try{
@@ -15510,7 +15533,7 @@ async function openActionAutomationModal(it){
     const items = (r && (r.data || r.sources)) || [];
     items.forEach(s => {
       const name = s.name || s.sourceName || s.connectorName || 'Airbyte source';
-      dataSources.push('🔌 Airbyte: '+name);
+      dataSources.push('Airbyte: '+name);
     });
   }catch(e){ /* Airbyte not configured — silently skip */ }
 
@@ -15524,14 +15547,14 @@ async function openActionAutomationModal(it){
     '<div class="conn-modal-body">'+
 
     // ─── Basic Information ───
-    '<div class="form-section"><div class="form-section-head">⚙ Basic Information</div>'+
+    '<div class="form-section"><div class="form-section-head">'+jvIcon('gear')+' Basic Information</div>'+
       '<div class="field"><label>Automation Name *</label><input type="text" id="aaName" value="'+esc(it?.name||'')+'" placeholder="e.g., Pause ER campaign when wait > 60 min"></div>'+
       '<div class="field"><label>Description</label><textarea id="aaDesc" placeholder="Describe what this automation does and when it should trigger…">'+esc(it?.description||'')+'</textarea></div>'+
       '<div class="field"><label><span class="aa-switch"><input type="checkbox" id="aaActive"'+(it?.active?' checked':'')+'><i></i></span> Active (automation will run when conditions are met)</label></div>'+
     '</div>'+
 
     // ─── Trigger Configuration ───
-    '<div class="form-section"><div class="form-section-head">📡 Trigger Configuration <span class="aa-logic-pill"><span class="aa-logic-label">Logic:</span>'+
+    '<div class="form-section"><div class="form-section-head">'+jvIcon('antenna')+' Trigger Configuration <span class="aa-logic-pill"><span class="aa-logic-label">Logic:</span>'+
       '<button class="aa-logic-btn'+((trigger.logic||'AND')==='AND'?' active':'')+'" data-aa-logic="AND">AND</button>'+
       '<button class="aa-logic-btn'+((trigger.logic||'AND')==='OR' ?' active':'')+'" data-aa-logic="OR">OR</button>'+
       '</span></div>'+
@@ -15551,28 +15574,28 @@ async function openActionAutomationModal(it){
     '</div>'+
 
     // ─── Automation Type ───
-    '<div class="form-section"><div class="form-section-head">🎯 Automation Type</div>'+
+    '<div class="form-section"><div class="form-section-head">'+jvIcon('target')+' Automation Type</div>'+
       '<div class="aa-types" id="aaTypes">'+
-        actionTypeCard('email_notification','📧','Email Notification','Send email notifications when conditions are met', actType)+
-        actionTypeCard('task','📋','Task / Work Item','Create a task in CentralReach, Asana, or Jira', actType)+
-        actionTypeCard('webhook','🪝','Webhook','POST a JSON payload to a URL', actType)+
-        actionTypeCard('slack','💬','Slack Message','Post a message to a Slack channel', actType)+
-        actionTypeCard('pause_campaign','⏸️','Pause Ad Campaign','Pause a Google Ads or Meta campaign', actType)+
-        actionTypeCard('resume_campaign','▶️','Resume Ad Campaign','Resume a paused campaign', actType)+
-        actionTypeCard('jarvis_notify','🔔','Jarvis In-App Notification','Show a banner on user dashboards', actType)+
-        actionTypeCard('airbyte_sync','🔌','Trigger Airbyte Sync','Force-sync any Airbyte connection to pull fresh data immediately', actType)+
+        actionTypeCard('email_notification',jvIcon('mail'),'Email Notification','Send email notifications when conditions are met', actType)+
+        actionTypeCard('task',jvIcon('file'),'Task / Work Item','Create a task in CentralReach, Asana, or Jira', actType)+
+        actionTypeCard('webhook',jvIcon('hook'),'Webhook','POST a JSON payload to a URL', actType)+
+        actionTypeCard('slack',jvIcon('comment'),'Slack Message','Post a message to a Slack channel', actType)+
+        actionTypeCard('pause_campaign',jvIcon('pause'),'Pause Ad Campaign','Pause a Google Ads or Meta campaign', actType)+
+        actionTypeCard('resume_campaign',jvIcon('play'),'Resume Ad Campaign','Resume a paused campaign', actType)+
+        actionTypeCard('jarvis_notify',jvIcon('bell'),'Jarvis In-App Notification','Show a banner on user dashboards', actType)+
+        actionTypeCard('airbyte_sync',jvIcon('plug'),'Trigger Airbyte Sync','Force-sync any Airbyte connection to pull fresh data immediately', actType)+
       '</div>'+
     '</div>'+
 
     // ─── Action-specific configuration (Task Content style) ───
-    '<div class="form-section" id="aaActionCfgSection"><div class="form-section-head">⚙ Action Configuration</div>'+
+    '<div class="form-section" id="aaActionCfgSection"><div class="form-section-head">'+jvIcon('gear')+' Action Configuration</div>'+
       '<div id="aaActionCfg"></div>'+
     '</div>'+
 
     '</div>'+
     '<div class="modal-foot">'+
       '<button class="btn ghost" id="aaCancel">Cancel</button>'+
-      '<button class="btn" id="aaTest">🧪 Test Automation</button>'+
+      '<button class="btn" id="aaTest">'+jvIcon('beaker')+' Test Automation</button>'+
       '<button class="btn primary" id="aaSave">'+(it?'Save Changes':'Create Automation')+'</button>'+
     '</div></div>';
   document.body.appendChild(wrap);
@@ -15664,7 +15687,7 @@ async function openActionAutomationModal(it){
             '</div>'+
             '<div class="field"><label><input type="checkbox" id="acAbWait" '+(cfg.wait_for_completion?' checked':'')+'> Wait for sync to complete before reporting success</label></div>';
         }catch(e){
-          cfgEl.innerHTML = '<div class="hint" style="color:var(--orange)">Airbyte not reachable — wire it up in Connect → Airbyte catalog → ⚙ Airbyte config first.</div>';
+          cfgEl.innerHTML = '<div class="hint" style="color:var(--orange)">Airbyte not reachable — wire it up in Connect → Airbyte catalog → Airbyte config first.</div>';
         }
       })();
     }
@@ -15802,11 +15825,11 @@ async function loadAndRenderTeam(){
           ? [u.first_name,u.last_name].filter(Boolean).join(' ')
           : (u.name||'');
       const pwBadge = u => u.password_hash
-          ? '<span class="tm-pwbadge set" title="Password set by '+esc(u.password_set_by||'user')+'">🔒 password set</span>'
-          : '<span class="tm-pwbadge none" title="No password set">⚠️ no password</span>';
+          ? '<span class="tm-pwbadge set" title="Password set by '+esc(u.password_set_by||'user')+'">'+jvIcon('lock')+' password set</span>'
+          : '<span class="tm-pwbadge none" title="No password set">'+jvIcon('warn')+' no password</span>';
       const inviteBadge = u => {
           if(u.invite && !u.invite.consumed && (u.invite.expires_at||0) > Date.now()/1000)
-            return '<span class="tm-pwbadge invited">📧 invite pending</span>';
+            return '<span class="tm-pwbadge invited">'+jvIcon('mail')+' invite pending</span>';
           if(u.invite && u.invite.consumed)
             return '<span class="tm-pwbadge ok">✓ accepted</span>';
           return '<span class="tm-pwbadge none">not invited</span>';
@@ -15828,11 +15851,11 @@ async function loadAndRenderTeam(){
             '<td>'+pwBadge(u)+'</td>'+
             '<td>'+inviteBadge(u)+'</td>'+
             '<td style="text-align:right;white-space:nowrap;">'+
-              '<button class="btn small" data-tminv="'+esc(u.id)+'" title="Send invite email (rotates token)">📧 '+
+              '<button class="btn small" data-tminv="'+esc(u.id)+'" title="Send invite email (rotates token)">'+jvIcon('mail')+' '+
                 ((u.invite && !u.invite.consumed) ? 'Resend' : 'Invite')+
               '</button> '+
               '<button class="btn small" data-tmedit="'+esc(u.id)+'" title="Edit user">✎</button> '+
-              '<button class="btn small danger" data-tmdel="'+esc(u.id)+'" title="Delete user">🗑</button>'+
+              '<button class="btn small danger" data-tmdel="'+esc(u.id)+'" title="Delete user">'+jvIcon('trash')+'</button>'+
             '</td>'+
           '</tr>').join('')+
         '</tbody></table>';
@@ -15871,7 +15894,7 @@ async function loadAndRenderTeam(){
             '<td>'+esc(g.description||'-')+'</td>'+
             '<td><span class="tm-pill">'+(g.member_count||0)+' members</span></td>'+
             '<td>'+(g.created_at?new Date(g.created_at*1000).toLocaleDateString():'-')+'</td>'+
-            '<td style="text-align:right;"><button class="btn small" data-tmgrpedit="'+esc(g.id)+'">✎</button> <button class="btn small danger" data-tmgrpdel="'+esc(g.id)+'">🗑</button></td>'+
+            '<td style="text-align:right;"><button class="btn small" data-tmgrpedit="'+esc(g.id)+'">✎</button> <button class="btn small danger" data-tmgrpdel="'+esc(g.id)+'">'+jvIcon('trash')+'</button></td>'+
           '</tr>').join('')+
         '</tbody></table>';
       document.getElementById('tmGroup').addEventListener('click', ()=>openGroupModal());
@@ -15918,7 +15941,7 @@ async function renderJobsPanel(panel){
       '<button class="btn" id="jbReload">↻</button>'+
     '</div>'+
     '<div id="jbList" style="border:1px solid var(--line);border-radius:10px;overflow:hidden;"></div>'+
-    '<div style="display:flex;align-items:center;gap:8px;margin:22px 0 8px;"><h3 style="margin:0;font-size:15px;flex:1;">📧 Report email schedules</h3>'+
+    '<div style="display:flex;align-items:center;gap:8px;margin:22px 0 8px;"><h3 style="margin:0;font-size:15px;flex:1;">'+jvIcon('mail')+' Report email schedules</h3>'+
       '<input id="jbSchedSearch" placeholder="Filter…" style="padding:5px 9px;border:1px solid var(--line);border-radius:6px;font-size:12px;width:160px;"></div>'+
     '<div id="jbSchedList" style="border:1px solid var(--line);border-radius:10px;overflow:hidden;"></div>';
   document.getElementById('jbReload').addEventListener('click', () => { _jobsLoad(); _reportSchedulesLoad(); });
@@ -16057,8 +16080,8 @@ async function _activityLoad(){
   if(sq) items = items.filter(it => JSON.stringify(it).toLowerCase().includes(sq));
   if(!items.length){ el.innerHTML = '<div style="padding:18px;color:var(--muted);font-style:italic;">No activity'+(kind?' of this type':'')+' yet.</div>'; return; }
   const _kc = {comment:0,alert:0,email:0}; items.forEach(it=>{ if(_kc[it.kind]!=null) _kc[it.kind]++; });
-  const _kcLine = '<div style="padding:6px 14px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--line);background:#f8fafc;">💬 '+_kc.comment+' · 🔔 '+_kc.alert+' · 📧 '+_kc.email+'</div>';
-  const ic = {comment:'💬', alert:'🔔', email:'📧'};
+  const _kcLine = '<div style="padding:6px 14px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--line);background:#f8fafc;">'+jvIcon('comment')+' '+_kc.comment+' · '+jvIcon('bell')+' '+_kc.alert+' · '+jvIcon('mail')+' '+_kc.email+'</div>';
+  const ic = {comment:jvIcon('comment'), alert:jvIcon('bell'), email:jvIcon('mail')};
   el.innerHTML = items.map(it => {
     const when = it.at ? _relTime(it.at) : '';
     let body = '';
@@ -16101,7 +16124,7 @@ async function renderAlertsPanel(panel){
       '<p style="color:var(--muted);font-size:13px;margin:0 0 14px;">Alerts run a saved query on a schedule, reduce a column to one value, and email you when it crosses a threshold. Inert until SMTP is configured.</p>'+
       // Digest card
       '<div style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:14px;">'+
-        '<label style="display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:8px;cursor:pointer;"><input type="checkbox" id="digEnabled" '+(digest.enabled?'checked':'')+'> 📋 Daily digest — one email summarizing all firing alerts</label>'+
+        '<label style="display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:8px;cursor:pointer;"><input type="checkbox" id="digEnabled" '+(digest.enabled?'checked':'')+'> '+jvIcon('file')+' Daily digest — one email summarizing all firing alerts</label>'+
         '<div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">'+
           '<div style="flex:0 0 200px;"><label style="font-size:11px;font-weight:700;color:var(--muted);">When</label><select id="digCron" style="'+inp+'">'+digestCronOpts+'</select></div>'+
           '<div style="flex:1;min-width:180px;"><label style="font-size:11px;font-weight:700;color:var(--muted);">Recipients</label><input id="digRecips" value="'+esc(digest.recipients||'')+'" placeholder="ops@co.com" style="'+inp+'"></div>'+
@@ -16264,7 +16287,7 @@ async function _alertsLoad(){
       const lv = (a.last_value!=null) ? (Math.round(a.last_value*100)/100) : '—';
       const tags = (a.tags||[]).map(t=>'<span style="font-size:9px;background:#eef2f7;color:#3a7a9b;padding:0 6px;border-radius:8px;margin-right:3px;">'+esc(t)+'</span>').join('');
       const snoozed = (a.snooze_until||0) > now;
-      const snoozeLbl = snoozed ? ' <span style="font-size:9px;background:#fef3c7;color:#b45309;padding:0 6px;border-radius:8px;">💤 snoozed</span>' : '';
+      const snoozeLbl = snoozed ? ' <span style="font-size:9px;background:#fef3c7;color:#b45309;padding:0 6px;border-radius:8px;">snoozed</span>' : '';
       return '<div style="display:grid;grid-template-columns:1.3fr 1.4fr 1fr 0.9fr 1.4fr;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line);font-size:12px;align-items:center;'+(a.enabled?'':'opacity:.5;')+'">'+
         '<div><b>'+esc(a.name)+'</b>'+snoozeLbl+'<div style="font-size:10px;color:var(--muted);"><span data-alopenq="'+esc(a.query_id||'')+'" style="cursor:pointer;color:#3a7a9b;">'+esc(a.query_name||'')+'</span> · '+esc(_AL_CRON[a.cron]||a.cron)+'</div>'+(tags?'<div style="margin-top:3px;">'+tags+'</div>':'')+'</div>'+
         '<div style="color:var(--muted);">'+cond+'</div>'+
@@ -16571,8 +16594,8 @@ async function _srLoad(){
   list.innerHTML = items.map(x =>
     '<div class="sr-row" data-srid="'+esc(x.id)+'" style="padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer;">'+
       '<div style="display:flex;gap:8px;align-items:center;margin-bottom:3px;">'+_srBadge(x.status)+_srCplx(x.complexity)+
-        (x.blocked?'<span style="font-size:10px;color:#b91c1c;">⛔ blocked</span>':'')+
-        (x.error && !x.blocked?'<span style="font-size:10px;color:#b91c1c;">⚠ error</span>':'')+
+        (x.blocked?'<span style="font-size:10px;color:#b91c1c;">'+jvIcon('x')+' blocked</span>':'')+
+        (x.error && !x.blocked?'<span style="font-size:10px;color:#b91c1c;">'+jvIcon('warn')+' error</span>':'')+
         '<span style="font-size:10px;color:var(--muted);margin-left:auto;">×'+(x.seen_count||1)+'</span>'+
       '</div>'+
       '<div style="font-family:ui-monospace,monospace;font-size:11px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(x.snippet||'')+'</div>'+
@@ -16710,15 +16733,15 @@ async function renderUsagePanel(panel){
       '<div><h2 class="usage-title">Usage Analytics</h2>'+
         '<div class="usage-sub">Platform usage statistics and trends</div></div>'+
       '<div class="usage-controls">'+
-        '<button class="usage-date-btn" id="usageDateBtn">📅 '+esc(_fmtUsageDate(w.from))+' – '+esc(_fmtUsageDate(w.to))+' ▾</button>'+
+        '<button class="usage-date-btn" id="usageDateBtn">'+jvIcon('calendar')+' '+esc(_fmtUsageDate(w.from))+' – '+esc(_fmtUsageDate(w.to))+' ▾</button>'+
         '<button class="usage-export-btn" id="usageExportBtn">⬇ Export</button>'+
       '</div>'+
     '</div>'+
     // ─── 3 KPI cards ───
     '<div class="usage-kpi-row">'+
-      '<div class="usage-kpi"><div class="usage-kpi-info"><div class="usage-kpi-label">Conversations</div><div class="usage-kpi-val" id="usageKpiConv">—</div></div><span class="usage-kpi-icon">💬</span></div>'+
-      '<div class="usage-kpi"><div class="usage-kpi-info"><div class="usage-kpi-label">Messages</div><div class="usage-kpi-val" id="usageKpiMsg">—</div></div><span class="usage-kpi-icon">📤</span></div>'+
-      '<div class="usage-kpi"><div class="usage-kpi-info"><div class="usage-kpi-label">Active Users</div><div class="usage-kpi-val" id="usageKpiAU">—</div></div><span class="usage-kpi-icon">👥</span></div>'+
+      '<div class="usage-kpi"><div class="usage-kpi-info"><div class="usage-kpi-label">Conversations</div><div class="usage-kpi-val" id="usageKpiConv">—</div></div><span class="usage-kpi-icon">'+jvIcon('comment')+'</span></div>'+
+      '<div class="usage-kpi"><div class="usage-kpi-info"><div class="usage-kpi-label">Messages</div><div class="usage-kpi-val" id="usageKpiMsg">—</div></div><span class="usage-kpi-icon">'+jvIcon('download')+'</span></div>'+
+      '<div class="usage-kpi"><div class="usage-kpi-info"><div class="usage-kpi-label">Active Users</div><div class="usage-kpi-val" id="usageKpiAU">—</div></div><span class="usage-kpi-icon">'+jvIcon('users')+'</span></div>'+
     '</div>'+
     // ─── Activity Over Time chart ───
     '<div class="usage-card">'+
@@ -16868,9 +16891,9 @@ function renderUsageFeedback(fb){
   el.innerHTML =
     '<div class="usage-fb-head"><b>User Feedback</b><span>'+fb.total+' rated</span></div>'+
     '<div class="usage-fb-row">'+
-      '<span class="usage-fb-pill ok">👍 '+fb.up+'</span>'+
+      '<span class="usage-fb-pill ok">'+jvIcon('thumbUp')+' '+fb.up+'</span>'+
       '<div class="usage-fb-bar"><div class="usage-fb-bar-fill" style="width:'+pctUp+'%"></div></div>'+
-      '<span class="usage-fb-pill bad">👎 '+fb.down+'</span>'+
+      '<span class="usage-fb-pill bad">'+jvIcon('thumbDown')+' '+fb.down+'</span>'+
     '</div>';
 }
 
@@ -16960,19 +16983,19 @@ async function openUserModal(existing){
 
   // Status banner for the edit case
   const invStatus = it && it.invite && !it.invite.consumed
-    ? '<div class="um-invite-banner">📧 Invite pending — sent '+new Date(it.invite.issued_at*1000).toLocaleString()+', expires '+new Date(it.invite.expires_at*1000).toLocaleString()+'</div>'
+    ? '<div class="um-invite-banner">'+jvIcon('mail')+' Invite pending — sent '+new Date(it.invite.issued_at*1000).toLocaleString()+', expires '+new Date(it.invite.expires_at*1000).toLocaleString()+'</div>'
     : (it && it.activated_at
         ? '<div class="um-invite-banner ok">✓ Account active — joined '+new Date(it.activated_at*1000).toLocaleString()+'</div>'
         : (it && it.password_hash
-            ? '<div class="um-invite-banner ok">🔒 Password is set ('+esc(it.password_set_by||'user')+'). The user can sign in.</div>'
-            : (it ? '<div class="um-invite-banner warn">⚠️ No password set yet — send an invite from the row when you\'re ready.</div>' : '')));
+            ? '<div class="um-invite-banner ok">'+jvIcon('lock')+' Password is set ('+esc(it.password_set_by||'user')+'). The user can sign in.</div>'
+            : (it ? '<div class="um-invite-banner warn">'+jvIcon('warn')+' No password set yet — send an invite from the row when you\'re ready.</div>' : '')));
 
   wrap.innerHTML = '<div class="modal" style="width:600px;max-height:90vh;overflow-y:auto;">'+
     '<div class="modal-head">'+(it?'Edit user':'Create User')+'</div>'+
     '<div class="conn-modal-body">'+
       invStatus+
 
-      '<div class="form-section"><div class="form-section-head">👤 Identity</div>'+
+      '<div class="form-section"><div class="form-section-head">'+jvIcon('user')+' Identity</div>'+
         '<div class="grid-2">'+
           '<div class="field"><label>First name *</label><input type="text" id="umFirst" value="'+esc(it?.first_name||'')+'" placeholder="Jane"></div>'+
           '<div class="field"><label>Last name *</label><input type="text" id="umLast" value="'+esc(it?.last_name||'')+'" placeholder="Doe"></div>'+
@@ -16984,7 +17007,7 @@ async function openUserModal(existing){
       '</div>'+
 
       (it ? '' :
-        '<div class="form-section"><div class="form-section-head">🔒 Initial password (optional)</div>'+
+        '<div class="form-section"><div class="form-section-head">'+jvIcon('lock')+' Initial password (optional)</div>'+
           '<div class="grid-2">'+
             '<div class="field"><label>Password</label><input type="password" id="umPw" placeholder="At least 8 characters" autocomplete="new-password"></div>'+
             '<div class="field"><label>Confirm password</label><input type="password" id="umPw2" placeholder="Repeat password" autocomplete="new-password"></div>'+
@@ -16992,7 +17015,7 @@ async function openUserModal(existing){
           '<div class="hint">Set a temporary password for the user, or leave blank and let them choose one when they accept the invite. If you set one, the invite link will let them reset it.</div>'+
         '</div>')+
 
-      '<div class="form-section"><div class="form-section-head">🎫 Access</div>'+
+      '<div class="form-section"><div class="form-section-head">'+jvIcon('key')+' Access</div>'+
         '<div class="grid-2">'+
           '<div class="field"><label>Role</label><select id="umRole">'+
             [['user','User — read + ask AI'],['admin','Admin — full control']].map(r=>'<option value="'+r[0]+'"'+((it?.role||'user')===r[0]?' selected':'')+'>'+r[1]+'</option>').join('')+'</select></div>'+
@@ -17012,9 +17035,9 @@ async function openUserModal(existing){
 
       (it ? '' :
         '<div class="um-invite-explainer">'+
-          '<b>📨 Two-step flow:</b><br>'+
+          '<b>'+jvIcon('mail')+' Two-step flow:</b><br>'+
           'Step 1 — <b>Create User</b> saves the user record with the identity + (optional) password you provided.<br>'+
-          'Step 2 — From the Users table, click <b>📧 Invite</b> to email the link. The link lets the user reset whatever password you set.'+
+          'Step 2 — From the Users table, click <b>Invite</b> to email the link. The link lets the user reset whatever password you set.'+
         '</div>')+
     '</div>'+
     '<div class="modal-foot">'+
@@ -17060,8 +17083,8 @@ async function openUserModal(existing){
         toast('User saved');
       } else {
         const created = await api('/api/team/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-        toast(body.password ? 'User created — they can sign in now. Click 📧 Invite when ready to email them.'
-                            : 'User created — click 📧 Invite to email the signup link.');
+        toast(body.password ? 'User created — they can sign in now. Click Invite when ready to email them.'
+                            : 'User created — click Invite to email the signup link.');
         // Offer immediate invite send after create
         if(confirm('Send the invite email to '+email+' now?')){
           try{
@@ -17079,7 +17102,7 @@ function showInviteLinkModal(email, link, mailto){
   const fullLink = (window.location.origin && window.location.origin !== 'null' ? window.location.origin : '') + link;
   const wrap = document.createElement('div'); wrap.className='mask show';
   wrap.innerHTML = '<div class="modal" style="width:560px;">'+
-    '<div class="modal-head">📧 Invitation Ready</div>'+
+    '<div class="modal-head">'+jvIcon('mail')+' Invitation Ready</div>'+
     '<div class="conn-modal-body">'+
       '<div class="um-invite-banner ok">An invitation token was minted for <b>'+esc(email)+'</b>. It expires in 7 days.</div>'+
       '<div class="field"><label>Invitation link</label>'+
@@ -17156,8 +17179,8 @@ async function showDataSources(){
       '</div>'+
       '<div class="am-tabs">'+
         '<button class="am-tab'+(DS.tab==='create'?' active':'')+'" data-dstab="create">➕ Create source</button>'+
-        '<button class="am-tab'+(DS.tab==='active'?' active':'')+'" data-dstab="active">🔌 Active sources</button>'+
-        '<button class="am-tab'+(DS.tab==='config'?' active':'')+'" data-dstab="config">⚙ Airbyte config</button>'+
+        '<button class="am-tab'+(DS.tab==='active'?' active':'')+'" data-dstab="active">'+jvIcon('plug')+' Active sources</button>'+
+        '<button class="am-tab'+(DS.tab==='config'?' active':'')+'" data-dstab="config">'+jvIcon('gear')+' Airbyte config</button>'+
       '</div>'+
       '<div id="dsPanel">Loading…</div>'+
     '</div>';
@@ -17200,7 +17223,7 @@ async function renderDsCreate(panel){
     }catch(e){
       panel.innerHTML =
         '<div class="ds-empty">'+
-          '<div class="ds-empty-icon">⚠️</div>'+
+          '<div class="ds-empty-icon">'+jvIcon('warn','big')+'</div>'+
           '<div class="ds-empty-title">Could not reach Jarvis backend</div>'+
           '<div class="ds-empty-sub">Backend returned: '+esc(e.message||'unknown error')+'</div>'+
           '<div style="margin-top:14px"><button class="btn primary" id="dsRetry">Retry</button></div>'+
@@ -17237,7 +17260,7 @@ async function renderDsCreate(panel){
   // ─── Grid of activate cards ─────────────────────────────────────
   const cardHtml = matches.slice(0, 400).map(s =>
     '<div class="ds-card" data-ds-act="'+esc(s.id||'')+'">'+
-      '<div class="ds-card-icon">'+(s.icon ? '<img src="'+esc(s.icon)+'" alt="" onerror="this.style.display=\'none\'">' : '🔌')+'</div>'+
+      '<div class="ds-card-icon">'+(s.icon ? '<img src="'+esc(s.icon)+'" alt="" onerror="this.style.display=\'none\'">' : jvIcon('plug','big'))+'</div>'+
       '<div class="ds-card-name">'+esc(s.name||'')+'</div>'+
       '<div class="ds-card-meta">'+esc(s.category||'')+' · '+esc(s.support_level||s.release_stage||'community')+'</div>'+
       '<button class="ds-card-btn">Activate</button>'+
@@ -17245,16 +17268,16 @@ async function renderDsCreate(panel){
   ).join('') || '<div class="hint">No connectors match your filters.</div>';
 
   const fallbackBanner = DS.is_fallback
-    ? '<div class="ds-banner warn">📋 Showing 35 popular connectors. Click any card to set it up in Airbyte (where the full 600+ catalog is always available).</div>'
+    ? '<div class="ds-banner warn">'+jvIcon('file')+' Showing 35 popular connectors. Click any card to set it up in Airbyte (where the full 600+ catalog is always available).</div>'
     : '';
   panel.innerHTML =
     (DS.config && !DS.config.configured
-      ? '<div class="ds-banner warn">⚠️ Airbyte URL not configured — open the <b>Airbyte config</b> tab to point Jarvis at your local Airbyte.</div>' : '')+
+      ? '<div class="ds-banner warn">'+jvIcon('warn')+' Airbyte URL not configured — open the <b>Airbyte config</b> tab to point Jarvis at your local Airbyte.</div>' : '')+
     fallbackBanner+
     '<div class="ds-toolbar">'+
       '<input type="text" class="ds-search" id="dsSearch" placeholder="Search 600+ connectors…" value="'+esc(DS.search)+'">'+
       '<button class="btn" id="dsRefresh">↻ Refresh catalog</button>'+
-      '<button class="btn primary" id="dsOpenAirbyte">🔌 Open Airbyte ↗</button>'+
+      '<button class="btn primary" id="dsOpenAirbyte">'+jvIcon('plug')+' Open Airbyte ↗</button>'+
     '</div>'+
     '<div class="ds-native"><div class="ds-native-head">Popular databases & warehouses</div>'+
       '<div class="ds-native-row">'+(nativeRow||'<div class="hint">Catalog still loading…</div>')+'</div></div>'+
@@ -17348,7 +17371,7 @@ async function renderDsActive(panel){
     const items = (r && (r.data || r.sources)) || [];
     if(!items.length){
       panel.innerHTML = '<div class="ds-empty">'+
-        '<div class="ds-empty-icon">📭</div>'+
+        '<div class="ds-empty-icon">'+jvIcon('inbox','big')+'</div>'+
         '<div class="ds-empty-title">No active sources yet</div>'+
         '<div class="ds-empty-sub">Go to <b>Create source</b> to activate your first connector.</div></div>';
       return;
@@ -17361,8 +17384,8 @@ async function renderDsActive(panel){
         '<td>'+esc(s.sourceName||s.connectorName||'')+'</td>'+
         '<td><code style="font-size:11px;">'+esc((s.sourceId||s.id||'').slice(0,8))+'…</code></td>'+
         '<td style="text-align:right;white-space:nowrap;">'+
-          '<button class="btn small" data-ds-check="'+esc(s.sourceId||s.id)+'">🧪 Check</button> '+
-          '<button class="btn small danger" data-ds-del="'+esc(s.sourceId||s.id)+'">🗑</button>'+
+          '<button class="btn small" data-ds-check="'+esc(s.sourceId||s.id)+'">'+jvIcon('beaker')+' Check</button> '+
+          '<button class="btn small danger" data-ds-del="'+esc(s.sourceId||s.id)+'">'+jvIcon('trash')+'</button>'+
         '</td></tr>').join('')+
       '</tbody></table>';
     panel.querySelectorAll('[data-ds-check]').forEach(b=>b.addEventListener('click',async()=>{
@@ -17375,7 +17398,7 @@ async function renderDsActive(panel){
       toast('Source deleted'); renderDsActive(panel);
     }));
   }catch(e){
-    panel.innerHTML = '<div class="ds-empty"><div class="ds-empty-icon">⚠️</div><div class="ds-empty-title">Airbyte not reachable</div>'+
+    panel.innerHTML = '<div class="ds-empty"><div class="ds-empty-icon">'+jvIcon('warn','big')+'</div><div class="ds-empty-title">Airbyte not reachable</div>'+
       '<div class="ds-empty-sub">'+esc(e.message)+'</div></div>';
   }
 }
@@ -17384,7 +17407,7 @@ async function renderDsConfig(panel){
   const cfg = await api('/api/airbyte/config').catch(()=>({configured:false}));
   DS.config = cfg;
   panel.innerHTML =
-    '<div class="form-section"><div class="form-section-head">🔌 Airbyte instance</div>'+
+    '<div class="form-section"><div class="form-section-head">'+jvIcon('plug')+' Airbyte instance</div>'+
       '<div class="field"><label>Airbyte API URL *</label>'+
         '<input type="text" id="dsCfgUrl" value="'+esc(cfg.url||'http://localhost:8001')+'" placeholder="http://localhost:8001"></div>'+
       '<div class="hint">Local Mac install: <code>http://localhost:8001</code>. Remote server later: <code>https://airbyte.your-domain.com</code>. Migration = change this one URL.</div>'+
@@ -17400,7 +17423,7 @@ async function renderDsConfig(panel){
       '</div>'+
     '</div>'+
     '<div class="modal-foot" style="border:0;padding:8px 0;">'+
-      '<button class="btn" id="dsCfgPing">📡 Test reachability</button>'+
+      '<button class="btn" id="dsCfgPing">'+jvIcon('antenna')+' Test reachability</button>'+
       '<button class="btn primary" id="dsCfgSave">Save</button>'+
     '</div>'+
     '<div id="dsCfgResult"></div>';
@@ -17408,8 +17431,8 @@ async function renderDsConfig(panel){
     document.getElementById('dsCfgResult').innerHTML = '<div class="ds-loading">⏳ pinging…</div>';
     const h = await api('/api/airbyte/health').catch(e=>({reachable:false,detail:{error:e.message}}));
     document.getElementById('dsCfgResult').innerHTML = h.reachable
-      ? '<div class="prev-ok">✅ Reachable. Status '+h.status+' at '+esc(h.url)+'</div>'
-      : '<div class="prev-warn">❌ Not reachable. Status '+h.status+'. '+esc(JSON.stringify(h.detail).slice(0,300))+'</div>';
+      ? '<div class="prev-ok">'+jvIcon('check')+' Reachable. Status '+h.status+' at '+esc(h.url)+'</div>'
+      : '<div class="prev-warn">'+jvIcon('x')+' Not reachable. Status '+h.status+'. '+esc(JSON.stringify(h.detail).slice(0,300))+'</div>';
   });
   document.getElementById('dsCfgSave').addEventListener('click', async ()=>{
     const body = {
@@ -17971,7 +17994,7 @@ async function knOpenEditor(itemId){
       '<textarea id="knContent" placeholder="Write your business rule here. Markdown is supported.">'+esc(item.content||'')+'</textarea></div>'+
     '<div id="knEditErr" style="font-size:12px;color:var(--orange);min-height:14px;"></div>';
   actions.innerHTML =
-    (isNew?'':'<button class="btn ghost" id="knDelete" style="color:var(--orange);">🗑 Delete</button>')+
+    (isNew?'':'<button class="btn ghost" id="knDelete" style="color:var(--orange);">'+jvIcon('trash')+' Delete</button>')+
     '<button class="btn ghost" id="knCancel">Cancel</button>'+
     '<button class="btn primary kn-save" id="knSave">'+(isNew?'Create':'Save Changes')+'</button>';
   document.getElementById('knSave').addEventListener('click',()=>knSave(itemId));
