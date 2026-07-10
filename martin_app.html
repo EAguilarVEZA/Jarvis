@@ -2483,6 +2483,27 @@
   .asst-jump-b:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
   .asst-inputbar { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--line); }
   .asst-inputbar input { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; }
+  /* Agents library */
+  .ag-shell { max-width: none; }
+  .ag-controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+  .ag-search { width: 100%; max-width: 420px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 13px; font-size: 13.5px; }
+  .ag-divs { display: flex; flex-wrap: wrap; gap: 7px; }
+  .ag-div { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 16px; background: #fff; font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .12s ease; }
+  .ag-div:hover { border-color: var(--blue); color: var(--blue); }
+  .ag-div.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .ag-div span { font-size: 10.5px; opacity: .7; background: rgba(0,0,0,.08); padding: 0 6px; border-radius: 8px; }
+  .ag-div.active span { background: rgba(255,255,255,.25); opacity: 1; }
+  .ag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .ag-card { border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 16px 18px; cursor: pointer; transition: border-color .12s ease, box-shadow .12s ease, transform .1s ease; display: flex; flex-direction: column; }
+  .ag-card:hover { border-color: var(--blue); box-shadow: 0 6px 20px rgba(14,118,180,.12); transform: translateY(-2px); }
+  .ag-card-div { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--blue); margin-bottom: 6px; }
+  .ag-card-name { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .ag-card-role { font-size: 12.5px; color: var(--muted); line-height: 1.5; flex: 1; }
+  .ag-card-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 12px; font-weight: 600; color: var(--blue); }
+  .ag-card-cta .jvi { width: 14px; height: 14px; }
+  .ag-chat-panel { width: 460px; }
+  .ag-chat-role { font-size: 11.5px; color: var(--muted); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ag-chat-panel .asst-head b { font-size: 15px; }
   .kb-userq-bubble { background: #dbeafe; color: #1e3a8a; padding: 10px 16px; border-radius: 18px 18px 4px 18px; font-size: 13px; max-width: 75%; line-height: 1.5; }
   /* Collapsible Analysis disclosure */
   .kb-analysis { margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; overflow: hidden; }
@@ -3345,6 +3366,7 @@
     <span class="nav-item" data-nav="knowledge" id="navKnowledge">Knowledge</span>
     <span class="nav-item" data-nav="funnel" id="navFunnel">Funnel</span>
     <span class="nav-item" data-nav="experiments" id="navExperiments" style="display:none">Test &amp; Learn</span>
+    <span class="nav-item" data-nav="agents" id="navAgents" style="display:none">Agents</span>
     <span style="width:1px;height:18px;background:var(--line);margin:0 6px;align-self:center;"></span>
     <span class="nav-item" data-nav="automations" id="navAutomations">Automations</span>
     <span class="nav-item" data-nav="admin" id="navAdmin" style="display:none">Admin</span>
@@ -3379,6 +3401,7 @@
     <div class="lnav-item" data-lnav="goals"      title="Goals"><span class="lnav-icon" data-ic="target"></span><span class="lnav-name">Goals</span><span id="lnavGoalsBadge" class="nav-badge" style="display:none"></span></div>
     <div class="lnav-item" data-lnav="funnel"     title="Funnel"><span class="lnav-icon" data-ic="funnel"></span><span class="lnav-name">Funnel</span></div>
     <div class="lnav-item" data-lnav="experiments" title="Test &amp; Learn — control-group experiments, significance, power &amp; ROI"><span class="lnav-icon" data-ic="beaker"></span><span class="lnav-name">Test &amp; Learn</span></div>
+    <div class="lnav-item" data-lnav="agents"      title="Agents — specialist marketing &amp; growth AI agents"><span class="lnav-icon" data-ic="users"></span><span class="lnav-name">Agents</span></div>
     <div class="lnav-item" data-lnav="metrics"    title="Metrics — browse all metrics, rules & saved queries"><span class="lnav-icon" data-ic="fields"></span><span class="lnav-name">Metrics</span></div>
     <div class="lnav-item" data-lnav="knowledge"  title="Knowledge"><span class="lnav-icon" data-ic="book"></span><span class="lnav-name">Knowledge</span></div>
   </div>
@@ -3898,7 +3921,7 @@ async function getFields(tableKey){ if(S.fieldCache[tableKey]) return S.fieldCac
 
 // ── Nav + voice ──
 function setNav(screen){ S.screen=screen;
-  const map={pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
+  const map={pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
   // Legacy top-nav (hidden) — keep state in sync so badges/handlers still work.
   Object.keys(map).forEach(k=>{ const el=document.getElementById(map[k]); if(el) el.classList.toggle('active', screen===k); });
   // New left vertical sidebar (visible) — mark active item.
@@ -3927,7 +3950,7 @@ function jarvisSignOut(){
     if(!item) return;
     const target = item.getAttribute('data-lnav');
     // Map to legacy element id
-    const idMap = {pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
+    const idMap = {pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
     const legacy = document.getElementById(idMap[target]);
     if(legacy) legacy.click();
   });
@@ -16327,6 +16350,73 @@ function expRenderMatch(r){
 }
 
 // ═══════════════════════════════════════════════════════════════════
+//  AGENTS — specialist marketing/growth AI agents (The Agency)
+// ═══════════════════════════════════════════════════════════════════
+const AG = { division:'Marketing', agents:[], divisions:[], q:'' };
+function _agDebounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
+async function showAgents(){
+  setNav('agents');
+  const app=document.getElementById('app');
+  app.innerHTML='<div class="stage-wrap ag-shell">'+
+    '<div class="stage-head"><div><h1>Agents</h1><div class="desc">A library of specialist AI agents — marketing, paid media, sales and more. Chat with any agent to plan and automate work; each one knows your Jarvis tools (Ask AI, Test &amp; Learn, forecasting, driver analysis).</div></div></div>'+
+    '<div class="ag-controls"><input id="agSearch" class="ag-search" placeholder="Search all agents…"><div id="agDivs" class="ag-divs"></div></div>'+
+    '<div id="agGrid" class="ag-grid"><div class="exp-empty"><span class="loading">Loading agents…</span></div></div>'+
+  '</div>';
+  const [dv, ls]=await Promise.all([
+    api('/api/agents/divisions').catch(()=>({divisions:[]})),
+    api('/api/agents?division='+encodeURIComponent(AG.division)).catch(()=>({agents:[]}))]);
+  AG.divisions=dv.divisions||[]; AG.agents=ls.agents||[];
+  agRenderDivs(); agRenderGrid();
+  const s=document.getElementById('agSearch'); if(s) s.addEventListener('input', _agDebounce(async()=>{ AG.q=s.value.trim(); await agFetch(); }, 250));
+}
+function agRenderDivs(){
+  const host=document.getElementById('agDivs'); if(!host) return;
+  host.innerHTML=(AG.divisions||[]).map(d=>'<button class="ag-div'+((!AG.q&&d.division===AG.division)?' active':'')+'" data-agdiv="'+esc(d.division)+'">'+esc(d.division)+' <span>'+d.count+'</span></button>').join('');
+  host.querySelectorAll('[data-agdiv]').forEach(b=>b.addEventListener('click', async()=>{ AG.division=b.getAttribute('data-agdiv'); AG.q=''; const si=document.getElementById('agSearch'); if(si) si.value=''; await agFetch(); }));
+}
+async function agFetch(){
+  const url='/api/agents?division='+encodeURIComponent(AG.q?'':AG.division)+(AG.q?('&q='+encodeURIComponent(AG.q)):'');
+  const ls=await api(url).catch(()=>({agents:[]})); AG.agents=ls.agents||[]; agRenderDivs(); agRenderGrid();
+}
+function agRenderGrid(){
+  const host=document.getElementById('agGrid'); if(!host) return;
+  if(!AG.agents.length){ host.innerHTML='<div class="exp-empty" style="min-height:120px;">No agents match.</div>'; return; }
+  host.innerHTML=AG.agents.map(a=>'<div class="ag-card" data-agopen="'+esc(a.slug)+'">'+
+    '<div class="ag-card-div">'+esc(a.division)+'</div>'+
+    '<div class="ag-card-name">'+esc(a.name)+'</div>'+
+    '<div class="ag-card-role">'+esc(a.role||'')+'</div>'+
+    '<div class="ag-card-cta">'+jvIcon('comment')+' Chat with agent</div>'+
+  '</div>').join('');
+  host.querySelectorAll('[data-agopen]').forEach(c=>c.addEventListener('click',()=>{ const a=AG.agents.find(x=>x.slug===c.getAttribute('data-agopen')); if(a) openAgentChat(a); }));
+}
+let _AG_HIST=[];
+function openAgentChat(a){
+  _AG_HIST=[];
+  const ex=document.getElementById('agChat'); if(ex) ex.remove();
+  const back=document.createElement('div'); back.id='agChat'; back.className='asst-back';
+  back.innerHTML='<div class="asst-panel ag-chat-panel">'+
+    '<div class="asst-head">'+jvIcon('users')+'<div style="flex:1;min-width:0;"><b>'+esc(a.name)+'</b><div class="ag-chat-role">'+esc(a.role||a.division)+'</div></div><button class="asst-x" id="agChatX" title="Close">'+jvIcon('x')+'</button></div>'+
+    '<div class="asst-body" id="agChatBody"><div class="asst-hello">Ask <b>'+esc(a.name)+'</b> to plan or run a marketing task — it knows your Jarvis tools and can point you to the right analysis.</div></div>'+
+    '<div class="asst-inputbar"><input id="agChatInput" placeholder="Message '+esc(a.name)+'…" autocomplete="off"><button class="btn primary" id="agChatSend" title="Send">'+jvIcon('play')+'</button></div>'+
+  '</div>';
+  document.body.appendChild(back);
+  back.addEventListener('click',e=>{ if(e.target===back) back.remove(); });
+  document.getElementById('agChatX').addEventListener('click',()=>back.remove());
+  const inp=document.getElementById('agChatInput'); inp.focus();
+  const send=async()=>{ const q=(inp.value||'').trim(); if(!q) return; inp.value='';
+    const body=document.getElementById('agChatBody');
+    body.innerHTML+='<div class="asst-q">'+esc(q)+'</div><div class="asst-a" id="agPending"><span class="loading">Thinking…</span></div>'; body.scrollTop=body.scrollHeight;
+    try{ const d=await api('/api/agents/'+encodeURIComponent(a.slug)+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q, history:_AG_HIST})});
+      const p=document.getElementById('agPending'); if(p){ p.removeAttribute('id'); p.innerHTML=d.error?('<span class="werr">'+esc(d.error)+'</span>'):_mdLite(d.answer||''); }
+      if(!d.error){ _AG_HIST.push({role:'user',content:q}); _AG_HIST.push({role:'assistant',content:d.answer||''}); if(_AG_HIST.length>16) _AG_HIST=_AG_HIST.slice(-16); }
+    }catch(e){ const p=document.getElementById('agPending'); if(p) p.innerHTML='<span class="werr">'+esc(e.message)+'</span>'; }
+    body.scrollTop=body.scrollHeight;
+  };
+  document.getElementById('agChatSend').addEventListener('click',send);
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();send();} if(e.key==='Escape')back.remove(); });
+}
+
+// ═══════════════════════════════════════════════════════════════════
 //  GLOBAL AI ASSISTANT — "How do I…?" help on every screen
 // ═══════════════════════════════════════════════════════════════════
 function _mdLite(s){
@@ -16565,6 +16655,7 @@ document.getElementById('navKnowledge').addEventListener('click',showKnowledge);
 document.getElementById('navPulse').addEventListener('click',showPulse);
 document.getElementById('navFunnel').addEventListener('click',showFunnel);
 document.getElementById('navExperiments').addEventListener('click',showExperiments);
+document.getElementById('navAgents').addEventListener('click',showAgents);
 // ═══════════════════════════════════════════════════════════════════
 //  AUTOMATIONS — Reports + Actions tabs (mirrors Kaelio /automations)
 // ═══════════════════════════════════════════════════════════════════
