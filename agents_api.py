@@ -16,8 +16,11 @@ Routes (prefix /api/agents):
 """
 from __future__ import annotations
 
+import json
 import os
 import re
+import time
+import uuid
 import logging
 from functools import lru_cache
 from typing import Optional
@@ -136,9 +139,95 @@ _PLATFORM_BRIEF = (
 )
 
 
+# ── Tools the agents can call (read-only analysis over the semantic layer) ──
+_AGENT_TOOLS = [
+    {"name": "list_datasets", "description": "List available curated datasets (tables) to analyze.",
+     "input_schema": {"type": "object", "properties": {}}},
+    {"name": "describe_dataset", "description": "Show a dataset's dimensions, metrics, and date fields.",
+     "input_schema": {"type": "object", "properties": {"table": {"type": "string"}}, "required": ["table"]}},
+    {"name": "query_data", "description": "Run an aggregate query: pick a table, dimensions, metrics, optional filters. Returns rows.",
+     "input_schema": {"type": "object", "properties": {
+         "table": {"type": "string"},
+         "dimensions": {"type": "array", "items": {"type": "string"}},
+         "metrics": {"type": "array", "items": {"type": "string"}},
+         "filters": {"type": "array", "items": {"type": "object"}},
+         "limit": {"type": "integer"}}, "required": ["table", "metrics"]}},
+    {"name": "explain_metric", "description": "One-shot analysis of a metric: trend, forecast, anomalies, and drivers.",
+     "input_schema": {"type": "object", "properties": {
+         "table": {"type": "string"}, "metric_field": {"type": "string"}, "date_field": {"type": "string"},
+         "window_start": {"type": "string"}, "window_end": {"type": "string"},
+         "dimension_field": {"type": "string"}}, "required": ["table", "metric_field", "date_field", "window_start", "window_end"]}},
+    {"name": "forecast_metric", "description": "Forecast a metric forward with confidence bands.",
+     "input_schema": {"type": "object", "properties": {
+         "table": {"type": "string"}, "metric_field": {"type": "string"}, "date_field": {"type": "string"},
+         "window_start": {"type": "string"}, "window_end": {"type": "string"}, "horizon": {"type": "integer"}},
+         "required": ["table", "metric_field", "date_field", "window_start", "window_end"]}},
+    {"name": "driver_analysis", "description": "Explain a metric change: decompose it into which segments drove it (prior vs current window).",
+     "input_schema": {"type": "object", "properties": {
+         "table": {"type": "string"}, "metric_field": {"type": "string"}, "dimension_field": {"type": "string"},
+         "date_field": {"type": "string"}, "prior_start": {"type": "string"}, "prior_end": {"type": "string"},
+         "current_start": {"type": "string"}, "current_end": {"type": "string"}},
+         "required": ["table", "metric_field", "dimension_field", "date_field", "prior_start", "prior_end", "current_start", "current_end"]}},
+]
+
+
+async def _execute_tool(name: str, inp: dict) -> dict:
+    """Dispatch an agent tool call to the semantic layer / stats engine. Read-only."""
+    try:
+        if name == "list_datasets":
+            from semantic import load_model
+            m = load_model()
+            return {"datasets": [t.key for t in list(m.tables.values())[:60]]}
+        if name == "describe_dataset":
+            from semantic import load_model
+            t = load_model().table(inp.get("table"))
+            if not t:
+                return {"error": f"Unknown table '{inp.get('table')}'."}
+            return {"table": t.key,
+                    "dimensions": [f.key for f in t.dimensions],
+                    "metrics": [f.key for f in t.metrics],
+                    "dates": [f.key for f in t.dates]}
+        if name == "query_data":
+            from semantic import load_model, build_sql, run_query, StructuredQuery
+            import asyncio as _a
+            m = load_model(); pt = inp.get("table")
+            qdict = {"primary_table": pt,
+                     "dimensions": [{"table": pt, "field": d} for d in (inp.get("dimensions") or [])],
+                     "metrics": [{"table": pt, "field": x} for x in (inp.get("metrics") or [])],
+                     "filters": [dict(f, table=f.get("table", pt)) for f in (inp.get("filters") or [])],
+                     "limit": min(int(inp.get("limit") or 50), 200)}
+            sql = build_sql(StructuredQuery.from_dict(qdict), m)
+            res = await _a.get_running_loop().run_in_executor(None, run_query, sql)
+            return {"columns": res.columns, "rows": (res.rows or [])[:100], "row_count": res.row_count}
+        # stats-engine tools
+        import experiments_api as X
+        if name == "explain_metric":
+            r = await X.auto_insights(X.AutoInsightsRequest(
+                primary_table=inp["table"], metric_field=inp["metric_field"], date_field=inp["date_field"],
+                window_start=inp["window_start"], window_end=inp["window_end"],
+                dimension_field=inp.get("dimension_field"), metric_name=inp["metric_field"]))
+            return {k: r.get(k) for k in ("narrative", "trend_change_pct", "error")} if isinstance(r, dict) else r
+        if name == "forecast_metric":
+            r = await X.forecast_from_data(X.ForecastFromDataRequest(
+                primary_table=inp["table"], metric_field=inp["metric_field"], date_field=inp["date_field"],
+                window_start=inp["window_start"], window_end=inp["window_end"], horizon=int(inp.get("horizon") or 6),
+                metric_name=inp["metric_field"]))
+            return {k: r.get(k) for k in ("summary", "forecast", "forecast_change_pct", "mape_pct", "error")} if isinstance(r, dict) else r
+        if name == "driver_analysis":
+            r = await X.driver_from_data(X.DriverFromDataRequest(
+                primary_table=inp["table"], metric_field=inp["metric_field"], dimension_field=inp["dimension_field"],
+                date_field=inp["date_field"], prior_start=inp["prior_start"], prior_end=inp["prior_end"],
+                current_start=inp["current_start"], current_end=inp["current_end"], metric_name=inp["metric_field"]))
+            return {k: r.get(k) for k in ("summary", "drivers", "total_change", "top_positive", "top_negative", "error")} if isinstance(r, dict) else r
+        return {"error": f"Unknown tool {name}"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 class ChatRequest(BaseModel):
     message: str
     history: Optional[list] = None     # [{role:'user'|'assistant', content:str}]
+    tools: bool = True                 # allow the agent to run analyses
 
 
 @router.post("/{slug}/chat")
@@ -153,6 +242,13 @@ async def chat(slug: str, body: ChatRequest):
         return {"error": "AI not configured (ANTHROPIC_API_KEY not set)."}
     system = (f"You ARE the '{a['name']}' agent. Fully embody this role.\n\n"
               f"Role: {a['role']}\n\nYour definition:\n{a['body'][:4000]}" + _PLATFORM_BRIEF)
+    use_tools = body.tools and os.getenv("JARVIS_AGENT_TOOLS", "1") != "0"
+    if use_tools:
+        system += ("\n\nYou have TOOLS to analyze the user's real data (list_datasets, describe_dataset, "
+                   "query_data, explain_metric, forecast_metric, driver_analysis). When a question needs "
+                   "numbers, USE them: first list/describe to find the right table & fields, then run the "
+                   "analysis, then explain the result in your voice with a clear recommendation. Prefer real "
+                   "data over assumptions.")
     msgs = []
     for turn in (body.history or [])[-8:]:
         r = turn.get("role")
@@ -160,13 +256,97 @@ async def chat(slug: str, body: ChatRequest):
         if r in ("user", "assistant") and c:
             msgs.append({"role": r, "content": c})
     msgs.append({"role": "user", "content": body.message})
+
     try:
         import anthropic
         client = anthropic.AsyncAnthropic(api_key=key)
         model = os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6")
-        resp = await client.messages.create(model=model, max_tokens=1400, system=system, messages=msgs)
-        answer = resp.content[0].text if resp.content else ""
+        tools_used = []
+        answer = ""
+        for _ in range(6):  # bounded tool-use loop
+            kwargs = {"model": model, "max_tokens": 1600, "system": system, "messages": msgs}
+            if use_tools:
+                kwargs["tools"] = _AGENT_TOOLS
+            resp = await client.messages.create(**kwargs)
+            if getattr(resp, "stop_reason", "") == "tool_use":
+                msgs.append({"role": "assistant", "content": resp.content})
+                results = []
+                for block in resp.content:
+                    if getattr(block, "type", "") == "tool_use":
+                        out = await _execute_tool(block.name, block.input or {})
+                        tools_used.append({"tool": block.name, "input": block.input})
+                        results.append({"type": "tool_result", "tool_use_id": block.id,
+                                        "content": json.dumps(out, default=str)[:6000]})
+                msgs.append({"role": "user", "content": results})
+                continue
+            answer = "".join(b.text for b in resp.content if getattr(b, "type", "") == "text")
+            break
     except Exception as e:
         log.warning(f"agent chat failed: {e}")
         return {"error": f"Agent unavailable: {e}"}
-    return {"ok": True, "agent": a["name"], "answer": answer}
+    return {"ok": True, "agent": a["name"], "answer": answer, "tools_used": tools_used}
+
+
+# ── Saved agent chats ────────────────────────────────────────────────────────
+_CHAT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "agent_chats.json")
+
+
+def _chats_load():
+    try:
+        with open(_CHAT_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {"chats": []}
+
+
+def _chats_save(d):
+    tmp = _CHAT_PATH + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(d, f, indent=2)
+    os.replace(tmp, _CHAT_PATH)
+
+
+class SaveChatRequest(BaseModel):
+    agent_slug: str
+    agent_name: str
+    title: Optional[str] = None
+    messages: list                      # [{role, content}]
+
+
+@router.post("/chats/save")
+async def save_chat(body: SaveChatRequest):
+    if not body.messages:
+        return {"error": "Nothing to save."}
+    d = _chats_load()
+    rec = {"id": uuid.uuid4().hex[:12], "created_at": int(time.time()),
+           "agent_slug": body.agent_slug, "agent_name": body.agent_name,
+           "title": (body.title or (body.messages[0].get("content", "")[:60])),
+           "messages": body.messages}
+    d.setdefault("chats", []).insert(0, rec)
+    _chats_save(d)
+    return {"ok": True, "id": rec["id"]}
+
+
+@router.get("/chats")
+async def list_chats():
+    d = _chats_load()
+    items = [{"id": c["id"], "created_at": c.get("created_at"), "agent_name": c.get("agent_name"),
+              "agent_slug": c.get("agent_slug"), "title": c.get("title"),
+              "turns": len(c.get("messages", []))} for c in d.get("chats", [])]
+    return {"ok": True, "chats": items, "count": len(items)}
+
+
+@router.get("/chats/{cid}")
+async def get_chat(cid: str):
+    d = _chats_load()
+    c = next((x for x in d.get("chats", []) if x.get("id") == cid), None)
+    return {"ok": True, "chat": c} if c else {"error": "Not found."}
+
+
+@router.delete("/chats/{cid}")
+async def delete_chat(cid: str):
+    d = _chats_load()
+    before = len(d.get("chats", []))
+    d["chats"] = [x for x in d.get("chats", []) if x.get("id") != cid]
+    _chats_save(d)
+    return {"ok": True, "deleted": before - len(d["chats"])}

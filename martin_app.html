@@ -2504,6 +2504,9 @@
   .ag-chat-panel { width: 460px; }
   .ag-chat-role { font-size: 11.5px; color: var(--muted); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ag-chat-panel .asst-head b { font-size: 15px; }
+  .ag-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .ag-tool-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; color: #0c4a6e; background: #e0f2fe; border-radius: 12px; padding: 3px 9px; }
+  .ag-tool-chip .jvi { width: 12px; height: 12px; color: #0369a1; }
   .kb-userq-bubble { background: #dbeafe; color: #1e3a8a; padding: 10px 16px; border-radius: 18px 18px 4px 18px; font-size: 13px; max-width: 75%; line-height: 1.5; }
   /* Collapsible Analysis disclosure */
   .kb-analysis { margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; overflow: hidden; }
@@ -16359,7 +16362,7 @@ async function showAgents(){
   const app=document.getElementById('app');
   app.innerHTML='<div class="stage-wrap ag-shell">'+
     '<div class="stage-head"><div><h1>Agents</h1><div class="desc">A library of specialist AI agents — marketing, paid media, sales and more. Chat with any agent to plan and automate work; each one knows your Jarvis tools (Ask AI, Test &amp; Learn, forecasting, driver analysis).</div></div></div>'+
-    '<div class="ag-controls"><input id="agSearch" class="ag-search" placeholder="Search all agents…"><div id="agDivs" class="ag-divs"></div></div>'+
+    '<div class="ag-controls"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;"><input id="agSearch" class="ag-search" placeholder="Search all agents…"><button class="btn small" id="agSavedBtn">'+jvIcon('folder')+' Saved chats</button></div><div id="agDivs" class="ag-divs"></div></div>'+
     '<div id="agGrid" class="ag-grid"><div class="exp-empty"><span class="loading">Loading agents…</span></div></div>'+
   '</div>';
   const [dv, ls]=await Promise.all([
@@ -16368,6 +16371,28 @@ async function showAgents(){
   AG.divisions=dv.divisions||[]; AG.agents=ls.agents||[];
   agRenderDivs(); agRenderGrid();
   const s=document.getElementById('agSearch'); if(s) s.addEventListener('input', _agDebounce(async()=>{ AG.q=s.value.trim(); await agFetch(); }, 250));
+  const sv=document.getElementById('agSavedBtn'); if(sv) sv.addEventListener('click', agShowSaved);
+}
+async function agShowSaved(){
+  let d; try{ d=await api('/api/agents/chats'); }catch(e){ toast('Could not load saved chats',true); return; }
+  const items=(d.chats||[]);
+  const back=document.createElement('div'); back.id='agSavedModal';
+  back.style.cssText='position:fixed;inset:0;z-index:960;background:rgba(15,23,42,.35);display:flex;align-items:center;justify-content:center;';
+  back.innerHTML='<div style="background:#fff;border-radius:12px;width:460px;max-width:92vw;max-height:72vh;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(15,23,42,.4);overflow:hidden;">'+
+    '<div style="display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600;">'+jvIcon('folder')+'Saved agent chats<button id="agSavedX" style="margin-left:auto;background:transparent;border:0;cursor:pointer;color:var(--muted);">'+jvIcon('x')+'</button></div>'+
+    '<div style="overflow:auto;padding:10px;">'+(items.length?items.map(c=>'<div class="ag-saved-row" data-openchat="'+esc(c.id)+'" style="border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;"><b>'+esc(c.agent_name)+'</b> <span style="font-size:11px;color:var(--muted2);">'+_relSavedTime(c.created_at)+'</span><div style="font-size:12px;color:var(--muted);">'+esc(c.title||'')+' · '+c.turns+' turns</div><button class="btn small danger" data-delchat="'+esc(c.id)+'" style="margin-top:6px;">'+jvIcon('trash')+'</button></div>').join(''):'<div class="exp-empty">No saved chats yet.</div>')+'</div></div>';
+  document.body.appendChild(back);
+  back.addEventListener('click',e=>{ if(e.target===back) back.remove(); });
+  back.querySelector('#agSavedX').addEventListener('click',()=>back.remove());
+  back.querySelectorAll('[data-delchat]').forEach(b=>b.addEventListener('click', async e=>{ e.stopPropagation(); try{ await api('/api/agents/chats/'+encodeURIComponent(b.getAttribute('data-delchat')),{method:'DELETE'}); back.remove(); agShowSaved(); }catch(err){ toast('Failed',true); } }));
+  back.querySelectorAll('[data-openchat]').forEach(row=>row.addEventListener('click', async ()=>{
+    try{ const r=await api('/api/agents/chats/'+encodeURIComponent(row.getAttribute('data-openchat'))); const c=r.chat; if(!c) return; back.remove();
+      const agent={slug:c.agent_slug, name:c.agent_name, role:'', division:''}; openAgentChat(agent);
+      // replay saved messages into the panel
+      _AG_HIST=(c.messages||[]).slice(-16); const body=document.getElementById('agChatBody');
+      if(body){ body.innerHTML=(c.messages||[]).map(m=>m.role==='user'?'<div class="asst-q">'+esc(m.content)+'</div>':'<div class="asst-a">'+_mdLite(m.content)+'</div>').join(''); body.scrollTop=body.scrollHeight; }
+    }catch(e){ toast('Could not open chat',true); }
+  }));
 }
 function agRenderDivs(){
   const host=document.getElementById('agDivs'); if(!host) return;
@@ -16395,19 +16420,27 @@ function openAgentChat(a){
   const ex=document.getElementById('agChat'); if(ex) ex.remove();
   const back=document.createElement('div'); back.id='agChat'; back.className='asst-back';
   back.innerHTML='<div class="asst-panel ag-chat-panel">'+
-    '<div class="asst-head">'+jvIcon('users')+'<div style="flex:1;min-width:0;"><b>'+esc(a.name)+'</b><div class="ag-chat-role">'+esc(a.role||a.division)+'</div></div><button class="asst-x" id="agChatX" title="Close">'+jvIcon('x')+'</button></div>'+
-    '<div class="asst-body" id="agChatBody"><div class="asst-hello">Ask <b>'+esc(a.name)+'</b> to plan or run a marketing task — it knows your Jarvis tools and can point you to the right analysis.</div></div>'+
+    '<div class="asst-head">'+jvIcon('users')+'<div style="flex:1;min-width:0;"><b>'+esc(a.name)+'</b><div class="ag-chat-role">'+esc(a.role||a.division)+'</div></div>'+
+      '<button class="asst-x" id="agChatSaveBtn" title="Save this chat">'+jvIcon('save')+'</button>'+
+      '<button class="asst-x" id="agChatX" title="Close">'+jvIcon('x')+'</button></div>'+
+    '<div class="asst-body" id="agChatBody"><div class="asst-hello">Ask <b>'+esc(a.name)+'</b> to plan or run a marketing task — it can query your data and run analyses (forecast, drivers, Explain a metric) and report back.</div></div>'+
     '<div class="asst-inputbar"><input id="agChatInput" placeholder="Message '+esc(a.name)+'…" autocomplete="off"><button class="btn primary" id="agChatSend" title="Send">'+jvIcon('play')+'</button></div>'+
   '</div>';
   document.body.appendChild(back);
   back.addEventListener('click',e=>{ if(e.target===back) back.remove(); });
   document.getElementById('agChatX').addEventListener('click',()=>back.remove());
+  { const sv=document.getElementById('agChatSaveBtn'); if(sv) sv.addEventListener('click', async ()=>{
+      if(!_AG_HIST.length){ toast('Nothing to save yet',true); return; }
+      try{ await api('/api/agents/chats/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent_slug:a.slug, agent_name:a.name, messages:_AG_HIST})}); toast('Chat saved'); }
+      catch(e){ toast('Save failed: '+e.message,true); } }); }
   const inp=document.getElementById('agChatInput'); inp.focus();
   const send=async()=>{ const q=(inp.value||'').trim(); if(!q) return; inp.value='';
     const body=document.getElementById('agChatBody');
-    body.innerHTML+='<div class="asst-q">'+esc(q)+'</div><div class="asst-a" id="agPending"><span class="loading">Thinking…</span></div>'; body.scrollTop=body.scrollHeight;
+    body.innerHTML+='<div class="asst-q">'+esc(q)+'</div><div class="asst-a" id="agPending"><span class="loading">Working…</span></div>'; body.scrollTop=body.scrollHeight;
     try{ const d=await api('/api/agents/'+encodeURIComponent(a.slug)+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q, history:_AG_HIST})});
-      const p=document.getElementById('agPending'); if(p){ p.removeAttribute('id'); p.innerHTML=d.error?('<span class="werr">'+esc(d.error)+'</span>'):_mdLite(d.answer||''); }
+      const p=document.getElementById('agPending'); if(p){ p.removeAttribute('id');
+        if(d.error){ p.innerHTML='<span class="werr">'+esc(d.error)+'</span>'; }
+        else { const tu=(d.tools_used||[]); const chips=tu.length?'<div class="ag-tools">'+tu.map(t=>'<span class="ag-tool-chip">'+jvIcon('activity')+' '+esc(t.tool)+'</span>').join('')+'</div>':''; p.innerHTML=chips+_mdLite(d.answer||''); } }
       if(!d.error){ _AG_HIST.push({role:'user',content:q}); _AG_HIST.push({role:'assistant',content:d.answer||''}); if(_AG_HIST.length>16) _AG_HIST=_AG_HIST.slice(-16); }
     }catch(e){ const p=document.getElementById('agPending'); if(p) p.innerHTML='<span class="werr">'+esc(e.message)+'</span>'; }
     body.scrollTop=body.scrollHeight;
