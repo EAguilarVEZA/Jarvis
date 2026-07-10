@@ -2538,6 +2538,14 @@
   .wf-run-body p { margin: 6px 0; } .wf-run-body ol, .wf-run-body ul { margin: 6px 0; padding-left: 22px; }
   .wf-run-wait { color: var(--muted2); font-size: 12px; font-style: italic; }
   .wf-tpl:hover { border-color: var(--blue) !important; background: #f0f8fc !important; }
+  .wf-recip { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: -8px 0 18px; font-size: 12px; color: var(--muted); }
+  .wf-recip .jvi { width: 14px; height: 14px; color: var(--muted); }
+  .wf-recip input { flex: 1; min-width: 200px; border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; font-size: 12.5px; }
+  .wf-review { display: flex; align-items: center; gap: 6px; padding: 8px 13px; font-size: 11.5px; color: var(--muted); border-top: 1px solid #f1f5f9; cursor: pointer; }
+  .wf-review-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #b45309; background: #fef3c7; padding: 1px 6px; border-radius: 6px; margin-left: 4px; }
+  .wf-run-foot { padding: 12px 16px; }
+  .wf-review-pause { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: #92600a; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 13px; }
+  .wf-review-pause .jvi { color: #b45309; }
   .kb-userq-bubble { background: #dbeafe; color: #1e3a8a; padding: 10px 16px; border-radius: 18px 18px 4px 18px; font-size: 13px; max-width: 75%; line-height: 1.5; }
   /* Collapsible Analysis disclosure */
   .kb-analysis { margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; overflow: hidden; }
@@ -16485,7 +16493,7 @@ function openAgentChat(a){
 // ═══════════════════════════════════════════════════════════════════
 //  AGENT STUDIO — orchestrate agents into sequenced teams (n8n-style)
 // ═══════════════════════════════════════════════════════════════════
-const WF = { id:null, name:'Untitled workflow', context:'', steps:[], agents:[], agentOpts:'' };
+const WF = { id:null, name:'Untitled workflow', context:'', recipients:'', steps:[], agents:[], agentOpts:'' };
 async function showStudio(){
   setNav('studio');
   const app=document.getElementById('app');
@@ -16503,6 +16511,7 @@ async function showStudio(){
       '<button class="btn" id="wfSchedule">'+jvIcon('clock')+' Schedule</button>'+
       '<button class="btn primary" id="wfRun">'+jvIcon('play')+' Run team</button></div>'+
     '<textarea id="wfContext" class="wf-context" placeholder="Shared brief for the whole team (optional) — e.g. Goal: grow qualified leads 20% this quarter, focus on paid + email.">'+esc(WF.context)+'</textarea>'+
+    '<div class="wf-recip"><span>'+jvIcon('mail')+' Email results to (optional, for scheduled runs):</span><input id="wfRecipients" placeholder="you@company.com, teammate@company.com" value="'+esc(WF.recipients)+'"></div>'+
     '<div class="wf-flow" id="wfFlow"></div>'+
     '<button class="wf-addstep" id="wfAddStep">'+jvIcon('plus')+' Add a step</button>'+
     '<div id="wfRunOut"></div>'+
@@ -16525,6 +16534,7 @@ async function showStudio(){
   document.getElementById('wfTemplates').addEventListener('click',studioTemplates);
   document.getElementById('wfName').addEventListener('input',e=>WF.name=e.target.value);
   document.getElementById('wfContext').addEventListener('input',e=>WF.context=e.target.value);
+  { const rc=document.getElementById('wfRecipients'); if(rc) rc.addEventListener('input',e=>WF.recipients=e.target.value); }
   if(!WF.steps.length){ WF.steps=[{agent_slug:(WF.agents[0]||{}).slug||'',task:''}]; }
   wfRenderSteps();
 }
@@ -16548,22 +16558,24 @@ function wfRenderSteps(){
         '</span>'+
       '</div>'+
       '<textarea class="wf-task" data-wftask="'+i+'" placeholder="What should '+esc(nm)+' do? (its output feeds the next agent)">'+esc(s.task||'')+'</textarea>'+
+      '<label class="wf-review"><input type="checkbox" data-wfreview="'+i+'"'+(s.review?' checked':'')+'> Pause for my review after this step</label>'+
     '</div>';
   }).join('');
   host.querySelectorAll('[data-wfagent]').forEach(sel=>sel.addEventListener('change',()=>{ WF.steps[+sel.getAttribute('data-wfagent')].agent_slug=sel.value; }));
   host.querySelectorAll('[data-wftask]').forEach(t=>t.addEventListener('input',()=>{ WF.steps[+t.getAttribute('data-wftask')].task=t.value; }));
+  host.querySelectorAll('[data-wfreview]').forEach(c=>c.addEventListener('change',()=>{ WF.steps[+c.getAttribute('data-wfreview')].review=c.checked; }));
   host.querySelectorAll('[data-wfdel]').forEach(b=>b.addEventListener('click',()=>{ WF.steps.splice(+b.getAttribute('data-wfdel'),1); wfRenderSteps(); }));
   host.querySelectorAll('[data-wfup]').forEach(b=>b.addEventListener('click',()=>{ const i=+b.getAttribute('data-wfup'); [WF.steps[i-1],WF.steps[i]]=[WF.steps[i],WF.steps[i-1]]; wfRenderSteps(); }));
   host.querySelectorAll('[data-wfdown]').forEach(b=>b.addEventListener('click',()=>{ const i=+b.getAttribute('data-wfdown'); [WF.steps[i+1],WF.steps[i]]=[WF.steps[i],WF.steps[i+1]]; wfRenderSteps(); }));
 }
 async function studioLoad(id){
   try{ const r=await api('/api/workflows/'+encodeURIComponent(id)); const w=r.workflow; if(!w) return;
-    WF.id=w.id; WF.name=w.name; WF.context=w.context||''; WF.steps=(w.steps||[]).map(s=>({agent_slug:s.agent_slug,task:s.task}));
+    WF.id=w.id; WF.name=w.name; WF.context=w.context||''; WF.recipients=w.recipients||''; WF.steps=(w.steps||[]).map(s=>({agent_slug:s.agent_slug,task:s.task,review:!!s.review}));
     showStudio(); }catch(e){ toast('Load failed',true); }
 }
 async function studioSave(){
   if(!WF.steps.length){ toast('Add at least one step',true); return; }
-  try{ const r=await api('/api/workflows',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:WF.id, name:WF.name||'Untitled workflow', context:WF.context, steps:WF.steps})}); WF.id=r.id; toast('Workflow saved'); }
+  try{ const r=await api('/api/workflows',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:WF.id, name:WF.name||'Untitled workflow', context:WF.context, recipients:WF.recipients, steps:WF.steps})}); WF.id=r.id; toast('Workflow saved'); }
   catch(e){ toast('Save failed: '+e.message,true); }
 }
 async function studioSchedule(){
@@ -16574,22 +16586,47 @@ async function studioSchedule(){
   try{ await api('/api/workflows/'+encodeURIComponent(WF.id)+'/schedule',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cron:map[choice]})}); toast(choice==='off'?'Schedule cleared':('Scheduled '+choice)); }
   catch(e){ toast('Failed: '+e.message,true); }
 }
+let _WF_RUN=null;
 async function studioRun(){
   const steps=WF.steps.filter(s=>s.agent_slug);
   if(!steps.length){ toast('Add at least one step',true); return; }
   const out=document.getElementById('wfRunOut');
-  out.innerHTML='<div class="wf-run"><div class="wf-run-head">'+jvIcon('play')+' Running the team… <span class="loading"></span></div>'+
-    steps.map((s,i)=>{ const nm=(WF.agents.find(a=>a.slug===s.agent_slug)||{}).name||s.agent_slug; return '<div class="wf-run-step" id="wfrs'+i+'"><div class="wf-run-agent">'+(i+1)+'. '+esc(nm)+'</div><div class="wf-run-body"><span class="wf-run-wait">queued…</span></div></div>'; }).join('')+
+  out.innerHTML='<div class="wf-run"><div class="wf-run-head">'+jvIcon('play')+' Running the team…</div>'+
+    steps.map((s,i)=>{ const nm=(WF.agents.find(a=>a.slug===s.agent_slug)||{}).name||s.agent_slug; return '<div class="wf-run-step" id="wfrs'+i+'"><div class="wf-run-agent">'+(i+1)+'. '+esc(nm)+(s.review?' <span class="wf-review-tag">review</span>':'')+'</div><div class="wf-run-body"><span class="wf-run-wait">queued…</span></div></div>'; }).join('')+
+    '<div class="wf-run-foot" id="wfRunFoot"></div>'+
   '</div>';
   out.scrollIntoView({behavior:'smooth',block:'start'});
-  try{
-    const r=await api('/api/workflows/run_adhoc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:WF.name, context:WF.context, steps})});
-    if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
-    (r.steps||[]).forEach((st,i)=>{ const el=document.querySelector('#wfrs'+i+' .wf-run-body'); if(el){
-      const tu=(st.tools_used||[]); const chips=tu.length?'<div class="ag-tools">'+tu.map(t=>'<span class="ag-tool-chip">'+jvIcon('activity')+' '+esc(t.tool)+'</span>').join('')+'</div>':'';
-      el.innerHTML = st.error ? '<span class="werr">'+esc(st.error)+'</span>' : (chips+_mdLite(st.answer||'')); } });
-    const head=document.querySelector('.wf-run-head'); if(head) head.innerHTML=jvIcon('check')+' Team run complete — '+(r.steps||[]).length+' agents.';
-  }catch(e){ out.innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  _WF_RUN={ steps, transcript:'', collected:[] };
+  await _wfRunFrom(0);
+}
+// Run steps progressively from index i, threading the transcript; pause on review steps.
+async function _wfRunFrom(i){
+  const R=_WF_RUN; if(!R) return;
+  for(; i<R.steps.length; i++){
+    const s=R.steps[i]; const bodyEl=document.querySelector('#wfrs'+i+' .wf-run-body');
+    if(bodyEl) bodyEl.innerHTML='<span class="loading">Working…</span>';
+    let st;
+    try{ st=await api('/api/workflows/run_step',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent_slug:s.agent_slug, task:s.task, transcript:R.transcript, context:WF.context})}); }
+    catch(e){ if(bodyEl) bodyEl.innerHTML='<span class="werr">'+esc(e.message)+'</span>'; return; }
+    if(st.error){ if(bodyEl) bodyEl.innerHTML='<span class="werr">'+esc(st.error)+'</span>'; }
+    else if(bodyEl){ const tu=(st.tools_used||[]); const chips=tu.length?'<div class="ag-tools">'+tu.map(t=>'<span class="ag-tool-chip">'+jvIcon('activity')+' '+esc(t.tool)+'</span>').join('')+'</div>':''; bodyEl.innerHTML=chips+_mdLite(st.answer||''); }
+    R.transcript += '— '+(st.agent_name||s.agent_slug)+' —\n'+(st.answer||'')+'\n\n';
+    R.collected.push(st);
+    if(s.review && i < R.steps.length-1){
+      const foot=document.getElementById('wfRunFoot');
+      if(foot) foot.innerHTML='<div class="wf-review-pause">'+jvIcon('comment')+' Paused for your review. Edit the brief/tasks above if needed, then <button class="btn small primary" id="wfContinue">Continue with next agent →</button></div>';
+      const btn=document.getElementById('wfContinue'); if(btn) btn.addEventListener('click',()=>{ const f=document.getElementById('wfRunFoot'); if(f) f.innerHTML=''; _wfRunFrom(i+1); });
+      return; // wait for Continue
+    }
+  }
+  const head=document.querySelector('.wf-run-head'); if(head) head.innerHTML=jvIcon('check')+' Team run complete — '+R.collected.length+' agents.';
+  const foot=document.getElementById('wfRunFoot');
+  if(foot) foot.innerHTML='<button class="btn small" id="wfEmailRun">'+jvIcon('mail')+' Email this result</button>';
+  const eb=document.getElementById('wfEmailRun'); if(eb) eb.addEventListener('click', async ()=>{
+    const to=(WF.recipients||'').trim()||prompt('Email the workflow result to:'); if(!to) return;
+    try{ const d=await api('/api/workflows/'+encodeURIComponent(WF.id||'adhoc')+'/email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipients:to, run:{name:WF.name, steps:R.collected}})}); toast(d.ok?('Emailed: '+d.detail):('Not sent: '+(d.error||'')), " ", !d.ok); }
+    catch(e){ toast('Email failed: '+e.message,true); }
+  });
 }
 async function studioSuggest(){
   const goal=prompt('Describe your goal — I\'ll assemble a team of agents in sequence:'); if(!goal||!goal.trim()) return;
