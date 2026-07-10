@@ -210,6 +210,12 @@ async def _loop():
                 asyncio.create_task(experiments_api.template_tick(now))
             except Exception as e:
                 log.debug("experiment monitor/template tick skipped: %s", e)
+            # Scheduled agent workflows (Agent Studio).
+            try:
+                import workflows_api
+                asyncio.create_task(workflows_api.workflow_tick(now))
+            except Exception as e:
+                log.debug("workflow tick skipped: %s", e)
         except Exception as e:
             log.warning("scheduler tick error: %s", e)
         await asyncio.sleep(max(5, 61 - _dt.datetime.now().second))

@@ -224,46 +224,35 @@ async def _execute_tool(name: str, inp: dict) -> dict:
         return {"error": str(e)}
 
 
-class ChatRequest(BaseModel):
-    message: str
-    history: Optional[list] = None     # [{role:'user'|'assistant', content:str}]
-    tools: bool = True                 # allow the agent to run analyses
-
-
-@router.post("/{slug}/chat")
-async def chat(slug: str, body: ChatRequest):
-    a = _load_all().get(slug)
-    if not a:
-        return {"error": "Agent not found."}
-    if not (body.message or "").strip():
-        return {"error": "Say something to the agent."}
+async def run_agent_turn(agent: dict, message: str, history=None, use_tools=True,
+                         extra_system: str = "") -> dict:
+    """Run one agent turn with the bounded tool-use loop. Reused by /chat and by
+    the workflow orchestrator. Returns {answer, tools_used} or {error}."""
     key = os.getenv("ANTHROPIC_API_KEY", "")
     if not key:
         return {"error": "AI not configured (ANTHROPIC_API_KEY not set)."}
-    system = (f"You ARE the '{a['name']}' agent. Fully embody this role.\n\n"
-              f"Role: {a['role']}\n\nYour definition:\n{a['body'][:4000]}" + _PLATFORM_BRIEF)
-    use_tools = body.tools and os.getenv("JARVIS_AGENT_TOOLS", "1") != "0"
+    system = (f"You ARE the '{agent['name']}' agent. Fully embody this role.\n\n"
+              f"Role: {agent['role']}\n\nYour definition:\n{agent['body'][:4000]}" + _PLATFORM_BRIEF)
+    use_tools = use_tools and os.getenv("JARVIS_AGENT_TOOLS", "1") != "0"
     if use_tools:
         system += ("\n\nYou have TOOLS to analyze the user's real data (list_datasets, describe_dataset, "
-                   "query_data, explain_metric, forecast_metric, driver_analysis). When a question needs "
-                   "numbers, USE them: first list/describe to find the right table & fields, then run the "
-                   "analysis, then explain the result in your voice with a clear recommendation. Prefer real "
-                   "data over assumptions.")
+                   "query_data, explain_metric, forecast_metric, driver_analysis). When a task needs numbers, "
+                   "USE them: list/describe to find the right table & fields, run the analysis, then explain "
+                   "the result in your voice with a clear recommendation. Prefer real data over assumptions.")
+    if extra_system:
+        system += "\n\n" + extra_system
     msgs = []
-    for turn in (body.history or [])[-8:]:
-        r = turn.get("role")
-        c = (turn.get("content") or "").strip()
+    for turn in (history or [])[-8:]:
+        r = turn.get("role"); c = (turn.get("content") or "").strip()
         if r in ("user", "assistant") and c:
             msgs.append({"role": r, "content": c})
-    msgs.append({"role": "user", "content": body.message})
-
+    msgs.append({"role": "user", "content": message})
     try:
         import anthropic
         client = anthropic.AsyncAnthropic(api_key=key)
         model = os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6")
-        tools_used = []
-        answer = ""
-        for _ in range(6):  # bounded tool-use loop
+        tools_used, answer = [], ""
+        for _ in range(6):
             kwargs = {"model": model, "max_tokens": 1600, "system": system, "messages": msgs}
             if use_tools:
                 kwargs["tools"] = _AGENT_TOOLS
@@ -282,9 +271,29 @@ async def chat(slug: str, body: ChatRequest):
             answer = "".join(b.text for b in resp.content if getattr(b, "type", "") == "text")
             break
     except Exception as e:
-        log.warning(f"agent chat failed: {e}")
+        log.warning(f"agent turn failed: {e}")
         return {"error": f"Agent unavailable: {e}"}
-    return {"ok": True, "agent": a["name"], "answer": answer, "tools_used": tools_used}
+    return {"ok": True, "agent": agent["name"], "answer": answer, "tools_used": tools_used}
+
+
+def agent_by_slug(slug):  # non-route accessor for other modules (workflows)
+    return _load_all().get(slug)
+
+
+class ChatRequest(BaseModel):
+    message: str
+    history: Optional[list] = None     # [{role:'user'|'assistant', content:str}]
+    tools: bool = True                 # allow the agent to run analyses
+
+
+@router.post("/{slug}/chat")
+async def chat(slug: str, body: ChatRequest):
+    a = _load_all().get(slug)
+    if not a:
+        return {"error": "Agent not found."}
+    if not (body.message or "").strip():
+        return {"error": "Say something to the agent."}
+    return await run_agent_turn(a, body.message, body.history, body.tools)
 
 
 # ── Saved agent chats ────────────────────────────────────────────────────────

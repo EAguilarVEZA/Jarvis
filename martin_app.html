@@ -2507,6 +2507,37 @@
   .ag-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
   .ag-tool-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; color: #0c4a6e; background: #e0f2fe; border-radius: 12px; padding: 3px 9px; }
   .ag-tool-chip .jvi { width: 12px; height: 12px; color: #0369a1; }
+  /* Agent Studio */
+  .studio-shell { max-width: 900px; }
+  .studio-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .studio-head-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .wf-load { border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; font-size: 12.5px; background: #fff; max-width: 220px; }
+  .wf-meta { display: flex; gap: 10px; align-items: center; margin: 16px 0 12px; flex-wrap: wrap; }
+  .wf-name { flex: 1; min-width: 200px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 13px; font-size: 15px; font-weight: 600; }
+  .wf-context { width: 100%; box-sizing: border-box; border: 1px solid var(--line); border-radius: 9px; padding: 11px 13px; font-size: 13px; min-height: 52px; resize: vertical; margin-bottom: 18px; background: linear-gradient(180deg,#f8fbff,#fff); }
+  .wf-flow { display: flex; flex-direction: column; align-items: stretch; }
+  .wf-connector { display: flex; justify-content: center; color: var(--muted2); margin: -2px 0; }
+  .wf-connector .jvi { width: 18px; height: 18px; }
+  .wf-node { border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: 0 1px 3px rgba(15,23,42,.05); overflow: hidden; }
+  .wf-node-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #f8fafc; border-bottom: 1px solid var(--line); }
+  .wf-node-num { width: 24px; height: 24px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .wf-agent { flex: 1; border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; font-size: 13px; font-weight: 600; background: #fff; }
+  .wf-node-actions { display: flex; gap: 4px; }
+  .wf-mini { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; }
+  .wf-mini:hover { border-color: var(--blue); color: var(--blue); }
+  .wf-mini.danger:hover { border-color: #dc2626; color: #dc2626; }
+  .wf-mini .jvi { width: 13px; height: 13px; }
+  .wf-task { width: 100%; box-sizing: border-box; border: 0; padding: 11px 13px; font-size: 13px; min-height: 60px; resize: vertical; font-family: inherit; }
+  .wf-addstep { margin: 12px auto 0; display: block; padding: 9px 16px; border: 1px dashed var(--line-strong); border-radius: 9px; background: #fff; color: var(--blue); font-size: 13px; font-weight: 600; cursor: pointer; }
+  .wf-addstep:hover { border-color: var(--blue); background: #f0f8fc; }
+  .wf-run { margin-top: 24px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .wf-run-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: linear-gradient(90deg,#eff6ff,#f8fbff); border-bottom: 1px solid var(--line); font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .wf-run-step { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; }
+  .wf-run-agent { font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 8px; }
+  .wf-run-body { font-size: 13.5px; line-height: 1.6; color: #1e293b; }
+  .wf-run-body p { margin: 6px 0; } .wf-run-body ol, .wf-run-body ul { margin: 6px 0; padding-left: 22px; }
+  .wf-run-wait { color: var(--muted2); font-size: 12px; font-style: italic; }
+  .wf-tpl:hover { border-color: var(--blue) !important; background: #f0f8fc !important; }
   .kb-userq-bubble { background: #dbeafe; color: #1e3a8a; padding: 10px 16px; border-radius: 18px 18px 4px 18px; font-size: 13px; max-width: 75%; line-height: 1.5; }
   /* Collapsible Analysis disclosure */
   .kb-analysis { margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; overflow: hidden; }
@@ -3370,6 +3401,7 @@
     <span class="nav-item" data-nav="funnel" id="navFunnel">Funnel</span>
     <span class="nav-item" data-nav="experiments" id="navExperiments" style="display:none">Test &amp; Learn</span>
     <span class="nav-item" data-nav="agents" id="navAgents" style="display:none">Agents</span>
+    <span class="nav-item" data-nav="studio" id="navStudio" style="display:none">Studio</span>
     <span style="width:1px;height:18px;background:var(--line);margin:0 6px;align-self:center;"></span>
     <span class="nav-item" data-nav="automations" id="navAutomations">Automations</span>
     <span class="nav-item" data-nav="admin" id="navAdmin" style="display:none">Admin</span>
@@ -3405,6 +3437,7 @@
     <div class="lnav-item" data-lnav="funnel"     title="Funnel"><span class="lnav-icon" data-ic="funnel"></span><span class="lnav-name">Funnel</span></div>
     <div class="lnav-item" data-lnav="experiments" title="Test &amp; Learn — control-group experiments, significance, power &amp; ROI"><span class="lnav-icon" data-ic="beaker"></span><span class="lnav-name">Test &amp; Learn</span></div>
     <div class="lnav-item" data-lnav="agents"      title="Agents — specialist marketing &amp; growth AI agents"><span class="lnav-icon" data-ic="users"></span><span class="lnav-name">Agents</span></div>
+    <div class="lnav-item" data-lnav="studio"      title="Agent Studio — orchestrate agents into teams &amp; automations"><span class="lnav-icon" data-ic="share"></span><span class="lnav-name">Studio</span></div>
     <div class="lnav-item" data-lnav="metrics"    title="Metrics — browse all metrics, rules & saved queries"><span class="lnav-icon" data-ic="fields"></span><span class="lnav-name">Metrics</span></div>
     <div class="lnav-item" data-lnav="knowledge"  title="Knowledge"><span class="lnav-icon" data-ic="book"></span><span class="lnav-name">Knowledge</span></div>
   </div>
@@ -3924,7 +3957,7 @@ async function getFields(tableKey){ if(S.fieldCache[tableKey]) return S.fieldCac
 
 // ── Nav + voice ──
 function setNav(screen){ S.screen=screen;
-  const map={pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
+  const map={pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',studio:'navStudio',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
   // Legacy top-nav (hidden) — keep state in sync so badges/handlers still work.
   Object.keys(map).forEach(k=>{ const el=document.getElementById(map[k]); if(el) el.classList.toggle('active', screen===k); });
   // New left vertical sidebar (visible) — mark active item.
@@ -3953,7 +3986,7 @@ function jarvisSignOut(){
     if(!item) return;
     const target = item.getAttribute('data-lnav');
     // Map to legacy element id
-    const idMap = {pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
+    const idMap = {pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',studio:'navStudio',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
     const legacy = document.getElementById(idMap[target]);
     if(legacy) legacy.click();
   });
@@ -16450,6 +16483,141 @@ function openAgentChat(a){
 }
 
 // ═══════════════════════════════════════════════════════════════════
+//  AGENT STUDIO — orchestrate agents into sequenced teams (n8n-style)
+// ═══════════════════════════════════════════════════════════════════
+const WF = { id:null, name:'Untitled workflow', context:'', steps:[], agents:[], agentOpts:'' };
+async function showStudio(){
+  setNav('studio');
+  const app=document.getElementById('app');
+  app.innerHTML='<div class="stage-wrap studio-shell">'+
+    '<div class="studio-head"><div><h1>Agent Studio</h1><div class="desc">Build a team of agents that work in sequence — each one hands its output to the next. They can query your data and run Test &amp; Learn analyses. Save, schedule, and automate.</div></div>'+
+      '<div class="studio-head-actions">'+
+        '<select id="wfLoad" class="wf-load"><option value="">Open a workflow…</option></select>'+
+        '<button class="btn" id="wfTemplates">'+jvIcon('grid')+' Templates</button>'+
+        '<button class="btn" id="wfSuggest">'+jvIcon('star')+' Suggest a team</button>'+
+        '<button class="btn" id="wfNew">'+jvIcon('plus')+' New</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="wf-meta"><input id="wfName" class="wf-name" placeholder="Workflow name" value="'+esc(WF.name)+'">'+
+      '<button class="btn" id="wfSave">'+jvIcon('save')+' Save</button>'+
+      '<button class="btn" id="wfSchedule">'+jvIcon('clock')+' Schedule</button>'+
+      '<button class="btn primary" id="wfRun">'+jvIcon('play')+' Run team</button></div>'+
+    '<textarea id="wfContext" class="wf-context" placeholder="Shared brief for the whole team (optional) — e.g. Goal: grow qualified leads 20% this quarter, focus on paid + email.">'+esc(WF.context)+'</textarea>'+
+    '<div class="wf-flow" id="wfFlow"></div>'+
+    '<button class="wf-addstep" id="wfAddStep">'+jvIcon('plus')+' Add a step</button>'+
+    '<div id="wfRunOut"></div>'+
+  '</div>';
+  // load agents (for pickers) + saved workflows
+  const [ag, wl]=await Promise.all([
+    api('/api/agents').catch(()=>({agents:[]})),
+    api('/api/workflows').catch(()=>({workflows:[]}))]);
+  WF.agents=ag.agents||[];
+  WF.agentOpts=_wfAgentOpts(WF.agents);
+  const load=document.getElementById('wfLoad');
+  if(load) load.innerHTML='<option value="">Open a workflow…</option>'+(wl.workflows||[]).map(w=>'<option value="'+esc(w.id)+'">'+esc(w.name)+' ('+w.steps+' steps)</option>').join('');
+  if(load) load.addEventListener('change',()=>{ if(load.value) studioLoad(load.value); });
+  document.getElementById('wfNew').addEventListener('click',()=>{ WF.id=null; WF.name='Untitled workflow'; WF.context=''; WF.steps=[]; showStudio(); });
+  document.getElementById('wfAddStep').addEventListener('click',()=>{ WF.steps.push({agent_slug:(WF.agents[0]||{}).slug||'', task:''}); wfRenderSteps(); });
+  document.getElementById('wfSave').addEventListener('click',studioSave);
+  document.getElementById('wfRun').addEventListener('click',studioRun);
+  document.getElementById('wfSchedule').addEventListener('click',studioSchedule);
+  document.getElementById('wfSuggest').addEventListener('click',studioSuggest);
+  document.getElementById('wfTemplates').addEventListener('click',studioTemplates);
+  document.getElementById('wfName').addEventListener('input',e=>WF.name=e.target.value);
+  document.getElementById('wfContext').addEventListener('input',e=>WF.context=e.target.value);
+  if(!WF.steps.length){ WF.steps=[{agent_slug:(WF.agents[0]||{}).slug||'',task:''}]; }
+  wfRenderSteps();
+}
+function _wfAgentOpts(agents, sel){
+  const byDiv={}; (agents||[]).forEach(a=>{ (byDiv[a.division]=byDiv[a.division]||[]).push(a); });
+  const order=['Marketing','Paid Media','Sales']; const divs=order.filter(d=>byDiv[d]).concat(Object.keys(byDiv).filter(d=>!order.includes(d)).sort());
+  return divs.map(d=>'<optgroup label="'+esc(d)+'">'+byDiv[d].map(a=>'<option value="'+esc(a.slug)+'"'+(sel===a.slug?' selected':'')+'>'+esc(a.name)+'</option>').join('')+'</optgroup>').join('');
+}
+function wfRenderSteps(){
+  const host=document.getElementById('wfFlow'); if(!host) return;
+  host.innerHTML=WF.steps.map((s,i)=>{
+    const nm=(WF.agents.find(a=>a.slug===s.agent_slug)||{}).name||s.agent_slug;
+    return (i>0?'<div class="wf-connector">'+jvIcon('download')+'</div>':'')+
+    '<div class="wf-node" data-wfi="'+i+'">'+
+      '<div class="wf-node-head"><span class="wf-node-num">'+(i+1)+'</span>'+
+        '<select class="wf-agent" data-wfagent="'+i+'">'+_wfAgentOpts(WF.agents, s.agent_slug)+'</select>'+
+        '<span class="wf-node-actions">'+
+          (i>0?'<button class="wf-mini" data-wfup="'+i+'" title="Move up">↑</button>':'')+
+          (i<WF.steps.length-1?'<button class="wf-mini" data-wfdown="'+i+'" title="Move down">↓</button>':'')+
+          '<button class="wf-mini danger" data-wfdel="'+i+'" title="Remove">'+jvIcon('x')+'</button>'+
+        '</span>'+
+      '</div>'+
+      '<textarea class="wf-task" data-wftask="'+i+'" placeholder="What should '+esc(nm)+' do? (its output feeds the next agent)">'+esc(s.task||'')+'</textarea>'+
+    '</div>';
+  }).join('');
+  host.querySelectorAll('[data-wfagent]').forEach(sel=>sel.addEventListener('change',()=>{ WF.steps[+sel.getAttribute('data-wfagent')].agent_slug=sel.value; }));
+  host.querySelectorAll('[data-wftask]').forEach(t=>t.addEventListener('input',()=>{ WF.steps[+t.getAttribute('data-wftask')].task=t.value; }));
+  host.querySelectorAll('[data-wfdel]').forEach(b=>b.addEventListener('click',()=>{ WF.steps.splice(+b.getAttribute('data-wfdel'),1); wfRenderSteps(); }));
+  host.querySelectorAll('[data-wfup]').forEach(b=>b.addEventListener('click',()=>{ const i=+b.getAttribute('data-wfup'); [WF.steps[i-1],WF.steps[i]]=[WF.steps[i],WF.steps[i-1]]; wfRenderSteps(); }));
+  host.querySelectorAll('[data-wfdown]').forEach(b=>b.addEventListener('click',()=>{ const i=+b.getAttribute('data-wfdown'); [WF.steps[i+1],WF.steps[i]]=[WF.steps[i],WF.steps[i+1]]; wfRenderSteps(); }));
+}
+async function studioLoad(id){
+  try{ const r=await api('/api/workflows/'+encodeURIComponent(id)); const w=r.workflow; if(!w) return;
+    WF.id=w.id; WF.name=w.name; WF.context=w.context||''; WF.steps=(w.steps||[]).map(s=>({agent_slug:s.agent_slug,task:s.task}));
+    showStudio(); }catch(e){ toast('Load failed',true); }
+}
+async function studioSave(){
+  if(!WF.steps.length){ toast('Add at least one step',true); return; }
+  try{ const r=await api('/api/workflows',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:WF.id, name:WF.name||'Untitled workflow', context:WF.context, steps:WF.steps})}); WF.id=r.id; toast('Workflow saved'); }
+  catch(e){ toast('Save failed: '+e.message,true); }
+}
+async function studioSchedule(){
+  if(!WF.id){ toast('Save the workflow first',true); return; }
+  const choice=(prompt('Auto-run this team: daily / weekly / monthly / off','weekly')||'').trim().toLowerCase();
+  const map={daily:'0 8 * * *',weekly:'0 8 * * 1',monthly:'0 8 1 * *',off:''};
+  if(!(choice in map)){ if(choice) toast('Enter daily, weekly, monthly, or off',true); return; }
+  try{ await api('/api/workflows/'+encodeURIComponent(WF.id)+'/schedule',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cron:map[choice]})}); toast(choice==='off'?'Schedule cleared':('Scheduled '+choice)); }
+  catch(e){ toast('Failed: '+e.message,true); }
+}
+async function studioRun(){
+  const steps=WF.steps.filter(s=>s.agent_slug);
+  if(!steps.length){ toast('Add at least one step',true); return; }
+  const out=document.getElementById('wfRunOut');
+  out.innerHTML='<div class="wf-run"><div class="wf-run-head">'+jvIcon('play')+' Running the team… <span class="loading"></span></div>'+
+    steps.map((s,i)=>{ const nm=(WF.agents.find(a=>a.slug===s.agent_slug)||{}).name||s.agent_slug; return '<div class="wf-run-step" id="wfrs'+i+'"><div class="wf-run-agent">'+(i+1)+'. '+esc(nm)+'</div><div class="wf-run-body"><span class="wf-run-wait">queued…</span></div></div>'; }).join('')+
+  '</div>';
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+  try{
+    const r=await api('/api/workflows/run_adhoc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:WF.name, context:WF.context, steps})});
+    if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
+    (r.steps||[]).forEach((st,i)=>{ const el=document.querySelector('#wfrs'+i+' .wf-run-body'); if(el){
+      const tu=(st.tools_used||[]); const chips=tu.length?'<div class="ag-tools">'+tu.map(t=>'<span class="ag-tool-chip">'+jvIcon('activity')+' '+esc(t.tool)+'</span>').join('')+'</div>':'';
+      el.innerHTML = st.error ? '<span class="werr">'+esc(st.error)+'</span>' : (chips+_mdLite(st.answer||'')); } });
+    const head=document.querySelector('.wf-run-head'); if(head) head.innerHTML=jvIcon('check')+' Team run complete — '+(r.steps||[]).length+' agents.';
+  }catch(e){ out.innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+}
+async function studioSuggest(){
+  const goal=prompt('Describe your goal — I\'ll assemble a team of agents in sequence:'); if(!goal||!goal.trim()) return;
+  toast('Assembling a team…');
+  try{ const r=await api('/api/workflows/suggest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:goal.trim()})});
+    if(r.error){ toast(r.error,true); return; }
+    WF.name=r.name||goal.trim().slice(0,50); WF.context=goal.trim(); WF.steps=(r.steps||[]).map(s=>({agent_slug:s.agent_slug,task:s.task})); WF.id=null;
+    showStudio(); toast('Suggested a '+(r.steps||[]).length+'-agent team — edit and run');
+  }catch(e){ toast('Suggest failed: '+e.message,true); }
+}
+async function studioTemplates(){
+  let r; try{ r=await api('/api/workflows/templates'); }catch(e){ toast('Failed',true); return; }
+  const back=document.createElement('div'); back.id='wfTplModal';
+  back.style.cssText='position:fixed;inset:0;z-index:960;background:rgba(15,23,42,.35);display:flex;align-items:center;justify-content:center;';
+  back.innerHTML='<div style="background:#fff;border-radius:12px;width:520px;max-width:92vw;max-height:74vh;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(15,23,42,.4);overflow:hidden;">'+
+    '<div style="display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600;">'+jvIcon('grid')+'Team templates<button id="wfTplX" style="margin-left:auto;background:transparent;border:0;cursor:pointer;color:var(--muted);">'+jvIcon('x')+'</button></div>'+
+    '<div style="overflow:auto;padding:12px;">'+(r.templates||[]).map(t=>'<button class="wf-tpl" data-tpl="'+esc(t.id)+'" style="display:block;width:100%;text-align:left;border:1px solid var(--line);border-radius:9px;background:#fff;padding:12px 14px;margin-bottom:8px;cursor:pointer;"><b>'+esc(t.name)+'</b><div style="font-size:12px;color:var(--muted);margin:3px 0 6px;">'+esc(t.description)+'</div><div style="font-size:11px;color:var(--blue);">'+t.steps.map(s=>esc(s.agent_slug)).join(' → ')+'</div></button>').join('')+'</div></div>';
+  document.body.appendChild(back);
+  back.addEventListener('click',e=>{ if(e.target===back) back.remove(); });
+  back.querySelector('#wfTplX').addEventListener('click',()=>back.remove());
+  back.querySelectorAll('[data-tpl]').forEach(b=>b.addEventListener('click',()=>{
+    const t=(r.templates||[]).find(x=>x.id===b.getAttribute('data-tpl')); if(!t) return;
+    WF.id=null; WF.name=t.name; WF.context=t.description||''; WF.steps=t.steps.map(s=>({agent_slug:s.agent_slug,task:s.task}));
+    back.remove(); showStudio(); toast('Loaded template — edit and run');
+  }));
+}
+
+// ═══════════════════════════════════════════════════════════════════
 //  GLOBAL AI ASSISTANT — "How do I…?" help on every screen
 // ═══════════════════════════════════════════════════════════════════
 function _mdLite(s){
@@ -16689,6 +16857,7 @@ document.getElementById('navPulse').addEventListener('click',showPulse);
 document.getElementById('navFunnel').addEventListener('click',showFunnel);
 document.getElementById('navExperiments').addEventListener('click',showExperiments);
 document.getElementById('navAgents').addEventListener('click',showAgents);
+document.getElementById('navStudio').addEventListener('click',showStudio);
 // ═══════════════════════════════════════════════════════════════════
 //  AUTOMATIONS — Reports + Actions tabs (mirrors Kaelio /automations)
 // ═══════════════════════════════════════════════════════════════════
