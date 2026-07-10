@@ -15343,7 +15343,7 @@ function _fmtP(p){ return (p==null||isNaN(p))?'n/a':(p<0.001?'<0.001':Number(p).
 async function showExperiments(){
   setNav('experiments');
   const app=document.getElementById('app');
-  const tabs=[['analyze','Analyze experiment','beaker'],['segment','Segment scan','target'],['forecast','Forecast','activity'],['driver','Driver analysis','funnel'],['correlation','Correlation','share'],['significance','Significance test','check'],['power','Sample size & power','activity'],['matched','Matched control','users'],['synthetic','Synthetic control','layers'],['saved','Saved','folder']];
+  const tabs=[['insights','Explain a metric','star'],['analyze','Analyze experiment','beaker'],['segment','Segment scan','target'],['forecast','Forecast','activity'],['driver','Driver analysis','funnel'],['correlation','Correlation','share'],['significance','Significance test','check'],['power','Sample size & power','activity'],['matched','Matched control','users'],['synthetic','Synthetic control','layers'],['saved','Saved','folder']];
   app.innerHTML =
     '<div class="stage-wrap exp-shell">'+
       '<div class="stage-head"><div><h1>Test &amp; Learn</h1>'+
@@ -15421,6 +15421,7 @@ function expRenderTab(){
   else if(EXP.tab==='power')     host.innerHTML=expPowerForm();
   else if(EXP.tab==='matched')   host.innerHTML=expMatchForm();
   else if(EXP.tab==='synthetic') host.innerHTML=expSyntheticForm();
+  else if(EXP.tab==='insights')  host.innerHTML=expInsightsForm();
   else if(EXP.tab==='forecast')  host.innerHTML=expForecastForm();
   else if(EXP.tab==='driver')    host.innerHTML=expDriverForm();
   else if(EXP.tab==='correlation') host.innerHTML=expCorrelationForm();
@@ -15430,6 +15431,7 @@ function expRenderTab(){
   if(EXP.tab==='forecast'&&EXP.fcMode==='data') expPopulateForecastSelects();
   if(EXP.tab==='driver'&&EXP.drMode==='data') expPopulateDriverSelects();
   if(EXP.tab==='correlation') expPopulateCorrelationSelects();
+  if(EXP.tab==='insights') expPopulateInsightsSelects();
 }
 
 // Mode toggle: paste numbers vs pull from the semantic layer / BigQuery.
@@ -15725,6 +15727,33 @@ async function expPopulateForecastSelects(){
   if(tSel.value) fill(tSel.value);
 }
 
+// ---- Explain a metric (auto-insights: trend + forecast + anomalies + drivers) ----
+function expInsightsForm(){
+  return '<div class="exp-grid"><div class="exp-card">'+
+    '<div class="exp-card-title">Explain a metric</div>'+
+    '<div class="exp-hint">Point at a metric and Jarvis runs the whole engine — trend, forecast, anomalies, and (if you pick a breakdown) the drivers of the recent change — then writes the story.</div>'+
+    '<button class="btn small" id="inSuggest" style="margin-bottom:12px;">'+jvIcon('star')+' Suggest a setup</button>'+
+    '<div class="exp-field sm"><label>Dataset</label><select id="inTable"></select></div>'+
+    '<div class="exp-row"><div class="exp-field sm"><label>Metric</label><select id="inMetric"></select></div>'+
+      '<div class="exp-field sm"><label>Date field</label><select id="inDate"></select></div></div>'+
+    '<div class="exp-field sm"><label>Break down by (optional)</label><select id="inDim"><option value="">— none (skip drivers) —</option></select></div>'+
+    '<div class="exp-row"><div class="exp-field sm"><label>From</label><input type="date" id="inStart"></div>'+
+      '<div class="exp-field sm"><label>To</label><input type="date" id="inEnd"></div>'+
+      '<div class="exp-field sm"><label>Horizon</label><input id="inHorizon" value="6"></div></div>'+
+    '<button class="btn primary" id="expRunInsights">'+jvIcon('star')+' Explain it</button>'+
+  '</div><div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('star')+'<div>Get an executive read on any metric in one click.</div></div></div></div>';
+}
+async function expPopulateInsightsSelects(){
+  const tSel=document.getElementById('inTable'); if(!tSel) return;
+  const tables=await expLoadTables();
+  tSel.innerHTML='<option value="">Choose a dataset…</option>'+_expOpts(tables,'','key','display_name');
+  const fill=async(tk)=>{ if(!tk) return; const f=await expLoadFields(tk); if(!f) return;
+    const mets=(f.metrics||[]).concat(f.calculated_metrics||[]), dims=f.dimensions||[], dates=f.dates||[];
+    const mEl=document.getElementById('inMetric'), dEl=document.getElementById('inDate'), dimEl=document.getElementById('inDim');
+    if(mEl) mEl.innerHTML=_expOpts(mets,''); if(dEl) dEl.innerHTML=_expOpts(dates,'');
+    if(dimEl) dimEl.innerHTML='<option value="">— none (skip drivers) —</option>'+_expOpts(dims,''); };
+  tSel.addEventListener('change',()=>fill(tSel.value)); if(tSel.value) fill(tSel.value);
+}
 // ---- Driver analysis (why did a metric change) ----
 function _drModeSeg(){
   return '<div class="exp-seg" style="margin-bottom:16px;">'+
@@ -15945,6 +15974,25 @@ function expWire(){
     toast('Loaded “'+ex.table+'” — pick 2+ metrics and explore');
   }); }
 
+  // Explain a metric (auto-insights)
+  { const b=g('expRunInsights'); if(b) b.addEventListener('click', async ()=>{
+    const body={ primary_table:g('inTable').value, metric_field:g('inMetric').value, date_field:g('inDate').value,
+      dimension_field:g('inDim').value||null, window_start:g('inStart').value, window_end:g('inEnd').value,
+      horizon:Math.max(1,parseInt(g('inHorizon').value)||6), metric_name:g('inMetric').value };
+    if(!body.primary_table||!body.metric_field||!body.date_field||!body.window_start||!body.window_end){ toast('Fill dataset, metric, date and the window',true); return; }
+    busy(); try{ const r=await _expPost('auto_insights', body); await expRenderInsights(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+  { const sb=g('inSuggest'); if(sb) sb.addEventListener('click', async ()=>{
+    let d; try{ d=await api('/api/stats/diagnostics'); }catch(e){ return; } const ex=d.example; if(!ex||!ex.table){ toast('No suitable table',true); return; }
+    const tSel=g('inTable'); if(!Array.from(tSel.options).some(o=>o.value===ex.table)) await expPopulateInsightsSelects();
+    tSel.value=ex.table; const f=await expLoadFields(ex.table); if(!f) return;
+    const mets=(f.metrics||[]).concat(f.calculated_metrics||[]), dims=f.dimensions||[], dates=f.dates||[];
+    g('inMetric').innerHTML=_expOpts(mets,''); g('inDate').innerHTML=_expOpts(dates,'');
+    g('inDim').innerHTML='<option value="">— none (skip drivers) —</option>'+_expOpts(dims,'');
+    g('inMetric').value=ex.metric_field; g('inDate').value=ex.date_field; g('inDim').value=ex.group_field;
+    toast('Loaded a setup for “'+ex.table+'” — set your window and explain it');
+  }); }
+
   { const b=g('expRunSynthData'); if(b) b.addEventListener('click', async ()=>{
     const body=_expDataBody('syd');
     if(!_expDataValid(body)){ toast('Fill in dataset, metric, unit, date, cohort field, test/donor values and all four dates',true); return; }
@@ -15953,6 +16001,46 @@ function expWire(){
   }); }
 }
 
+// Auto-insights: executive narrative + trend/forecast chart + anomalies + drivers.
+function expRenderInsights(r){
+  const out=document.getElementById('expOut'); if(!out) return;
+  if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
+  const fc=r.forecast, an=r.anomalies, dr=r.drivers;
+  const metrics='<div class="exp-metric-row">'+
+    '<div class="exp-metric"><div class="em-label">Trend</div><div class="em-val">'+_pct(r.trend_change_pct)+'</div><div class="em-sub">over window</div></div>'+
+    (fc?'<div class="exp-metric"><div class="em-label">Forecast (+'+fc.horizon+')</div><div class="em-val">'+_num((fc.forecast||[]).slice(-1)[0])+'</div><div class="em-sub">'+_pct(fc.forecast_change_pct)+'</div></div>':'')+
+    (an?'<div class="exp-metric"><div class="em-label">Anomalies</div><div class="em-val">'+an.n_anomalies+'</div><div class="em-sub">beyond 3σ</div></div>':'')+
+    (dr?'<div class="exp-metric"><div class="em-label">Top driver</div><div class="em-val" style="font-size:16px;">'+esc(dr.top_positive||'—')+'</div><div class="em-sub">recent change</div></div>':'')+
+  '</div>';
+  const drRows=dr?(dr.drivers||[]).slice(0,6).map(d=>'<tr><td><b>'+esc(d.segment)+'</b></td><td class="'+(d.contribution>=0?'exp-good':'exp-bad')+'">'+(d.contribution>=0?'+':'')+_num(d.contribution)+'</td><td>'+(d.contribution_pct!=null?Math.round(d.contribution_pct)+'%':'—')+'</td></tr>').join(''):'';
+  out.innerHTML=
+    '<div class="exp-verdict exp-v-info"><div class="exp-v-head">'+jvIcon('star')+' '+esc(r.metric||'Metric')+' — the story</div><div class="exp-v-detail">'+esc(r.narrative||'')+'</div></div>'+
+    metrics+
+    '<div id="inChart" style="width:100%;height:230px;margin:6px 0;"></div>'+
+    (dr&&drRows?'<div class="exp-subtitle">Drivers of the recent change</div><table class="exp-table"><thead><tr><th>Segment</th><th>Contribution</th><th>% of change</th></tr></thead><tbody>'+drRows+'</tbody></table>':'');
+  // chart: history + forecast + band + anomaly pins
+  try{ if(window.echarts && fc){
+    const el=document.getElementById('inChart'); const ch=echarts.init(el,'martin',{renderer:'canvas'});
+    const hist=r.series||fc.history||[]; const n=hist.length; const H=(fc.forecast||[]).length;
+    const dates=r.dates||null;
+    const xs=[]; for(let i=0;i<n;i++) xs.push(dates?String(dates[i]):('t'+(i+1))); for(let h=1;h<=H;h++) xs.push('+'+h);
+    const nullsH=Array(H).fill(null);
+    const fcLine=Array(n-1).fill(null).concat([hist[n-1]]).concat(fc.forecast);
+    const lowLine=Array(n).fill(null).concat(fc.lower); const bandLine=Array(n).fill(null).concat(fc.upper.map((u,i)=>u-fc.lower[i]));
+    const anomPts=(an&&an.anomalies||[]).map(a=>({coord:[dates?String(dates[a.index]):('t'+(a.index+1)), a.value], itemStyle:{color:'#dc2626'}, symbolSize:8}));
+    ch.setOption({ tooltip:{trigger:'axis'}, legend:{top:0,data:['History','Forecast'],textStyle:{fontSize:11}},
+      grid:{left:8,right:14,top:28,bottom:20,containLabel:true},
+      xAxis:{type:'category',data:xs,axisLabel:{fontSize:10,interval:Math.max(0,Math.floor((n+H)/12))}},
+      yAxis:{type:'value',axisLabel:{fontSize:11}},
+      series:[
+        {name:'lo',type:'line',data:lowLine,stack:'b',lineStyle:{opacity:0},symbol:'none',silent:true},
+        {name:'band',type:'line',data:bandLine,stack:'b',lineStyle:{opacity:0},symbol:'none',areaStyle:{color:'#0E76B4',opacity:.12},silent:true},
+        {name:'History',type:'line',data:hist.concat(nullsH),symbol:'circle',symbolSize:4,lineStyle:{width:2.4,color:'#0E76B4'},itemStyle:{color:'#0E76B4'}, markPoint: anomPts.length?{data:anomPts,symbol:'pin',label:{show:false}}:undefined},
+        {name:'Forecast',type:'line',data:fcLine,symbol:'circle',symbolSize:4,lineStyle:{width:2.2,type:'dashed',color:'#e0a400'},itemStyle:{color:'#e0a400'}},
+      ] });
+    if(!el._ro){ el._ro=new ResizeObserver(()=>{try{ch.resize();}catch(e){}}); el._ro.observe(el); }
+  }}catch(e){}
+}
 async function expRenderForecast(r, series){
   const out=document.getElementById('expOut'); if(!out) return;
   if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }

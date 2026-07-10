@@ -1921,6 +1921,118 @@ async def correlation_from_data(body: CorrelationFromDataRequest):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Auto-insights — one-click "explain a metric": trend + forecast + anomalies +
+# drivers, composed into an executive narrative (ThoughtSpot/Explain-Data class)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _dim_pull(model, pt, metric_field, dimension_field, date_field, window, extra):
+    from semantic import build_sql, run_query, StructuredQuery
+    filters = [{"table": pt, "field": date_field, "op": "between", "value": [window[0], window[1]]}]
+    for f in (extra or []):
+        ff = dict(f); ff.setdefault("table", pt); filters.append(ff)
+    qdict = {"primary_table": pt,
+             "dimensions": [{"table": pt, "field": dimension_field}],
+             "metrics": [{"table": pt, "field": metric_field}],
+             "filters": filters, "limit": 100000}
+    res = run_query(build_sql(StructuredQuery.from_dict(qdict), model))
+    return {str(r[0]): float(r[1]) for r in (res.rows or []) if len(r) >= 2 and r[0] is not None and r[1] is not None}
+
+
+class AutoInsightsRequest(BaseModel):
+    primary_table: str
+    metric_field: str
+    date_field: str
+    window_start: str
+    window_end: str
+    dimension_field: Optional[str] = None   # enables driver analysis
+    horizon: int = 6
+    extra_filters: Optional[list] = None
+    metric_name: Optional[str] = None
+
+
+@router.post("/auto_insights")
+async def auto_insights(body: AutoInsightsRequest):
+    """Run the whole data-science engine on one metric and compose a narrative:
+    trend + forecast, anomaly scan, and (if a dimension is given) the drivers of
+    the recent change."""
+    from semantic import load_model
+    try:
+        model = load_model()
+    except Exception as e:
+        return {"error": f"semantic model load failed: {e}"}
+    pairs = [("metric_field", body.metric_field), ("date_field", body.date_field)]
+    if body.dimension_field:
+        pairs.append(("dimension_field", body.dimension_field))
+    err = _validate_data_fields(model, body.primary_table, pairs)
+    if err:
+        return {"error": err}
+    pt = body.primary_table
+    metric_name = body.metric_name or body.metric_field
+    loop = asyncio.get_running_loop()
+
+    # 1) time series over the window
+    try:
+        rows = await loop.run_in_executor(
+            None, _agg_series_by_date, model, pt, body.metric_field, body.date_field,
+            [body.window_start, body.window_end], None, body.extra_filters or [])
+    except Exception as e:
+        return {"error": f"Query failed: {e}"}
+    if len(rows) < 4:
+        return {"error": "Fewer than 4 dated points — widen the window."}
+    dates = [d for d, _ in rows]
+    series = [v for _, v in rows]
+
+    forecast = _forecast_core(series, max(1, int(body.horizon)), None, 0.05)
+    anom = _anomalies_core(series, None, 3.0)
+
+    # 2) driver analysis: split the window in half (prior vs recent), by dimension
+    drivers = None
+    if body.dimension_field:
+        mid = len(dates) // 2
+        prior_win = [dates[0], dates[max(0, mid - 1)]]
+        recent_win = [dates[mid], dates[-1]]
+        try:
+            prior = await loop.run_in_executor(None, _dim_pull, model, pt, body.metric_field, body.dimension_field, body.date_field, prior_win, body.extra_filters or [])
+            recent = await loop.run_in_executor(None, _dim_pull, model, pt, body.metric_field, body.dimension_field, body.date_field, recent_win, body.extra_filters or [])
+            names = set(prior) | set(recent)
+            segs = [{"name": n, "prior": prior.get(n, 0.0), "current": recent.get(n, 0.0)} for n in names]
+            drivers = _driver_core(segs, metric_name)
+            if drivers.get("ok"):
+                drivers["drivers"] = drivers["drivers"][:8]
+                drivers["windows"] = {"prior": prior_win, "recent": recent_win}
+        except Exception as e:
+            drivers = {"error": str(e)}
+
+    # 3) compose the narrative
+    total = sum(series)
+    first, last = series[0], series[-1]
+    trend_pct = ((last - first) / first * 100) if first else None
+    bits = []
+    if trend_pct is not None:
+        bits.append(f"{metric_name} {'rose' if last>=first else 'fell'} {abs(trend_pct):.0f}% across the window "
+                    f"(from {first:.1f} to {last:.1f}).")
+    if forecast.get("ok"):
+        bits.append("Forecast: " + forecast["summary"])
+    if anom.get("ok") and anom.get("n_anomalies"):
+        bits.append(f"{anom['n_anomalies']} anomaly(ies) flagged beyond 3σ.")
+    if drivers and drivers.get("ok") and drivers.get("top_positive"):
+        tp = drivers["top_positive"]
+        bits.append(f"Biggest driver of the recent change: {tp}"
+                    + (f", partly offset by {drivers['top_negative']}." if drivers.get("top_negative") else "."))
+    narrative = " ".join(bits) or f"{metric_name}: {len(series)} periods analyzed."
+
+    return {
+        "ok": True, "test": "Auto-insights", "metric": metric_name,
+        "dates": dates, "series": series, "total": total,
+        "trend_change_pct": trend_pct,
+        "forecast": forecast if forecast.get("ok") else None,
+        "anomalies": anom if anom.get("ok") else None,
+        "drivers": drivers if (drivers and drivers.get("ok")) else None,
+        "narrative": narrative,
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Saved experiments — persist readouts so teams track impact over time
 # ─────────────────────────────────────────────────────────────────────────────
 
