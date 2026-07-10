@@ -4876,6 +4876,9 @@ async function doAsk(opts){
   // Learn experiment, or routed to the lab when cohorts/dates were missing.
   if(d && d.mode==='experiment' && d.experiment){ expRenderAskExperiment(d.experiment, q.trim(), res); return; }
   if(d && d.experiment_intent){ expRenderAskRoute(d, q.trim(), res); return; }
+  // Forecast intent: predict/anomaly questions run through the forecasting engine.
+  if(d && d.mode==='forecast' && d.forecast){ expRenderAskForecast(d.forecast, q.trim(), res); return; }
+  if(d && d.forecast_intent){ expRenderAskRoute({message:d.message}, q.trim(), res); return; }
   if(!d||!d.widget){ res.innerHTML='<div class="ask-result"><span class="werr">'+esc((d&&d.error)||'No answer returned. Try rephrasing.')+'</span></div>'; return; }
   ASK_LAST=d.widget;
   ASK_RESPONSE=d;
@@ -15305,7 +15308,7 @@ document.getElementById('wbMask').addEventListener('click',e=>{if(e.target.id===
 //  controls). Backed by /api/stats/*. Beats point-and-click A/B tools by
 //  bringing APT / Mastercard Test&Learn-style causal measurement inline.
 // ═══════════════════════════════════════════════════════════════════
-const EXP = { tab: 'analyze', sigMode: 'means', powerKind: 'mean', mode: 'paste', synMode: 'paste', fcMode: 'paste', headline: 'did', dataTables: null, dataFields: null, dataTable: null };
+const EXP = { tab: 'analyze', sigMode: 'means', powerKind: 'mean', mode: 'paste', synMode: 'paste', fcMode: 'paste', drMode: 'paste', headline: 'did', dataTables: null, dataFields: null, dataTable: null };
 async function expLoadTables(){ if(EXP.dataTables) return EXP.dataTables; try{ const d=await api('/api/semantic/tables'); EXP.dataTables=(d.tables||[]); }catch(e){ EXP.dataTables=[]; } return EXP.dataTables; }
 async function expLoadFields(tableKey){ try{ const d=await api('/api/semantic/tables/'+encodeURIComponent(tableKey)); EXP.dataFields=d; EXP.dataTable=tableKey; return d; }catch(e){ return null; } }
 function _expOpts(items, cur, valKey, lblKey){ return (items||[]).map(x=>{ const v=x[valKey||'key'], l=x[lblKey||'display_name']||x[valKey||'key']; return '<option value="'+esc(v)+'"'+(cur===v?' selected':'')+'>'+esc(l)+'</option>'; }).join(''); }
@@ -15340,7 +15343,7 @@ function _fmtP(p){ return (p==null||isNaN(p))?'n/a':(p<0.001?'<0.001':Number(p).
 async function showExperiments(){
   setNav('experiments');
   const app=document.getElementById('app');
-  const tabs=[['analyze','Analyze experiment','beaker'],['segment','Segment scan','target'],['forecast','Forecast','activity'],['significance','Significance test','check'],['power','Sample size & power','activity'],['matched','Matched control','users'],['synthetic','Synthetic control','layers'],['saved','Saved','folder']];
+  const tabs=[['analyze','Analyze experiment','beaker'],['segment','Segment scan','target'],['forecast','Forecast','activity'],['driver','Driver analysis','funnel'],['correlation','Correlation','share'],['significance','Significance test','check'],['power','Sample size & power','activity'],['matched','Matched control','users'],['synthetic','Synthetic control','layers'],['saved','Saved','folder']];
   app.innerHTML =
     '<div class="stage-wrap exp-shell">'+
       '<div class="stage-head"><div><h1>Test &amp; Learn</h1>'+
@@ -15382,6 +15385,22 @@ function expRenderAskExperiment(r, q, res){
   '</div>';
   const b=document.getElementById('expAskOpen'); if(b) b.addEventListener('click', ()=>{ EXP.tab='analyze'; showExperiments(); });
 }
+// Render an auto-run forecast inside the Ask surface.
+function expRenderAskForecast(r, q, res){
+  res.innerHTML='<div class="ask-result kbrief">'+
+    '<div class="kb-userq"><div class="kb-userq-bubble">'+esc(q)+'</div></div>'+
+    '<div class="exp-ask-tag">'+jvIcon('activity')+' Answered with a forecast'+(r.params&&r.params.period>1?' · seasonal':'')+'</div>'+
+    '<div class="exp-verdict exp-v-info"><div class="exp-v-head">'+jvIcon('activity')+' '+esc(r.metric||'Forecast')+'</div><div class="exp-v-detail">'+esc(r.summary||'')+'</div></div>'+
+    '<div class="exp-metric-row">'+
+      '<div class="exp-metric"><div class="em-label">Next period</div><div class="em-val">'+_num((r.forecast||[])[0])+'</div><div class="em-sub">point forecast</div></div>'+
+      '<div class="exp-metric"><div class="em-label">End of horizon</div><div class="em-val">'+_num((r.forecast||[]).slice(-1)[0])+'</div><div class="em-sub">'+_pct(r.forecast_change_pct)+' vs last</div></div>'+
+      '<div class="exp-metric"><div class="em-label">Fit (MAPE)</div><div class="em-val">'+(r.mape_pct!=null?r.mape_pct.toFixed(1)+'%':'—')+'</div><div class="em-sub">in-sample</div></div>'+
+    '</div>'+
+    '<div id="expOut" style="display:none;"></div>'+
+    '<div class="exp-ask-actions"><button class="btn" id="expAskOpen">'+jvIcon('activity')+' Open in Test &amp; Learn → Forecast</button></div>'+
+  '</div>';
+  const b=document.getElementById('expAskOpen'); if(b) b.addEventListener('click', ()=>{ EXP.tab='forecast'; EXP.fcMode='paste'; showExperiments(); setTimeout(()=>{ const s=document.getElementById('fcSeries'); if(s&&r.history){ s.value=r.history.join(', '); } },80); });
+}
 // Render the 'this is an experiment question' routing card when auto-run wasn't possible.
 function expRenderAskRoute(d, q, res){
   res.innerHTML='<div class="ask-result kbrief">'+
@@ -15403,10 +15422,14 @@ function expRenderTab(){
   else if(EXP.tab==='matched')   host.innerHTML=expMatchForm();
   else if(EXP.tab==='synthetic') host.innerHTML=expSyntheticForm();
   else if(EXP.tab==='forecast')  host.innerHTML=expForecastForm();
+  else if(EXP.tab==='driver')    host.innerHTML=expDriverForm();
+  else if(EXP.tab==='correlation') host.innerHTML=expCorrelationForm();
   else if(EXP.tab==='saved')     { host.innerHTML='<div class="exp-card"><div class="exp-card-title">Saved experiments</div><div id="expSavedList"><div class="exp-empty"><span class="loading">Loading…</span></div></div></div>'; expLoadSaved(); return; }
   expWire();
   if((EXP.tab==='analyze'&&EXP.mode==='data')||EXP.tab==='segment'||(EXP.tab==='synthetic'&&EXP.synMode==='data')) expPopulateDataSelects();
   if(EXP.tab==='forecast'&&EXP.fcMode==='data') expPopulateForecastSelects();
+  if(EXP.tab==='driver'&&EXP.drMode==='data') expPopulateDriverSelects();
+  if(EXP.tab==='correlation') expPopulateCorrelationSelects();
 }
 
 // Mode toggle: paste numbers vs pull from the semantic layer / BigQuery.
@@ -15702,9 +15725,76 @@ async function expPopulateForecastSelects(){
   if(tSel.value) fill(tSel.value);
 }
 
+// ---- Driver analysis (why did a metric change) ----
+function _drModeSeg(){
+  return '<div class="exp-seg" style="margin-bottom:16px;">'+
+    '<button class="exp-seg-b'+(EXP.drMode==='paste'?' active':'')+'" data-drmode="paste">Paste segments</button>'+
+    '<button class="exp-seg-b'+(EXP.drMode==='data'?' active':'')+'" data-drmode="data">From my data</button>'+
+  '</div>';
+}
+function expDriverForm(){
+  if(EXP.drMode==='data'){
+    return '<div class="exp-grid"><div class="exp-card">'+
+      '<div class="exp-card-title">Driver analysis</div>'+_drModeSeg()+
+      '<div class="exp-hint">Decompose a metric change into which segments drove it. Compares a prior vs current window, grouped by a dimension.</div>'+
+      '<button class="btn small" id="drSuggest" style="margin-bottom:12px;">'+jvIcon('star')+' Suggest a setup</button>'+
+      '<div class="exp-field sm"><label>Dataset</label><select id="drTable"></select></div>'+
+      '<div class="exp-row"><div class="exp-field sm"><label>Metric</label><select id="drMetric"></select></div>'+
+        '<div class="exp-field sm"><label>Break down by</label><select id="drDim"></select></div></div>'+
+      '<div class="exp-field sm"><label>Date field</label><select id="drDate"></select></div>'+
+      '<div class="exp-row"><div class="exp-field sm"><label>Prior from</label><input type="date" id="drPriorS"></div>'+
+        '<div class="exp-field sm"><label>Prior to</label><input type="date" id="drPriorE"></div></div>'+
+      '<div class="exp-row"><div class="exp-field sm"><label>Current from</label><input type="date" id="drCurS"></div>'+
+        '<div class="exp-field sm"><label>Current to</label><input type="date" id="drCurE"></div></div>'+
+      '<button class="btn primary" id="expRunDrData">'+jvIcon('play')+' Explain the change</button>'+
+    '</div><div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('funnel')+'<div>See which segments drove a metric up or down.</div></div></div></div>';
+  }
+  return '<div class="exp-grid"><div class="exp-card">'+
+    '<div class="exp-card-title">Driver analysis</div>'+_drModeSeg()+
+    '<div class="exp-hint">One segment per line: <code>name, prior, current</code>. The engine decomposes the total change into each segment\'s contribution.</div>'+
+    '<div class="exp-field"><label>Segments</label><textarea id="drSegs" style="min-height:120px;" placeholder="West, 40, 70&#10;East, 30, 50&#10;South, 30, 20"></textarea></div>'+
+    '<div class="exp-field sm"><label>Metric label</label><input id="drName" value="metric"></div>'+
+    '<button class="btn primary" id="expRunDr">'+jvIcon('play')+' Explain the change</button>'+
+  '</div><div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('funnel')+'<div>Decompose a change into per-segment drivers.</div></div></div></div>';
+}
+async function expPopulateDriverSelects(){
+  const tSel=document.getElementById('drTable'); if(!tSel) return;
+  const tables=await expLoadTables();
+  tSel.innerHTML='<option value="">Choose a dataset…</option>'+_expOpts(tables,'','key','display_name');
+  const fill=async(tk)=>{ if(!tk) return; const f=await expLoadFields(tk); if(!f) return;
+    const mets=(f.metrics||[]).concat(f.calculated_metrics||[]), dims=f.dimensions||[], dates=f.dates||[];
+    const s=(id,items)=>{ const el=document.getElementById(id); if(el) el.innerHTML=_expOpts(items,''); };
+    s('drMetric',mets); s('drDim',dims); s('drDate',dates); };
+  tSel.addEventListener('change',()=>fill(tSel.value)); if(tSel.value) fill(tSel.value);
+}
+// ---- Correlation explorer ----
+function expCorrelationForm(){
+  return '<div class="exp-grid"><div class="exp-card">'+
+    '<div class="exp-card-title">Correlation explorer</div>'+
+    '<div class="exp-hint">Find which metrics move together. Pulls several metrics grouped by a dimension and ranks the pairwise relationships.</div>'+
+    '<button class="btn small" id="coSuggest" style="margin-bottom:12px;">'+jvIcon('star')+' Suggest a setup</button>'+
+    '<div class="exp-field sm"><label>Dataset</label><select id="coTable"></select></div>'+
+    '<div class="exp-field sm"><label>Group by (unit)</label><select id="coDim"></select></div>'+
+    '<div class="exp-field"><label>Metrics (pick 2+)</label><select id="coMetrics" multiple size="6" style="height:auto;"></select></div>'+
+    '<div class="exp-hint" style="margin-top:0;">Cmd/Ctrl-click to select multiple metrics.</div>'+
+    '<button class="btn primary" id="expRunCo">'+jvIcon('play')+' Explore correlations</button>'+
+  '</div><div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('share')+'<div>Rank the strongest relationships among your metrics.</div></div></div></div>';
+}
+async function expPopulateCorrelationSelects(){
+  const tSel=document.getElementById('coTable'); if(!tSel) return;
+  const tables=await expLoadTables();
+  tSel.innerHTML='<option value="">Choose a dataset…</option>'+_expOpts(tables,'','key','display_name');
+  const fill=async(tk)=>{ if(!tk) return; const f=await expLoadFields(tk); if(!f) return;
+    const mets=(f.metrics||[]).concat(f.calculated_metrics||[]), dims=f.dimensions||[];
+    const dEl=document.getElementById('coDim'); if(dEl) dEl.innerHTML=_expOpts(dims,'');
+    const mEl=document.getElementById('coMetrics'); if(mEl) mEl.innerHTML=_expOpts(mets,''); };
+  tSel.addEventListener('change',()=>fill(tSel.value)); if(tSel.value) fill(tSel.value);
+}
+
 function expWire(){
   document.querySelectorAll('[data-expmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.mode=b.getAttribute('data-expmode'); expRenderTab(); }));
   document.querySelectorAll('[data-fcmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.fcMode=b.getAttribute('data-fcmode'); expRenderTab(); }));
+  document.querySelectorAll('[data-drmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.drMode=b.getAttribute('data-drmode'); expRenderTab(); }));
   document.querySelectorAll('[data-synmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.synMode=b.getAttribute('data-synmode'); expRenderTab(); }));
   document.querySelectorAll('[data-sigmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.sigMode=b.getAttribute('data-sigmode'); expRenderTab(); }));
   ['ad','sc','syd'].forEach(px=>{ const sb=document.getElementById(px+'Suggest'); if(sb) sb.addEventListener('click',()=>expSuggestSetup(px)); });
@@ -15813,6 +15903,48 @@ function expWire(){
     busy(); try{ const r=await _expPost('forecast_from_data', body); await expRenderForecast(r, (r.history||[])); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
   }); }
 
+  // Driver analysis
+  { const b=g('expRunDr'); if(b) b.addEventListener('click', async ()=>{
+    const segs=String(g('drSegs').value||'').split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=>{ const p=l.split(/[,\t]/).map(s=>s.trim()); return {name:p[0], prior:Number(p[1]), current:Number(p[2])}; }).filter(s=>s.name&&!isNaN(s.prior)&&!isNaN(s.current));
+    if(segs.length<1){ toast('Add at least one "name, prior, current" line',true); return; }
+    busy(); try{ const r=await _expPost('driver_analysis',{segments:segs, metric_name:(g('drName').value||'metric')}); expRenderDriver(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+  { const b=g('expRunDrData'); if(b) b.addEventListener('click', async ()=>{
+    const body={ primary_table:g('drTable').value, metric_field:g('drMetric').value, dimension_field:g('drDim').value, date_field:g('drDate').value,
+      prior_start:g('drPriorS').value, prior_end:g('drPriorE').value, current_start:g('drCurS').value, current_end:g('drCurE').value, metric_name:g('drMetric').value };
+    if(!body.primary_table||!body.metric_field||!body.dimension_field||!body.date_field||!body.prior_start||!body.current_start){ toast('Fill dataset, metric, dimension, date and both windows',true); return; }
+    busy(); try{ const r=await _expPost('driver_from_data', body); expRenderDriver(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+  { const sb=g('drSuggest'); if(sb) sb.addEventListener('click', async ()=>{
+    let d; try{ d=await api('/api/stats/diagnostics'); }catch(e){ return; } const ex=d.example; if(!ex||!ex.table){ toast('No suitable table',true); return; }
+    const tSel=g('drTable'); if(!Array.from(tSel.options).some(o=>o.value===ex.table)) await expPopulateDriverSelects();
+    tSel.value=ex.table; const f=await expLoadFields(ex.table); if(!f) return;
+    const mets=(f.metrics||[]).concat(f.calculated_metrics||[]), dims=f.dimensions||[], dates=f.dates||[];
+    g('drMetric').innerHTML=_expOpts(mets,''); g('drDim').innerHTML=_expOpts(dims,''); g('drDate').innerHTML=_expOpts(dates,'');
+    g('drMetric').value=ex.metric_field; g('drDim').value=ex.group_field; g('drDate').value=ex.date_field;
+    toast('Loaded a setup for “'+ex.table+'” — set prior + current windows');
+  }); }
+
+  // Correlation explorer
+  { const b=g('expRunCo'); if(b) b.addEventListener('click', async ()=>{
+    const mSel=g('coMetrics'); const metrics=Array.from(mSel?mSel.selectedOptions:[]).map(o=>o.value);
+    if(metrics.length<2){ toast('Select at least 2 metrics',true); return; }
+    const body={ primary_table:g('coTable').value, dimension_field:g('coDim').value, metric_fields:metrics };
+    if(!body.primary_table||!body.dimension_field){ toast('Pick a dataset and a group-by dimension',true); return; }
+    busy(); try{ const r=await _expPost('correlation_from_data', body); expRenderCorrelation(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+  { const sb=g('coSuggest'); if(sb) sb.addEventListener('click', async ()=>{
+    let d; try{ d=await api('/api/stats/diagnostics'); }catch(e){ return; } const ex=d.example; if(!ex||!ex.table){ toast('No suitable table',true); return; }
+    const tSel=g('coTable'); if(!Array.from(tSel.options).some(o=>o.value===ex.table)) await expPopulateCorrelationSelects();
+    tSel.value=ex.table; const f=await expLoadFields(ex.table); if(!f) return;
+    const mets=(f.metrics||[]).concat(f.calculated_metrics||[]), dims=f.dimensions||[];
+    g('coDim').innerHTML=_expOpts(dims,''); g('coMetrics').innerHTML=_expOpts(mets,'');
+    g('coDim').value=ex.unit_field;
+    // pre-select the first 2-3 metrics
+    Array.from(g('coMetrics').options).slice(0,3).forEach(o=>o.selected=true);
+    toast('Loaded “'+ex.table+'” — pick 2+ metrics and explore');
+  }); }
+
   { const b=g('expRunSynthData'); if(b) b.addEventListener('click', async ()=>{
     const body=_expDataBody('syd');
     if(!_expDataValid(body)){ toast('Fill in dataset, metric, unit, date, cohort field, test/donor values and all four dates',true); return; }
@@ -15862,6 +15994,48 @@ async function expRenderForecast(r, series){
     });
     if(!el._ro){ el._ro=new ResizeObserver(()=>{try{ch.resize();}catch(e){}}); el._ro.observe(el); }
   }}catch(e){}
+}
+function expRenderDriver(r){
+  const out=document.getElementById('expOut'); if(!out) return;
+  if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
+  const chgDir=r.total_change>=0?'#16a34a':'#b45309';
+  const rows=(r.drivers||[]).map(d=>{
+    const c=d.contribution>=0?'exp-good':'exp-bad';
+    return '<tr><td><b>'+esc(d.segment)+'</b></td><td>'+_num(d.prior)+'</td><td>'+_num(d.current)+'</td>'+
+      '<td class="'+c+'">'+(d.contribution>=0?'+':'')+_num(d.contribution)+'</td>'+
+      '<td>'+(d.contribution_pct!=null?Math.round(d.contribution_pct)+'%':'—')+'</td>'+
+      '<td>'+(d.share_shift_pts!=null?(d.share_shift_pts>=0?'+':'')+d.share_shift_pts.toFixed(1)+'pt':'—')+'</td></tr>';
+  }).join('');
+  out.innerHTML=
+    '<div class="exp-verdict exp-v-info"><div class="exp-v-head">'+jvIcon('funnel')+' Driver analysis</div><div class="exp-v-detail">'+esc(r.summary||'')+'</div></div>'+
+    '<div class="exp-metric-row">'+
+      '<div class="exp-metric"><div class="em-label">Total change</div><div class="em-val" style="color:'+chgDir+';">'+(r.total_change>=0?'+':'')+_num(r.total_change)+'</div><div class="em-sub">'+_pct(r.total_change_pct)+'</div></div>'+
+      '<div class="exp-metric"><div class="em-label">Top driver</div><div class="em-val" style="font-size:16px;">'+esc(r.top_positive||'—')+'</div><div class="em-sub">largest +</div></div>'+
+      '<div class="exp-metric"><div class="em-label">Top offset</div><div class="em-val" style="font-size:16px;">'+esc(r.top_negative||'—')+'</div><div class="em-sub">largest −</div></div>'+
+    '</div>'+
+    '<div id="drChart" style="width:100%;height:240px;margin:6px 0;"></div>'+
+    '<table class="exp-table"><thead><tr><th>Segment</th><th>Prior</th><th>Current</th><th>Contribution</th><th>% of change</th><th>Share shift</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  try{ if(window.echarts){
+    const el=document.getElementById('drChart'); const ch=echarts.init(el,'martin',{renderer:'canvas'});
+    const ds=(r.drivers||[]).slice(0,12);
+    ch.setOption({ tooltip:{trigger:'axis'}, grid:{left:8,right:14,top:16,bottom:8,containLabel:true},
+      xAxis:{type:'category',data:ds.map(d=>d.segment),axisLabel:{fontSize:10,interval:0,rotate:ds.length>6?30:0}},
+      yAxis:{type:'value',axisLabel:{fontSize:11}},
+      series:[{type:'bar',data:ds.map(d=>({value:d.contribution,itemStyle:{color:d.contribution>=0?'#16a34a':'#dc2626'}}))}] });
+    if(!el._ro){ el._ro=new ResizeObserver(()=>{try{ch.resize();}catch(e){}}); el._ro.observe(el); }
+  }}catch(e){}
+}
+function expRenderCorrelation(r){
+  const out=document.getElementById('expOut'); if(!out) return;
+  if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
+  const rows=(r.correlations||[]).map(c=>{
+    const col=Math.abs(c.r)>=0.7?'exp-good':(Math.abs(c.r)>=0.4?'':'');
+    return '<tr><td><b>'+esc(c.a)+'</b> ↔ <b>'+esc(c.b)+'</b></td><td class="'+col+'">'+c.r.toFixed(3)+'</td><td>'+(c.r_squared*100).toFixed(0)+'%</td><td>'+esc(c.strength)+' '+esc(c.direction)+'</td><td>'+esc(c.p_display)+'</td><td>'+c.n+'</td></tr>';
+  }).join('');
+  out.innerHTML=
+    '<div class="exp-verdict exp-v-info"><div class="exp-v-head">'+jvIcon('share')+' Correlation explorer</div><div class="exp-v-detail">'+esc(r.summary||'')+'</div></div>'+
+    '<table class="exp-table"><thead><tr><th>Pair</th><th>r</th><th>R²</th><th>Strength</th><th>p</th><th>n</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div class="exp-hint" style="margin-top:10px;">Correlation is not causation — to prove impact, run a controlled experiment.</div>';
 }
 function expRenderSynthetic(r){
   const out=document.getElementById('expOut'); if(!out) return;

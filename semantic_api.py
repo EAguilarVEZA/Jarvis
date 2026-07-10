@@ -2757,6 +2757,71 @@ async def _try_experiment(model, prompt, key):
         return None
 
 
+_FORECAST_HINTS = (
+    "forecast", "predict", "projection", "project ", "next quarter", "next month",
+    "next year", "next week", "will be", "expected to", "trending toward", "trend for",
+    "how many will", "anomaly", "anomalies", "unusual", "spike", "outlier", "what will",
+    "going to be", "run rate",
+)
+
+
+def _looks_like_forecast(prompt: str) -> bool:
+    p = (prompt or "").lower()
+    return any(h in p for h in _FORECAST_HINTS)
+
+
+_FORECAST_PLANNER_SYSTEM = (
+    "You extract a forecasting request from a business question, using ONLY the provided data model "
+    "field keys. Respond with ONLY JSON. If the question is NOT about predicting/forecasting a metric "
+    "over time (or detecting anomalies in a time series), return {\"is_forecast\": false}.\n"
+    "Otherwise return: {\"is_forecast\": true, \"primary_table\": str, \"metric_field\": str, "
+    "\"date_field\": str, \"window_start\": \"YYYY-MM-DD\", \"window_end\": \"YYYY-MM-DD\", "
+    "\"horizon\": int, \"metric_name\": str}.\n"
+    "window_start/window_end = the HISTORICAL range to learn from (default the last 18-24 periods up to "
+    "today). horizon = how many periods ahead to project (default 6). Assume today is the current real date."
+)
+
+
+async def _try_forecast(model, prompt, key):
+    """Detect + plan + auto-run a forecast. Returns a response dict to short-circuit
+    /ask, or None to fall back. Best-effort and fully defensive."""
+    if os.getenv("JARVIS_FORECAST_DETECT", "1") == "0":
+        return None
+    try:
+        import anthropic
+        client = anthropic.AsyncAnthropic(api_key=key)
+        plan_model = os.getenv("JARVIS_EXPERIMENT_MODEL", "claude-sonnet-4-6")
+        resp = await client.messages.create(
+            model=plan_model, max_tokens=500, system=_FORECAST_PLANNER_SYSTEM,
+            messages=[{"role": "user", "content": _ask_context(model, prompt) + "\n\nQuestion: " + prompt}],
+        )
+        spec = _extract_json(resp.content[0].text if resp.content else "") or {}
+    except Exception as e:
+        log.warning(f"forecast planner failed: {e}")
+        return None
+    if not spec.get("is_forecast"):
+        return None
+    req_ok = all(spec.get(k) for k in ("primary_table", "metric_field", "date_field", "window_start", "window_end"))
+    if not req_ok:
+        return {"ok": True, "forecast_intent": True, "route": "experiments", "spec": spec,
+                "message": "This looks like a forecasting question — open Test & Learn → Forecast and I'll "
+                           "pre-fill the metric; you set the history window and horizon."}
+    try:
+        import experiments_api as _exp
+        fr = _exp.ForecastFromDataRequest(
+            primary_table=spec["primary_table"], metric_field=spec["metric_field"],
+            date_field=spec["date_field"], window_start=spec["window_start"], window_end=spec["window_end"],
+            horizon=int(spec.get("horizon") or 6), metric_name=spec.get("metric_name") or spec["metric_field"])
+        readout = await _exp.forecast_from_data(fr)
+        if readout.get("error"):
+            return {"ok": True, "forecast_intent": True, "route": "experiments", "spec": spec,
+                    "message": "I planned the forecast but couldn't run it: " + readout["error"]}
+        return {"ok": True, "mode": "forecast", "forecast": readout, "spec": spec}
+    except Exception as e:
+        log.warning(f"forecast auto-run failed: {e}")
+        return None
+
+
 @router.post("/ask")
 async def ask(body: AskRequest):
     import time as _t
@@ -2777,6 +2842,11 @@ async def ask(body: AskRequest):
         _exp_resp = await _try_experiment(model, body.prompt, key)
         if _exp_resp is not None:
             return _exp_resp
+    # Forecast detection: predict/anomaly questions → run the forecasting engine.
+    if not body.no_clarify and not body.dashboard_id and _looks_like_forecast(body.prompt):
+        _fc_resp = await _try_forecast(model, body.prompt, key)
+        if _fc_resp is not None:
+            return _fc_resp
 
     # 1. Ask Claude for a structured query — include prior conversation if any
     # Splice in Knowledge rules: "always"-mode rules into system, top "auto"

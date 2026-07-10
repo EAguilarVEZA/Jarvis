@@ -1708,6 +1708,219 @@ async def forecast_from_data(body: ForecastFromDataRequest):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Driver analysis — "why did this metric change?" (per-segment contributions)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _driver_core(segments, metric_name):
+    """segments = [{name, prior, current}]. Decompose the total change into each
+    segment's additive contribution + its share shift. (Sum-metric decomposition.)"""
+    segs = [{"name": str(s.get("name")), "prior": float(s.get("prior") or 0),
+             "current": float(s.get("current") or 0)} for s in (segments or [])]
+    if not segs:
+        return {"error": "Provide segments with prior & current values."}
+    tp = sum(s["prior"] for s in segs)
+    tc = sum(s["current"] for s in segs)
+    tchg = tc - tp
+    drivers = []
+    for s in segs:
+        contrib = s["current"] - s["prior"]
+        drivers.append({
+            "segment": s["name"], "prior": s["prior"], "current": s["current"],
+            "contribution": contrib,
+            "contribution_pct": (contrib / tchg * 100) if tchg else None,
+            "prior_share_pct": (s["prior"] / tp * 100) if tp else None,
+            "current_share_pct": (s["current"] / tc * 100) if tc else None,
+            "growth_pct": (contrib / s["prior"] * 100) if s["prior"] else None,
+        })
+    for d in drivers:
+        ps, cs = d["prior_share_pct"], d["current_share_pct"]
+        d["share_shift_pts"] = (cs - ps) if (ps is not None and cs is not None) else None
+    drivers.sort(key=lambda d: abs(d["contribution"]), reverse=True)
+
+    pos = [d for d in drivers if d["contribution"] > 0]
+    neg = [d for d in drivers if d["contribution"] < 0]
+    top_pos = max(pos, key=lambda d: d["contribution"], default=None)
+    top_neg = min(neg, key=lambda d: d["contribution"], default=None)
+
+    if tchg == 0:
+        summary = f"{metric_name} was flat overall; segments shifted but netted to zero."
+    else:
+        direction = "an increase" if tchg > 0 else "a decrease"
+        bits = [f"{metric_name} moved {('+' if tchg>=0 else '')}{tchg:.2f} "
+                f"({(tchg/tp*100) if tp else 0:+.1f}%) — {direction}."]
+        if top_pos:
+            bits.append(f"Biggest driver: {top_pos['segment']} "
+                        f"({('+' if top_pos['contribution']>=0 else '')}{top_pos['contribution']:.2f}, "
+                        f"{(top_pos['contribution_pct'] or 0):.0f}% of the change).")
+        if top_neg and top_neg["contribution"] < -1e-9:
+            bits.append(f"Biggest offset: {top_neg['segment']} ({top_neg['contribution']:.2f}).")
+        summary = " ".join(bits)
+
+    return {
+        "ok": True, "test": "Driver analysis", "metric": metric_name,
+        "total_prior": tp, "total_current": tc, "total_change": tchg,
+        "total_change_pct": (tchg / tp * 100) if tp else None,
+        "drivers": drivers,
+        "top_positive": top_pos["segment"] if top_pos else None,
+        "top_negative": top_neg["segment"] if (top_neg and top_neg["contribution"] < 0) else None,
+        "summary": summary,
+    }
+
+
+class DriverRequest(BaseModel):
+    segments: list                 # [{name, prior, current}]
+    metric_name: str = "metric"
+
+
+@router.post("/driver_analysis")
+async def driver_analysis(body: DriverRequest):
+    return _driver_core(body.segments, body.metric_name)
+
+
+class DriverFromDataRequest(BaseModel):
+    primary_table: str
+    metric_field: str
+    dimension_field: str
+    date_field: str
+    prior_start: str
+    prior_end: str
+    current_start: str
+    current_end: str
+    extra_filters: Optional[list] = None
+    metric_name: Optional[str] = None
+    top_n: int = 20
+
+
+@router.post("/driver_from_data")
+async def driver_from_data(body: DriverFromDataRequest):
+    from semantic import load_model
+    try:
+        model = load_model()
+    except Exception as e:
+        return {"error": f"semantic model load failed: {e}"}
+    err = _validate_data_fields(model, body.primary_table,
+                                (("metric_field", body.metric_field),
+                                 ("dimension_field", body.dimension_field),
+                                 ("date_field", body.date_field)))
+    if err:
+        return {"error": err}
+    loop = asyncio.get_running_loop()
+
+    def pull(window):
+        # metric by the chosen dimension over a window → {segment: value}
+        from semantic import build_sql, run_query, StructuredQuery
+        pt = body.primary_table
+        filters = [{"table": pt, "field": body.date_field, "op": "between", "value": [window[0], window[1]]}]
+        for f in (body.extra_filters or []):
+            ff = dict(f); ff.setdefault("table", pt); filters.append(ff)
+        qdict = {"primary_table": pt,
+                 "dimensions": [{"table": pt, "field": body.dimension_field}],
+                 "metrics": [{"table": pt, "field": body.metric_field}],
+                 "filters": filters, "limit": 100000}
+        res = run_query(build_sql(StructuredQuery.from_dict(qdict), model))
+        return {str(r[0]): float(r[1]) for r in (res.rows or []) if len(r) >= 2 and r[0] is not None and r[1] is not None}
+
+    try:
+        prior = await loop.run_in_executor(None, pull, [body.prior_start, body.prior_end])
+        current = await loop.run_in_executor(None, pull, [body.current_start, body.current_end])
+    except Exception as e:
+        return {"error": f"Query failed: {e}"}
+    names = set(prior) | set(current)
+    if not names:
+        return {"error": "No data returned for those windows."}
+    segments = [{"name": n, "prior": prior.get(n, 0.0), "current": current.get(n, 0.0)} for n in names]
+    r = _driver_core(segments, body.metric_name or body.metric_field)
+    if r.get("ok"):
+        r["drivers"] = r["drivers"][: max(1, int(body.top_n))]
+        r["dimension"] = body.dimension_field
+        r["source"] = "semantic-layer / BigQuery"
+    return r
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Correlation explorer — ranked relationships among several metrics
+# ─────────────────────────────────────────────────────────────────────────────
+
+class CorrelationFromDataRequest(BaseModel):
+    primary_table: str
+    metric_fields: list            # ≥2 metric keys to correlate
+    dimension_field: str           # grouping unit (e.g. campaign, day)
+    date_field: Optional[str] = None
+    window_start: Optional[str] = None
+    window_end: Optional[str] = None
+    extra_filters: Optional[list] = None
+
+
+@router.post("/correlation_from_data")
+async def correlation_from_data(body: CorrelationFromDataRequest):
+    from semantic import load_model, build_sql, run_query, StructuredQuery
+    try:
+        model = load_model()
+    except Exception as e:
+        return {"error": f"semantic model load failed: {e}"}
+    if len(body.metric_fields or []) < 2:
+        return {"error": "Provide at least 2 metric fields to correlate."}
+    err = _validate_data_fields(model, body.primary_table,
+                                [("dimension_field", body.dimension_field)]
+                                + [("metric_field", m) for m in body.metric_fields])
+    if err:
+        return {"error": err}
+    pt = body.primary_table
+    filters = []
+    if body.date_field and body.window_start and body.window_end:
+        filters.append({"table": pt, "field": body.date_field, "op": "between",
+                        "value": [body.window_start, body.window_end]})
+    for f in (body.extra_filters or []):
+        ff = dict(f); ff.setdefault("table", pt); filters.append(ff)
+    qdict = {"primary_table": pt,
+             "dimensions": [{"table": pt, "field": body.dimension_field}],
+             "metrics": [{"table": pt, "field": m} for m in body.metric_fields],
+             "filters": filters, "limit": 100000}
+    loop = asyncio.get_running_loop()
+    try:
+        res = await loop.run_in_executor(None, lambda: run_query(build_sql(StructuredQuery.from_dict(qdict), model)))
+    except Exception as e:
+        return {"error": f"Query failed: {e}"}
+    rows = res.rows or []
+    if len(rows) < 3:
+        return {"error": "Need at least 3 rows to compute correlations."}
+    # columns: [dimension, m1, m2, ...]
+    cols = list(zip(*rows))
+    series = {body.metric_fields[i]: [float(v) for v in cols[i + 1] if v is not None]
+              for i in range(len(body.metric_fields))}
+    pairs = []
+    keys = list(series.keys())
+    for i in range(len(keys)):
+        for j in range(i + 1, len(keys)):
+            a, b = series[keys[i]], series[keys[j]]
+            n = min(len(a), len(b))
+            a, b = a[:n], b[:n]
+            if n < 3:
+                continue
+            ma, mb = sum(a) / n, sum(b) / n
+            cov = sum((a[k] - ma) * (b[k] - mb) for k in range(n))
+            da = math.sqrt(sum((x - ma) ** 2 for x in a))
+            db = math.sqrt(sum((x - mb) ** 2 for x in b))
+            r = cov / (da * db) if da > 0 and db > 0 else 0.0
+            if abs(r) < 1 and n > 2:
+                t = r * math.sqrt(n - 2) / math.sqrt(1 - r * r)
+                p = t_two_sided_p(t, n - 2)
+            else:
+                p = float("nan")
+            pairs.append({"a": keys[i], "b": keys[j], "r": round(r, 4),
+                          "r_squared": round(r * r, 4), "p_value": p,
+                          "p_display": _fmt_p(p), "n": n,
+                          "strength": ("strong" if abs(r) >= 0.7 else "moderate" if abs(r) >= 0.4 else "weak"),
+                          "direction": ("positive" if r >= 0 else "negative")})
+    pairs.sort(key=lambda x: abs(x["r"]), reverse=True)
+    top = pairs[0] if pairs else None
+    summary = (f"Strongest relationship: {top['a']} ↔ {top['b']} (r={top['r']}, {top['strength']} {top['direction']}, "
+               f"p={top['p_display']})." if top else "No pairs computed.")
+    return {"ok": True, "test": "Correlation explorer", "dimension": body.dimension_field,
+            "correlations": pairs, "summary": summary}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Saved experiments — persist readouts so teams track impact over time
 # ─────────────────────────────────────────────────────────────────────────────
 
