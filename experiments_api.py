@@ -1487,6 +1487,227 @@ async def synthetic_control_from_data(body: SyntheticFromDataRequest):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Forecasting + anomaly detection — Holt-Winters with prediction intervals
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _linear_fit(y):
+    """Ordinary least squares y = a + b*t. Returns (a, b, fitted, residuals)."""
+    n = len(y)
+    xs = list(range(n))
+    mx = sum(xs) / n
+    my = sum(y) / n
+    sxx = sum((x - mx) ** 2 for x in xs)
+    sxy = sum((xs[i] - mx) * (y[i] - my) for i in range(n))
+    b = sxy / sxx if sxx else 0.0
+    a = my - b * mx
+    fitted = [a + b * t for t in xs]
+    resid = [y[i] - fitted[i] for i in range(n)]
+    return a, b, fitted, resid
+
+
+def _hw_run(y, m, alpha, beta, gamma):
+    """One additive Holt-Winters pass. Returns (level, trend, seasonals, sse, onestep_resid)."""
+    n = len(y)
+    # seasonal init: average of first season, and per-slot deviations
+    season_avg = sum(y[:m]) / m
+    seasonals = [y[i] - season_avg for i in range(m)]
+    level = season_avg
+    # trend init: average slope across first two seasons
+    trend = sum((y[m + i] - y[i]) / m for i in range(m)) / m if n >= 2 * m else (y[-1] - y[0]) / max(1, n - 1)
+    resid = []
+    sse = 0.0
+    seas = list(seasonals)
+    for t in range(n):
+        s = seas[t % m]
+        pred = level + trend + s  # one-step-ahead forecast for time t
+        e = y[t] - pred
+        resid.append(e)
+        sse += e * e
+        last_level = level
+        level = alpha * (y[t] - s) + (1 - alpha) * (level + trend)
+        trend = beta * (level - last_level) + (1 - beta) * trend
+        seas[t % m] = gamma * (y[t] - level) + (1 - gamma) * s
+    return level, trend, seas, sse, resid
+
+
+def _detect_period(y):
+    """Pick a seasonal period by autocorrelation of the DETRENDED series among
+    common candidates. Detrending matters: on a trended metric the trend inflates
+    autocorrelation at every lag and would otherwise mask real seasonality."""
+    n = len(y)
+    _, _, _, resid = _linear_fit(y)          # detrend
+    mean = sum(resid) / n
+    var = (sum((v - mean) ** 2 for v in resid) / n) or 1.0
+    best_m, best_r = 1, 0.0
+    for m in (12, 7, 4, 52, 24, 30, 3, 6):
+        if n < 2 * m:
+            continue
+        cnt = n - m
+        cov = sum((resid[i] - mean) * (resid[i - m] - mean) for i in range(m, n)) / cnt
+        r = cov / var                         # normalized autocorrelation at lag m
+        if r > best_r + 1e-9:
+            best_r, best_m = r, m
+    return best_m if best_r > 0.3 else 1
+
+
+def _forecast_core(y, horizon, period=None, alpha=0.05):
+    """Forecast `horizon` steps. Uses Holt-Winters when seasonality is present and
+    there's enough data, else Holt's linear trend. Returns fit + forecast + bands."""
+    y = [float(v) for v in y if v is not None]
+    n = len(y)
+    if n < 4:
+        return {"error": "Need at least 4 data points to forecast."}
+    m = period if (period and period > 1) else _detect_period(y)
+    z = norm_ppf(1 - alpha / 2)
+    method = "holt-winters" if (m > 1 and n >= 2 * m) else "linear-trend"
+
+    if method == "holt-winters":
+        # small grid search for smoothing params
+        best = None
+        grid = (0.1, 0.3, 0.5, 0.7, 0.9)
+        for a in grid:
+            for b in (0.05, 0.1, 0.2, 0.3):
+                for g in grid:
+                    level, trend, seas, sse, resid = _hw_run(y, m, a, b, g)
+                    if best is None or sse < best[0]:
+                        best = (sse, a, b, g, level, trend, seas, resid)
+        _, a, b, g, level, trend, seas, resid = best
+        fitted = [y[i] - resid[i] for i in range(n)]
+        fc = []
+        for h in range(1, horizon + 1):
+            s = seas[(n + h - 1) % m]
+            fc.append(level + h * trend + s)
+        params = {"alpha": a, "beta": b, "gamma": g, "period": m}
+    else:
+        a0, b0, fitted, resid = _linear_fit(y)
+        fc = [a0 + b0 * (n + h - 1) for h in range(1, horizon + 1)]
+        params = {"intercept": a0, "slope": b0, "period": 1}
+
+    # residual std (one-step); prediction interval widens with horizon (~√h)
+    rn = len(resid)
+    rmean = sum(resid) / rn
+    rstd = math.sqrt(sum((r - rmean) ** 2 for r in resid) / max(1, rn - 1))
+    lower = [fc[h] - z * rstd * math.sqrt(h + 1) for h in range(horizon)]
+    upper = [fc[h] + z * rstd * math.sqrt(h + 1) for h in range(horizon)]
+
+    # simple accuracy: MAPE on the fitted in-sample values
+    denom = [abs(v) for v in y if v]
+    mape = (sum(abs(resid[i]) / abs(y[i]) for i in range(n) if y[i]) / max(1, len([v for v in y if v])) * 100) if denom else None
+
+    last = y[-1]
+    change = fc[-1] - last
+    return {
+        "ok": True, "method": method, "params": params,
+        "history": y, "fitted": fitted, "forecast": fc,
+        "lower": lower, "upper": upper,
+        "horizon": horizon, "confidence_level_pct": round((1 - alpha) * 100),
+        "residual_std": rstd, "mape_pct": mape,
+        "forecast_change": change,
+        "forecast_change_pct": (change / last * 100) if last else None,
+        "summary": (f"Projected to {'rise' if change >= 0 else 'fall'} from {last:.2f} to "
+                    f"{fc[-1]:.2f} over the next {horizon} period(s) "
+                    f"({('+' if change>=0 else '')}{(change/last*100) if last else 0:.1f}%), "
+                    f"using {method}" + (f" (seasonal period {m})" if m > 1 else "") + "."),
+    }
+
+
+def _anomalies_core(y, period=None, k=3.0):
+    """Flag points whose residual vs. the fitted model exceeds k standard deviations."""
+    y = [float(v) for v in y if v is not None]
+    n = len(y)
+    if n < 4:
+        return {"error": "Need at least 4 data points."}
+    m = period if (period and period > 1) else _detect_period(y)
+    if m > 1 and n >= 2 * m:
+        level, trend, seas, sse, resid = _hw_run(y, m, 0.5, 0.1, 0.5)
+        fitted = [y[i] - resid[i] for i in range(n)]
+    else:
+        _, _, fitted, resid = _linear_fit(y)
+    rmean = sum(resid) / n
+    rstd = math.sqrt(sum((r - rmean) ** 2 for r in resid) / max(1, n - 1)) or 1.0
+    anomalies = []
+    for i in range(n):
+        zscore = (resid[i] - rmean) / rstd
+        if abs(zscore) >= k:
+            anomalies.append({"index": i, "value": y[i], "expected": fitted[i],
+                              "deviation": y[i] - fitted[i], "z": round(zscore, 2)})
+    return {"ok": True, "fitted": fitted, "anomalies": anomalies,
+            "n_anomalies": len(anomalies), "threshold_sigma": k,
+            "summary": (f"Found {len(anomalies)} anomaly(ies) beyond {k}σ from the fitted trend."
+                        if anomalies else f"No anomalies beyond {k}σ.")}
+
+
+class ForecastRequest(BaseModel):
+    series: list
+    horizon: int = 6
+    period: Optional[int] = None       # seasonal period; auto-detected if None
+    alpha: float = 0.05
+    metric_name: str = "metric"
+
+
+@router.post("/forecast")
+async def forecast(body: ForecastRequest):
+    r = _forecast_core(body.series, max(1, int(body.horizon)), body.period, body.alpha)
+    if r.get("ok"):
+        r["metric"] = body.metric_name
+    return r
+
+
+class AnomalyRequest(BaseModel):
+    series: list
+    period: Optional[int] = None
+    k: float = 3.0
+
+
+@router.post("/anomalies")
+async def anomalies(body: AnomalyRequest):
+    return _anomalies_core(body.series, body.period, body.k)
+
+
+class ForecastFromDataRequest(BaseModel):
+    primary_table: str
+    metric_field: str
+    date_field: str
+    window_start: str
+    window_end: str
+    horizon: int = 6
+    period: Optional[int] = None
+    alpha: float = 0.05
+    extra_filters: Optional[list] = None
+    metric_name: Optional[str] = None
+
+
+@router.post("/forecast_from_data")
+async def forecast_from_data(body: ForecastFromDataRequest):
+    from semantic import load_model
+    try:
+        model = load_model()
+    except Exception as e:
+        return {"error": f"semantic model load failed: {e}"}
+    err = _validate_data_fields(model, body.primary_table,
+                                (("metric_field", body.metric_field), ("date_field", body.date_field)))
+    if err:
+        return {"error": err}
+    loop = asyncio.get_running_loop()
+    try:
+        rows = await loop.run_in_executor(
+            None, _agg_series_by_date, model, body.primary_table, body.metric_field,
+            body.date_field, [body.window_start, body.window_end], None, body.extra_filters or [])
+    except Exception as e:
+        return {"error": f"Query failed: {e}"}
+    if len(rows) < 4:
+        return {"error": "Fewer than 4 dated points returned — widen the window."}
+    series = [v for _, v in rows]
+    dates = [d for d, _ in rows]
+    r = _forecast_core(series, max(1, int(body.horizon)), body.period, body.alpha)
+    if r.get("ok"):
+        r["metric"] = body.metric_name or body.metric_field
+        r["dates"] = dates
+        r["source"] = "semantic-layer / BigQuery"
+    return r
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Saved experiments — persist readouts so teams track impact over time
 # ─────────────────────────────────────────────────────────────────────────────
 

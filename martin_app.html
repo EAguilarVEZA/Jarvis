@@ -15305,7 +15305,7 @@ document.getElementById('wbMask').addEventListener('click',e=>{if(e.target.id===
 //  controls). Backed by /api/stats/*. Beats point-and-click A/B tools by
 //  bringing APT / Mastercard Test&Learn-style causal measurement inline.
 // ═══════════════════════════════════════════════════════════════════
-const EXP = { tab: 'analyze', sigMode: 'means', powerKind: 'mean', mode: 'paste', synMode: 'paste', headline: 'did', dataTables: null, dataFields: null, dataTable: null };
+const EXP = { tab: 'analyze', sigMode: 'means', powerKind: 'mean', mode: 'paste', synMode: 'paste', fcMode: 'paste', headline: 'did', dataTables: null, dataFields: null, dataTable: null };
 async function expLoadTables(){ if(EXP.dataTables) return EXP.dataTables; try{ const d=await api('/api/semantic/tables'); EXP.dataTables=(d.tables||[]); }catch(e){ EXP.dataTables=[]; } return EXP.dataTables; }
 async function expLoadFields(tableKey){ try{ const d=await api('/api/semantic/tables/'+encodeURIComponent(tableKey)); EXP.dataFields=d; EXP.dataTable=tableKey; return d; }catch(e){ return null; } }
 function _expOpts(items, cur, valKey, lblKey){ return (items||[]).map(x=>{ const v=x[valKey||'key'], l=x[lblKey||'display_name']||x[valKey||'key']; return '<option value="'+esc(v)+'"'+(cur===v?' selected':'')+'>'+esc(l)+'</option>'; }).join(''); }
@@ -15340,7 +15340,7 @@ function _fmtP(p){ return (p==null||isNaN(p))?'n/a':(p<0.001?'<0.001':Number(p).
 async function showExperiments(){
   setNav('experiments');
   const app=document.getElementById('app');
-  const tabs=[['analyze','Analyze experiment','beaker'],['segment','Segment scan','target'],['significance','Significance test','check'],['power','Sample size & power','activity'],['matched','Matched control','users'],['synthetic','Synthetic control','layers'],['saved','Saved','folder']];
+  const tabs=[['analyze','Analyze experiment','beaker'],['segment','Segment scan','target'],['forecast','Forecast','activity'],['significance','Significance test','check'],['power','Sample size & power','activity'],['matched','Matched control','users'],['synthetic','Synthetic control','layers'],['saved','Saved','folder']];
   app.innerHTML =
     '<div class="stage-wrap exp-shell">'+
       '<div class="stage-head"><div><h1>Test &amp; Learn</h1>'+
@@ -15402,9 +15402,11 @@ function expRenderTab(){
   else if(EXP.tab==='power')     host.innerHTML=expPowerForm();
   else if(EXP.tab==='matched')   host.innerHTML=expMatchForm();
   else if(EXP.tab==='synthetic') host.innerHTML=expSyntheticForm();
+  else if(EXP.tab==='forecast')  host.innerHTML=expForecastForm();
   else if(EXP.tab==='saved')     { host.innerHTML='<div class="exp-card"><div class="exp-card-title">Saved experiments</div><div id="expSavedList"><div class="exp-empty"><span class="loading">Loading…</span></div></div></div>'; expLoadSaved(); return; }
   expWire();
   if((EXP.tab==='analyze'&&EXP.mode==='data')||EXP.tab==='segment'||(EXP.tab==='synthetic'&&EXP.synMode==='data')) expPopulateDataSelects();
+  if(EXP.tab==='forecast'&&EXP.fcMode==='data') expPopulateForecastSelects();
 }
 
 // Mode toggle: paste numbers vs pull from the semantic layer / BigQuery.
@@ -15653,8 +15655,56 @@ function expSyntheticForm(){
   '</div>';
 }
 
+// ---- Forecast (Holt-Winters trend + seasonality with confidence bands) ----
+function _fcModeSeg(){
+  return '<div class="exp-seg" style="margin-bottom:16px;">'+
+    '<button class="exp-seg-b'+(EXP.fcMode==='paste'?' active':'')+'" data-fcmode="paste">Paste series</button>'+
+    '<button class="exp-seg-b'+(EXP.fcMode==='data'?' active':'')+'" data-fcmode="data">From my data</button>'+
+  '</div>';
+}
+function expForecastForm(){
+  const common='<div class="exp-row"><div class="exp-field sm"><label>Horizon (periods ahead)</label><input id="fcHorizon" value="6"></div>'+
+    '<div class="exp-field sm"><label>Seasonal period (blank = auto)</label><input id="fcPeriod" placeholder="e.g. 12"></div></div>'+
+    '<div class="exp-field sm"><label>Confidence</label><select id="fcAlpha"><option value="0.05">95%</option><option value="0.10">90%</option><option value="0.20">80%</option></select></div>';
+  if(EXP.fcMode==='data'){
+    return '<div class="exp-grid"><div class="exp-card">'+
+      '<div class="exp-card-title">Forecast</div>'+_fcModeSeg()+
+      '<div class="exp-hint">Project a metric forward with trend + seasonality and a confidence band. Pulls a per-period series from BigQuery.</div>'+
+      '<button class="btn small" id="fcSuggest" style="margin-bottom:12px;">'+jvIcon('star')+' Suggest a setup</button>'+
+      '<div class="exp-field sm"><label>Dataset</label><select id="fcTable"></select></div>'+
+      '<div class="exp-row"><div class="exp-field sm"><label>Metric</label><select id="fcMetric"></select></div>'+
+        '<div class="exp-field sm"><label>Date field</label><select id="fcDate"></select></div></div>'+
+      '<div class="exp-row"><div class="exp-field sm"><label>From</label><input type="date" id="fcStart"></div>'+
+        '<div class="exp-field sm"><label>To</label><input type="date" id="fcEnd"></div></div>'+
+      common+
+      '<button class="btn primary" id="expRunFcData">'+jvIcon('play')+' Forecast from my data</button>'+
+    '</div>'+
+    '<div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('activity')+'<div>Pick a metric and window, then project it forward.</div></div></div></div>';
+  }
+  return '<div class="exp-grid"><div class="exp-card">'+
+    '<div class="exp-card-title">Forecast</div>'+_fcModeSeg()+
+    '<div class="exp-hint">Paste a time-ordered series (one number per period). The engine fits trend + seasonality and forecasts ahead with a confidence band, flagging anomalies.</div>'+
+    '<div class="exp-field"><label>Series (time-ordered)</label><textarea id="fcSeries" placeholder="e.g. 100, 112, 108, 120, 118, 130, …"></textarea></div>'+
+    common+
+    '<button class="btn primary" id="expRunFc">'+jvIcon('play')+' Forecast</button>'+
+  '</div>'+
+  '<div class="exp-card exp-results" id="expOut"><div class="exp-empty">'+jvIcon('activity')+'<div>Project a metric forward and see where it\'s heading.</div></div></div></div>';
+}
+async function expPopulateForecastSelects(){
+  const tSel=document.getElementById('fcTable'); if(!tSel) return;
+  const tables=await expLoadTables();
+  tSel.innerHTML='<option value="">Choose a dataset…</option>'+_expOpts(tables,'','key','display_name');
+  const fill=async(tk)=>{ if(!tk) return; const f=await expLoadFields(tk); if(!f) return;
+    const mets=(f.metrics||[]).concat(f.calculated_metrics||[]), dates=f.dates||[];
+    const mSel=document.getElementById('fcMetric'), dSel=document.getElementById('fcDate');
+    if(mSel) mSel.innerHTML=_expOpts(mets,''); if(dSel) dSel.innerHTML=_expOpts(dates,''); };
+  tSel.addEventListener('change',()=>fill(tSel.value));
+  if(tSel.value) fill(tSel.value);
+}
+
 function expWire(){
   document.querySelectorAll('[data-expmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.mode=b.getAttribute('data-expmode'); expRenderTab(); }));
+  document.querySelectorAll('[data-fcmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.fcMode=b.getAttribute('data-fcmode'); expRenderTab(); }));
   document.querySelectorAll('[data-synmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.synMode=b.getAttribute('data-synmode'); expRenderTab(); }));
   document.querySelectorAll('[data-sigmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.sigMode=b.getAttribute('data-sigmode'); expRenderTab(); }));
   ['ad','sc','syd'].forEach(px=>{ const sb=document.getElementById(px+'Suggest'); if(sb) sb.addEventListener('click',()=>expSuggestSetup(px)); });
@@ -15734,6 +15784,35 @@ function expWire(){
     busy(); try{ const r=await _expPost('synthetic_control', body); expRenderSynthetic(r); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
   }); }
 
+  { const sb=g('fcSuggest'); if(sb) sb.addEventListener('click', async ()=>{
+    let d; try{ d=await api('/api/stats/diagnostics'); }catch(e){ toast('Could not load diagnostics',true); return; }
+    const ex=d.example; if(!ex||!ex.table){ toast('No suitable table found',true); return; }
+    const tSel=g('fcTable'); if(!Array.from(tSel.options).some(o=>o.value===ex.table)) await expPopulateForecastSelects();
+    tSel.value=ex.table; const f=await expLoadFields(ex.table); if(!f) return;
+    const mets=(f.metrics||[]).concat(f.calculated_metrics||[]), dates=f.dates||[];
+    g('fcMetric').innerHTML=_expOpts(mets,''); g('fcDate').innerHTML=_expOpts(dates,'');
+    g('fcMetric').value=ex.metric_field; g('fcDate').value=ex.date_field;
+    toast('Loaded a setup for “'+ex.table+'” — set your date window and forecast');
+  }); }
+
+  { const b=g('expRunFc'); if(b) b.addEventListener('click', async ()=>{
+    const series=_expNums(g('fcSeries').value);
+    if(series.length<4){ toast('Enter at least 4 numbers',true); return; }
+    const body={ series, horizon:Math.max(1,parseInt(g('fcHorizon').value)||6), alpha:parseFloat(g('fcAlpha').value) };
+    const per=parseInt(g('fcPeriod').value); if(!isNaN(per)) body.period=per;
+    busy(); try{ const r=await _expPost('forecast', body); await expRenderForecast(r, series); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+
+  { const b=g('expRunFcData'); if(b) b.addEventListener('click', async ()=>{
+    const body={ primary_table:g('fcTable').value, metric_field:g('fcMetric').value, date_field:g('fcDate').value,
+      window_start:g('fcStart').value, window_end:g('fcEnd').value,
+      horizon:Math.max(1,parseInt(g('fcHorizon').value)||6), alpha:parseFloat(g('fcAlpha').value),
+      metric_name:g('fcMetric').value };
+    const per=parseInt(g('fcPeriod').value); if(!isNaN(per)) body.period=per;
+    if(!body.primary_table||!body.metric_field||!body.date_field||!body.window_start||!body.window_end){ toast('Fill dataset, metric, date and the window',true); return; }
+    busy(); try{ const r=await _expPost('forecast_from_data', body); await expRenderForecast(r, (r.history||[])); }catch(e){ out().innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
+  }); }
+
   { const b=g('expRunSynthData'); if(b) b.addEventListener('click', async ()=>{
     const body=_expDataBody('syd');
     if(!_expDataValid(body)){ toast('Fill in dataset, metric, unit, date, cohort field, test/donor values and all four dates',true); return; }
@@ -15742,6 +15821,48 @@ function expWire(){
   }); }
 }
 
+async function expRenderForecast(r, series){
+  const out=document.getElementById('expOut'); if(!out) return;
+  if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
+  // detect anomalies on the same history (best-effort)
+  let anoms=[]; try{ const a=await _expPost('anomalies',{series:(r.history||series), k:3}); anoms=(a.anomalies||[]); }catch(e){}
+  const chg=r.forecast_change, chgPct=r.forecast_change_pct;
+  const dir=chg>=0?'#16a34a':'#b45309';
+  out.innerHTML=
+    '<div class="exp-verdict exp-v-info"><div class="exp-v-head">'+jvIcon('activity')+' Forecast · '+esc(r.method)+(r.params&&r.params.period>1?' (seasonal period '+r.params.period+')':'')+'</div><div class="exp-v-detail">'+esc(r.summary||'')+'</div></div>'+
+    '<div class="exp-metric-row">'+
+      '<div class="exp-metric"><div class="em-label">Next-period</div><div class="em-val">'+_num((r.forecast||[])[0])+'</div><div class="em-sub">point forecast</div></div>'+
+      '<div class="exp-metric"><div class="em-label">End of horizon</div><div class="em-val" style="color:'+dir+';">'+_num((r.forecast||[]).slice(-1)[0])+'</div><div class="em-sub">'+_pct(chgPct)+' vs last</div></div>'+
+      '<div class="exp-metric"><div class="em-label">Fit error (MAPE)</div><div class="em-val">'+(r.mape_pct!=null?r.mape_pct.toFixed(1)+'%':'—')+'</div><div class="em-sub">in-sample</div></div>'+
+      '<div class="exp-metric"><div class="em-label">Anomalies</div><div class="em-val">'+anoms.length+'</div><div class="em-sub">beyond 3σ</div></div>'+
+    '</div>'+
+    '<div id="fcChart" style="width:100%;height:280px;"></div>';
+  try{ if(window.echarts){
+    const el=document.getElementById('fcChart'); const ch=echarts.init(el,'martin',{renderer:'canvas'});
+    const hist=r.history||series||[]; const n=hist.length; const H=(r.forecast||[]).length;
+    const dates=r.dates||null;
+    const xs=[]; for(let i=0;i<n;i++) xs.push(dates?String(dates[i]):('t'+(i+1))); for(let h=1;h<=H;h++) xs.push('+'+h);
+    const nullsN=Array(n).fill(null), nullsH=Array(H).fill(null);
+    // connect forecast to last actual
+    const fcLine=nullsN.slice(0,n-1).concat([hist[n-1]]).concat(r.forecast);
+    const lowLine=nullsN.concat(r.lower); const bandLine=nullsN.concat(r.upper.map((u,i)=>u-r.lower[i]));
+    const anomPts=anoms.map(a=>({xAxis:(dates?String(dates[a.index]):('t'+(a.index+1))), yAxis:a.value}));
+    ch.setOption({
+      tooltip:{trigger:'axis'}, legend:{top:0,data:['History','Forecast'],textStyle:{fontSize:11}},
+      grid:{left:8,right:14,top:28,bottom:20,containLabel:true},
+      xAxis:{type:'category',data:xs,axisLabel:{fontSize:10,interval:Math.max(0,Math.floor((n+H)/12))}},
+      yAxis:{type:'value',axisLabel:{fontSize:11}},
+      series:[
+        {name:'lower',type:'line',data:lowLine,stack:'band',lineStyle:{opacity:0},symbol:'none',silent:true},
+        {name:'band',type:'line',data:bandLine,stack:'band',lineStyle:{opacity:0},symbol:'none',areaStyle:{color:'#0E76B4',opacity:.12},silent:true},
+        {name:'History',type:'line',data:hist.concat(nullsH),smooth:false,symbol:'circle',symbolSize:4,lineStyle:{width:2.4,color:'#0E76B4'},itemStyle:{color:'#0E76B4'},
+          markPoint: anomPts.length?{data:anomPts.map(p=>({coord:[p.xAxis,p.yAxis],itemStyle:{color:'#dc2626'},symbolSize:8})),symbol:'pin',label:{show:false}}:undefined},
+        {name:'Forecast',type:'line',data:fcLine,smooth:false,symbol:'circle',symbolSize:4,lineStyle:{width:2.2,type:'dashed',color:'#e0a400'},itemStyle:{color:'#e0a400'}},
+      ]
+    });
+    if(!el._ro){ el._ro=new ResizeObserver(()=>{try{ch.resize();}catch(e){}}); el._ro.observe(el); }
+  }}catch(e){}
+}
 function expRenderSynthetic(r){
   const out=document.getElementById('expOut'); if(!out) return;
   if(r.error){ out.innerHTML='<div class="werr">'+esc(r.error)+'</div>'; return; }
