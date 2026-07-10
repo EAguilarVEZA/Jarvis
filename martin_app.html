@@ -15417,7 +15417,8 @@ function _expModeSeg(){
 // Shared data-source picker fields (table, metric, unit, date, cohorts, windows).
 function _expDataFields(prefix, opts){
   opts = opts||{};
-  return '<div class="exp-field sm"><label>Dataset</label><select id="'+prefix+'Table"></select></div>'+
+  return '<button class="btn small" id="'+prefix+'Suggest" style="margin-bottom:12px;">'+jvIcon('star')+' Suggest a setup</button>'+
+    '<div class="exp-field sm"><label>Dataset</label><select id="'+prefix+'Table"></select></div>'+
     '<div class="exp-row">'+
       '<div class="exp-field sm"><label>Metric</label><select id="'+prefix+'Metric"></select></div>'+
       '<div class="exp-field sm"><label>Unit (store/region/…)</label><select id="'+prefix+'Unit"></select></div>'+
@@ -15583,6 +15584,24 @@ async function expPopulateDataSelects(){
   tSel.addEventListener('change',()=>fillFields(tSel.value));
   if(tSel.value) fillFields(tSel.value);
 }
+// One-click a valid setup from the diagnostics 'experiment_ready' suggestion.
+async function expSuggestSetup(prefix){
+  let d; try{ d=await api('/api/stats/diagnostics'); }catch(e){ toast('Could not load diagnostics',true); return; }
+  const ex=d.example; if(!ex || !ex.table){ toast('No experiment-ready table found in your model',true); return; }
+  const g=id=>document.getElementById(prefix+id); const tSel=g('Table'); if(!tSel) return;
+  // ensure the table option exists (tables may not be loaded yet)
+  if(!Array.from(tSel.options).some(o=>o.value===ex.table)){ await expPopulateDataSelects(); }
+  tSel.value=ex.table;
+  const f=await expLoadFields(ex.table); if(!f){ toast('Could not load fields',true); return; }
+  const dims=f.dimensions||[], mets=(f.metrics||[]).concat(f.calculated_metrics||[]), dates=f.dates||[];
+  const setOpts=(id,items)=>{ const el=g(id); if(el) el.innerHTML=_expOpts(items,''); };
+  setOpts('Metric',mets); setOpts('Unit',dims); setOpts('Date',dates); setOpts('Group',dims); if(g('Segment')) setOpts('Segment',dims);
+  if(g('Metric')) g('Metric').value=ex.metric_field;
+  if(g('Unit')) g('Unit').value=ex.unit_field;
+  if(g('Date')) g('Date').value=ex.date_field;
+  if(g('Group')) g('Group').value=ex.group_field;
+  toast('Loaded a suggested setup for “'+ex.table+'” — now enter two cohort values + your before/after dates');
+}
 function _expDataBody(prefix){
   const g=id=>document.getElementById(prefix+id);
   const splitVals=s=>String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
@@ -15638,6 +15657,7 @@ function expWire(){
   document.querySelectorAll('[data-expmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.mode=b.getAttribute('data-expmode'); expRenderTab(); }));
   document.querySelectorAll('[data-synmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.synMode=b.getAttribute('data-synmode'); expRenderTab(); }));
   document.querySelectorAll('[data-sigmode]').forEach(b=>b.addEventListener('click',()=>{ EXP.sigMode=b.getAttribute('data-sigmode'); expRenderTab(); }));
+  ['ad','sc','syd'].forEach(px=>{ const sb=document.getElementById(px+'Suggest'); if(sb) sb.addEventListener('click',()=>expSuggestSetup(px)); });
   document.querySelectorAll('[data-pkind]').forEach(b=>b.addEventListener('click',()=>{ EXP.powerKind=b.getAttribute('data-pkind'); expRenderTab(); }));
   const g=(id)=>document.getElementById(id);
   const out=()=>document.getElementById('expOut');
