@@ -184,3 +184,37 @@ async def save_journey(j: Journey):
 @router.delete("/journeys/{jid}")
 async def del_journey(jid: str):
     return {"ok": cdp.delete_journey(jid)}
+
+
+@router.get("/journeys/enrollments")
+async def enrollments(journey_id: str = None, limit: int = 100):
+    return {"enrollments": cdp.list_enrollments(journey_id, limit)}
+
+
+@router.post("/journeys/tick")
+async def tick():
+    """Resume any journey enrollments whose wait has elapsed (scheduler hook)."""
+    return cdp.tick_journeys()
+
+
+# ── warehouse-native (BigQuery) ──────────────────────────────────────────────
+@router.get("/warehouse/status")
+async def warehouse_status():
+    return cdp.warehouse_status()
+
+
+@router.get("/warehouse/profiles_sql")
+async def profiles_sql():
+    """Governed SQL that builds Customer 360 profiles in the warehouse."""
+    return {"sql": cdp._profiles_sql(), "events_table": cdp.EVENTS_TABLE}
+
+
+class SegSql(BaseModel):
+    rules: list
+    match: Optional[str] = "all"
+
+
+@router.post("/warehouse/segment_sql")
+async def segment_sql(b: SegSql):
+    """Compile a segment to governed BigQuery SQL (runs in-warehouse; PHI stays put)."""
+    return cdp.segment_sql(b.rules, match=b.match or "all")

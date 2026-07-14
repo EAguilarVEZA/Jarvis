@@ -21,6 +21,28 @@
       "url": "",
       "headers": {},
       "tools": []
+    },
+    {
+      "id": "cdp-mcp",
+      "name": "Martin CDP (profiles, segments, audiences)",
+      "transport": "stdio",
+      "command": "python3",
+      "args": ["/Users/developer/Jarvis/cdp_mcp.py"],
+      "env": {},
+      "url": "",
+      "headers": {},
+      "tools": []
+    },
+    {
+      "id": "orchestrator-mcp",
+      "name": "Martin Orchestrator (plan across agents · read-only)",
+      "transport": "stdio",
+      "command": "python3",
+      "args": ["/Users/developer/Jarvis/orchestrator_mcp.py"],
+      "env": {},
+      "url": "",
+      "headers": {},
+      "tools": []
     }
   ]
 }

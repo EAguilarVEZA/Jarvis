@@ -1600,6 +1600,34 @@ async def lifespan(application: FastAPI):
     except Exception as e:
         log.warning(f"Brain loop not started: {e}")
 
+    # CDP journey scheduler — advance event-triggered journeys past their waits.
+    try:
+        import asyncio as _aio
+
+        async def _cdp_journey_scheduler():
+            import cdp_core as _cdp
+            while True:
+                try:
+                    await _aio.sleep(60)
+                    res = await _aio.get_event_loop().run_in_executor(None, _cdp.tick_journeys)
+                    if res and res.get("resumed"):
+                        log.info(f"[cdp] journey tick resumed {res['resumed']} enrollment(s)")
+                        try:
+                            import jobs as _jobs
+                            _jobs.record("CDP journey tick", "scan", "success",
+                                         f"resumed {res['resumed']}, active {res.get('active', 0)}")
+                        except Exception:
+                            pass
+                except _aio.CancelledError:
+                    break
+                except Exception as _je:
+                    log.warning(f"[cdp] journey tick error: {_je}")
+
+        _aio.create_task(_cdp_journey_scheduler())
+        log.info("[OK] CDP journey scheduler started (60s tick)")
+    except Exception as e:
+        log.warning(f"CDP journey scheduler not started: {e}")
+
     yield
 
     # (shutdown cleanup would go here if needed)
