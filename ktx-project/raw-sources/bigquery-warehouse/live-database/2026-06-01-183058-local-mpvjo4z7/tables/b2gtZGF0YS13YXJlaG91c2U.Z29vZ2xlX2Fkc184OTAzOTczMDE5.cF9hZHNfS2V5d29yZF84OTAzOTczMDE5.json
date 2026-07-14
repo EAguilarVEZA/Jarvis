@@ -1,0 +1,299 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "google_ads_8903973019",
+  "name": "p_ads_Keyword_8903973019",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 177853001,
+  "columns": [
+    {
+      "name": "ad_group_criterion_criterion_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the criterion. This field is ignored for mutates."
+    },
+    {
+      "name": "ad_group_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the ad group."
+    },
+    {
+      "name": "campaign_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the campaign."
+    },
+    {
+      "name": "customer_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the customer."
+    },
+    {
+      "name": "ad_group_criterion_approval_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Approval status of the criterion."
+    },
+    {
+      "name": "ad_group_criterion_effective_cpc_bid_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The effective CPC (cost-per-click) bid."
+    },
+    {
+      "name": "ad_group_criterion_effective_cpc_bid_source",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Source of the effective CPC bid."
+    },
+    {
+      "name": "ad_group_criterion_effective_cpm_bid_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The effective CPM (cost-per-thousand viewable impressions) bid."
+    },
+    {
+      "name": "ad_group_criterion_final_mobile_urls",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The list of possible final mobile URLs after all cross-domain redirects."
+    },
+    {
+      "name": "ad_group_criterion_final_url_suffix",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "URL template for appending params to final URL."
+    },
+    {
+      "name": "ad_group_criterion_final_urls",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The list of possible final URLs after all cross-domain redirects for the ad."
+    },
+    {
+      "name": "ad_group_criterion_keyword_match_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The match type of the keyword."
+    },
+    {
+      "name": "ad_group_criterion_keyword_text",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The text of the keyword (at most 80 characters and 10 words)."
+    },
+    {
+      "name": "ad_group_criterion_negative",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Whether to target (`false`) or exclude (`true`) the criterion. This field is immutable. To switch a criterion from positive to negative, remove then re-add it."
+    },
+    {
+      "name": "ad_group_criterion_position_estimates_estimated_add_clicks_at_first_position_cpc",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Estimate of how many clicks per week you might get by changing your keyword bid to the value in first_position_cpc_micros."
+    },
+    {
+      "name": "ad_group_criterion_position_estimates_estimated_add_cost_at_first_position_cpc",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Estimate of how your cost per week might change when changing your keyword bid to the value in first_position_cpc_micros."
+    },
+    {
+      "name": "ad_group_criterion_position_estimates_first_page_cpc_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The estimate of the CPC bid required for ad to be shown on first page of search results."
+    },
+    {
+      "name": "ad_group_criterion_position_estimates_first_position_cpc_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The estimate of the CPC bid required for ad to be displayed in first position, at the top of the first page of search results."
+    },
+    {
+      "name": "ad_group_criterion_position_estimates_top_of_page_cpc_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The estimate of the CPC bid required for ad to be displayed at the top of the first page of search results."
+    },
+    {
+      "name": "ad_group_criterion_quality_info_creative_quality_score",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The performance of the ad compared to other advertisers."
+    },
+    {
+      "name": "ad_group_criterion_quality_info_post_click_quality_score",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The quality score of the landing page."
+    },
+    {
+      "name": "ad_group_criterion_quality_info_quality_score",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The quality score. This field may not be populated if Google does not have enough information to determine a value."
+    },
+    {
+      "name": "ad_group_criterion_quality_info_search_predicted_ctr",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The click-through rate compared to that of other advertisers."
+    },
+    {
+      "name": "ad_group_criterion_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The status of the criterion."
+    },
+    {
+      "name": "ad_group_criterion_system_serving_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Serving status of the criterion."
+    },
+    {
+      "name": "ad_group_criterion_topic_topic_constant",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The Topic Constant resource name."
+    },
+    {
+      "name": "ad_group_criterion_tracking_url_template",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The URL template for constructing a tracking URL."
+    },
+    {
+      "name": "ad_group_criterion_url_custom_parameters",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The list of mappings used to substitute custom parameter tags in a `tracking_url_template`, `final_urls`, or `mobile_final_urls`."
+    },
+    {
+      "name": "campaign_bidding_strategy",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Portfolio bidding strategy used by campaign."
+    },
+    {
+      "name": "campaign_bidding_strategy_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The type of bidding strategy. A bidding strategy can be created by setting either the bidding scheme to create a standard bidding strategy or the `bidding_strategy` field to create a portfolio bidding strategy. This field is read-only."
+    },
+    {
+      "name": "campaign_manual_cpc_enhanced_cpc_enabled",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Whether bids are to be enhanced based on conversion optimizer data."
+    },
+    {
+      "name": "campaign_percent_cpc_enhanced_cpc_enabled",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Adjusts the bid for each auction upward or downward, depending on the likelihood of a conversion. Individual bids may exceed cpc_bid_ceiling_micros, but the average bid amount for a campaign should not."
+    }
+  ],
+  "foreignKeys": []
+}

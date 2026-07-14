@@ -1,0 +1,110 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "adwords_orlando_health",
+  "name": "account",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 1,
+  "columns": [
+    {
+      "name": "id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "sequence_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "_fivetran_synced",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "account_label_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "account_label_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "can_manage_clients",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "currency_code",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "date_timezone",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "manager_customer_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "test_account",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

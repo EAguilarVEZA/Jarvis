@@ -1,0 +1,34 @@
+name: ad_final_mobile_url_history
+descriptions:
+  user: Historical record of final mobile destination URLs assigned to ads within Google Ads ad groups.
+table: oh-data-warehouse.adwords_orlando_health.ad_final_mobile_url_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier for the ad group containing the ad.
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Identifier for the specific ad with the mobile URL.
+- name: sequence_id
+  type: number
+  descriptions:
+    ai: Order index when multiple mobile URLs exist for an ad.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the mobile URL record was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record.
+  role: time
+- name: url
+  type: string
+  descriptions:
+    ai: Final mobile landing page URL including UTM tracking parameters.
+measures: []

@@ -1,0 +1,803 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "adwords_physicians_associates_pal",
+  "name": "ad_group_criterion_history",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 10075,
+  "columns": [
+    {
+      "name": "ad_group_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "updated_at",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "_fivetran_synced",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "ad_group_criterion_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "age_range_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "app_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "app_payment_model_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "approval_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "base_adgroup_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "base_campaign_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bid_modifier",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_bid_ceiling",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_bid_changes_for_raises_only",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_bid_floor",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_bid_modifier",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_competitor_domain",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_cpa_bid_amount",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_cpc_bid_amount",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_cpm_bid_amount",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_enhanced_cpc_enabled",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_max_cpc_bid_ceiling",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_max_cpc_bid_floor",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_raise_bid_when_budget_constrained",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_raise_bid_when_low_quality_score",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_scheme_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_source",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_spend_target",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_strategy_goal",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_target_cpa",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_target_outrank_share",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_target_roas",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_target_roas_override",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bidding_strategy_viewable_cpm_enabled",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "channel_exclusivity",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "channel_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "channel_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "criterion_use",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "custom_affinity_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "custom_intent_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "first_page_cpc",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "first_position_cpc",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "gender_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "income_range_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "keyword_match_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "keyword_text",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "mobile_app_category_display_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "mobile_app_category_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "mobile_application_display_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "parent_criterion_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "parent_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "partition_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "placement_url",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_adwords_grouping",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_adwords_label",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_bidding_category_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_bidding_category_value",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_brand_value",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_canonical_condition",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_channel",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_custom_attribute_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_custom_attribute_value",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_legacy_condition",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_offer_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_type_full",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_type_value",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "quality_info_score",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "system_serving_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "top_of_page_cpc",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "tracking_url_template",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_interest_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_interest_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_interest_parent_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_list_eligible_for_display",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_list_eligible_for_search",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_list_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_list_membership_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_list_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "vertical_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "vertical_parent_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "vertical_path",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "video_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "video_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

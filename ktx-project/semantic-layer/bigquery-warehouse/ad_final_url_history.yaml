@@ -1,0 +1,34 @@
+name: ad_final_url_history
+descriptions:
+  user: Tracks historical final destination URLs for ads, capturing changes over time per ad and ad group.
+table: oh-data-warehouse.adwords_orlando_health.ad_final_url_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier for the ad group containing the ad.
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Identifier for the specific ad associated with the URL.
+- name: sequence_id
+  type: number
+  descriptions:
+    ai: Version order of URL changes; zero indicates the original URL.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the final URL record was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record.
+  role: time
+- name: url
+  type: string
+  descriptions:
+    ai: Final destination landing page URL including tracking parameters.
+measures: []

@@ -1,0 +1,308 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "data_mart_all",
+  "name": "yext_entities",
+  "kind": "table",
+  "comment": "Latest import of all location details from Yext.",
+  "estimatedRows": 1300,
+  "columns": [
+    {
+      "name": "entity_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "yext_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "last_updated",
+      "nativeType": "DATETIME",
+      "normalizedType": "DATETIME",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "national_provider_identifier_npi",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "entity_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "labels",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "categories_1",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "categories_2",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "categories_3",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "categories",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "categories_validation",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "description",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "main_phone_phone_number",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "main_phone_number",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "address_line_1",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "address_line_2",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "address_city",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "address_region",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "address_postal_code",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "hours",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "hours_monday",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "hours_tuesday",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "hours_wednesday",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "hours_thursday",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "hours_friday",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "hours_saturday",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "hours_sunday",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "base_url",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "google_cover_photo_url",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "headshot_url",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "cover_or_headshot_photo",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "_fivetran_synced",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

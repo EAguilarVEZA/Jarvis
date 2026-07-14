@@ -1,0 +1,1802 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "roi_exercise",
+  "name": "leads",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 358835,
+  "columns": [
+    {
+      "name": "created_date_date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "created_date_timestamp",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "data_source",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "utm_source_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "utm_medium_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "utm_term_kw_matchtype",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "utm_term_keyword",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "_fivetran_synced",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "is_deleted",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "master_record_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "case_number",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "contact_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "source_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "business_hours_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "parent_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "supplied_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "supplied_email",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "supplied_phone",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "supplied_company",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "record_type_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "reason",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "origin",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "language",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "subject",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "priority",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "description",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "is_closed",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "closed_date",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "is_escalated",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "owner_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "is_closed_on_create",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "sla_start_date",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "sla_exit_date",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "is_stopped",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "stop_start_date",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "created_by_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "last_modified_date",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "last_modified_by_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "system_modstamp",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "contact_phone",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "contact_mobile",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "contact_email",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "contact_fax",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "comments",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "last_viewed_date",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "last_referenced_date",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "milestone_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "visual_antidote_fast_forms_auto_assign_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "visual_antidote_fast_forms_autoresponse_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "utm_campaign_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "utm_content_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "campaign_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "prefilled_person_account_id_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "formstack_submission_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "formstack_form_id_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "form_type_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bypass_stericycle_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "campaign_id_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "send_to_stericycle_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "topic_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "services_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "referral_source_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "physician_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "appointment_type_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "preferred_location_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "new_baby_birth_date_c",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "insurance_provider_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "insurance_member_id_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "insurance_phone_number_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "cpt_code_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "icd_10_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "diagnosis_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "diagnosis_date_c",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_first_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_last_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_phone_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_email_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_opt_in_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_gender_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_birthdate_c",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_mailing_street_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_mailing_city_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_mailing_state_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_mailing_zip_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "primary_language_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "stericycle_callback_flag_c",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "stericycle_error_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "stericycle_response_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "preferred_contact_day_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "preferred_contact_time_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "subscriptions_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "expected_delivery_date_c",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "guardian_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "location_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "specialty_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "able_to_bring_scans_results_to_appt_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "form_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "track_selection_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "wish_to_be_contacted_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "interested_in_an_appointment_next_day_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "organization_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "formstack_matching_flag_c",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "practice_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "minor_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "minor_birthdate_c",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "closed_reason_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "case_spam_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "description_trimmed_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "stericycle_payload_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "between_50_to_80_years_old_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "x_20_pack_year_smoking_history_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "currently_smoke_or_quit_within_15_years_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "spanish_form_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "comments_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "complaint_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "complaint_reason_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "submitted_from_url_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "patient_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "old_salesforce_id_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "import_template_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_country_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "event_date_c",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "duplicate_registration_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "spam_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_deathdate_c",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "affinity_medical_record_number_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "medical_record_number_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "sub_topic_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "sub_type_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "cr_event_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "captured_by_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "always_check_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "always_uncheck_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "patient_birthdate_c",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "call_center_database_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "ahc_callback_flag_c",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "ahc_environment_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "ahc_error_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "ahc_payload_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "ahc_response_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "physician_location_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "ahc_error_clean_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "cid_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "retry_reason_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "visit_number_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "patient_feeling_better_since_stay_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "agent_xfer_to_oh_bhsp_prov_prac_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "prescribed_medication_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "bhsp_event_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "how_patient_feeling_since_oh_stay_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "want_to_talk_to_nurse_about_new_meds_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "follow_up_appt_scheduled_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "need_help_scheduling_follow_up_appt_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "want_discuss_discharge_info_with_nurse_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "agent_submit_och_to_telecare_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "agent_transfer_to_access_ctr_or_practice_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "cr_brand_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "caller_is_patient_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "international_request_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "cr_primary_manager_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "caller_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "disney_cast_member_relationship_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "disney_cast_member_status_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_affiliation_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_credentials_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_npi_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_specialty_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "match_object_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "current_date_c",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "disney_empi_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "disney_allegiance_id_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_suffix_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "api_middle_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "sub_origin_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "patient_first_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "patient_last_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "submitter_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "submitter_email_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "patient_phone_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "caller_first_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "caller_last_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "caller_email_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "caller_phone_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "employee_email_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "employee_name_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "end_date_c",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "start_date_c",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "attended_c",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "class_date_time_c",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "metazoa_external_id_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "cost_avoidance_c",
+      "nativeType": "BIGNUMERIC",
+      "normalizedType": "DECIMAL",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "ga_client_id_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "ga_session_id_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "ga_gclid_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "_fivetran_deleted",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "department_c",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

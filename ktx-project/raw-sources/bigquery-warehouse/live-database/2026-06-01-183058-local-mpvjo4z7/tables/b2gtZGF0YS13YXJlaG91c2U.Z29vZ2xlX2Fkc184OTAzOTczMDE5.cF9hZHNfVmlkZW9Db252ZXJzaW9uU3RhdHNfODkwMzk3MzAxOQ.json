@@ -1,0 +1,200 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "google_ads_8903973019",
+  "name": "p_ads_VideoConversionStats_8903973019",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 0,
+  "columns": [
+    {
+      "name": "ad_group_ad_ad_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the ad."
+    },
+    {
+      "name": "ad_group_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the ad group."
+    },
+    {
+      "name": "campaign_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the campaign."
+    },
+    {
+      "name": "customer_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the customer."
+    },
+    {
+      "name": "video_channel_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The owner channel id of the video."
+    },
+    {
+      "name": "video_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the video."
+    },
+    {
+      "name": "ad_group_ad_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The status of the ad."
+    },
+    {
+      "name": "metrics_conversions",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The number of conversions. This only includes conversion actions which include_in_conversions_metric attribute is set to true."
+    },
+    {
+      "name": "metrics_conversions_value",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The total value of conversions. This only includes conversion actions which include_in_conversions_metric attribute is set to true."
+    },
+    {
+      "name": "segments_ad_network_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Ad network type."
+    },
+    {
+      "name": "segments_click_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Click type."
+    },
+    {
+      "name": "segments_conversion_action",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Resource name of the conversion action."
+    },
+    {
+      "name": "segments_conversion_action_category",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Conversion action category."
+    },
+    {
+      "name": "segments_conversion_action_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Conversion action name."
+    },
+    {
+      "name": "segments_date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Date to which metrics apply. yyyy-MM-dd format, e.g., 2018-04-17."
+    },
+    {
+      "name": "segments_day_of_week",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Day of the week, e.g., MONDAY."
+    },
+    {
+      "name": "segments_device",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Device to which metrics apply."
+    },
+    {
+      "name": "segments_month",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Month as represented by the date of the first day of a month. Formatted as yyyy-MM-dd."
+    },
+    {
+      "name": "segments_quarter",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Quarter as represented by the date of the first day of a quarter. Uses the calendar year for quarters, e.g., the second quarter of 2018 starts on 2018-04-01. Formatted as yyyy-MM-dd."
+    },
+    {
+      "name": "segments_week",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Week as defined as Monday through Sunday, and represented by the date of Monday. Formatted as yyyy-MM-dd."
+    },
+    {
+      "name": "segments_year",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Year, formatted as yyyy."
+    }
+  ],
+  "foreignKeys": []
+}

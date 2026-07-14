@@ -1,0 +1,402 @@
+[
+  {
+    "question": "Top campaigns by clicks last 90 days",
+    "jarvis": {
+      "ok": true,
+      "status": 200,
+      "ms": 8885,
+      "table": "ad_performance",
+      "dimensions": [
+        "campaigns.campaign_name"
+      ],
+      "metrics": [
+        "ad_performance.clicks"
+      ],
+      "filters": [
+        {
+          "field": "ad_performance.date",
+          "op": "between",
+          "value": [
+            "2024-09-07",
+            "2024-12-05"
+          ]
+        }
+      ],
+      "headline": "Orlando Health Brand dominates clicks; top 3 campaigns drive 882K of 2M+ total.",
+      "summary": "The Orlando Health Brand campaign led with 451,260 clicks over 90 days, followed by its paid search variant (218,661) and Baptist Health Brand (212,320). Display advertising comprises the bulk of the long tail, with individual campaigns ranging from 13K\u201348K clicks. Brand awareness campaigns significantly outperform specialty and recruitment initiatives.",
+      "findings": [
+        "Top campaign (Orlando Health Brand - Brand) captured 451,260 clicks; top 3 campaigns account for 882,241 clicks (~42% of visible volume)",
+        "Paid Search subset underperforms Display: only 4 paid search campaigns in top 30, with largest at 218,661 clicks vs. Display campaigns at 14K\u201396K range",
+        "Recruitment (Talent Acquisition) campaigns cluster at 14K\u201317K clicks each; lowest performer among categorical groups despite multi-channel presence"
+      ],
+      "recommendation": "Reallocate budget from low-performing specialty display campaigns (14K\u201325K clicks) toward scaling the top 3 brand campaigns and testing paid search expansion, where the single variant achieved 48% of parent campaign volume.",
+      "columns": [
+        "campaign_name",
+        "clicks"
+      ],
+      "row_count": 50,
+      "rows_top5": [
+        [
+          "Orlando Health Brand - Brand",
+          451260
+        ],
+        [
+          "[Paid Search] Orlando Health Brand - Brand - 5980",
+          218661
+        ],
+        [
+          "Baptist Health - Brand",
+          212320
+        ],
+        [
+          "[Display] OHMG - FMC - 5978",
+          96044
+        ],
+        [
+          "OHMG - FMC",
+          56259
+        ]
+      ],
+      "error": null,
+      "detail": null
+    }
+  },
+  {
+    "question": "Lead source conversion analysis",
+    "jarvis": {
+      "ok": true,
+      "status": 200,
+      "ms": 7673,
+      "table": "data_mart_er_leads",
+      "dimensions": [
+        "data_mart_er_leads.lead_source",
+        "data_mart_er_leads.lead_medium",
+        "data_mart_er_leads.lead_type"
+      ],
+      "metrics": [
+        "data_mart_er_leads.leads"
+      ],
+      "filters": [
+        {
+          "field": "data_mart_er_leads.date",
+          "op": "between",
+          "value": [
+            "2024-09-06",
+            "2024-12-04"
+          ]
+        }
+      ],
+      "headline": "Google paid search dominates with 519 leads; appointment requests are highest-value type.",
+      "summary": "Google paid search generates 519 of 678 total leads (77%), split between Appointment Requests (320) and Download Guides (160). Appointment Requests are the strongest lead type across all sources, but YouTube and Bing are negligible (<2% of volume combined). Google Display contributes 140 leads but skews toward lower-intent actions like Guide Downloads.",
+      "findings": [
+        "Google paid search: 519 leads (77% of total) with Appointment Requests as primary conversion (320 leads)",
+        "Appointment Requests outperform other lead types 3:1 vs Download Guides; Newsletter signups <2% across all channels",
+        "YouTube and Bing combined: 19 leads (3%), indicating underinvestment or poor targeting in video and secondary search"
+      ],
+      "recommendation": "Increase Google paid search budget for Appointment Request campaigns; audit YouTube targeting and consider pausing Bing until performance data justifies spend.",
+      "columns": [
+        "lead_source",
+        "lead_medium",
+        "lead_type",
+        "leads"
+      ],
+      "row_count": 12,
+      "rows_top5": [
+        [
+          "google",
+          "paid search",
+          "Appointment Request",
+          320
+        ],
+        [
+          "google",
+          "paid search",
+          "Download Guide",
+          160
+        ],
+        [
+          "google",
+          "display",
+          "Download Guide",
+          136
+        ],
+        [
+          "google",
+          "paid search",
+          "General Inquiry",
+          29
+        ],
+        [
+          "youtube",
+          "video",
+          "General Inquiry",
+          15
+        ]
+      ],
+      "error": null,
+      "detail": null
+    }
+  },
+  {
+    "question": "Spend by service line last 90 days",
+    "jarvis": {
+      "ok": true,
+      "status": 200,
+      "ms": 6747,
+      "table": "campaigns",
+      "dimensions": [
+        "campaigns.service_line"
+      ],
+      "metrics": [
+        "campaigns.campaign_budget"
+      ],
+      "filters": [
+        {
+          "field": "campaigns.start_date",
+          "op": "between",
+          "value": [
+            "2024-09-19",
+            "2024-12-18"
+          ]
+        }
+      ],
+      "headline": "Talent Acquisition dominates spend at $963; 9 of 35 service lines active.",
+      "summary": "Total tracked spend is $2,559.10 over 90 days, heavily concentrated in three service lines. Talent Acquisition accounts for 37.6% of all spend, while 26 service lines show null or zero allocation, indicating incomplete budget capture or inactive campaigns.",
+      "findings": [
+        "Talent Acquisition ($963.00) represents 37.6% of total spend; next highest is Orlando Health Brand at $521.00 (20.4%)",
+        "Top 3 service lines (Talent Acquisition, Orlando Health Brand, Baptist Health) account for $1,844.91, or 72% of all spend",
+        "26 of 35 rows show null values, suggesting data gaps, inactive campaigns, or incomplete period coverage for multiple service lines"
+      ],
+      "recommendation": "Audit null-value service lines to confirm whether they are truly inactive or represent missing data; clarify budget allocation rules and reconcile with actual campaign calendar.",
+      "columns": [
+        "service_line",
+        "campaign_budget"
+      ],
+      "row_count": 35,
+      "rows_top5": [
+        [
+          "Talent Acquisition",
+          963
+        ],
+        [
+          "Orlando Health Brand",
+          521
+        ],
+        [
+          "Baptist Health",
+          360.91
+        ],
+        [
+          "Longwood FSED",
+          299
+        ],
+        [
+          "Women's Institute",
+          189.96
+        ]
+      ],
+      "error": null,
+      "detail": null
+    }
+  },
+  {
+    "question": "CTR by channel last 90 days",
+    "jarvis": {
+      "ok": true,
+      "status": 200,
+      "ms": 8403,
+      "table": "combined_campaign_stats_dashboard",
+      "dimensions": [
+        "combined_campaign_stats_dashboard.channel"
+      ],
+      "metrics": [
+        "combined_campaign_stats_dashboard.clicks",
+        "combined_campaign_stats_dashboard.impressions"
+      ],
+      "filters": [
+        {
+          "field": "combined_campaign_stats_dashboard.date",
+          "op": "between",
+          "value": [
+            "2024-09-17",
+            "2024-12-15"
+          ]
+        }
+      ],
+      "headline": "Paid Search vastly outperforms display and social on efficiency metrics.",
+      "summary": "Google Paid Search achieved 11.4% CTR versus 4.6% for Display and 0.9% for Facebook over 90 days. The 'no match' category (likely unattributed traffic) shows 0.004% CTR across 2.8B impressions and should be investigated for tracking gaps.",
+      "findings": [
+        "Google Paid Search: 11.4% CTR (647K clicks / 5.7M impressions) \u2014 highest performer by 2.5x",
+        "Google Display: 4.6% CTR (2.1M clicks / 45.3M impressions) \u2014 solid volume but half the efficiency",
+        "Facebook Paid Social: 0.9% CTR (526K clicks / 57.4M impressions) \u2014 lowest performing despite largest impression volume"
+      ],
+      "recommendation": "Shift budget allocation toward Paid Search. Audit 'no match' tracking (2.8B impressions at 0.004% CTR) to recover addressable inventory.",
+      "columns": [
+        "channel",
+        "clicks",
+        "impressions"
+      ],
+      "row_count": 4,
+      "rows_top5": [
+        [
+          "Google Display",
+          2086420,
+          45338860
+        ],
+        [
+          "Google Paid Search",
+          647020,
+          5681680
+        ],
+        [
+          "Facebook Paid Social",
+          525660,
+          57417220
+        ],
+        [
+          "no match",
+          100340,
+          2838255660
+        ]
+      ],
+      "error": null,
+      "detail": null
+    }
+  },
+  {
+    "question": "Top campaigns by leads last 90 days",
+    "jarvis": {
+      "ok": true,
+      "status": 200,
+      "ms": 9015,
+      "table": "combined_campaign_stats",
+      "dimensions": [
+        "combined_campaign_stats.campaign_name"
+      ],
+      "metrics": [
+        "combined_campaign_stats.leads"
+      ],
+      "filters": [
+        {
+          "field": "combined_campaign_stats.date",
+          "op": "between",
+          "value": [
+            "2024-09-19",
+            "2024-12-17"
+          ]
+        }
+      ],
+      "headline": "20,360 unattributed leads dominate; Paid Search brand campaigns drive 2,120 attributed leads.",
+      "summary": "Over the last 90 days, 20,360 leads lack campaign attribution, representing ~73% of total volume. Named campaigns generated 2,120 leads, with Paid Search ORMC Brand (760), Bayfront ENT&A (740), and Bayfront Brand (620) as top three. Paid Search outperforms Display 4:1 in attributed lead volume.",
+      "findings": [
+        "20,360 null-campaign leads suggest major tracking or attribution gap\u2014likely 50%+ of actual campaign ROI unmeasured",
+        "Top 3 named campaigns account for 2,120 leads (78% of attributed total); heavy concentration in Bayfront and ORMC brand initiatives",
+        "Paid Search (Paid Search) consistently outperforms Display by ~4x per comparable facility/specialty (e.g., Bayfront Brand: 620 vs. untracked Display: 0 direct comparison)"
+      ],
+      "recommendation": "Audit UTM tagging and CRM integration to recapture the 20,360 orphaned leads, then reallocate budget toward top-performing Paid Search hospital/brand combinations (ORMC, Bayfront) while evaluating Display channel ROI.",
+      "columns": [
+        "campaign_name",
+        "leads"
+      ],
+      "row_count": 50,
+      "rows_top5": [
+        [
+          null,
+          20360
+        ],
+        [
+          "[Paid Search] ORMC - Brand - 5980",
+          760
+        ],
+        [
+          "[Paid Search] Bayfront - ENT&A - 5978",
+          740
+        ],
+        [
+          "[Paid Search] Bayfront - Brand - 5932",
+          620
+        ],
+        [
+          "[Paid Search] Dr. Phillips Hospital - ER - 5932",
+          540
+        ]
+      ],
+      "error": null,
+      "detail": null
+    }
+  },
+  {
+    "question": "Pediatrics campaign performance last 90 days",
+    "jarvis": {
+      "ok": true,
+      "status": 200,
+      "ms": 6961,
+      "table": "combined_campaign_stats",
+      "dimensions": [
+        "combined_campaign_stats.campaign_name",
+        "combined_campaign_stats.date"
+      ],
+      "metrics": [
+        "combined_campaign_stats.impressions",
+        "combined_campaign_stats.clicks",
+        "combined_campaign_stats.cost",
+        "combined_campaign_stats.leads"
+      ],
+      "filters": [
+        {
+          "field": "combined_campaign_stats.date",
+          "op": "between",
+          "value": [
+            "2024-09-05",
+            "2024-12-03"
+          ]
+        },
+        {
+          "field": "combined_campaign_stats.campaign_name",
+          "op": "contains",
+          "value": "pediatric"
+        }
+      ],
+      "headline": "No pediatrics campaign data available for the last 90 days.",
+      "summary": "The query returned zero records. Either no pediatrics campaigns ran in the last 90 days, the campaigns exist under a different naming convention, or data hasn't been logged in the system. Immediate verification of campaign naming, date range, and data pipeline status is required.",
+      "findings": [
+        "Zero rows returned\u2014no measurable impressions, clicks, cost, or leads data exists",
+        "Cannot assess performance, ROI, or campaign effectiveness without baseline data",
+        "Potential data integrity issue or campaign gap that needs investigation"
+      ],
+      "recommendation": "Verify campaign naming conventions, confirm 90-day date range is correct, and audit data pipeline to confirm pediatrics campaign data is being captured.",
+      "columns": [
+        "campaign_name",
+        "date",
+        "impressions",
+        "clicks",
+        "cost",
+        "leads"
+      ],
+      "row_count": 0,
+      "rows_top5": [],
+      "error": null,
+      "detail": null
+    }
+  },
+  {
+    "question": "What was our total marketing revenue for fiscal year 2024?",
+    "jarvis": {
+      "ok": false,
+      "status": 422,
+      "ms": 1840,
+      "error": "HTTPError",
+      "detail": "{\"error\":\"could not build query\",\"detail\":\"No join path between 'revenue_attributed_to_marketing' and 'date'. Phase 1 supports only directly-joined tables.\"}"
+    }
+  },
+  {
+    "question": "Cost per lead by service line last 90 days",
+    "jarvis": {
+      "ok": false,
+      "status": 422,
+      "ms": 2047,
+      "error": "HTTPError",
+      "detail": "{\"error\":\"could not build query\",\"detail\":\"No join path between 'campaigns' and 'campaign_expense'. Phase 1 supports only directly-joined tables.\"}"
+    }
+  }
+]

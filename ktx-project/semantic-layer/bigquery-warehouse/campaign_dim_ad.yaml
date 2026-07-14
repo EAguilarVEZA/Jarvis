@@ -1,0 +1,322 @@
+name: campaign_dim_ad
+descriptions:
+  user: Google Ads dimension table storing ad creative details across all ad types within campaigns and ad groups.
+table: oh-data-warehouse.gold.campaign_dim_ad
+grain:
+- ad_id
+columns:
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the individual ad creative.
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier of the ad group containing this ad.
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Identifier of the campaign this ad belongs to.
+- name: customer_id
+  type: number
+  descriptions:
+    ai: Google Ads account identifier owning this ad.
+- name: ad_group_ad_ad_added_by_google_ads
+  type: boolean
+  descriptions:
+    ai: Indicates if Google automatically created this ad.
+- name: ad_group_ad_ad_app_ad_descriptions
+  type: string
+  descriptions:
+    ai: Description text assets for app promotion ads.
+- name: ad_group_ad_ad_app_ad_headlines
+  type: string
+  descriptions:
+    ai: Headline text assets for app promotion ads.
+- name: ad_group_ad_ad_app_ad_html5_media_bundles
+  type: string
+  descriptions:
+    ai: HTML5 media bundle assets for app ads.
+- name: ad_group_ad_ad_app_ad_images
+  type: string
+  descriptions:
+    ai: Image assets used in app promotion ads.
+- name: ad_group_ad_ad_app_ad_mandatory_ad_text
+  type: string
+  descriptions:
+    ai: Required text element for app promotion ads.
+- name: ad_group_ad_ad_app_ad_youtube_videos
+  type: string
+  descriptions:
+    ai: YouTube video assets linked to app ads.
+- name: ad_group_ad_ad_call_ad_phone_number
+  type: string
+  descriptions:
+    ai: Phone number displayed in call-only ads.
+- name: ad_group_ad_ad_device_preference
+  type: string
+  descriptions:
+    ai: Preferred device targeting for ad delivery.
+- name: ad_group_ad_ad_display_url
+  type: string
+  descriptions:
+    ai: Visible URL shown to users in the ad.
+- name: ad_group_ad_ad_expanded_dynamic_search_ad_description
+  type: string
+  descriptions:
+    ai: Primary description for dynamic search ads.
+- name: ad_group_ad_ad_expanded_dynamic_search_ad_description2
+  type: string
+  descriptions:
+    ai: Secondary description for dynamic search ads.
+- name: ad_group_ad_ad_expanded_text_ad_description
+  type: string
+  descriptions:
+    ai: Primary description line for expanded text ads.
+- name: ad_group_ad_ad_expanded_text_ad_description2
+  type: string
+  descriptions:
+    ai: Secondary description line for expanded text ads.
+- name: ad_group_ad_ad_expanded_text_ad_headline_part1
+  type: string
+  descriptions:
+    ai: First headline segment of expanded text ads.
+- name: ad_group_ad_ad_expanded_text_ad_headline_part2
+  type: string
+  descriptions:
+    ai: Second headline segment of expanded text ads.
+- name: ad_group_ad_ad_expanded_text_ad_headline_part3
+  type: string
+  descriptions:
+    ai: Third headline segment of expanded text ads.
+- name: ad_group_ad_ad_expanded_text_ad_path1
+  type: string
+  descriptions:
+    ai: First URL path appended to display URL.
+- name: ad_group_ad_ad_expanded_text_ad_path2
+  type: string
+  descriptions:
+    ai: Second URL path appended to display URL.
+- name: ad_group_ad_ad_final_app_urls
+  type: string
+  descriptions:
+    ai: Landing URLs for app store destinations.
+- name: ad_group_ad_ad_final_mobile_urls
+  type: string
+  descriptions:
+    ai: Landing URLs specifically for mobile users.
+- name: ad_group_ad_ad_final_urls
+  type: string
+  descriptions:
+    ai: Primary destination URLs users land on after clicking.
+- name: ad_group_ad_ad_group
+  type: string
+  descriptions:
+    ai: Resource name path of the parent ad group.
+- name: ad_group_ad_ad_image_ad_image_url
+  type: string
+  descriptions:
+    ai: Hosted URL of the image ad creative.
+- name: ad_group_ad_ad_image_ad_mime_type
+  type: string
+  descriptions:
+    ai: File format type of the image ad.
+- name: ad_group_ad_ad_image_ad_name
+  type: string
+  descriptions:
+    ai: Filename or label assigned to the image ad.
+- name: ad_group_ad_ad_image_ad_pixel_height
+  type: number
+  descriptions:
+    ai: Height of the image ad in pixels.
+- name: ad_group_ad_ad_image_ad_pixel_width
+  type: number
+  descriptions:
+    ai: Width of the image ad in pixels.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_accent_color
+  type: string
+  descriptions:
+    ai: Accent color used in legacy responsive display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_allow_flexible_color
+  type: boolean
+  descriptions:
+    ai: Permits Google to adjust colors in legacy display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_business_name
+  type: string
+  descriptions:
+    ai: Advertiser business name in legacy display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_call_to_action_text
+  type: string
+  descriptions:
+    ai: CTA button text for legacy responsive display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_description
+  type: string
+  descriptions:
+    ai: Body description text for legacy responsive display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_format_setting
+  type: string
+  descriptions:
+    ai: Layout format preference for legacy display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_logo_image
+  type: string
+  descriptions:
+    ai: Logo image asset for legacy responsive display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_long_headline
+  type: string
+  descriptions:
+    ai: Long headline text for legacy responsive display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_main_color
+  type: string
+  descriptions:
+    ai: Primary brand color for legacy responsive display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_marketing_image
+  type: string
+  descriptions:
+    ai: Main marketing image for legacy display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_price_prefix
+  type: string
+  descriptions:
+    ai: Price prefix text shown in legacy display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_promo_text
+  type: string
+  descriptions:
+    ai: Promotional text shown in legacy display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_short_headline
+  type: string
+  descriptions:
+    ai: Short headline for legacy responsive display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_square_logo_image
+  type: string
+  descriptions:
+    ai: Square-format logo for legacy display ads.
+- name: ad_group_ad_ad_legacy_responsive_display_ad_square_marketing_image
+  type: string
+  descriptions:
+    ai: Square marketing image for legacy display ads.
+- name: ad_group_ad_ad_name
+  type: string
+  descriptions:
+    ai: Human-readable label assigned to the ad creative.
+- name: ad_group_ad_ad_responsive_display_ad_accent_color
+  type: string
+  descriptions:
+    ai: Accent color for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_business_name
+  type: string
+  descriptions:
+    ai: Advertiser business name in responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_call_to_action_text
+  type: string
+  descriptions:
+    ai: CTA button text for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_descriptions
+  type: string
+  descriptions:
+    ai: Description text assets for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_format_setting
+  type: string
+  descriptions:
+    ai: Layout format preference for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_headlines
+  type: string
+  descriptions:
+    ai: Headline assets for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_logo_images
+  type: string
+  descriptions:
+    ai: Logo image assets for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_long_headline
+  type: string
+  descriptions:
+    ai: Long headline asset for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_main_color
+  type: string
+  descriptions:
+    ai: Primary brand color for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_marketing_images
+  type: string
+  descriptions:
+    ai: Main marketing images for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_price_prefix
+  type: string
+  descriptions:
+    ai: Price prefix text for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_promo_text
+  type: string
+  descriptions:
+    ai: Promotional text shown in responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_square_logo_images
+  type: string
+  descriptions:
+    ai: Square logo images for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_square_marketing_images
+  type: string
+  descriptions:
+    ai: Square marketing images for responsive display ads.
+- name: ad_group_ad_ad_responsive_display_ad_youtube_videos
+  type: string
+  descriptions:
+    ai: YouTube video assets for responsive display ads.
+- name: ad_group_ad_ad_responsive_search_ad_descriptions
+  type: string
+  descriptions:
+    ai: Description assets for responsive search ads.
+- name: ad_group_ad_ad_responsive_search_ad_headlines
+  type: string
+  descriptions:
+    ai: Headline assets for responsive search ads.
+- name: ad_group_ad_ad_responsive_search_ad_path1
+  type: string
+  descriptions:
+    ai: First display URL path for responsive search ads.
+- name: ad_group_ad_ad_responsive_search_ad_path2
+  type: string
+  descriptions:
+    ai: Second display URL path for responsive search ads.
+- name: ad_group_ad_ad_strength
+  type: string
+  descriptions:
+    ai: Google's quality rating of the ad creative.
+- name: ad_group_ad_ad_system_managed_resource_source
+  type: string
+  descriptions:
+    ai: Source system that auto-generated this ad resource.
+- name: ad_group_ad_ad_text_ad_description1
+  type: string
+  descriptions:
+    ai: First description line for standard text ads.
+- name: ad_group_ad_ad_text_ad_description2
+  type: string
+  descriptions:
+    ai: Second description line for standard text ads.
+- name: ad_group_ad_ad_text_ad_headline
+  type: string
+  descriptions:
+    ai: Headline text for standard text ads.
+- name: ad_group_ad_ad_tracking_url_template
+  type: string
+  descriptions:
+    ai: URL template for tracking ad click parameters.
+- name: ad_group_ad_ad_type
+  type: string
+  descriptions:
+    ai: Format category of the ad creative.
+- name: ad_group_ad_ad_url_custom_parameters
+  type: string
+  descriptions:
+    ai: Custom key-value pairs appended to tracking URLs.
+- name: ad_group_ad_policy_summary_approval_status
+  type: string
+  descriptions:
+    ai: Google policy review outcome for the ad.
+- name: ad_group_ad_status
+  type: string
+  descriptions:
+    ai: Current serving status of the ad.
+measures:
+- name: total_ad_group_ad_ad_image_ad_pixel_height
+  expr: SUM(ad_group_ad_ad_image_ad_pixel_height)
+  description: Ad Group Ad Ad Image Ad Pixel Height (sum of ad_group_ad_ad_image_ad_pixel_height).
+- name: total_ad_group_ad_ad_image_ad_pixel_width
+  expr: SUM(ad_group_ad_ad_image_ad_pixel_width)
+  description: Ad Group Ad Ad Image Ad Pixel Width (sum of ad_group_ad_ad_image_ad_pixel_width).

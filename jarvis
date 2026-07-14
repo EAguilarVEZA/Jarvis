@@ -1,0 +1,466 @@
+#!/usr/bin/env bash
+# =============================================================================
+# jarvis — control script for the Jarvis backend + frontend
+# =============================================================================
+# Usage:
+#   ./jarvis start      Start backend + frontend (skip if already running)
+#   ./jarvis stop       Stop only Jarvis processes (leaves other projects alone)
+#   ./jarvis restart    Stop, then start
+#   ./jarvis status     Show what's running, on which ports, with PIDs
+#   ./jarvis logs       Tail backend + frontend logs side by side
+#   ./jarvis clean      Kill stale processes from OTHER projects on our ports
+#                       (safe — confirms before each kill)
+#
+# Design notes:
+#   - "Jarvis" is identified strictly by paths under $JARVIS_HOME, never by
+#     port number alone, so we never kill another project's uvicorn or vite.
+#   - PIDs are written to .pids/ so stop/restart can act precisely instead of
+#     pkill-ing patterns. Stale .pids files are detected and cleaned.
+#   - Logs go to logs/ with rotation on each start (.1 backup kept).
+# =============================================================================
+set -euo pipefail
+
+# -- locate jarvis home (handle both ~/jarvis and ~/Jarvis) --
+if   [[ -d "$HOME/jarvis"  && -f "$HOME/jarvis/server.py"  ]]; then JARVIS_HOME="$HOME/jarvis"
+elif [[ -d "$HOME/Jarvis"  && -f "$HOME/Jarvis/server.py"  ]]; then JARVIS_HOME="$HOME/Jarvis"
+else
+  echo "Error: cannot find Jarvis installation (no ~/jarvis or ~/Jarvis with server.py)" >&2
+  exit 1
+fi
+
+PIDS_DIR="$JARVIS_HOME/.pids"
+LOGS_DIR="$JARVIS_HOME/logs"
+mkdir -p "$PIDS_DIR" "$LOGS_DIR"
+
+BACKEND_PID_FILE="$PIDS_DIR/backend.pid"
+FRONTEND_PID_FILE="$PIDS_DIR/frontend.pid"
+BACKEND_LOG="$LOGS_DIR/backend.log"
+FRONTEND_LOG="$LOGS_DIR/frontend.log"
+
+BACKEND_PORT="${JARVIS_BACKEND_PORT:-8000}"
+FRONTEND_PORT="${JARVIS_FRONTEND_PORT:-5174}"
+
+# -- pretty output --
+BOLD=$'\033[1m'; DIM=$'\033[2m'; GREEN=$'\033[32m'; RED=$'\033[31m'
+YELLOW=$'\033[33m'; CYAN=$'\033[36m'; RESET=$'\033[0m'
+ok()    { echo "  ${GREEN}✓${RESET} $*"; }
+warn()  { echo "  ${YELLOW}!${RESET} $*"; }
+fail()  { echo "  ${RED}✗${RESET} $*"; }
+info()  { echo "  ${DIM}·${RESET} $*"; }
+title() { echo; echo "${BOLD}${CYAN}▶ $*${RESET}"; }
+
+# =============================================================================
+# Process introspection — the core of the safety story
+# =============================================================================
+
+# Is the given PID alive?
+pid_alive() {
+  local pid="$1"
+  [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null
+}
+
+# Print the working directory of a PID (empty string if unobtainable).
+# We use lsof because `ps` doesn't reliably show CWD on macOS.
+pid_cwd() {
+  local pid="$1"
+  lsof -p "$pid" 2>/dev/null | awk '$4 == "cwd" { for (i=9; i<=NF; i++) printf "%s%s", $i, (i==NF?"":" ") }'
+}
+
+# Is this PID one of OURS (running from $JARVIS_HOME)?
+# This is what makes the script safe — we never touch a PID whose CWD or
+# command line doesn't reference our jarvis directory.
+#
+# Case-insensitive comparison: macOS APFS is case-insensitive by default,
+# so /Users/x/Jarvis and /Users/x/jarvis are the SAME directory. Different
+# processes may report different casings depending on how they were launched.
+# We lowercase both sides before comparing.
+is_jarvis_pid() {
+  local pid="$1"
+  pid_alive "$pid" || return 1
+  local cwd cmd home_lc
+  cwd="$(pid_cwd "$pid" || true)"
+  cmd="$(ps -p "$pid" -o command= 2>/dev/null || true)"
+  # Lowercase everything for case-insensitive prefix match
+  home_lc="$(printf '%s' "$JARVIS_HOME" | tr '[:upper:]' '[:lower:]')"
+  cwd="$(printf '%s' "$cwd" | tr '[:upper:]' '[:lower:]')"
+  cmd="$(printf '%s' "$cmd" | tr '[:upper:]' '[:lower:]')"
+  [[ "$cwd" == "$home_lc"* ]] || [[ "$cmd" == *"$home_lc"* ]]
+}
+
+# Get the PID currently listening on a TCP port (or empty if none).
+pid_on_port() {
+  local port="$1"
+  lsof -nP -iTCP:"$port" -sTCP:LISTEN -t 2>/dev/null | head -1
+}
+
+# All PIDs listening on a port (some processes spawn helpers).
+all_pids_on_port() {
+  local port="$1"
+  lsof -nP -iTCP:"$port" -sTCP:LISTEN -t 2>/dev/null
+}
+
+# Read PID from file if both file exists AND process is alive AND it's ours.
+# Returns empty string and removes stale file otherwise.
+read_pid_file() {
+  local file="$1"
+  [[ -f "$file" ]] || return 0
+  local pid; pid="$(cat "$file" 2>/dev/null || true)"
+  if [[ -n "$pid" ]] && is_jarvis_pid "$pid"; then
+    echo "$pid"
+  else
+    rm -f "$file"
+  fi
+}
+
+# =============================================================================
+# Subcommands
+# =============================================================================
+
+cmd_status() {
+  title "Jarvis status"
+  info "Home: $JARVIS_HOME"
+  info "Backend port: $BACKEND_PORT  ·  Frontend port: $FRONTEND_PORT"
+  echo
+
+  # Backend
+  local b_pid; b_pid="$(read_pid_file "$BACKEND_PID_FILE")"
+  if [[ -n "$b_pid" ]]; then
+    ok "Backend running — PID $b_pid (http://localhost:$BACKEND_PORT)"
+  else
+    # Maybe it's running but we don't have a pid file? (e.g. started manually)
+    local port_pid; port_pid="$(pid_on_port "$BACKEND_PORT" || true)"
+    if [[ -n "$port_pid" ]]; then
+      if is_jarvis_pid "$port_pid"; then
+        warn "Backend running on :$BACKEND_PORT (PID $port_pid) but no pid file — adopting"
+        echo "$port_pid" > "$BACKEND_PID_FILE"
+      else
+        local owner; owner="$(pid_cwd "$port_pid" || echo '?')"
+        fail "Port $BACKEND_PORT is held by ANOTHER project (PID $port_pid)"
+        info "    Owner: $owner"
+        info "    Run './jarvis clean' to reclaim it."
+      fi
+    else
+      fail "Backend not running"
+    fi
+  fi
+
+  # Frontend
+  local f_pid; f_pid="$(read_pid_file "$FRONTEND_PID_FILE")"
+  if [[ -n "$f_pid" ]]; then
+    ok "Frontend running — PID $f_pid (http://localhost:$FRONTEND_PORT)"
+  else
+    local port_pid; port_pid="$(pid_on_port "$FRONTEND_PORT" || true)"
+    if [[ -n "$port_pid" ]]; then
+      if is_jarvis_pid "$port_pid"; then
+        warn "Frontend running on :$FRONTEND_PORT (PID $port_pid) but no pid file — adopting"
+        echo "$port_pid" > "$FRONTEND_PID_FILE"
+      else
+        local owner; owner="$(pid_cwd "$port_pid" || echo '?')"
+        fail "Port $FRONTEND_PORT is held by ANOTHER project (PID $port_pid)"
+        info "    Owner: $owner"
+        info "    Run './jarvis clean' to reclaim it."
+      fi
+    else
+      fail "Frontend not running"
+    fi
+  fi
+
+  echo
+  info "Logs: $BACKEND_LOG  ·  $FRONTEND_LOG"
+}
+
+cmd_stop() {
+  title "Stopping Jarvis"
+  local stopped=0
+
+  # Backend
+  local b_pid; b_pid="$(read_pid_file "$BACKEND_PID_FILE" || true)"
+  if [[ -n "$b_pid" ]]; then
+    info "Stopping backend (PID $b_pid)..."
+    # SIGTERM first, then SIGKILL after 5s if still alive. uvicorn --reload
+    # spawns a child; killing the parent terminates both via SIGTERM.
+    kill -TERM "$b_pid" 2>/dev/null || true
+    for _ in 1 2 3 4 5; do
+      pid_alive "$b_pid" || break
+      sleep 1
+    done
+    if pid_alive "$b_pid"; then
+      warn "Backend didn't stop in 5s, sending SIGKILL"
+      kill -KILL "$b_pid" 2>/dev/null || true
+      sleep 1
+    fi
+    rm -f "$BACKEND_PID_FILE"
+    ok "Backend stopped"
+    stopped=$((stopped+1))
+  fi
+
+  # Frontend
+  local f_pid; f_pid="$(read_pid_file "$FRONTEND_PID_FILE" || true)"
+  if [[ -n "$f_pid" ]]; then
+    info "Stopping frontend (PID $f_pid)..."
+    # vite is launched via npm; npm forwards the signal to vite. Send to the
+    # process group to get both parent and child cleanly.
+    kill -TERM -- -"$f_pid" 2>/dev/null || kill -TERM "$f_pid" 2>/dev/null || true
+    for _ in 1 2 3 4 5; do
+      pid_alive "$f_pid" || break
+      sleep 1
+    done
+    if pid_alive "$f_pid"; then
+      warn "Frontend didn't stop in 5s, sending SIGKILL"
+      kill -KILL -- -"$f_pid" 2>/dev/null || kill -KILL "$f_pid" 2>/dev/null || true
+      sleep 1
+    fi
+    rm -f "$FRONTEND_PID_FILE"
+    ok "Frontend stopped"
+    stopped=$((stopped+1))
+  fi
+
+  if [[ $stopped -eq 0 ]]; then
+    warn "Nothing to stop (no Jarvis processes tracked)"
+  fi
+}
+
+cmd_start() {
+  title "Starting Jarvis"
+
+  # -- adopt any orphaned Jarvis processes (running but no pid file) --
+  # If status saw them, it adopted them already, but if a previous start was
+  # interrupted we may still have a Jarvis-owned process on our port without
+  # a corresponding pid file. Adopt it instead of trying to start over it.
+  local _port _pidfile
+  for _which in backend frontend; do
+    case "$_which" in
+      backend)  _port="$BACKEND_PORT";  _pidfile="$BACKEND_PID_FILE" ;;
+      frontend) _port="$FRONTEND_PORT"; _pidfile="$FRONTEND_PID_FILE" ;;
+    esac
+    local port_pid; port_pid="$(pid_on_port "$_port" || true)"
+    if [[ -n "$port_pid" ]] && is_jarvis_pid "$port_pid" && [[ ! -f "$_pidfile" ]]; then
+      info "Adopting orphan Jarvis PID $port_pid on :$_port"
+      echo "$port_pid" > "$_pidfile"
+    fi
+  done
+
+  # -- guard: refuse to start if our ports are held by another project --
+  for port in "$BACKEND_PORT" "$FRONTEND_PORT"; do
+    local port_pid; port_pid="$(pid_on_port "$port" || true)"
+    if [[ -n "$port_pid" ]] && ! is_jarvis_pid "$port_pid"; then
+      local owner; owner="$(pid_cwd "$port_pid" || echo '?')"
+      fail "Port $port is held by another project (PID $port_pid)"
+      info "    Owner: $owner"
+      info "    Run './jarvis clean' to reclaim, then start again."
+      return 1
+    fi
+  done
+
+  # -- skip if already running --
+  local b_pid f_pid
+  b_pid="$(read_pid_file "$BACKEND_PID_FILE" || true)"
+  f_pid="$(read_pid_file "$FRONTEND_PID_FILE" || true)"
+
+  # -- backend --
+  if [[ -n "$b_pid" ]]; then
+    ok "Backend already running (PID $b_pid)"
+  else
+    info "Starting backend → $BACKEND_LOG"
+    # Rotate log
+    [[ -f "$BACKEND_LOG" ]] && mv "$BACKEND_LOG" "$BACKEND_LOG.1"
+
+    # Activate venv + run server.py. Using setsid-equivalent (nohup + setpgid via &)
+    # so the child survives our shell exit. server.py has its own uvicorn.run() at
+    # the bottom, so we run it as a script (matches how user starts it manually).
+    cd "$JARVIS_HOME"
+    # shellcheck disable=SC1091
+    nohup bash -c "
+      source '$JARVIS_HOME/venv/bin/activate'
+      exec python '$JARVIS_HOME/server.py' --port $BACKEND_PORT --host 0.0.0.0
+    " > "$BACKEND_LOG" 2>&1 &
+    b_pid=$!
+    echo "$b_pid" > "$BACKEND_PID_FILE"
+    info "Backend PID $b_pid"
+
+    # Wait up to 15s for it to start listening. We check for a non-empty
+    # PID on the port — `lsof | head` always exits 0 even when empty, so
+    # `if pid_on_port ...` based on exit code doesn't work.
+    local ready=0
+    for _ in $(seq 1 30); do
+      local port_pid; port_pid="$(pid_on_port "$BACKEND_PORT" 2>/dev/null || true)"
+      if [[ -n "$port_pid" ]]; then
+        ready=1; break
+      fi
+      pid_alive "$b_pid" || { fail "Backend died during startup — see $BACKEND_LOG"; tail -20 "$BACKEND_LOG"; return 1; }
+      sleep 0.5
+    done
+    if [[ $ready -eq 1 ]]; then
+      ok "Backend ready on http://localhost:$BACKEND_PORT"
+    else
+      warn "Backend started but isn't listening on :$BACKEND_PORT yet (still booting?)"
+      info "    Tail logs with: ./jarvis logs"
+    fi
+  fi
+
+  # -- frontend --
+  if [[ -n "$f_pid" ]]; then
+    ok "Frontend already running (PID $f_pid)"
+  else
+    info "Starting frontend → $FRONTEND_LOG"
+    [[ -f "$FRONTEND_LOG" ]] && mv "$FRONTEND_LOG" "$FRONTEND_LOG.1"
+
+    cd "$JARVIS_HOME/frontend"
+    # vite picks up port from --port flag; we pin it explicitly to match what
+    # the backend CORS expects. Using `npm run dev -- --port N` forwards the
+    # flag to vite. We use setsid (or a job-control approximation) so the
+    # vite process group is independent of this shell.
+    nohup bash -c "
+      cd '$JARVIS_HOME/frontend'
+      exec npm run dev -- --port $FRONTEND_PORT --host
+    " > "$FRONTEND_LOG" 2>&1 &
+    local launcher_pid=$!
+    info "Launcher PID $launcher_pid (npm; will spawn vite)"
+
+    # npm exits shortly after spawning vite, so $! becomes stale fast.
+    # Wait for the port to be claimed, then capture the REAL vite PID by port.
+    local ready=0
+    for _ in $(seq 1 60); do  # vite startup can be slow on first run
+      local port_pid; port_pid="$(pid_on_port "$FRONTEND_PORT" 2>/dev/null || true)"
+      if [[ -n "$port_pid" ]] && is_jarvis_pid "$port_pid"; then
+        f_pid="$port_pid"
+        echo "$f_pid" > "$FRONTEND_PID_FILE"
+        ready=1; break
+      fi
+      # If the launcher died WITHOUT vite starting, that's a real failure
+      if ! pid_alive "$launcher_pid" && [[ -z "$port_pid" ]]; then
+        # Give it a beat — npm might have just exited normally after spawning
+        sleep 1
+        port_pid="$(pid_on_port "$FRONTEND_PORT" 2>/dev/null || true)"
+        if [[ -n "$port_pid" ]] && is_jarvis_pid "$port_pid"; then
+          f_pid="$port_pid"
+          echo "$f_pid" > "$FRONTEND_PID_FILE"
+          ready=1; break
+        fi
+        fail "Frontend died during startup — see $FRONTEND_LOG"
+        tail -20 "$FRONTEND_LOG"
+        return 1
+      fi
+      sleep 0.5
+    done
+    if [[ $ready -eq 1 ]]; then
+      ok "Frontend ready on http://localhost:$FRONTEND_PORT (vite PID $f_pid)"
+    else
+      warn "Frontend not listening on :$FRONTEND_PORT after 30s"
+      info "    Tail logs with: ./jarvis logs"
+    fi
+  fi
+
+  echo
+  echo "${BOLD}${GREEN}Jarvis is up.${RESET}"
+  echo "  Frontend: http://localhost:$FRONTEND_PORT"
+  echo "  Backend:  http://localhost:$BACKEND_PORT"
+}
+
+cmd_restart() {
+  cmd_stop
+  cmd_start
+}
+
+cmd_logs() {
+  title "Tailing logs (Ctrl+C to exit)"
+  # Pretty interleaved tail. Falls back to plain tail -f if `multitail` not installed.
+  if command -v multitail >/dev/null 2>&1; then
+    multitail -ci yellow "$BACKEND_LOG" -ci cyan "$FRONTEND_LOG"
+  else
+    info "Hint: brew install multitail for color-separated tailing"
+    echo
+    tail -F -n 50 "$BACKEND_LOG" "$FRONTEND_LOG"
+  fi
+}
+
+cmd_clean() {
+  title "Cleaning stale processes from OTHER projects on our ports"
+  warn "This will list non-Jarvis processes on ports $BACKEND_PORT and $FRONTEND_PORT"
+  warn "and ask before killing each one."
+  echo
+
+  local found=0
+  for port in "$BACKEND_PORT" "$FRONTEND_PORT"; do
+    # Collect PIDs into an array first so the prompt loop can read stdin
+    # (process substitution `< <(...)` would close stdin for the loop body).
+    local pids
+    pids="$(all_pids_on_port "$port")"
+    [[ -z "$pids" ]] && continue
+
+    while IFS= read -r pid; do
+      [[ -z "$pid" ]] && continue
+      pid_alive "$pid" || continue
+      if is_jarvis_pid "$pid"; then
+        info "PID $pid on :$port is OURS — leaving alone"
+        continue
+      fi
+      found=$((found+1))
+      local cmd cwd
+      cmd="$(ps -p "$pid" -o command= 2>/dev/null | head -c 100)"
+      cwd="$(pid_cwd "$pid" || echo '?')"
+      echo
+      echo "  PID $pid on port $port"
+      echo "    Command: $cmd"
+      echo "    Working dir: $cwd"
+      if [[ -e /dev/tty ]] && [[ -r /dev/tty ]] && [[ -w /dev/tty ]]; then
+        read -r -p "  Kill this process? [y/N] " yn </dev/tty
+      else
+        yn=""
+      fi
+      if [[ "$yn" == "y" || "$yn" == "Y" ]]; then
+        kill -TERM "$pid" 2>/dev/null || true
+        sleep 2
+        if pid_alive "$pid"; then
+          kill -KILL "$pid" 2>/dev/null || true
+        fi
+        ok "Killed PID $pid"
+      else
+        info "Skipped PID $pid"
+      fi
+    done <<< "$pids"
+  done
+
+  if [[ $found -eq 0 ]]; then
+    ok "No foreign processes on Jarvis ports"
+  fi
+}
+
+# =============================================================================
+# Dispatch
+# =============================================================================
+
+case "${1:-}" in
+  start)   cmd_start ;;
+  stop)    cmd_stop ;;
+  restart) cmd_restart ;;
+  status)  cmd_status ;;
+  logs)    cmd_logs ;;
+  clean)   cmd_clean ;;
+  ""|help|-h|--help)
+    cat <<USAGE
+${BOLD}Jarvis control script${RESET}
+
+Usage:
+  ./jarvis ${BOLD}start${RESET}      Start backend + frontend (no-op if already running)
+  ./jarvis ${BOLD}stop${RESET}       Stop only Jarvis processes
+  ./jarvis ${BOLD}restart${RESET}    Stop + start
+  ./jarvis ${BOLD}status${RESET}     Show what's running
+  ./jarvis ${BOLD}logs${RESET}       Tail backend + frontend logs
+  ./jarvis ${BOLD}clean${RESET}      Remove stale processes from OTHER projects on our ports
+
+Environment:
+  JARVIS_BACKEND_PORT   default 8000
+  JARVIS_FRONTEND_PORT  default 5174
+
+Files:
+  Logs:  $JARVIS_HOME/logs/
+  PIDs:  $JARVIS_HOME/.pids/
+USAGE
+    ;;
+  *)
+    echo "Unknown command: $1" >&2
+    echo "Run './jarvis help' for usage." >&2
+    exit 1
+    ;;
+esac

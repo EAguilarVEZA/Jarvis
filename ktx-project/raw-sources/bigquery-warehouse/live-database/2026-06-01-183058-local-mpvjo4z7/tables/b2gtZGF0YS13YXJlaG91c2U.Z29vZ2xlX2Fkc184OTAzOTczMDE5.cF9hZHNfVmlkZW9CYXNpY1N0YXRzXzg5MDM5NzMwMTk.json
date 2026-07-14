@@ -1,0 +1,155 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "google_ads_8903973019",
+  "name": "p_ads_VideoBasicStats_8903973019",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 8301,
+  "columns": [
+    {
+      "name": "ad_group_ad_ad_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the ad."
+    },
+    {
+      "name": "ad_group_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the ad group."
+    },
+    {
+      "name": "campaign_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the campaign."
+    },
+    {
+      "name": "customer_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the customer."
+    },
+    {
+      "name": "video_channel_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The owner channel id of the video."
+    },
+    {
+      "name": "video_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the video."
+    },
+    {
+      "name": "ad_group_ad_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The status of the ad."
+    },
+    {
+      "name": "metrics_clicks",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The number of clicks."
+    },
+    {
+      "name": "metrics_conversions",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The number of conversions. This only includes conversion actions which include_in_conversions_metric attribute is set to true."
+    },
+    {
+      "name": "metrics_conversions_value",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The total value of conversions. This only includes conversion actions which include_in_conversions_metric attribute is set to true."
+    },
+    {
+      "name": "metrics_cost_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The sum of your cost-per-click (CPC) and cost-per-thousand impressions (CPM) costs during this period."
+    },
+    {
+      "name": "metrics_impressions",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Count of how often your ad has appeared on a search results page or website on the Google Network."
+    },
+    {
+      "name": "metrics_view_through_conversions",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The total number of view-through conversions. These happen when a customer sees an image or rich media ad, then later completes a conversion on your site without interacting with (e.g., clicking on) another ad."
+    },
+    {
+      "name": "segments_ad_network_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Ad network type."
+    },
+    {
+      "name": "segments_date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Date to which metrics apply. yyyy-MM-dd format, e.g., 2018-04-17."
+    },
+    {
+      "name": "segments_device",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Device to which metrics apply."
+    }
+  ],
+  "foreignKeys": []
+}

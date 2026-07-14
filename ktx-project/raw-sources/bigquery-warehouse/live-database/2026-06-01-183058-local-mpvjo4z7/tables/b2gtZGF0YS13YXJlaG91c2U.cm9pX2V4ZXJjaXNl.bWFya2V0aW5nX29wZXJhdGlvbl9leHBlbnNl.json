@@ -1,0 +1,29 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "roi_exercise",
+  "name": "marketing_operation_expense",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 731,
+  "columns": [
+    {
+      "name": "date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "operating_expense",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

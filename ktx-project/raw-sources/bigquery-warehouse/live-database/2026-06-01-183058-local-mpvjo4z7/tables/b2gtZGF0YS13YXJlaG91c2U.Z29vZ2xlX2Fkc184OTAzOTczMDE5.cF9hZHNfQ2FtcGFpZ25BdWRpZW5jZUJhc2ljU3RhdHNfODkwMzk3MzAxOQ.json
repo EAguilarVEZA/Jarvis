@@ -1,0 +1,155 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "google_ads_8903973019",
+  "name": "p_ads_CampaignAudienceBasicStats_8903973019",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 61994,
+  "columns": [
+    {
+      "name": "campaign_criterion_criterion_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Output only. The ID of the criterion. This field is ignored during mutate."
+    },
+    {
+      "name": "campaign_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the campaign."
+    },
+    {
+      "name": "customer_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the customer."
+    },
+    {
+      "name": "campaign_base_campaign",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The resource name of the base campaign of a draft or experiment campaign. For base campaigns, this is equal to `resource_name`. This field is read-only."
+    },
+    {
+      "name": "metrics_clicks",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The number of clicks."
+    },
+    {
+      "name": "metrics_conversions",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The number of conversions. This only includes conversion actions which include_in_conversions_metric attribute is set to true."
+    },
+    {
+      "name": "metrics_conversions_value",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The total value of conversions. This only includes conversion actions which include_in_conversions_metric attribute is set to true."
+    },
+    {
+      "name": "metrics_cost_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The sum of your cost-per-click (CPC) and cost-per-thousand impressions (CPM) costs during this period."
+    },
+    {
+      "name": "metrics_impressions",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Count of how often your ad has appeared on a search results page or website on the Google Network."
+    },
+    {
+      "name": "metrics_interaction_event_types",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The types of payable and free interactions."
+    },
+    {
+      "name": "metrics_interactions",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The number of interactions. An interaction is the main user action associated with an ad format-clicks for text and shopping ads, views for video ads, and so on."
+    },
+    {
+      "name": "metrics_view_through_conversions",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The total number of view-through conversions. These happen when a customer sees an image or rich media ad, then later completes a conversion on your site without interacting with (e.g., clicking on) another ad."
+    },
+    {
+      "name": "segments_ad_network_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Ad network type."
+    },
+    {
+      "name": "segments_date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Date to which metrics apply. yyyy-MM-dd format, e.g., 2018-04-17."
+    },
+    {
+      "name": "segments_device",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Device to which metrics apply."
+    },
+    {
+      "name": "segments_slot",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Position of the ad."
+    }
+  ],
+  "foreignKeys": []
+}

@@ -1,0 +1,64 @@
+name: fivetran_audit
+descriptions:
+  user: Tracks Fivetran sync operations, logging status, timing, and row counts for each data pipeline update.
+table: oh-data-warehouse.adwords_orlando_health.fivetran_audit
+grain:
+- id
+columns:
+- name: id
+  type: string
+  descriptions:
+    ai: Unique identifier for each individual sync operation record.
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this audit record.
+  role: time
+- name: done
+  type: time
+  descriptions:
+    ai: Timestamp when the sync operation completed.
+  role: time
+- name: message
+  type: string
+  descriptions:
+    ai: Error or informational message associated with the sync operation.
+- name: progress
+  type: time
+  descriptions:
+    ai: Timestamp marking when progress was last recorded during sync.
+  role: time
+- name: rows_updated_or_inserted
+  type: number
+  descriptions:
+    ai: Count of rows affected during the sync operation.
+- name: schema
+  type: string
+  descriptions:
+    ai: Target database schema where synced data was written.
+- name: start
+  type: time
+  descriptions:
+    ai: Timestamp when the sync operation began processing.
+  role: time
+- name: status
+  type: string
+  descriptions:
+    ai: Outcome of the sync operation, e.g., Ok or error.
+- name: table
+  type: string
+  descriptions:
+    ai: Target database table that was updated during sync.
+- name: update_id
+  type: string
+  descriptions:
+    ai: Unique identifier grouping related sync update operations together.
+- name: update_started
+  type: time
+  descriptions:
+    ai: Timestamp when the overall update batch was initiated.
+  role: time
+measures:
+- name: total_rows_updated_or_inserted
+  expr: SUM(rows_updated_or_inserted)
+  description: Rows Updated Or Inserted (sum of rows_updated_or_inserted).

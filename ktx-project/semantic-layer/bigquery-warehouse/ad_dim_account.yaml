@@ -1,0 +1,40 @@
+name: ad_dim_account
+descriptions:
+  user: Dimension table storing advertising account metadata across multiple ad platforms.
+table: oh-data-warehouse.gold.ad_dim_account
+grain:
+- ad_platform
+columns:
+- name: ad_platform
+  type: string
+  descriptions:
+    ai: Name of the advertising platform, e.g., Google Ads, Meta Ads, Billboards.
+- name: account_id
+  type: number
+  descriptions:
+    ai: Unique numeric identifier for the advertiser account on the platform.
+- name: customer_auto_tagging_enabled
+  type: boolean
+  descriptions:
+    ai: Indicates if automatic URL tagging is enabled for tracking; Google Ads only.
+- name: customer_currency_code
+  type: string
+  descriptions:
+    ai: Currency used for billing and reporting on the account.
+- name: customer_descriptive_name
+  type: string
+  descriptions:
+    ai: Human-readable label identifying the advertiser or campaign group.
+- name: customer_manager
+  type: boolean
+  descriptions:
+    ai: Flags whether the account is a manager (MCC) account overseeing sub-accounts.
+- name: customer_test_account
+  type: boolean
+  descriptions:
+    ai: Indicates if the account is a test account, not used for real spend.
+- name: customer_time_zone
+  type: string
+  descriptions:
+    ai: Time zone setting for the account, affecting reporting and scheduling.
+measures: []

@@ -1,0 +1,44 @@
+name: ad_dim_ad_platform
+descriptions:
+  user: Dimension table describing advertising platforms, their vendors, data sources, and ingestion metadata.
+table: oh-data-warehouse.gold.ad_dim_ad_platform
+grain:
+- ad_platform_key
+columns:
+- name: ad_platform_key
+  type: number
+  descriptions:
+    ai: Surrogate key uniquely identifying each advertising platform record.
+- name: ad_platform
+  type: string
+  descriptions:
+    ai: Name of the advertising platform, such as Pandora or Digital Audio.
+- name: platform_vendor
+  type: string
+  descriptions:
+    ai: Company or vendor managing the advertising platform.
+- name: source_system
+  type: string
+  descriptions:
+    ai: ETL or integration tool used to ingest platform data.
+- name: data_granularity
+  type: string
+  descriptions:
+    ai: Time granularity of reported ad data, e.g., Monthly.
+- name: data_modification_check_frequency
+  type: string
+  descriptions:
+    ai: How often historical data is checked for changes or corrections.
+- name: data_modification_window
+  type: string
+  descriptions:
+    ai: How far back historical data may be retroactively modified.
+- name: data_ingestion_frequency
+  type: string
+  descriptions:
+    ai: How often new data is loaded from the platform.
+- name: data_ingestion_lag
+  type: string
+  descriptions:
+    ai: Typical delay between data availability and ingestion completion.
+measures: []

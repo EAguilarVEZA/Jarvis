@@ -1,0 +1,34 @@
+name: final_url_history
+descriptions:
+  user: Tracks historical final destination URLs assigned to Google Ads ad group criteria over time.
+table: oh-data-warehouse.adwords_orlando_health.final_url_history
+grain:
+- ad_group_criterion_id
+columns:
+- name: ad_group_criterion_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the keyword or targeting criterion within an ad group.
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier linking the criterion to its parent Google Ads ad group.
+- name: sequence_id
+  type: number
+  descriptions:
+    ai: Version order of the URL record, supporting historical change tracking.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the final URL was last modified in Google Ads.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+- name: url
+  type: string
+  descriptions:
+    ai: Final landing page URL including UTM tracking parameters for campaign attribution.
+measures: []

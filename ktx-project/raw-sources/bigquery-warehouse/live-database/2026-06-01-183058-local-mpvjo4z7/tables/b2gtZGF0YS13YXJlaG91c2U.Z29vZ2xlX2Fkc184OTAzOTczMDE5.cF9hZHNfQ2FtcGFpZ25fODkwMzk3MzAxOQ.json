@@ -1,0 +1,254 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "google_ads_8903973019",
+  "name": "p_ads_Campaign_8903973019",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 612694,
+  "columns": [
+    {
+      "name": "campaign_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the campaign."
+    },
+    {
+      "name": "customer_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the customer."
+    },
+    {
+      "name": "bidding_strategy_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The name of the bidding strategy. All bidding strategies within an account must be named distinctly. The length of this string should be between 1 and 255, inclusive, in UTF-8 bytes, (trimmed)."
+    },
+    {
+      "name": "campaign_advertising_channel_sub_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Optional refinement to `advertising_channel_type`. Must be a valid sub-type of the parent channel type. Can be set only when creating campaigns. After campaign is created, the field can not be changed."
+    },
+    {
+      "name": "campaign_advertising_channel_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The primary serving target for ads within the campaign. The targeting options can be refined in `network_settings`. This field is required and should not be empty when creating new campaigns. Can be set only when creating campaigns. After the campaign is created, the field can not be changed."
+    },
+    {
+      "name": "campaign_bidding_strategy",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Portfolio bidding strategy used by campaign."
+    },
+    {
+      "name": "campaign_bidding_strategy_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The type of bidding strategy. A bidding strategy can be created by setting either the bidding scheme to create a standard bidding strategy or the `bidding_strategy` field to create a portfolio bidding strategy. This field is read-only."
+    },
+    {
+      "name": "campaign_budget_amount_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The amount of the budget, in the local currency for the account. Amount is specified in micros, where one million is equivalent to one currency unit. Monthly spend is capped at 30.4 times this amount."
+    },
+    {
+      "name": "campaign_budget_explicitly_shared",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Specifies whether the budget is explicitly shared. Defaults to true if unspecified in a create operation. If true, the budget was created with the purpose of sharing across one or more campaigns. If false, the budget was created with the intention of only being used with a single campaign. The budget's name and status will stay in sync with the campaign's name and status. Attempting to share the budget with a second campaign will result in an error. A non-shared budget can become an explicitly shared. The same operation must also assign the budget a name. A shared campaign budget can never become non-shared."
+    },
+    {
+      "name": "campaign_budget_has_recommended_budget",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Indicates whether there is a recommended budget for this campaign budget. This field is read-only."
+    },
+    {
+      "name": "campaign_budget_period",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Period over which to spend the budget. Defaults to DAILY if not specified."
+    },
+    {
+      "name": "campaign_budget_recommended_budget_amount_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The recommended budget amount. If no recommendation is available, this will be set to the budget amount. Amount is specified in micros, where one million is equivalent to one currency unit. This field is read-only."
+    },
+    {
+      "name": "campaign_budget_total_amount_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The lifetime amount of the budget, in the local currency for the account. Amount is specified in micros, where one million is equivalent to one currency unit."
+    },
+    {
+      "name": "campaign_campaign_budget",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The budget of the campaign."
+    },
+    {
+      "name": "campaign_end_date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The date when campaign ended. This field must not be used in WHERE clauses."
+    },
+    {
+      "name": "campaign_end_date_time",
+      "nativeType": "DATETIME",
+      "normalizedType": "DATETIME",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The last day and time of the campaign in serving customer's timezone in \"yyyy-MM-dd HH:mm:ss\" format. Set the time component to 23:59:59 for daily granularity, time granularity is only supported for some campaign types. On create, defaults to running indefinitely. To set an existing campaign to run indefinitely, clear this field."
+    },
+    {
+      "name": "campaign_experiment_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The type of campaign: normal, draft, or experiment."
+    },
+    {
+      "name": "campaign_manual_cpc_enhanced_cpc_enabled",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Whether bids are to be enhanced based on conversion optimizer data."
+    },
+    {
+      "name": "campaign_maximize_conversion_value_target_roas",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The target return on ad spend (ROAS) option. If set, the bid strategy will maximize revenue while averaging the target return on ad spend. If the target ROAS is high, the bid strategy may not be able to spend the full budget. If the target ROAS is not set, the bid strategy will aim to achieve the highest possible ROAS for the budget."
+    },
+    {
+      "name": "campaign_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The name of the campaign. This field is required and should not be empty when creating new campaigns. It must not contain any null (code point 0x0), NL line feed (code point 0xA) or carriage return (code point 0xD) characters."
+    },
+    {
+      "name": "campaign_percent_cpc_enhanced_cpc_enabled",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Adjusts the bid for each auction upward or downward, depending on the likelihood of a conversion. Individual bids may exceed cpc_bid_ceiling_micros, but the average bid amount for a campaign should not."
+    },
+    {
+      "name": "campaign_serving_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ad serving status of the campaign."
+    },
+    {
+      "name": "campaign_start_date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The date when campaign started. This field must not be used in WHERE clauses."
+    },
+    {
+      "name": "campaign_start_date_time",
+      "nativeType": "DATETIME",
+      "normalizedType": "DATETIME",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The date and time when campaign started in serving. The timestamp is in the customer's time zone and in yyyy-MM-dd HH:mm:ss format. Set the time component to 00:00:00 for daily granularity, time granularity is only supported for some campaign types."
+    },
+    {
+      "name": "campaign_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The status of the campaign. When a new campaign is added, the status defaults to ENABLED."
+    },
+    {
+      "name": "campaign_tracking_url_template",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The URL template for constructing a tracking URL."
+    },
+    {
+      "name": "campaign_url_custom_parameters",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The list of mappings used to substitute custom parameter tags in a `tracking_url_template`, `final_urls`, or `mobile_final_urls`."
+    }
+  ],
+  "foreignKeys": []
+}

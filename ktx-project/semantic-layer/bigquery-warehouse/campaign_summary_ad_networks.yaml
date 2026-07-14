@@ -1,0 +1,42 @@
+name: campaign_summary_ad_networks
+descriptions:
+  user: Daily ad network performance metrics per campaign entity, tracking spend, impressions, and clicks.
+table: oh-data-warehouse.gold.campaign_summary_ad_networks
+grain:
+- date
+columns:
+- name: date
+  type: time
+  descriptions:
+    ai: Calendar date of the recorded ad network performance metrics.
+  role: time
+- name: entity_key
+  type: string
+  descriptions:
+    ai: Unique identifier linking the record to a specific campaign entity.
+- name: ad_network_type
+  type: string
+  descriptions:
+    ai: Distribution channel where ads were served, e.g., SEARCH or DISPLAY.
+- name: cost
+  type: number
+  descriptions:
+    ai: Total advertising spend in currency units for the given day.
+- name: impressions
+  type: number
+  descriptions:
+    ai: Number of times ads were displayed to users.
+- name: clicks
+  type: number
+  descriptions:
+    ai: Number of user clicks recorded on the ads.
+measures:
+- name: total_cost
+  expr: SUM(cost)
+  description: Cost (sum of cost).
+- name: total_impressions
+  expr: SUM(impressions)
+  description: Impressions (sum of impressions).
+- name: total_clicks
+  expr: SUM(clicks)
+  description: Clicks (sum of clicks).

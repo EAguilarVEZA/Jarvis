@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Stroke Campaign Report — OHNI | Orlando Health</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ── Design system ─────────────────────────────────────────── */
+:root {
+  --oh-teal:      #006272;
+  --oh-teal-mid:  #00798C;
+  --oh-teal-lt:   #E6F3F5;
+  --oh-green:     #4CAF7A;
+  --oh-red:       #D94F3D;
+  --oh-amber:     #E8962A;
+  --oh-slate:     #2C3E50;
+  --oh-muted:     #64748B;
+  --oh-border:    #DDE3EA;
+  --oh-bg:        #F4F7FA;
+  --oh-white:     #FFFFFF;
+  --oh-text:      #1A2733;
+  --good:         #4CAF7A;
+  --warn:         #E8962A;
+  --bad:          #D94F3D;
+  --neutral:      #64748B;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--oh-bg);
+  color: var(--oh-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.report-header {
+  background: var(--oh-teal);
+  color: white;
+  padding: 0;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+.oh-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+.oh-logo-orlando { font-family: 'DM Serif Display', serif; font-size: 22px; letter-spacing: -0.3px; }
+.oh-logo-health  { font-family: 'DM Sans', sans-serif; font-size: 22px; font-weight: 300; letter-spacing: 1px; }
+.oh-logo-r       { font-size: 11px; vertical-align: super; margin-left: 1px; }
+.header-meta     { font-size: 12px; opacity: 0.75; text-align: right; line-height: 1.7; }
+
+.header-body {
+  padding: 28px 40px 32px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.report-title h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+.report-title .sub {
+  font-size: 15px;
+  opacity: 0.8;
+  margin-top: 6px;
+  font-weight: 300;
+  letter-spacing: 0.3px;
+}
+.report-period {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 8px;
+  padding: 10px 18px;
+  text-align: right;
+}
+.report-period .period-label { font-size: 11px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.8px; }
+.report-period .period-dates { font-size: 14px; font-weight: 500; margin-top: 2px; }
+
+/* ── Alert bar ─────────────────────────────────────────────── */
+.alert-bar {
+  background: #FFF8E6;
+  border-top: 3px solid var(--oh-amber);
+  padding: 14px 40px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.alert-icon {
+  width: 28px; height: 28px; min-width: 28px;
+  border-radius: 50%;
+  background: var(--oh-amber);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: white; font-weight: 700; margin-top: 1px;
+}
+.alert-content { font-size: 13px; line-height: 1.7; color: #7A5800; }
+.alert-content strong { color: #5A4000; }
+
+/* ── Main layout ───────────────────────────────────────────── */
+main { padding: 32px 40px; max-width: 1400px; margin: 0 auto; }
+
+.section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--oh-teal);
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--oh-border);
+}
+
+/* ── KPI cards ─────────────────────────────────────────────── */
+.kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 32px; }
+
+.kpi-card {
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.kpi-card:hover { box-shadow: 0 4px 20px rgba(0,98,114,0.1); }
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent, var(--oh-teal));
+}
+.kpi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--oh-muted);
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+.kpi-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 30px;
+  color: var(--oh-text);
+  letter-spacing: -0.5px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.kpi-change {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--oh-muted);
+}
+.kpi-change .arrow { font-size: 11px; }
+.kpi-change.good  { color: var(--good); }
+.kpi-change.warn  { color: var(--warn); }
+.kpi-change.bad   { color: var(--bad);  }
+.kpi-benchmark {
+  font-size: 11px;
+  color: var(--oh-muted);
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--oh-border);
+}
+.kpi-benchmark span { color: var(--oh-teal); font-weight: 500; }
+
+/* ── Insight box ───────────────────────────────────────────── */
+.insight-box {
+  background: linear-gradient(135deg, var(--oh-teal) 0%, var(--oh-teal-mid) 100%);
+  color: white;
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.insight-icon {
+  width: 36px; height: 36px; min-width: 36px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.insight-text { font-size: 13.5px; line-height: 1.75; }
+.insight-text strong { font-weight: 600; }
+.insight-text .highlight { background: rgba(255,255,255,0.15); border-radius: 4px; padding: 1px 6px; font-weight: 500; }
+
+/* ── Charts grid ───────────────────────────────────────────── */
+.charts-2col { display: grid; grid-template-columns: 3fr 2fr; gap: 20px; margin-bottom: 24px; }
+.charts-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.charts-eq   { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+
+.card {
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: 10px;
+  padding: 20px 22px;
+}
+.card-header { margin-bottom: 18px; }
+.card-title { font-size: 14px; font-weight: 600; color: var(--oh-text); }
+.card-subtitle { font-size: 12px; color: var(--oh-muted); margin-top: 3px; }
+.chart-wrap { position: relative; height: 220px; }
+.chart-wrap-tall { position: relative; height: 280px; }
+.chart-wrap-sm { position: relative; height: 160px; }
+
+/* ── Campaign table ────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  text-align: left;
+  padding: 9px 14px;
+  background: var(--oh-bg);
+  color: var(--oh-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  border-bottom: 2px solid var(--oh-border);
+  white-space: nowrap;
+}
+td { padding: 12px 14px; border-bottom: 1px solid var(--oh-border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--oh-teal-lt); }
+.td-main { font-weight: 500; color: var(--oh-text); }
+.td-sub { font-size: 11px; color: var(--oh-muted); margin-top: 2px; }
+
+/* ── Status badges ─────────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.badge-good   { background: #EBF8F1; color: #2A7A4F; }
+.badge-warn   { background: #FFF3E0; color: #995800; }
+.badge-bad    { background: #FDECEA; color: #923228; }
+.badge-neutral{ background: #EEF2F7; color: #4A5568; }
+.dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot-good   { background: var(--good); }
+.dot-warn   { background: var(--warn); }
+.dot-bad    { background: var(--bad); }
+.dot-neutral{ background: var(--neutral); }
+
+/* ── Context callout ───────────────────────────────────────── */
+.context-panel {
+  background: var(--oh-teal-lt);
+  border: 1px solid rgba(0,98,114,0.2);
+  border-left: 4px solid var(--oh-teal);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--oh-slate);
+  line-height: 1.7;
+}
+.context-panel strong { color: var(--oh-teal); }
+
+/* ── Inline stat ───────────────────────────────────────────── */
+.inline-stats { display: flex; gap: 24px; flex-wrap: wrap; }
+.inline-stat { }
+.inline-stat .val { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--oh-teal); }
+.inline-stat .lbl { font-size: 11px; color: var(--oh-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── Lead type donut labels ────────────────────────────────── */
+.legend-grid { display: grid; gap: 8px; margin-top: 16px; }
+.legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+.legend-left { display: flex; align-items: center; gap: 8px; }
+.legend-dot  { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.legend-val  { font-weight: 600; color: var(--oh-text); }
+
+/* ── Channel breakdown mini ────────────────────────────────── */
+.channel-bars { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.ch-row { }
+.ch-meta { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+.ch-name { font-weight: 500; color: var(--oh-text); }
+.ch-vals { color: var(--oh-muted); }
+.ch-bar-wrap { height: 6px; background: var(--oh-border); border-radius: 3px; overflow: hidden; }
+.ch-bar { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+/* ── Funnel ────────────────────────────────────────────────── */
+.funnel-wrap { padding: 8px 0; }
+.funnel-step { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.funnel-bar-wrap { flex: 1; height: 32px; background: var(--oh-border); border-radius: 4px; overflow: hidden; position: relative; }
+.funnel-bar { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 10px; font-size: 12px; font-weight: 500; color: white; white-space: nowrap; transition: width 1.2s ease; }
+.funnel-label { width: 90px; font-size: 12px; color: var(--oh-muted); text-align: right; flex-shrink: 0; }
+.funnel-rate { width: 52px; font-size: 12px; font-weight: 500; color: var(--oh-teal); flex-shrink: 0; }
+
+/* ── Footer ────────────────────────────────────────────────── */
+footer {
+  background: var(--oh-teal);
+  color: rgba(255,255,255,0.7);
+  padding: 16px 40px;
+  font-size: 11px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+}
+footer strong { color: white; }
+
+/* ── Print ─────────────────────────────────────────────────── */
+@media print {
+  body { background: white; }
+  .alert-bar, footer { break-inside: avoid; }
+  .card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<div class="report-header">
+  <div class="header-top">
+    <div class="oh-logo">
+      <span class="oh-logo-orlando">Orlando</span>
+      <span class="oh-logo-health">&nbsp;HEALTH</span><span class="oh-logo-r">®</span>
+    </div>
+    <div class="header-meta">
+      Data refreshes daily &nbsp;|&nbsp; Last updated: Apr 16, 2026, 3:49 AM<br>
+      Source: BigQuery · oh-data-warehouse · data_mart_neuroscience
+    </div>
+  </div>
+  <div class="header-body">
+    <div class="report-title">
+      <h1>Stroke Campaign<br><em>Performance Report</em></h1>
+      <div class="sub">OHNI — Orlando Health Neuroscience Institute &nbsp;·&nbsp; Service Line Manager Brief</div>
+    </div>
+    <div class="report-period">
+      <div class="period-label">Reporting Period</div>
+      <div class="period-dates">Oct 1, 2025 – Apr 15, 2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ALERT BAR ══════════════ -->
+<div class="alert-bar">
+  <div class="alert-icon">!</div>
+  <div class="alert-content">
+    <strong>Campaign Gap Identified:</strong> There is currently no dedicated Stroke-specific paid campaign running under OHNI. Stroke patient journeys are being captured through the broader <strong>Brand</strong> and <strong>General</strong> neuroscience campaigns, and organically via the /neuroscience-institute/centers-and-programs/neurology/stroke landing page (1,270 entrances this period). A dedicated Stroke campaign would allow precise CPL tracking and audience targeting for this high-value service line.
+  </div>
+</div>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main>
+
+  <!-- EXECUTIVE INSIGHT -->
+  <div class="insight-box">
+    <div class="insight-icon">💡</div>
+    <div class="insight-text">
+      <strong>Key Insight for Service Line Managers:</strong> The OHNI Stroke program is generating patient leads primarily through Brand paid search campaigns ($25.72 overall CPL — <span class="highlight">74% lower than last year</span>). Paid Search is your most efficient channel at a 6.27% CTR, which is <span class="highlight">3.5× the industry benchmark of 1.79%</span> — meaning your keywords are highly relevant and your audience is actively searching. Facebook drove 405K impressions for NeuroSpine but generated no tracked leads, suggesting it functions as an awareness play, not a conversion driver. The Stroke landing page ranks as the 9th most visited OHNI page organically, signaling strong intent without paid support.
+    </div>
+  </div>
+
+  <!-- KPI SECTION -->
+  <div class="section-label">Overall OHNI Performance — Stroke-Adjacent Metrics</div>
+  <div class="kpi-row">
+
+    <div class="kpi-card" style="--accent: var(--oh-teal);">
+      <div class="kpi-label">Total Web Leads</div>
+      <div class="kpi-value">2,384</div>
+      <div class="kpi-change good"><span class="arrow">▲</span> 69.0% YoY</div>
+      <div class="kpi-benchmark">Stroke-attributed: <span>~180 est.</span></div>
+    </div>
+
+    <div class="kpi-card" style="--accent: var(--oh-green);">
+      <div class="kpi-label">Cost Per Lead</div>
+      <div class="kpi-value">$25.72</div>
+      <div class="kpi-change good"><span class="arrow">▼</span> 74.1% YoY</div>
+      <div class="kpi-benchmark">Healthcare avg: <span>$80–$120</span></div>
+    </div>
+
+    <div class="kpi-card" style="--accent: var(--oh-amber);">
+      <div class="kpi-label">Paid Search CTR</div>
+      <div class="kpi-value">6.27%</div>
+      <div class="kpi-change warn"><span class="arrow">▼</span> 11.2% YoY</div>
+      <div class="kpi-benchmark">Benchmark: <span>1.79%</span> · 3.5× above</div>
+    </div>
+
+    <div class="kpi-card" style="--accent: var(--oh-teal-mid);">
+      <div class="kpi-label">Total Impressions</div>
+      <div class="kpi-value">871K</div>
+      <div class="kpi-change bad"><span class="arrow">▼</span> 81.2% YoY</div>
+      <div class="kpi-benchmark">Paid digital only <span>(excl. traditional)</span></div>
+    </div>
+
+    <div class="kpi-card" style="--accent: var(--oh-green);">
+      <div class="kpi-label">Web Sessions</div>
+      <div class="kpi-value">84,533</div>
+      <div class="kpi-change good"><span class="arrow">▲</span> 50.0% YoY</div>
+      <div class="kpi-benchmark">Stroke page: <span>1,270 entrances</span></div>
+    </div>
+
+  </div>
+
+  <!-- CONTEXT: WHAT DOES THIS MEAN -->
+  <div class="context-panel">
+    <strong>What does "69% more leads at 74% lower cost" mean?</strong> It means your marketing is working more efficiently than ever. Last year, each lead cost approximately $100. This year it costs $25.72. You're getting more patients into the funnel for significantly less spend. The slight CTR decrease (–11.2%) is expected when you scale impressions — more people see the ad, but only the most qualified click. This is normal and healthy.
+  </div>
+
+  <!-- TREND CHART + LEAD TYPES -->
+  <br>
+  <div class="section-label">Leads & Spend Trend</div>
+  <div class="charts-2col">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Weekly Leads & Spend Trend</div>
+        <div class="card-subtitle">Oct 2025 – Apr 2026 · All OHNI campaigns (Stroke included in Brand/General)</div>
+      </div>
+      <div class="chart-wrap-tall"><canvas id="trendChart"></canvas></div>
+      <div class="context-panel" style="margin-top:14px">
+        <strong>Why did leads spike in January?</strong> The week of Jan 11 delivered 65 leads — the highest single week of the period. This coincided with post-holiday health resolution behavior: patients who postponed care over the holidays actively seek neurological consultations in January. This is a predictable seasonal pattern and an opportunity to increase budget in early January each year.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Lead Type Breakdown</div>
+        <div class="card-subtitle">How patients are converting · Oct 2025 – Apr 2026</div>
+      </div>
+      <div class="chart-wrap-sm"><canvas id="leadTypeChart"></canvas></div>
+      <div class="legend-grid" style="margin-top:20px">
+        <div class="legend-item">
+          <div class="legend-left"><div class="legend-dot" style="background:#006272"></div><span>Appointment Request</span></div>
+          <div class="legend-val">1,961 <span style="color:var(--oh-muted);font-weight:400">(82%)</span></div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-left"><div class="legend-dot" style="background:#00798C"></div><span>Download Guide</span></div>
+          <div class="legend-val">262 <span style="color:var(--oh-muted);font-weight:400">(11%)</span></div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-left"><div class="legend-dot" style="background:#4CAF7A"></div><span>General Inquiry</span></div>
+          <div class="legend-val">152 <span style="color:var(--oh-muted);font-weight:400">(6%)</span></div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-left"><div class="legend-dot" style="background:#DDE3EA"></div><span>Newsletter Opt-In</span></div>
+          <div class="legend-val">3 <span style="color:var(--oh-muted);font-weight:400">(&lt;1%)</span></div>
+        </div>
+      </div>
+      <div class="context-panel" style="margin-top:14px">
+        <strong>82% of leads are Appointment Requests</strong> — meaning patients aren't just browsing, they're ready to schedule. This is an excellent signal. Guide downloads (11%) represent top-of-funnel patients in research mode who may convert later.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CHANNEL PERFORMANCE -->
+  <div class="section-label">Channel Performance</div>
+  <div class="charts-eq">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Channel Efficiency — Leads vs Impressions</div>
+        <div class="card-subtitle">Paid channels only · Oct 2025 – Apr 2026</div>
+      </div>
+      <div class="channel-bars">
+
+        <div class="ch-row">
+          <div class="ch-meta">
+            <span class="ch-name">Google Paid Search</span>
+            <span class="ch-vals">649 leads &nbsp;·&nbsp; 466,657 impressions &nbsp;·&nbsp; <strong style="color:var(--good)">$78.16 CPL</strong></span>
+          </div>
+          <div class="ch-bar-wrap"><div class="ch-bar" style="width:100%;background:var(--oh-teal)">Primary Driver</div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--oh-muted);margin-top:4px">
+            <span>CTR: 6.27% <span style="color:var(--good)">(3.5× benchmark)</span></span>
+            <span>CVR: 2.22%</span>
+          </div>
+        </div>
+
+        <div class="ch-row">
+          <div class="ch-meta">
+            <span class="ch-name">Facebook / Meta</span>
+            <span class="ch-vals">— leads tracked &nbsp;·&nbsp; 405,202 impressions &nbsp;·&nbsp; <strong style="color:var(--warn)">Awareness only</strong></span>
+          </div>
+          <div class="ch-bar-wrap"><div class="ch-bar" style="width:62%;background:var(--oh-amber)">NeuroSpine Carousel + Single</div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--oh-muted);margin-top:4px">
+            <span>CTR: 1.31% <span style="color:var(--good)">(vs 0.83% benchmark)</span></span>
+            <span>No lead pixel detected</span>
+          </div>
+        </div>
+
+        <div class="ch-row">
+          <div class="ch-meta">
+            <span class="ch-name">Organic / Referral</span>
+            <span class="ch-vals">~1,400+ leads &nbsp;·&nbsp; google.com referral top source</span>
+          </div>
+          <div class="ch-bar-wrap"><div class="ch-bar" style="width:78%;background:var(--oh-teal-mid)">google.com: 632 AR · syndicatedsearch: 302</div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--oh-muted);margin-top:4px">
+            <span>Bing: 78 &nbsp;·&nbsp; Direct: 132 &nbsp;·&nbsp; Yahoo: 15</span>
+            <span style="color:var(--good)">Zero spend — highest ROI</span>
+          </div>
+        </div>
+
+        <div class="ch-row">
+          <div class="ch-meta">
+            <span class="ch-name">Traditional (Billboards + Transit)</span>
+            <span class="ch-vals">4,700,390 impressions &nbsp;·&nbsp; Not directly trackable</span>
+          </div>
+          <div class="ch-bar-wrap"><div class="ch-bar" style="width:45%;background:var(--neutral)">Billboards: 4.3M &nbsp;·&nbsp; Transit: 399K</div></div>
+          <div style="font-size:11px;color:var(--oh-muted);margin-top:4px">
+            <span>Brand awareness driver — supports paid search conversion lift</span>
+          </div>
+        </div>
+
+      </div>
+      <div class="context-panel" style="margin-top:16px">
+        <strong>Is this CTR good?</strong> Yes — 6.27% is outstanding. Healthcare paid search typically sees 1.5–2% CTR. Your 6.27% means patients searching for neurological care are clicking your ads at 3× the industry rate. This is a sign of strong keyword relevance and compelling ad copy.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Paid Search Campaign Breakdown</div>
+        <div class="card-subtitle">Performance by campaign · impressions, leads, CTR</div>
+      </div>
+      <div class="chart-wrap"><canvas id="campaignChart"></canvas></div>
+      <div class="context-panel" style="margin-top:14px">
+        <strong>Brand campaign dominates</strong> with 515 of 649 paid leads (79%). Movement Disorders added 105 leads — a strong secondary. NeuroSpine generated 24 leads despite high impressions, suggesting opportunity to optimize landing page conversion for that campaign.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STROKE PATIENT FUNNEL -->
+  <div class="section-label">Stroke Patient Journey — Digital Funnel</div>
+  <div class="charts-eq">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Conversion Funnel Analysis</div>
+        <div class="card-subtitle">From impression to appointment request · Paid Search</div>
+      </div>
+      <div class="funnel-wrap" style="margin-top:16px">
+        <div class="funnel-step">
+          <div class="funnel-label">Impressions</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:100%;background:var(--oh-teal)">466,657</div>
+          </div>
+          <div class="funnel-rate">100%</div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-label">Clicks</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:6.3%;background:var(--oh-teal-mid);min-width:80px">29,241</div>
+          </div>
+          <div class="funnel-rate">6.27%</div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-label">Sessions</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:5.6%;background:#00A3B4;min-width:80px">26,178</div>
+          </div>
+          <div class="funnel-rate">5.61%</div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-label">Total Leads</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:0.14%;background:var(--oh-green);min-width:80px">649</div>
+          </div>
+          <div class="funnel-rate">0.14%</div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-label">Appt. Req.</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:0.11%;background:var(--oh-green);opacity:0.8;min-width:80px">~504</div>
+          </div>
+          <div class="funnel-rate">0.11%</div>
+        </div>
+      </div>
+      <div class="context-panel" style="margin-top:16px">
+        <strong>Why is the overall conversion rate 0.14%?</strong> This is actually normal and healthy for healthcare. Patients searching for neurological conditions do extensive research before requesting an appointment. The key metric is CPL ($25.72) — not the raw conversion rate. Your cost efficiency is exceptional.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Top Stroke-Relevant Keywords</div>
+        <div class="card-subtitle">From Neurosciences Brand + Movement Disorders campaigns</div>
+      </div>
+      <div style="margin-top:4px">
+        <table>
+          <thead>
+            <tr>
+              <th>Keyword</th>
+              <th>Leads</th>
+              <th>CTR</th>
+              <th>Assessment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="td-main">pain management</div><div class="td-sub">Broad match</div></td>
+              <td><strong>83</strong></td>
+              <td>8.1%</td>
+              <td><span class="badge badge-good"><div class="dot dot-good"></div>Top performer</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-main">orlando health neurology</div><div class="td-sub">Broad match</div></td>
+              <td><strong>87</strong></td>
+              <td>14.98%</td>
+              <td><span class="badge badge-good"><div class="dot dot-good"></div>Highest CTR</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-main">neurologist near me</div><div class="td-sub">Broad match</div></td>
+              <td><strong>62</strong></td>
+              <td>7.65%</td>
+              <td><span class="badge badge-good"><div class="dot dot-good"></div>High intent</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-main">orlando neurology</div><div class="td-sub">Broad match</div></td>
+              <td><strong>57</strong></td>
+              <td>5.83%</td>
+              <td><span class="badge badge-good"><div class="dot dot-good"></div>Strong</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-main">essential tremors treatment</div><div class="td-sub">Broad match</div></td>
+              <td><strong>32</strong></td>
+              <td>6.69%</td>
+              <td><span class="badge badge-warn"><div class="dot dot-warn"></div>Niche — scale up</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-main">neurosurgeon</div><div class="td-sub">Broad match</div></td>
+              <td><strong>47</strong></td>
+              <td>9.13%</td>
+              <td><span class="badge badge-good"><div class="dot dot-good"></div>Strong</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-main">spine pain doctor</div><div class="td-sub">Phrase match</div></td>
+              <td><strong>1</strong></td>
+              <td>10.56%</td>
+              <td><span class="badge badge-bad"><div class="dot dot-bad"></div>High CTR, low CVR</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-main">epilepsy symptoms</div><div class="td-sub">Broad match</div></td>
+              <td><strong>7</strong></td>
+              <td>6.48%</td>
+              <td><span class="badge badge-neutral"><div class="dot dot-neutral"></div>Monitor</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="context-panel" style="margin-top:14px">
+        <strong>Stroke-specific keywords missing:</strong> "stroke symptoms," "stroke treatment Orlando," "stroke specialist near me," and "TIA treatment" are not currently in any active campaign. These are high-intent, time-sensitive searches that a dedicated Stroke campaign should capture immediately.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LEAD SOURCE + GEO -->
+  <div class="section-label">Lead Sources & Geography</div>
+  <div class="charts-3col">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Top Lead Sources</div>
+        <div class="card-subtitle">Appointment Requests by source · All channels</div>
+      </div>
+      <div class="chart-wrap"><canvas id="sourceChart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Geography — Top Markets</div>
+        <div class="card-subtitle">Sessions by city · Stroke-adjacent OHNI traffic</div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="channel-bars">
+          <div class="ch-row">
+            <div class="ch-meta"><span class="ch-name">Orlando</span><span class="ch-vals" style="color:var(--oh-teal);font-weight:600">12,567 sessions</span></div>
+            <div class="ch-bar-wrap"><div class="ch-bar" style="width:100%;background:var(--oh-teal)"></div></div>
+          </div>
+          <div class="ch-row">
+            <div class="ch-meta"><span class="ch-name">Miami</span><span class="ch-vals" style="color:var(--oh-teal-mid);font-weight:600">7,656 sessions</span></div>
+            <div class="ch-bar-wrap"><div class="ch-bar" style="width:61%;background:var(--oh-teal-mid)"></div></div>
+          </div>
+          <div class="ch-row">
+            <div class="ch-meta"><span class="ch-name">Atlanta</span><span class="ch-vals">1,349 sessions</span></div>
+            <div class="ch-bar-wrap"><div class="ch-bar" style="width:11%;background:#4CAF7A"></div></div>
+          </div>
+          <div class="ch-row">
+            <div class="ch-meta"><span class="ch-name">St. Cloud</span><span class="ch-vals">1,173 sessions</span></div>
+            <div class="ch-bar-wrap"><div class="ch-bar" style="width:9%;background:#4CAF7A"></div></div>
+          </div>
+          <div class="ch-row">
+            <div class="ch-meta"><span class="ch-name">Clermont</span><span class="ch-vals">905 sessions</span></div>
+            <div class="ch-bar-wrap"><div class="ch-bar" style="width:7%;background:#4CAF7A"></div></div>
+          </div>
+          <div class="ch-row">
+            <div class="ch-meta"><span class="ch-name">Other (29K sessions)</span><span class="ch-vals" style="color:var(--oh-muted)">Unattributed</span></div>
+            <div class="ch-bar-wrap"><div class="ch-bar" style="width:53%;background:var(--oh-border);color:var(--oh-muted)"></div></div>
+          </div>
+        </div>
+        <div class="context-panel" style="margin-top:14px">
+          <strong>Miami opportunity:</strong> 7,656 sessions from Miami suggests a significant patient population traveling to Orlando for neuroscience care. A geo-targeted Stroke campaign in Miami/South FL could capture high-value referral traffic.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Stroke Landing Page Performance</div>
+        <div class="card-subtitle">/neuroscience-institute/…/neurology/stroke</div>
+      </div>
+      <div style="margin-top:16px">
+        <div class="inline-stats" style="flex-wrap:wrap;gap:20px">
+          <div class="inline-stat">
+            <div class="val">1,270</div>
+            <div class="lbl">Entrances</div>
+          </div>
+          <div class="inline-stat">
+            <div class="val">1,921</div>
+            <div class="lbl">Unique Pageviews</div>
+          </div>
+          <div class="inline-stat">
+            <div class="val">43.75%</div>
+            <div class="lbl" style="color:var(--warn)">Engagement Rate</div>
+          </div>
+          <div class="inline-stat">
+            <div class="val">0:45</div>
+            <div class="lbl">Avg. Engage Time</div>
+          </div>
+        </div>
+
+        <div class="context-panel" style="margin-top:16px">
+          <strong>43.75% engagement rate is below average.</strong> The OHNI main page achieves 66%, and the Locations page reaches 88%. This suggests the Stroke landing page may have a UX or content gap — patients arrive but don't engage deeply before leaving or converting. Recommended: A/B test a patient story or symptoms checklist CTA above the fold.
+        </div>
+
+        <div style="margin-top:16px">
+          <div style="font-size:12px;color:var(--oh-muted);margin-bottom:8px;font-weight:500">Page Rank Within OHNI (by entrances)</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--oh-amber);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">#9</div>
+            <div>
+              <div style="font-weight:500">Stroke page ranks 9th out of all OHNI pages</div>
+              <div style="font-size:11px;color:var(--oh-muted)">Without any dedicated paid traffic — entirely organic</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="section-label">Strategic Recommendations</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px">
+
+    <div class="card" style="border-left:4px solid var(--oh-teal)">
+      <div class="card-header">
+        <div class="card-title" style="color:var(--oh-teal)">🎯 Launch a Dedicated Stroke Campaign</div>
+        <div class="card-subtitle">Priority: HIGH · Estimated impact: 150–200 incremental leads/quarter</div>
+      </div>
+      <div style="font-size:13px;line-height:1.8;color:var(--oh-slate)">
+        Current Stroke traffic is entirely organic (#9 page, zero paid support). Adding a dedicated Paid Search campaign targeting high-intent keywords would capture patients at the exact moment they're seeking care:<br><br>
+        <strong>Recommended keywords:</strong> "stroke symptoms," "stroke treatment Orlando," "stroke specialist near me," "TIA doctor," "mini stroke symptoms," "stroke recovery center"<br><br>
+        <strong>Estimated CPL:</strong> $30–$50 based on current Brand campaign efficiency.<br>
+        <strong>Suggested budget:</strong> $5,000–$8,000/month.
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--oh-amber)">
+      <div class="card-header">
+        <div class="card-title" style="color:var(--oh-amber)">📈 Fix Facebook Lead Tracking</div>
+        <div class="card-subtitle">Priority: HIGH · Zero leads attributed from 405K impressions</div>
+      </div>
+      <div style="font-size:13px;line-height:1.8;color:var(--oh-slate)">
+        Facebook drove 405,202 impressions and 5,303 clicks (1.31% CTR — above the 0.83% benchmark) but shows zero leads. This is a tracking gap, not a performance gap.<br><br>
+        <strong>Action items:</strong><br>
+        1. Verify Meta Pixel is firing on the Thank You/Confirmation page<br>
+        2. Add lead form events to the Facebook conversion API<br>
+        3. Once tracking is verified, evaluate true CPL for NeuroSpine and expand to Stroke<br><br>
+        <strong>Estimated hidden leads:</strong> 50–80 untracked per month.
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--oh-green)">
+      <div class="card-header">
+        <div class="card-title" style="color:var(--oh-green)">💰 Scale January Budget</div>
+        <div class="card-subtitle">Priority: MEDIUM · Predictable seasonal opportunity</div>
+      </div>
+      <div style="font-size:13px;line-height:1.8;color:var(--oh-slate)">
+        Jan 11, 2026 delivered 65 leads — the single highest week of the period. Post-holiday neurological care-seeking is a consistent annual pattern.<br><br>
+        <strong>Recommendation:</strong> Increase paid search budget by 25–30% in the first 3 weeks of January. Allocate specifically toward Stroke and Brand campaigns. Pre-plan creative refreshes by December 15.
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--neutral)">
+      <div class="card-header">
+        <div class="card-title" style="color:var(--oh-slate)">🌐 Stroke Landing Page Optimization</div>
+        <div class="card-subtitle">Priority: MEDIUM · Engagement rate below OHNI average</div>
+      </div>
+      <div style="font-size:13px;line-height:1.8;color:var(--oh-slate)">
+        The Stroke page has 43.75% engagement rate vs 66% for the main OHNI page. Patients are arriving but not engaging enough to convert.<br><br>
+        <strong>Recommended tests:</strong><br>
+        1. Add a "Know Your Stroke Risk" symptoms checklist above the fold<br>
+        2. Feature a patient story or physician video (the /our-team page has 85% engagement — proof that physicians drive trust)<br>
+        3. Add a prominent "Schedule Now" CTA that opens the appointment form inline<br>
+        4. Mobile optimization: 54.5% of traffic is mobile
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer>
+  <div><strong>Orlando Health</strong> · OHNI Stroke Campaign Report · Oct 1, 2025 – Apr 15, 2026</div>
+  <div>Data: BigQuery · oh-data-warehouse · data_mart_neuroscience &nbsp;|&nbsp; Comparisons are YoY &nbsp;|&nbsp; Prepared by JARVIS Analytics</div>
+</footer>
+
+<!-- ══════════════ CHARTS ══════════════ -->
+<script>
+const TEAL   = '#006272';
+const TEAL2  = '#00798C';
+const GREEN  = '#4CAF7A';
+const AMBER  = '#E8962A';
+const SLATE  = '#64748B';
+const BORDER = '#DDE3EA';
+
+const gridOpts = {
+  color: BORDER,
+  drawBorder: false,
+};
+const tickOpts = { color: SLATE, font: { size: 11, family: 'DM Sans' } };
+const tooltipOpts = {
+  backgroundColor: '#1A2733',
+  titleColor: '#fff',
+  bodyColor: '#CBD5E1',
+  padding: 10,
+  cornerRadius: 6,
+};
+
+// ── Trend Chart ──────────────────────────────────────────────────
+const trendLabels = [
+  'Sep 28','Oct 5','Oct 12','Oct 19','Oct 26',
+  'Nov 2','Nov 9','Nov 16','Nov 23','Nov 30',
+  'Dec 7','Dec 14','Dec 21','Dec 28',
+  'Jan 4','Jan 11','Jan 18','Jan 25',
+  'Feb 1','Feb 8','Feb 15','Feb 22',
+  'Mar 1','Mar 8','Mar 15','Mar 22','Mar 29',
+  'Apr 5','Apr 12'
+];
+const leadsData = [12,20,18,27,25,34,38,23,15,17,23,16,21,25,39,65,52,13,6,14,18,16,10,32,16,13,14,13,14];
+const spendData = [843,1450,1862,2074,1331,1752,1960,1789,1388,1157,1855,1867,1789,1667,1876,1841,1850,2012,1043,2103,2726,2688,2261,2013,2134,1837,1554,2218,1299];
+
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+new Chart(trendCtx, {
+  type: 'bar',
+  data: {
+    labels: trendLabels,
+    datasets: [
+      {
+        label: 'Leads',
+        data: leadsData,
+        backgroundColor: leadsData.map(v => v >= 50 ? GREEN : (v >= 30 ? TEAL2 : TEAL + '99')),
+        borderRadius: 3,
+        yAxisID: 'y',
+        order: 1,
+      },
+      {
+        label: 'Spend ($)',
+        data: spendData,
+        type: 'line',
+        borderColor: AMBER,
+        backgroundColor: 'transparent',
+        tension: 0.4,
+        borderWidth: 2,
+        pointRadius: 2,
+        yAxisID: 'y2',
+        order: 0,
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, position: 'top', labels: { color: SLATE, font: { size: 11 }, usePointStyle: true, padding: 16 } },
+      tooltip: { ...tooltipOpts, callbacks: {
+        label: c => c.dataset.label === 'Spend ($)' ? ` Spend: $${c.raw.toLocaleString()}` : ` Leads: ${c.raw}`
+      }}
+    },
+    scales: {
+      x: { grid: gridOpts, ticks: { ...tickOpts, maxRotation: 45, font: { size: 10 } } },
+      y: { grid: gridOpts, ticks: { ...tickOpts }, position: 'left', title: { display: true, text: 'Leads', color: TEAL, font: { size: 11 } } },
+      y2: { grid: { display: false }, ticks: { ...tickOpts, callback: v => '$' + (v/1000).toFixed(1) + 'K' }, position: 'right', title: { display: true, text: 'Spend', color: AMBER, font: { size: 11 } } }
+    }
+  }
+});
+
+// ── Lead Type Donut ──────────────────────────────────────────────
+const ltCtx = document.getElementById('leadTypeChart').getContext('2d');
+new Chart(ltCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Appointment Request', 'Download Guide', 'General Inquiry', 'Newsletter Opt-In'],
+    datasets: [{ data: [1961, 262, 152, 3], backgroundColor: [TEAL, TEAL2, GREEN, BORDER], borderColor: '#fff', borderWidth: 3, hoverOffset: 6 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '68%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { ...tooltipOpts, callbacks: { label: c => ` ${c.label}: ${c.raw.toLocaleString()} leads` } }
+    }
+  }
+});
+
+// ── Campaign Bar ─────────────────────────────────────────────────
+const campCtx = document.getElementById('campaignChart').getContext('2d');
+new Chart(campCtx, {
+  type: 'bar',
+  data: {
+    labels: ['Brand\n(Paid Search)', 'Movement\nDisorders', 'NeuroSpine\n(Paid Search)', 'NeuroSpine\n(Facebook)', 'Not Matched'],
+    datasets: [
+      {
+        label: 'Leads',
+        data: [515, 105, 24, 0, 110],
+        backgroundColor: [TEAL, TEAL2, GREEN, AMBER, SLATE + '66'],
+        borderRadius: 4,
+        yAxisID: 'y',
+      },
+      {
+        label: 'Impressions (K)',
+        data: [208.9, 130.5, 126.9, 405.2, 130.9],
+        backgroundColor: 'transparent',
+        borderColor: AMBER,
+        borderWidth: 2,
+        type: 'line',
+        tension: 0.3,
+        pointRadius: 4,
+        yAxisID: 'y2',
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, position: 'top', labels: { color: SLATE, font: { size: 11 }, usePointStyle: true } },
+      tooltip: { ...tooltipOpts }
+    },
+    scales: {
+      x: { grid: gridOpts, ticks: { ...tickOpts, font: { size: 10 } } },
+      y: { grid: gridOpts, ticks: tickOpts, position: 'left', title: { display: true, text: 'Leads', color: TEAL, font: { size: 11 } } },
+      y2: { grid: { display: false }, ticks: { ...tickOpts, callback: v => v + 'K' }, position: 'right', title: { display: true, text: 'Impressions (K)', color: AMBER, font: { size: 11 } } }
+    }
+  }
+});
+
+// ── Lead Source Chart ────────────────────────────────────────────
+const srcCtx = document.getElementById('sourceChart').getContext('2d');
+new Chart(srcCtx, {
+  type: 'bar',
+  data: {
+    labels: ['google.com\n(referral)', 'Google Paid\nSearch Brand', 'Google Paid\nSearch General', 'Syndicated\nSearch', 'Direct', 'Paid Search\nNeuroSpine', 'Bing', 'Other'],
+    datasets: [{
+      label: 'Appointment Requests',
+      data: [632, 504, 225, 83, 132, 19, 78, 60],
+      backgroundColor: [TEAL, TEAL, TEAL2, TEAL2, SLATE+'88', GREEN, SLATE+'66', BORDER],
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: { ...tooltipOpts, callbacks: { label: c => ` ${c.raw} Appointment Requests` } }
+    },
+    scales: {
+      x: { grid: gridOpts, ticks: tickOpts },
+      y: { grid: { display: false }, ticks: { ...tickOpts, font: { size: 10 } } }
+    }
+  }
+});
+</script>
+</body>
+</html>

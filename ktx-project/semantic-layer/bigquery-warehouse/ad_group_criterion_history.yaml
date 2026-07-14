@@ -1,0 +1,419 @@
+name: ad_group_criterion_history
+descriptions:
+  user: Historical snapshots of Google Ads ad group criteria including keywords, audiences, placements, and bidding settings over time.
+table: oh-data-warehouse.adwords_orlando_health.ad_group_criterion_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier of the ad group this criterion belongs to.
+- name: id
+  type: number
+  descriptions:
+    ai: Unique identifier for the ad group criterion.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when this criterion record was last updated.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record.
+  role: time
+- name: ad_group_criterion_type
+  type: string
+  descriptions:
+    ai: Whether criterion is biddable or negative targeting.
+- name: age_range_type
+  type: string
+  descriptions:
+    ai: Age range demographic targeting segment.
+- name: app_id
+  type: string
+  descriptions:
+    ai: App store identifier for app-based targeting criteria.
+- name: app_payment_model_type
+  type: string
+  descriptions:
+    ai: Payment model type for app targeting (free or paid).
+- name: approval_status
+  type: string
+  descriptions:
+    ai: Google's editorial approval status for this criterion.
+- name: base_adgroup_id
+  type: number
+  descriptions:
+    ai: Original ad group ID for draft or experiment ad groups.
+- name: base_campaign_id
+  type: number
+  descriptions:
+    ai: Original campaign ID for draft or experiment campaigns.
+- name: bid_modifier
+  type: number
+  descriptions:
+    ai: Multiplier adjusting bids for this criterion.
+- name: bidding_strategy_bid_ceiling
+  type: number
+  descriptions:
+    ai: Maximum bid cap allowed by the bidding strategy.
+- name: bidding_strategy_bid_changes_for_raises_only
+  type: boolean
+  descriptions:
+    ai: Restricts automated bid changes to increases only.
+- name: bidding_strategy_bid_floor
+  type: number
+  descriptions:
+    ai: Minimum bid floor set by the bidding strategy.
+- name: bidding_strategy_bid_modifier
+  type: number
+  descriptions:
+    ai: Bid adjustment multiplier within the bidding strategy.
+- name: bidding_strategy_competitor_domain
+  type: string
+  descriptions:
+    ai: Competitor domain targeted for outranking share strategy.
+- name: bidding_strategy_cpa_bid_amount
+  type: number
+  descriptions:
+    ai: Target cost-per-acquisition bid amount in micros.
+- name: bidding_strategy_cpc_bid_amount
+  type: number
+  descriptions:
+    ai: Cost-per-click bid amount in micros.
+- name: bidding_strategy_cpm_bid_amount
+  type: number
+  descriptions:
+    ai: Cost-per-thousand-impressions bid amount in micros.
+- name: bidding_strategy_enhanced_cpc_enabled
+  type: boolean
+  descriptions:
+    ai: Whether enhanced CPC bid optimization is enabled.
+- name: bidding_strategy_id
+  type: number
+  descriptions:
+    ai: Identifier of the shared portfolio bidding strategy.
+- name: bidding_strategy_max_cpc_bid_ceiling
+  type: number
+  descriptions:
+    ai: Maximum CPC ceiling within the bidding strategy.
+- name: bidding_strategy_max_cpc_bid_floor
+  type: number
+  descriptions:
+    ai: Minimum CPC floor within the bidding strategy.
+- name: bidding_strategy_name
+  type: string
+  descriptions:
+    ai: Name of the applied bidding strategy.
+- name: bidding_strategy_raise_bid_when_budget_constrained
+  type: boolean
+  descriptions:
+    ai: Raises bids automatically when campaign is budget-limited.
+- name: bidding_strategy_raise_bid_when_low_quality_score
+  type: boolean
+  descriptions:
+    ai: Raises bids automatically when quality score is low.
+- name: bidding_strategy_scheme_type
+  type: string
+  descriptions:
+    ai: Class name of the bidding scheme applied.
+- name: bidding_strategy_source
+  type: string
+  descriptions:
+    ai: Level where bidding strategy is set (campaign or ad group).
+- name: bidding_strategy_spend_target
+  type: number
+  descriptions:
+    ai: Target spend amount for the bidding strategy.
+- name: bidding_strategy_strategy_goal
+  type: string
+  descriptions:
+    ai: Optimization goal of the bidding strategy.
+- name: bidding_strategy_target_cpa
+  type: number
+  descriptions:
+    ai: Target CPA goal amount in micros.
+- name: bidding_strategy_target_outrank_share
+  type: number
+  descriptions:
+    ai: Target share of auctions to outrank a competitor.
+- name: bidding_strategy_target_roas
+  type: number
+  descriptions:
+    ai: Target return on ad spend ratio.
+- name: bidding_strategy_target_roas_override
+  type: number
+  descriptions:
+    ai: Criterion-level override for target ROAS.
+- name: bidding_strategy_type
+  type: string
+  descriptions:
+    ai: Type of bidding strategy such as MANUAL_CPC or TARGET_CPA.
+- name: bidding_strategy_viewable_cpm_enabled
+  type: boolean
+  descriptions:
+    ai: Whether viewable CPM bidding is enabled.
+- name: channel_exclusivity
+  type: string
+  descriptions:
+    ai: Restricts serving to a single channel or allows multiple.
+- name: channel_id
+  type: string
+  descriptions:
+    ai: Identifier for the YouTube or display channel targeted.
+- name: channel_name
+  type: string
+  descriptions:
+    ai: Name of the targeted YouTube or display channel.
+- name: criterion_use
+  type: string
+  descriptions:
+    ai: Whether criterion is used for bidding or exclusion (negative).
+- name: custom_affinity_id
+  type: number
+  descriptions:
+    ai: Identifier for a custom affinity audience segment.
+- name: custom_intent_id
+  type: number
+  descriptions:
+    ai: Identifier for a custom intent audience segment.
+- name: first_page_cpc
+  type: number
+  descriptions:
+    ai: Estimated CPC needed to appear on the first page.
+- name: first_position_cpc
+  type: number
+  descriptions:
+    ai: Estimated CPC needed to appear in the first position.
+- name: gender_type
+  type: string
+  descriptions:
+    ai: Gender demographic targeting segment.
+- name: income_range_type
+  type: string
+  descriptions:
+    ai: Household income range demographic targeting segment.
+- name: keyword_match_type
+  type: string
+  descriptions:
+    ai: 'Keyword matching type: EXACT, PHRASE, or BROAD.'
+- name: keyword_text
+  type: string
+  descriptions:
+    ai: The keyword text used for search targeting.
+- name: mobile_app_category_display_name
+  type: string
+  descriptions:
+    ai: Human-readable name of the mobile app category targeted.
+- name: mobile_app_category_id
+  type: number
+  descriptions:
+    ai: Identifier for the mobile app category targeted.
+- name: mobile_application_display_name
+  type: string
+  descriptions:
+    ai: Display name of the specific mobile application targeted.
+- name: parent_criterion_id
+  type: number
+  descriptions:
+    ai: Parent criterion ID for hierarchical product partition trees.
+- name: parent_type
+  type: string
+  descriptions:
+    ai: Type of the parent criterion in a hierarchy.
+- name: partition_type
+  type: string
+  descriptions:
+    ai: Whether product partition is a subdivision or unit.
+- name: placement_url
+  type: string
+  descriptions:
+    ai: URL of the website or app placement targeted.
+- name: product_adwords_grouping
+  type: string
+  descriptions:
+    ai: Custom grouping label assigned to products in AdWords.
+- name: product_adwords_label
+  type: string
+  descriptions:
+    ai: Custom label applied to products for AdWords targeting.
+- name: product_bidding_category_type
+  type: string
+  descriptions:
+    ai: Level of the Google product bidding category hierarchy.
+- name: product_bidding_category_value
+  type: number
+  descriptions:
+    ai: Numeric value of the product bidding category.
+- name: product_brand_value
+  type: string
+  descriptions:
+    ai: Brand name used for product targeting.
+- name: product_canonical_condition
+  type: string
+  descriptions:
+    ai: 'Standardized product condition: new, used, or refurbished.'
+- name: product_channel
+  type: string
+  descriptions:
+    ai: 'Sales channel for product targeting: online or local.'
+- name: product_custom_attribute_type
+  type: string
+  descriptions:
+    ai: Custom attribute slot type used for product segmentation.
+- name: product_custom_attribute_value
+  type: string
+  descriptions:
+    ai: Value of the custom product attribute for targeting.
+- name: product_legacy_condition
+  type: string
+  descriptions:
+    ai: Legacy condition value for product targeting.
+- name: product_offer_id
+  type: string
+  descriptions:
+    ai: Merchant-assigned offer ID for specific product targeting.
+- name: product_type
+  type: string
+  descriptions:
+    ai: Product type category used for Shopping targeting.
+- name: product_type_full
+  type: string
+  descriptions:
+    ai: Full hierarchical product type string.
+- name: product_type_value
+  type: string
+  descriptions:
+    ai: Specific product type value for targeting.
+- name: quality_info_score
+  type: number
+  descriptions:
+    ai: Quality score indicating ad relevance and landing page quality.
+- name: system_serving_status
+  type: string
+  descriptions:
+    ai: Google's system status indicating if criterion is eligible to serve.
+- name: top_of_page_cpc
+  type: number
+  descriptions:
+    ai: Estimated CPC needed to appear at the top of the page.
+- name: tracking_url_template
+  type: string
+  descriptions:
+    ai: URL template used for click tracking on this criterion.
+- name: user_interest_id
+  type: number
+  descriptions:
+    ai: Identifier for the user interest audience segment.
+- name: user_interest_name
+  type: string
+  descriptions:
+    ai: Name of the user interest audience segment.
+- name: user_interest_parent_id
+  type: number
+  descriptions:
+    ai: Parent category ID for the user interest segment.
+- name: user_list_eligible_for_display
+  type: boolean
+  descriptions:
+    ai: Whether the user list can be used for display targeting.
+- name: user_list_eligible_for_search
+  type: boolean
+  descriptions:
+    ai: Whether the user list can be used for search targeting.
+- name: user_list_id
+  type: number
+  descriptions:
+    ai: Identifier for the remarketing or customer match user list.
+- name: user_list_membership_status
+  type: string
+  descriptions:
+    ai: Whether users are currently open or closed for list membership.
+- name: user_list_name
+  type: string
+  descriptions:
+    ai: Name of the targeted user list audience.
+- name: user_status
+  type: string
+  descriptions:
+    ai: 'Advertiser-set status of the criterion: ENABLED or PAUSED.'
+- name: vertical_id
+  type: number
+  descriptions:
+    ai: Identifier for the content vertical category targeted.
+- name: vertical_parent_id
+  type: number
+  descriptions:
+    ai: Parent category ID for the content vertical.
+- name: vertical_path
+  type: string
+  descriptions:
+    ai: Full path of the content vertical hierarchy.
+- name: video_id
+  type: string
+  descriptions:
+    ai: Identifier for the specific YouTube video targeted.
+- name: video_name
+  type: string
+  descriptions:
+    ai: Name of the targeted YouTube video.
+measures:
+- name: total_bid_modifier
+  expr: SUM(bid_modifier)
+  description: Bid Modifier (sum of bid_modifier).
+- name: total_bidding_strategy_bid_ceiling
+  expr: SUM(bidding_strategy_bid_ceiling)
+  description: Bidding Strategy Bid Ceiling (sum of bidding_strategy_bid_ceiling).
+- name: total_bidding_strategy_bid_floor
+  expr: SUM(bidding_strategy_bid_floor)
+  description: Bidding Strategy Bid Floor (sum of bidding_strategy_bid_floor).
+- name: total_bidding_strategy_bid_modifier
+  expr: SUM(bidding_strategy_bid_modifier)
+  description: Bidding Strategy Bid Modifier (sum of bidding_strategy_bid_modifier).
+- name: total_bidding_strategy_cpa_bid_amount
+  expr: SUM(bidding_strategy_cpa_bid_amount)
+  description: Bidding Strategy Cpa Bid Amount (sum of bidding_strategy_cpa_bid_amount).
+- name: total_bidding_strategy_cpc_bid_amount
+  expr: SUM(bidding_strategy_cpc_bid_amount)
+  description: Bidding Strategy Cpc Bid Amount (sum of bidding_strategy_cpc_bid_amount).
+- name: total_bidding_strategy_cpm_bid_amount
+  expr: SUM(bidding_strategy_cpm_bid_amount)
+  description: Bidding Strategy Cpm Bid Amount (sum of bidding_strategy_cpm_bid_amount).
+- name: total_bidding_strategy_max_cpc_bid_ceiling
+  expr: SUM(bidding_strategy_max_cpc_bid_ceiling)
+  description: Bidding Strategy Max Cpc Bid Ceiling (sum of bidding_strategy_max_cpc_bid_ceiling).
+- name: total_bidding_strategy_max_cpc_bid_floor
+  expr: SUM(bidding_strategy_max_cpc_bid_floor)
+  description: Bidding Strategy Max Cpc Bid Floor (sum of bidding_strategy_max_cpc_bid_floor).
+- name: total_bidding_strategy_spend_target
+  expr: SUM(bidding_strategy_spend_target)
+  description: Bidding Strategy Spend Target (sum of bidding_strategy_spend_target).
+- name: total_bidding_strategy_target_cpa
+  expr: SUM(bidding_strategy_target_cpa)
+  description: Bidding Strategy Target Cpa (sum of bidding_strategy_target_cpa).
+- name: total_bidding_strategy_target_outrank_share
+  expr: SUM(bidding_strategy_target_outrank_share)
+  description: Bidding Strategy Target Outrank Share (sum of bidding_strategy_target_outrank_share).
+- name: total_bidding_strategy_target_roas
+  expr: SUM(bidding_strategy_target_roas)
+  description: Bidding Strategy Target Roas (sum of bidding_strategy_target_roas).
+- name: total_bidding_strategy_target_roas_override
+  expr: SUM(bidding_strategy_target_roas_override)
+  description: Bidding Strategy Target Roas Override (sum of bidding_strategy_target_roas_override).
+- name: total_first_page_cpc
+  expr: SUM(first_page_cpc)
+  description: First Page Cpc (sum of first_page_cpc).
+- name: total_first_position_cpc
+  expr: SUM(first_position_cpc)
+  description: First Position Cpc (sum of first_position_cpc).
+- name: total_product_bidding_category_value
+  expr: SUM(product_bidding_category_value)
+  description: Product Bidding Category Value (sum of product_bidding_category_value).
+- name: total_quality_info_score
+  expr: SUM(quality_info_score)
+  description: Quality Info Score (sum of quality_info_score).
+- name: total_top_of_page_cpc
+  expr: SUM(top_of_page_cpc)
+  description: Top Of Page Cpc (sum of top_of_page_cpc).

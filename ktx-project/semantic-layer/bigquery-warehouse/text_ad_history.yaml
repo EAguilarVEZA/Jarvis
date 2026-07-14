@@ -1,0 +1,38 @@
+name: text_ad_history
+descriptions:
+  user: Historical record of text ad creative content and updates within Google Ads ad groups.
+table: oh-data-warehouse.adwords_orlando_health.text_ad_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier linking the ad to its parent Google Ads ad group.
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the individual text ad creative.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the ad content was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+- name: description_1
+  type: string
+  descriptions:
+    ai: First line of the ad's body copy shown to users.
+- name: description_2
+  type: string
+  descriptions:
+    ai: Second line of the ad's body copy shown to users.
+- name: headline
+  type: string
+  descriptions:
+    ai: Ad headline, often dynamically populated using keyword insertion.
+measures: []

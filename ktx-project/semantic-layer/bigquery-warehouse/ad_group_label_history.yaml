@@ -1,0 +1,26 @@
+name: ad_group_label_history
+descriptions:
+  user: Tracks historical associations between Google Ads ad groups and their assigned labels over time.
+table: oh-data-warehouse.adwords_orlando_health.ad_group_label_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the Google Ads ad group.
+- name: label_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the label assigned to the ad group.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the label-ad group association was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+measures: []

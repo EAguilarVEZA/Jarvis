@@ -1,0 +1,30 @@
+name: ad_group_criterion_label_history
+descriptions:
+  user: Historical record of labels assigned to ad group criteria in Google Ads campaigns.
+table: oh-data-warehouse.adwords_orlando_health.ad_group_criterion_label_history
+grain:
+- ad_group_criterion_id
+columns:
+- name: ad_group_criterion_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the specific ad group criterion being labeled.
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier of the ad group containing the criterion.
+- name: label_id
+  type: number
+  descriptions:
+    ai: Identifier of the label applied to the criterion.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the label assignment was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+measures: []

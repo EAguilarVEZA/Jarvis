@@ -1,2 +1,56 @@
+# ── Vault / notes ─────────────────────────────────────────────
 jarvis_vault/
 brain/__pycache__/
+
+# ── Python ────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# ── Node ──────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+
+# ── OS / editor / process ─────────────────────────────────────
+.DS_Store
+.pids/
+*.log
+logs/
+audio/
+
+# ── SECRETS — never commit ────────────────────────────────────
+.env
+.env.*
+.jarvis_secret_key
+*.key
+auth_secret
+workflow_secrets.json
+credentials.json
+tenants.json
+
+# ── Runtime data stores (PII / state; app regenerates) ────────
+agent_memory.sqlite
+agent_memory.sqlite-journal
+*.sqlite
+*.sqlite-journal
+agent_chats.json
+cdp_events.jsonl
+cdp_profiles.json
+cdp_identity_graph.json
+cdp_segments.json
+cdp_destinations.json
+cdp_journeys.json
+orchestrator_runs.json
+orchestrator_agents.json
+ours_landing.jsonl
+ours_connector_state.json
+
+# ── Backups / build artifacts ─────────────────────────────────
+_backups/
+*.bak
+*.bak.*
+_logo_preview.png
+*.png.tmp

@@ -1,0 +1,137 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "google_ads_8903973019",
+  "name": "p_ads_BidGoal_8903973019",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 7908,
+  "columns": [
+    {
+      "name": "bidding_strategy_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the bidding strategy."
+    },
+    {
+      "name": "customer_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the customer."
+    },
+    {
+      "name": "bidding_strategy_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The name of the bidding strategy. All bidding strategies within an account must be named distinctly. The length of this string should be between 1 and 255, inclusive, in UTF-8 bytes, (trimmed)."
+    },
+    {
+      "name": "bidding_strategy_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The status of the bidding strategy. This field is read-only."
+    },
+    {
+      "name": "bidding_strategy_target_cpa_cpc_bid_ceiling_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Maximum bid limit that can be set by the bid strategy. The limit applies to all keywords managed by the strategy."
+    },
+    {
+      "name": "bidding_strategy_target_cpa_cpc_bid_floor_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Minimum bid limit that can be set by the bid strategy. The limit applies to all keywords managed by the strategy."
+    },
+    {
+      "name": "bidding_strategy_target_cpa_target_cpa_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Average CPA target. This target should be greater than or equal to minimum billable unit based on the currency for the account."
+    },
+    {
+      "name": "bidding_strategy_target_roas_cpc_bid_ceiling_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Maximum bid limit that can be set by the bid strategy. The limit applies to all keywords managed by the strategy."
+    },
+    {
+      "name": "bidding_strategy_target_roas_cpc_bid_floor_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Minimum bid limit that can be set by the bid strategy. The limit applies to all keywords managed by the strategy."
+    },
+    {
+      "name": "bidding_strategy_target_roas_target_roas",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Required. The desired revenue (based on conversion data) per unit of spend. Value must be between 0.01 and 1000.0, inclusive."
+    },
+    {
+      "name": "bidding_strategy_target_spend_cpc_bid_ceiling_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Maximum bid limit that can be set by the bid strategy. The limit applies to all keywords managed by the strategy."
+    },
+    {
+      "name": "bidding_strategy_target_spend_target_spend_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The spend target under which to maximize clicks. A TargetSpend bidder will attempt to spend the smaller of this value or the natural throttling spend amount. If not specified, the budget is used as the spend target."
+    },
+    {
+      "name": "bidding_strategy_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The type of the bidding strategy. Create a bidding strategy by setting the bidding scheme. This field is read-only."
+    },
+    {
+      "name": "customer_descriptive_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Optional, non-unique descriptive name of the customer."
+    }
+  ],
+  "foreignKeys": []
+}

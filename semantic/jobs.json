@@ -1,0 +1,122 @@
+[
+  {
+    "id": "62a9703891d5",
+    "name": "Connection Finder",
+    "type": "skill",
+    "status": "failed",
+    "detail": "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011Cd1CiDHHpuGfQpa96y3T1'}",
+    "started_at": 1783998001.9235442,
+    "finished_at": 1783998006.2769222,
+    "duration": 4.35
+  },
+  {
+    "id": "04907787de1d",
+    "name": "Capture Processor",
+    "type": "skill",
+    "status": "failed",
+    "detail": "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CczxzDHr5BRspWdD4SUKm'}",
+    "started_at": 1783987201.5625322,
+    "finished_at": 1783987207.829205,
+    "duration": 6.27
+  },
+  {
+    "id": "d4228bd4ccbf",
+    "name": "Morning Brief",
+    "type": "skill",
+    "status": "failed",
+    "detail": "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011Ccyry8i3E3EJyVuEHh5uU'}",
+    "started_at": 1783936831.2913432,
+    "finished_at": 1783936836.610359,
+    "duration": 5.32
+  },
+  {
+    "id": "eb853a337425",
+    "name": "Capture Processor",
+    "type": "skill",
+    "status": "success",
+    "detail": "04-JARVIS-OUTPUTS/captures/2026-07-11_2000_capture-processor-2026-07-11.md",
+    "started_at": 1783814401.177452,
+    "finished_at": 1783814418.139871,
+    "duration": 16.96
+  },
+  {
+    "id": "6171e0481fb2",
+    "name": "Connection Finder",
+    "type": "skill",
+    "status": "failed",
+    "detail": "Connection error.",
+    "started_at": 1783738801.740266,
+    "finished_at": 1783738808.492953,
+    "duration": 6.75
+  },
+  {
+    "id": "3c286b427e20",
+    "name": "Connection Finder",
+    "type": "skill",
+    "status": "failed",
+    "detail": "Connection error.",
+    "started_at": 1783738801.41811,
+    "finished_at": 1783738808.04419,
+    "duration": 6.63
+  },
+  {
+    "id": "092dfa404bb8",
+    "name": "Decision Intelligence",
+    "type": "skill",
+    "status": "success",
+    "detail": "04-JARVIS-OUTPUTS/decisions/2026-07-10_1700_decision-intelligence-2026-07-10.md",
+    "started_at": 1783717201.54252,
+    "finished_at": 1783717222.275279,
+    "duration": 20.73
+  },
+  {
+    "id": "9372632b85cc",
+    "name": "Morning Brief",
+    "type": "skill",
+    "status": "success",
+    "detail": "04-JARVIS-OUTPUTS/briefings/2026-07-10_0600_morning-brief-2026-07-10.md",
+    "started_at": 1783677601.170812,
+    "finished_at": 1783677609.7285728,
+    "duration": 8.56
+  },
+  {
+    "id": "e9d28dc73619",
+    "name": "Connection Finder",
+    "type": "skill",
+    "status": "success",
+    "detail": "04-JARVIS-OUTPUTS/connections/2026-07-09_2300_connection-finder-2026-07-09.md",
+    "started_at": 1783652401.00983,
+    "finished_at": 1783652402.819181,
+    "duration": 1.81
+  },
+  {
+    "id": "075028ba03bd",
+    "name": "Capture Processor",
+    "type": "skill",
+    "status": "success",
+    "detail": "04-JARVIS-OUTPUTS/captures/2026-07-09_2000_capture-processor-2026-07-09.md",
+    "started_at": 1783641601.9728498,
+    "finished_at": 1783641612.6853912,
+    "duration": 10.71
+  },
+  {
+    "id": "b72cef4499b2",
+    "name": "Morning Brief",
+    "type": "skill",
+    "status": "success",
+    "detail": "04-JARVIS-OUTPUTS/briefings/2026-07-09_0600_morning-brief-2026-07-09.md",
+    "started_at": 1783591233.67747,
+    "finished_at": 1783591243.065799,
+    "duration": 9.39
+  },
+  {
+    "id": "2c5807155415",
+    "name": "Connection Finder",
+    "type": "skill",
+    "status": "success",
+    "detail": "04-JARVIS-OUTPUTS/connections/2026-07-08_2300_connection-finder-2026-07-08.md",
+    "started_at": 1783566001.8069031,
+    "finished_at": 1783566003.848589,
+    "duration": 2.04
+  }
+]

@@ -1,0 +1,47 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "data_mart_claims",
+  "name": "PRM_CALL_SERVPROM_DIM",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 9364,
+  "columns": [
+    {
+      "name": "CALL_SID",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "CREATED_DATE",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "CALL_DATE",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "CALL_SERVPROM",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

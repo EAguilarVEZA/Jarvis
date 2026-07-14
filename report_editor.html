@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Report Editor · Orlando Health</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.min.css" rel="stylesheet"/>
+<style>
+  :root{--bg:#0d1117;--panel:#161b22;--panel2:#1c232c;--line:#2a313c;--txt:#e6edf3;--muted:#9aa7b4;
+    --accent:#3fb6ff;--good:#3fb950;--bad:#f85149;--chip:#21303f;--shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.22);
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;--mono:ui-monospace,Menlo,monospace;}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14px}
+  .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:20}
+  .top h1{font-size:16px;margin:0;font-weight:650} .spacer{flex:1}
+  button,select,input{font-family:inherit;font-size:13px;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+  button{cursor:pointer} button:hover{border-color:var(--accent)}
+  .btn-primary{background:var(--accent);color:#04121f;border-color:var(--accent);font-weight:600}
+  .btn-good{background:var(--good);color:#04140a;border-color:var(--good);font-weight:600}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:12px;color:var(--muted)}
+  .pill.ok{color:var(--good);border-color:#1f3b29}
+  .layout{display:flex;gap:0;min-height:calc(100vh - 52px)}
+  .palette{width:230px;border-right:1px solid var(--line);padding:12px;overflow:auto}
+  .palette h3{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 7px}
+  .pitem{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;margin:4px 0;font-size:12.5px}
+  .pitem:hover{border-color:var(--accent)} .pitem small{display:block;color:#6e7b8a;font-size:11px}
+  .stage{flex:1;overflow:auto;padding:24px;background:#0a0d12}
+  .page{position:relative;width:1056px;height:816px;background:#fff;margin:0 auto 24px;box-shadow:0 6px 30px rgba(0,0,0,.5);color:#16202b}
+  .page.p-a4l{width:1123px;height:794px}.page.p-letterp{width:816px;height:1056px}.page.p-a4p{width:794px;height:1123px}
+  .el{position:absolute;border:1px solid transparent;overflow:hidden}
+  .el.sel{border-color:var(--accent);box-shadow:0 0 0 2px rgba(63,182,255,.25)}
+  .el .ehead{font-size:12px;font-weight:600;color:#33414f;padding:2px 4px}
+  .el .res{position:absolute;right:-1px;bottom:-1px;width:14px;height:14px;background:var(--accent);cursor:nwse-resize;border-radius:3px 0 3px 0;opacity:.0}
+  .el.sel .res{opacity:1}
+  .el .del{position:absolute;right:2px;top:2px;background:#f8514922;border:1px solid #f85149;color:#f85149;border-radius:5px;font-size:10px;padding:0 5px;cursor:pointer;display:none;z-index:2}
+  .el.sel .del{display:block}
+  .el.widget{background:#fff;border:1px solid #e3e8ee;border-radius:8px;padding:8px}
+  .el.text,.el.heading{padding:4px 6px;color:#16202b}
+  .el.heading{font-size:22px;font-weight:700} .el.text{font-size:13px;line-height:1.5}
+  .el.image img{width:100%;height:100%;object-fit:contain}
+  .el.kpi .kv{font-size:30px;font-weight:700;color:#0b66c3} .el.kpi .ks{font-size:11px;color:#6b7785}
+  .el .wt{font-size:12.5px;font-weight:600;color:#33414f;margin-bottom:2px}
+  canvas{max-width:100%}
+  .toast{position:fixed;bottom:18px;right:18px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 14px;box-shadow:var(--shadow);font-size:13px;display:none;z-index:60}
+  .toast.show{display:block}
+  .banner{background:#1f1c10;border:1px solid #3b3520;color:#e3b341;border-radius:9px;padding:8px 12px;margin:8px 16px;font-size:12.5px;display:none}
+  .banner.show{display:block}
+  .muted{color:var(--muted)} .small{font-size:12px}
+  @media print{
+    .top,.palette,.banner,.el .res,.el .del{display:none!important}
+    body{background:#fff} .stage{padding:0;overflow:visible} .layout{display:block}
+    .page{box-shadow:none;margin:0;page-break-after:always} .el{border-color:transparent!important;box-shadow:none!important}
+    @page{size:1056px 816px;margin:0}
+  }
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Report Editor</h1>
+  <input id="repName" placeholder="Report name" style="width:170px"/>
+  <span id="conn" class="pill">connecting…</span>
+  <label class="muted small">page
+    <select id="pageSize"><option value="">Letter ↔</option><option value="p-a4l">A4 ↔</option><option value="p-letterp">Letter ↕</option><option value="p-a4p">A4 ↕</option></select></label>
+  <label class="muted small">range
+    <input type="date" id="startDate" value="2015-01-01" style="width:130px"/>
+    <input type="date" id="endDate" value="2015-12-31" style="width:130px"/></label>
+  <button id="applyBtn">↻</button>
+  <div class="spacer"></div>
+  <button id="addPage">＋ page</button>
+  <button id="loadBtn">Open</button><button id="newBtn">New</button>
+  <button id="pdfBtn">Export PDF</button>
+  <button id="saveBtn" class="btn-good">Save</button>
+</div>
+<div id="banner" class="banner"></div>
+<div class="layout">
+  <div class="palette">
+    <button class="pitem" id="addHeading"><b>＋ Heading</b><small>big title text</small></button>
+    <button class="pitem" id="addText"><b>＋ Text</b><small>paragraph / notes</small></button>
+    <button class="pitem" id="addImage"><b>＋ Image</b><small>logo or picture (URL)</small></button>
+    <h3>Widgets — from saved dashboards</h3>
+    <div id="widgetPalette"><div class="muted small">Open a dashboard's widgets to drop onto the page…</div></div>
+    <button class="pitem" id="loadWidgets" style="margin-top:6px">⤓ Load dashboard widgets</button>
+  </div>
+  <div class="stage" id="stage"></div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.umd.js"></script>
+<script>
+const API=(localStorage.getItem('jarvisApi')||'https://localhost:8340').replace(/\/$/,'');
+const PALETTE=['#0b66c3','#7c5cff','#2e9e4f','#d29a1e','#d9622b','#c0457f'];
+let report={id:null,name:'',pages:[{id:'p1',size:'',elements:[]}]};
+let charts={}, sel=null, paletteWidgets=[];
+
+async function api(p,o){const r=await fetch(API+p,Object.assign({headers:{'Content-Type':'application/json'}},o||{}));const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.detail||j.error||('HTTP '+r.status));return j;}
+function toast(m,ok=true){const t=document.getElementById('toast');t.textContent=m;t.style.borderColor=ok?'#1f3b29':'#4a1d1d';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
+function setConn(live,msg){const c=document.getElementById('conn'),b=document.getElementById('banner');if(live){c.className='pill ok';c.textContent='live · ktx';b.classList.remove('show');}else{c.className='pill';c.textContent='offline';b.classList.add('show');b.innerHTML=`Can't reach Jarvis at <code>${API}</code> — start the server and accept the cert at <a href="${API}/api/views" target="_blank">${API}</a>. ${msg||''}`;}}
+function dr(){return {start:document.getElementById('startDate').value,end:document.getElementById('endDate').value};}
+function uid(){return Math.random().toString(36).slice(2);}
+function fmtNum(v,key){if(v==null)return '—';v=Number(v);if(isNaN(v))return '—';const k=(key||'').toLowerCase();
+  if(/ctr|rate|pct|engagement/.test(k))return (v*100).toFixed(2)+'%';
+  if(/spend|cost|cpc|cpa|cpm|revenue|value|budget/.test(k))return '$'+v.toLocaleString(undefined,{maximumFractionDigits:v<100?2:0});
+  if(/roas/.test(k))return v.toFixed(3);return v.toLocaleString(undefined,{maximumFractionDigits:2});}
+
+// ── data ──
+function rowsObj(res){return (res.rows||[]).map(r=>{const o={};res.columns.forEach((c,i)=>o[c]=r[i]);return o;});}
+function buildQuery(w){const q=JSON.parse(JSON.stringify(w.query||{}));const {start,end}=dr();
+  q.filters=(q.filters||[]).filter(f=>!/date/i.test(f.field||''));q.filters.push({table:q.primary_table,field:'date',op:'between',value:[start,end]});
+  if(w.color)q.dimensions=(q.dimensions||[]).slice(0,1).concat([{table:w.color.table||q.primary_table,field:w.color.field}]);
+  if(w.topn&&w.topn.n&&w.topn.measure){q.order_by=[{field:w.topn.measure,direction:w.topn.dir||'desc'}];q.limit=+w.topn.n;}
+  return q;}
+
+// ── render a widget element ──
+async function renderWidgetEl(w,host,id){
+  host.innerHTML=`<div class="wt">${w.title||''}</div><div class="muted small">loading…</div>`;
+  let res; try{res=await api('/api/semantic/query',{method:'POST',body:JSON.stringify(buildQuery(w))});setConn(true);}catch(e){setConn(false,e.message);host.innerHTML=`<div class="wt">${w.title||''}</div><div class="small" style="color:#c0392b">⚠ ${e.message}</div>`;return;}
+  const cols=res.columns||[]; const rows=rowsObj(res);
+  const dim=(w.color?(JSON.parse(JSON.stringify(w.query)).dimensions||[]):[(w.query.dimensions||[])[0]])[0];
+  const dimCol=(w.query.dimensions||[])[0]?.field; const metCols=(w.query.metrics||[]).map(m=>m.field).filter(c=>cols.includes(c));
+  host.innerHTML=`<div class="wt">${w.title||''}</div>`;
+  if(w.chart_type==='kpi'){const m=metCols[0];host.classList.add('kpi');host.insertAdjacentHTML('beforeend',`<div class="kv">${fmtNum(rows.length?rows[0][m]:null,m)}</div><div class="ks">${m||''}</div>`);return;}
+  if(w.chart_type==='table'){const td=document.createElement('div');host.appendChild(td);new gridjs.Grid({columns:cols,data:rows.map(r=>cols.map(c=>r[c])),pagination:{limit:8},style:{table:{fontSize:'11.5px'}}}).render(td);return;}
+  const cv=document.createElement('canvas');host.appendChild(cv);
+  const colorCol=w.color?w.color.field:null; let labels,datasets;
+  if(colorCol&&cols.includes(colorCol)){labels=[...new Set(rows.map(r=>r[dimCol]))];const series=[...new Set(rows.map(r=>r[colorCol]))];const m=metCols[0];
+    datasets=series.map((sv,i)=>({label:String(sv),data:labels.map(l=>{const rr=rows.find(r=>r[dimCol]===l&&r[colorCol]===sv);return rr?+rr[m]||0:0;}),borderColor:PALETTE[i%PALETTE.length],backgroundColor:PALETTE[i%PALETTE.length],fill:w.chart_type==='area',tension:.3,pointRadius:0,borderWidth:2}));}
+  else{labels=rows.map(r=>r[dimCol]);datasets=metCols.map((m,i)=>({label:m,data:rows.map(r=>+r[m]||0),borderColor:PALETTE[i%PALETTE.length],backgroundColor:w.chart_type==='bar'?PALETTE[i%PALETTE.length]:'rgba(11,102,195,.13)',fill:w.chart_type==='area',tension:.3,pointRadius:0,borderWidth:2,yAxisID:(w.dual&&i===1)?'y1':'y'}));}
+  if(charts[id])charts[id].destroy();
+  if(w.chart_type==='pie'){const pd=labels.map((l,i)=>datasets.reduce((a,ds)=>a+(ds.data[i]||0),0));charts[id]=new Chart(cv,{type:'doughnut',data:{labels,datasets:[{data:pd,backgroundColor:PALETTE}]},options:{maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:10}}}},cutout:'56%'}});return;}
+  const scales={x:{ticks:{font:{size:9},maxTicksLimit:10}},y:{ticks:{font:{size:9}}}}; if(w.dual)scales.y1={position:'right',ticks:{font:{size:9}},grid:{display:false}};
+  const ct=w.chart_type==='area'?'line':(w.chart_type==='scatter'?'scatter':(w.chart_type==='line'?'line':'bar'));
+  charts[id]=new Chart(cv,{type:ct,data:{labels,datasets},options:{maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:10}}}},scales}});
+}
+
+// ── render the report (pages + elements) ──
+function render(){ const stage=document.getElementById('stage'); stage.innerHTML='';
+  report.pages.forEach((pg,pi)=>{ const page=document.createElement('div'); page.className='page '+(pg.size||''); page.dataset.pi=pi;
+    pg.elements.forEach(el=>page.appendChild(elNode(el,pi))); stage.appendChild(page); });
+}
+function elNode(el,pi){ const d=document.createElement('div'); d.className='el '+el.type+(sel===el.id?' sel':''); d.style.left=el.x+'px';d.style.top=el.y+'px';d.style.width=el.w+'px';d.style.height=el.h+'px'; d.dataset.id=el.id;
+  if(el.type==='heading'||el.type==='text'){ d.contentEditable=true; d.innerHTML=el.html||(el.type==='heading'?'Heading':'Text'); if(el.fontSize)d.style.fontSize=el.fontSize+'px';
+    d.addEventListener('input',()=>{el.html=d.innerHTML;}); }
+  else if(el.type==='image'){ d.innerHTML=`<img src="${el.src||''}" alt=""/>`; }
+  else if(el.type==='widget'||el.type==='kpi'){ /* rendered below */ }
+  d.insertAdjacentHTML('beforeend','<div class="del">✕</div><div class="res"></div>');
+  d.addEventListener('mousedown',e=>{ if(e.target.classList.contains('res')){startResize(e,el,d);} else if(e.target.classList.contains('del')){removeEl(pi,el.id);} else if(el.type!=='heading'&&el.type!=='text'){startDrag(e,el,d);} selectEl(el.id); });
+  d.querySelector('.del').onclick=(e)=>{e.stopPropagation();removeEl(pi,el.id);};
+  if(el.type==='widget'){ const host=document.createElement('div'); host.style.cssText='width:100%;height:100%'; d.appendChild(host); setTimeout(()=>renderWidgetEl(el.widget,host,el.id),0); }
+  return d;
+}
+function selectEl(id){ sel=id; document.querySelectorAll('.el').forEach(n=>n.classList.toggle('sel',n.dataset.id===id)); }
+function removeEl(pi,id){ report.pages[pi].elements=report.pages[pi].elements.filter(e=>e.id!==id); render(); }
+function snap(v){return Math.round(v/8)*8;}
+function startDrag(e,el,node){ e.preventDefault(); const sx=e.clientX,sy=e.clientY,ox=el.x,oy=el.y;
+  function mv(ev){el.x=Math.max(0,snap(ox+ev.clientX-sx));el.y=Math.max(0,snap(oy+ev.clientY-sy));node.style.left=el.x+'px';node.style.top=el.y+'px';}
+  function up(){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);} document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up); }
+function startResize(e,el,node){ e.preventDefault();e.stopPropagation(); const sx=e.clientX,sy=e.clientY,ow=el.w,oh=el.h;
+  function mv(ev){el.w=Math.max(60,snap(ow+ev.clientX-sx));el.h=Math.max(40,snap(oh+ev.clientY-sy));node.style.width=el.w+'px';node.style.height=el.h+'px';
+    if(el.type==='widget'){const host=node.querySelector('div[style*="height"]');if(host){const c=charts[el.id];if(c)c.resize();}}}
+  function up(){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up); if(el.type==='widget'){const host=node.children[0]; renderWidgetEl(el.widget,host,el.id);}}
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up); }
+
+// ── add elements ──
+function curPage(){return report.pages[report.pages.length-1];} // add to last page
+function addEl(el){ curPage().elements.push(el); render(); selectEl(el.id); }
+document.getElementById('addHeading').onclick=()=>addEl({id:uid(),type:'heading',x:40,y:40,w:600,h:44,html:'Report heading',fontSize:24});
+document.getElementById('addText').onclick=()=>addEl({id:uid(),type:'text',x:40,y:100,w:420,h:80,html:'Add your commentary here.',fontSize:13});
+document.getElementById('addImage').onclick=()=>{const src=prompt('Image URL (e.g. a logo):');if(!src)return;addEl({id:uid(),type:'image',x:40,y:40,w:160,h:60,src});};
+
+// ── widget palette from saved dashboards ──
+document.getElementById('loadWidgets').onclick=async()=>{
+  try{ const l=await api('/api/views'); if(!l.views.length){toast('No saved dashboards yet — build one first.');return;}
+    const pick=prompt('Load widgets from which dashboard?\n'+l.views.map((v,i)=>`${i+1}. ${v.name} (${v.widget_count})`).join('\n')+'\n\nEnter number:'); const idx=parseInt(pick,10)-1; if(isNaN(idx)||!l.views[idx])return;
+    const v=await api('/api/views/'+l.views[idx].id); paletteWidgets=((v.pages||[])[0]||{}).widgets||[];
+    document.getElementById('widgetPalette').innerHTML=paletteWidgets.length?paletteWidgets.map((w,i)=>`<button class="pitem" onclick="addWidgetEl(${i})"><b>${w.title||'Widget'}</b><small>${w.chart_type} · click to place</small></button>`).join(''):'<div class="muted small">no widgets</div>';
+  }catch(e){toast('Load failed: '+e.message,false);} };
+window.addWidgetEl=(i)=>{ const w=paletteWidgets[i]; if(!w)return; addEl({id:uid(),type:'widget',x:40,y:160,w:(w.chart_type==='kpi'?240:460),h:(w.chart_type==='kpi'?120:260),widget:JSON.parse(JSON.stringify(w))}); };
+
+// ── page controls ──
+document.getElementById('pageSize').onchange=()=>{report.pages.forEach(p=>p.size=document.getElementById('pageSize').value);render();};
+document.getElementById('addPage').onclick=()=>{report.pages.push({id:uid(),size:document.getElementById('pageSize').value,elements:[]});render();};
+document.getElementById('applyBtn').onclick=render;
+document.getElementById('newBtn').onclick=()=>{report={id:null,name:'',pages:[{id:'p1',size:'',elements:[]}]};document.getElementById('repName').value='';render();};
+document.getElementById('pdfBtn').onclick=()=>{sel=null;document.querySelectorAll('.el').forEach(n=>n.classList.remove('sel'));window.print();};
+
+// ── save / load (stored as a view with _report=true) ──
+document.getElementById('saveBtn').onclick=async()=>{ const name=document.getElementById('repName').value.trim()||'Untitled report';
+  const pages=report.pages.map(p=>({id:p.id,name:'Page',size:p.size,_report:true,elements:p.elements}));
+  try{ if(report.id){await api('/api/views/'+report.id,{method:'PUT',body:JSON.stringify({name,pages})});}else{const v=await api('/api/views',{method:'POST',body:JSON.stringify({name,pages,description:'report'})});report.id=v.id;}
+    toast('Saved "'+name+'".'); }catch(e){toast('Save failed: '+e.message,false);} };
+document.getElementById('loadBtn').onclick=async()=>{ try{const l=await api('/api/views');const reps=l.views; if(!reps.length){toast('Nothing saved yet.');return;}
+    const pick=prompt('Open which?\n'+reps.map((v,i)=>`${i+1}. ${v.name}`).join('\n')+'\n\nEnter number:'); const idx=parseInt(pick,10)-1; if(isNaN(idx)||!reps[idx])return;
+    const v=await api('/api/views/'+reps[idx].id); const pages=(v.pages||[]).filter(p=>p._report||p.elements);
+    report={id:v.id,name:v.name,pages:pages.length?pages.map(p=>({id:p.id||uid(),size:p.size||'',elements:p.elements||[]})):[{id:'p1',size:'',elements:[]}]};
+    document.getElementById('repName').value=v.name; if(report.pages[0].size)document.getElementById('pageSize').value=report.pages[0].size; render();
+  }catch(e){toast('Load failed: '+e.message,false);} };
+document.addEventListener('keydown',e=>{ if(e.key==='Delete'&&sel){report.pages.forEach(p=>p.elements=p.elements.filter(x=>x.id!==sel));sel=null;render();} });
+
+(async function boot(){ try{await api('/api/views');setConn(true);}catch(e){setConn(false,e.message);} render(); })();
+</script>
+</body>
+</html>

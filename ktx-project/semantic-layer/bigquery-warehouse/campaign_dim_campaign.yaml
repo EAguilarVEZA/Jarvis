@@ -1,0 +1,134 @@
+name: campaign_dim_campaign
+descriptions:
+  user: Google Ads campaign dimension table storing configuration, budget, bidding, and targeting details for each advertising campaign.
+table: oh-data-warehouse.gold.campaign_dim_campaign
+grain:
+- campaign_id
+columns:
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Unique Google Ads identifier for the campaign.
+- name: customer_id
+  type: number
+  descriptions:
+    ai: Google Ads account identifier owning this campaign.
+- name: entity_key
+  type: string
+  descriptions:
+    ai: Internal UUID linking campaign to a business entity.
+- name: bidding_strategy_name
+  type: string
+  descriptions:
+    ai: Human-readable name of the portfolio bidding strategy applied.
+- name: campaign_advertising_channel_sub_type
+  type: string
+  descriptions:
+    ai: Refined sub-classification of the advertising channel type.
+- name: campaign_advertising_channel_type
+  type: string
+  descriptions:
+    ai: 'Primary ad channel: SEARCH, DISPLAY, VIDEO, etc.'
+- name: campaign_bidding_strategy
+  type: string
+  descriptions:
+    ai: Resource path referencing the portfolio bidding strategy object.
+- name: campaign_bidding_strategy_type
+  type: string
+  descriptions:
+    ai: Bidding method used, e.g., MAXIMIZE_CONVERSIONS, MANUAL_CPC.
+- name: campaign_budget_amount_micros
+  type: number
+  descriptions:
+    ai: Daily or recurring budget in micros (divide by 1M for dollars).
+- name: campaign_budget_explicitly_shared
+  type: boolean
+  descriptions:
+    ai: Indicates whether budget is shared across multiple campaigns.
+- name: campaign_budget_has_recommended_budget
+  type: boolean
+  descriptions:
+    ai: Flags if Google has a recommended budget suggestion available.
+- name: campaign_budget_period
+  type: string
+  descriptions:
+    ai: 'Budget cycle period: DAILY or CUSTOM_PERIOD.'
+- name: campaign_budget_recommended_budget_amount_micros
+  type: number
+  descriptions:
+    ai: Google-recommended budget amount in micros.
+- name: campaign_budget_total_amount_micros
+  type: number
+  descriptions:
+    ai: Lifetime total budget cap in micros for custom-period budgets.
+- name: campaign_campaign_budget
+  type: string
+  descriptions:
+    ai: Resource path referencing the associated campaign budget object.
+- name: campaign_end_date
+  type: time
+  descriptions:
+    ai: Scheduled date when the campaign stops serving ads.
+  role: time
+- name: campaign_experiment_type
+  type: string
+  descriptions:
+    ai: Indicates if campaign is a BASE, DRAFT, or EXPERIMENT variant.
+- name: campaign_manual_cpc_enhanced_cpc_enabled
+  type: boolean
+  descriptions:
+    ai: Whether enhanced CPC adjustments are enabled for manual CPC bidding.
+- name: campaign_maximize_conversion_value_target_roas
+  type: number
+  descriptions:
+    ai: Target return on ad spend for maximize conversion value strategy.
+- name: campaign_name
+  type: string
+  descriptions:
+    ai: Descriptive name identifying the campaign, often including service line.
+- name: campaign_percent_cpc_enhanced_cpc_enabled
+  type: boolean
+  descriptions:
+    ai: Whether enhanced CPC is enabled for percent CPC bidding.
+- name: campaign_serving_status
+  type: string
+  descriptions:
+    ai: 'Current delivery status: SERVING, ENDED, or other Google statuses.'
+- name: campaign_start_date
+  type: time
+  descriptions:
+    ai: Date the campaign began or is scheduled to begin serving.
+  role: time
+- name: campaign_status
+  type: string
+  descriptions:
+    ai: 'Operational status set by advertiser: ENABLED, PAUSED, or REMOVED.'
+- name: campaign_tracking_url_template
+  type: string
+  descriptions:
+    ai: URL template appended to ads for click tracking purposes.
+- name: campaign_url_custom_parameters
+  type: string
+  descriptions:
+    ai: Key-value pairs substituted into tracking URL templates.
+- name: parsed_service_line
+  type: string
+  descriptions:
+    ai: Business service line extracted from the campaign name.
+- name: parsed_sub_specialty
+  type: string
+  descriptions:
+    ai: Medical or business sub-specialty parsed from the campaign name.
+measures:
+- name: total_campaign_budget_amount_micros
+  expr: SUM(campaign_budget_amount_micros) / 1000000
+  description: Campaign Budget Amount Micros (sum of campaign_budget_amount_micros).
+- name: total_campaign_budget_recommended_budget_amount_micros
+  expr: SUM(campaign_budget_recommended_budget_amount_micros) / 1000000
+  description: Campaign Budget Recommended Budget Amount Micros (sum of campaign_budget_recommended_budget_amount_micros).
+- name: total_campaign_budget_total_amount_micros
+  expr: SUM(campaign_budget_total_amount_micros) / 1000000
+  description: Campaign Budget Total Amount Micros (sum of campaign_budget_total_amount_micros).
+- name: total_campaign_maximize_conversion_value_target_roas
+  expr: SUM(campaign_maximize_conversion_value_target_roas)
+  description: Campaign Maximize Conversion Value Target Roas (sum of campaign_maximize_conversion_value_target_roas).

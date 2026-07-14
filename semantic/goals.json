@@ -1,0 +1,28 @@
+{
+  "goals": [
+    {
+      "id": "41484e02-b1ca-436c-a45b-7d164c8427a4",
+      "name": "campaign budget",
+      "table": "campaigns",
+      "metric": "campaign_budget",
+      "target": 1000.0,
+      "comparison": "ge",
+      "period": "quarter",
+      "description": "",
+      "created_at": 1780584927.452065,
+      "updated_at": 1781039387.691123
+    },
+    {
+      "id": "02ebb648-9fb8-474c-822f-92023ce4992d",
+      "name": "engaged_sessions ge 1000.0",
+      "table": "sessions",
+      "metric": "engaged_sessions",
+      "target": 1000.0,
+      "comparison": "ge",
+      "period": "month",
+      "description": "",
+      "created_at": 1781039325.665529,
+      "updated_at": 1781039325.6655302
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+name: ad_history
+descriptions:
+  user: Historical snapshot of Google Ads individual ad configurations, statuses, and policy approvals synced via Fivetran.
+table: oh-data-warehouse.adwords_orlando_health.ad_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: The ad group this ad belongs to.
+- name: id
+  type: number
+  descriptions:
+    ai: Unique identifier for the individual ad.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the ad record was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record.
+  role: time
+- name: ad_type
+  type: string
+  descriptions:
+    ai: Format of the ad, e.g., TextAd, ExpandedTextAd, ImageAd.
+- name: automated
+  type: boolean
+  descriptions:
+    ai: Indicates whether the ad was automatically created by Google.
+- name: base_adgroup_id
+  type: number
+  descriptions:
+    ai: Original ad group ID before any drafts or experiments.
+- name: base_campaign_id
+  type: number
+  descriptions:
+    ai: Original campaign ID before any drafts or experiments.
+- name: device_preference
+  type: number
+  descriptions:
+    ai: Preferred device targeting for the ad.
+- name: display_url
+  type: string
+  descriptions:
+    ai: Visible URL shown to users in the ad.
+- name: final_url_suffix
+  type: string
+  descriptions:
+    ai: Parameters appended to the landing page URL for tracking.
+- name: policy_summary_combined_approval_status
+  type: string
+  descriptions:
+    ai: Overall Google policy approval status for the ad.
+- name: policy_summary_denormalized_status
+  type: string
+  descriptions:
+    ai: Flattened policy status reflecting all policy findings.
+- name: policy_summary_review_state
+  type: string
+  descriptions:
+    ai: Current stage of Google's policy review process.
+- name: status
+  type: string
+  descriptions:
+    ai: Serving status of the ad, e.g., ENABLED or PAUSED.
+- name: system_managed_entity_source
+  type: string
+  descriptions:
+    ai: Source system if the ad is managed automatically by Google.
+- name: tracking_url_template
+  type: string
+  descriptions:
+    ai: URL template used for third-party click tracking.
+- name: url
+  type: string
+  descriptions:
+    ai: Destination URL users are directed to after clicking.
+measures:
+- name: total_device_preference
+  expr: SUM(device_preference)
+  description: Device Preference (sum of device_preference).

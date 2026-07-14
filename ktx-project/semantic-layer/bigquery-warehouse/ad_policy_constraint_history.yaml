@@ -1,0 +1,49 @@
+name: ad_policy_constraint_history
+descriptions:
+  user: Historical log of ad policy constraints applied to ads, tracking country-level advertising restrictions over time.
+table: oh-data-warehouse.adwords_orlando_health.ad_policy_constraint_history
+grain:
+- policy_topic_ad_group_id
+columns:
+- name: policy_topic_ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier for the ad group associated with the policy topic constraint.
+- name: policy_topic_ad_id
+  type: number
+  descriptions:
+    ai: Identifier for the specific ad subject to the policy constraint.
+- name: policy_topic_sequence_id
+  type: number
+  descriptions:
+    ai: Sequence number identifying the policy topic entry order.
+- name: sequence_id
+  type: number
+  descriptions:
+    ai: Version or iteration number for tracking constraint record changes.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the policy constraint record was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+- name: constrained_countries
+  type: string
+  descriptions:
+    ai: Country codes where the ad is restricted or limited from serving.
+- name: constraint_type
+  type: string
+  descriptions:
+    ai: Category of policy restriction applied, such as CountryConstraint.
+- name: total_targeted_countries
+  type: number
+  descriptions:
+    ai: Total number of countries targeted by the associated ad campaign.
+measures:
+- name: total_total_targeted_countries
+  expr: SUM(total_targeted_countries)
+  description: Total Targeted Countries (sum of total_targeted_countries).

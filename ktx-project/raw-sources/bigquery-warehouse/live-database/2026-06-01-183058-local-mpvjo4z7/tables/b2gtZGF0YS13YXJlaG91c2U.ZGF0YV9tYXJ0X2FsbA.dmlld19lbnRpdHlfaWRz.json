@@ -1,0 +1,38 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "data_mart_all",
+  "name": "view_entity_ids",
+  "kind": "view",
+  "comment": null,
+  "estimatedRows": 0,
+  "columns": [
+    {
+      "name": "entity_key",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "parent_entity_key",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "display_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

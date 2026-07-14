@@ -1,0 +1,227 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "google_ads_8903973019",
+  "name": "p_ads_BidGoalStats_8903973019",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 0,
+  "columns": [
+    {
+      "name": "bidding_strategy_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the bidding strategy."
+    },
+    {
+      "name": "customer_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the customer."
+    },
+    {
+      "name": "bidding_strategy_campaign_count",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The number of campaigns attached to this bidding strategy. This field is read-only."
+    },
+    {
+      "name": "bidding_strategy_non_removed_campaign_count",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The number of non-removed campaigns attached to this bidding strategy. This field is read-only."
+    },
+    {
+      "name": "metrics_all_conversions_from_interactions_rate",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "All conversions from interactions (as oppose to view through conversions) divided by the number of ad interactions."
+    },
+    {
+      "name": "metrics_average_cpc",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The total cost of all clicks divided by the total number of clicks received."
+    },
+    {
+      "name": "metrics_average_cpm",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Average cost-per-thousand impressions (CPM)."
+    },
+    {
+      "name": "metrics_clicks",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The number of clicks."
+    },
+    {
+      "name": "metrics_conversions",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The number of conversions. This only includes conversion actions which include_in_conversions_metric attribute is set to true."
+    },
+    {
+      "name": "metrics_conversions_from_interactions_rate",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Conversions from interactions divided by the number of ad interactions (such as clicks for text ads or views for video ads). This only includes conversion actions which include_in_conversions_metric attribute is set to true."
+    },
+    {
+      "name": "metrics_conversions_value",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The total value of conversions. This only includes conversion actions which include_in_conversions_metric attribute is set to true."
+    },
+    {
+      "name": "metrics_cost_micros",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The sum of your cost-per-click (CPC) and cost-per-thousand impressions (CPM) costs during this period."
+    },
+    {
+      "name": "metrics_cost_per_all_conversions",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The cost of ad interactions divided by all conversions."
+    },
+    {
+      "name": "metrics_cost_per_conversion",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The cost of ad interactions divided by conversions. This only includes conversion actions which include_in_conversions_metric attribute is set to true."
+    },
+    {
+      "name": "metrics_ctr",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The number of clicks your ad receives (Clicks) divided by the number of times your ad is shown (Impressions)."
+    },
+    {
+      "name": "metrics_impressions",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Count of how often your ad has appeared on a search results page or website on the Google Network."
+    },
+    {
+      "name": "metrics_value_per_conversion",
+      "nativeType": "FLOAT",
+      "normalizedType": "DOUBLE",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The value of conversions divided by the number of conversions. This only includes conversion actions which include_in_conversions_metric attribute is set to true."
+    },
+    {
+      "name": "segments_date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Date to which metrics apply. yyyy-MM-dd format, e.g., 2018-04-17."
+    },
+    {
+      "name": "segments_day_of_week",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Day of the week, e.g., MONDAY."
+    },
+    {
+      "name": "segments_device",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Device to which metrics apply."
+    },
+    {
+      "name": "segments_month",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Month as represented by the date of the first day of a month. Formatted as yyyy-MM-dd."
+    },
+    {
+      "name": "segments_quarter",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Quarter as represented by the date of the first day of a quarter. Uses the calendar year for quarters, e.g., the second quarter of 2018 starts on 2018-04-01. Formatted as yyyy-MM-dd."
+    },
+    {
+      "name": "segments_week",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Week as defined as Monday through Sunday, and represented by the date of Monday. Formatted as yyyy-MM-dd."
+    },
+    {
+      "name": "segments_year",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Year, formatted as yyyy."
+    }
+  ],
+  "foreignKeys": []
+}

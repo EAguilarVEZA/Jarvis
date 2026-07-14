@@ -1,0 +1,34 @@
+name: campaign_targeting_setting_history
+descriptions:
+  user: Tracks historical changes to campaign targeting settings, including audience criterion configurations over time.
+table: oh-data-warehouse.adwords_orlando_health.campaign_targeting_setting_history
+grain:
+- campaign_id
+columns:
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Unique identifier linking the record to a specific ad campaign.
+- name: sequence_id
+  type: number
+  descriptions:
+    ai: Version number indicating the order of changes for this campaign setting.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the targeting setting was last modified in the source system.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record to the data warehouse.
+  role: time
+- name: criterion_type_group
+  type: string
+  descriptions:
+    ai: Category of targeting criteria applied, such as audience interest or remarketing lists.
+- name: target_all
+  type: boolean
+  descriptions:
+    ai: Indicates whether the campaign targets all users within the criterion group.
+measures: []

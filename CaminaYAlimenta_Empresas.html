@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camina y Alimenta — Plataforma de Empresas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<style>
+  :root{--navy:#16243A;--navy2:#22344F;--slate:#5B6B82;--line:#E7EBF0;--bg:#F6F8FB;
+        --gold:#B5953F;--teal:#1E9E77;--coral:#C2705B;--blue:#3D6CA8;--purple:#7F77DD;--ink:#1A2230;--muted:#8A94A6;--card:#fff;}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',-apple-system,sans-serif;}
+  body{background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-feature-settings:"tnum";}
+  /* header */
+  .top{background:var(--navy);color:#fff;padding:16px 30px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20;}
+  .top .mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#9A7B2E);display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .top h1{font-size:16px;font-weight:700;letter-spacing:-.2px;} .top .byline{font-size:11px;color:#9FB0C6;}
+  .top .who{margin-left:auto;font-size:12.5px;display:flex;align-items:center;gap:12px;}
+  .top .who b{font-weight:600;} .top .out{cursor:pointer;color:#9FB0C6;text-decoration:underline;}
+  .switch{background:var(--navy2);padding:0 30px;display:flex;gap:2px;position:sticky;top:64px;z-index:19;overflow-x:auto;}
+  .switch button{background:none;border:none;color:#9FB0C6;font-size:13.5px;font-weight:600;padding:13px 20px;cursor:pointer;border-bottom:3px solid transparent;font-family:inherit;white-space:nowrap;}
+  .switch button.on{color:#fff;border-bottom-color:var(--gold);}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 22px 70px;}
+  .page{display:none;} .page.on{display:block;}
+  .repHead{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:10px;}
+  .repHead h2{font-size:22px;font-weight:800;letter-spacing:-.4px;} .repHead .exp{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-size:12.5px;font-weight:600;color:var(--navy);cursor:pointer;}
+  .lead{font-size:13px;color:var(--slate);max-width:680px;line-height:1.55;margin:4px 0 20px;}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px;}
+  @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr);}}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px;}
+  .kpi .lab{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  .kpi .val{font-size:29px;font-weight:800;letter-spacing:-1px;margin-top:6px;color:var(--navy);}
+  .kpi .sub{font-size:11px;color:var(--slate);margin-top:3px;} .kpi .delta{font-size:11px;font-weight:700;margin-top:7px;color:var(--teal);}
+  .kpi.accent{background:linear-gradient(135deg,var(--navy),var(--navy2));border:none;}
+  .kpi.accent .lab{color:#9FB0C6;} .kpi.accent .val{color:#fff;} .kpi.accent .sub{color:#C4D0DF;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px;} @media(max-width:760px){.grid2{grid-template-columns:1fr;}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:19px;margin-bottom:15px;}
+  .panel h3{font-size:14.5px;font-weight:700;} .panel .ph{font-size:12px;color:var(--muted);margin:2px 0 15px;}
+  .chartbox{position:relative;height:220px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;} th{text-align:left;color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;padding:8px 6px;border-bottom:1px solid var(--line);}
+  td{padding:9px 6px;border-bottom:1px solid #F1F4F8;} td.r,th.r{text-align:right;} td b{color:var(--navy);}
+  label{display:block;font-size:12px;font-weight:700;margin:13px 0 5px;}
+  input,select{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:#fff;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:13px;} @media(max-width:560px){.row{grid-template-columns:1fr;}}
+  .btn{margin-top:16px;padding:12px 18px;border:none;border-radius:11px;background:var(--navy);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn.sec{background:#EDEFF2;color:var(--ink);} .btn.gold{background:linear-gradient(135deg,var(--gold),#9A7B2E);} .btn.full{width:100%;}
+  .btn:active{transform:scale(.99);}
+  .golden{background:#FBF0DC;color:#8A6512;border-radius:10px;padding:10px 13px;font-size:12px;font-weight:600;margin-top:12px;}
+  .summary{background:#F8FAFB;border:1px solid var(--line);border-radius:11px;padding:14px;font-size:13px;margin-top:10px;line-height:1.5;} .summary b{color:var(--navy);}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;} .tag.ok{background:#E4F4EE;color:#0F6E56;} .tag.new{background:#EEF0FB;color:#3A33A0;}
+  .offerCard{border:1px solid var(--line);border-radius:12px;padding:15px;margin-top:13px;}
+  .barcodeWrap{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px;background:#FBFCFD;border:1px dashed var(--line);border-radius:10px;padding:11px;}
+  .codeTxt{font-family:'SF Mono',Menlo,monospace;font-size:12.5px;color:var(--blue);font-weight:700;}
+  .pushNote{background:#E4F4EE;border:1px solid #BfE6D5;color:#0F6E56;border-radius:11px;padding:11px 14px;font-size:12.5px;font-weight:600;margin-top:14px;}
+  .login{max-width:380px;margin:64px auto;} .demoNote{font-size:12px;color:var(--muted);text-align:center;margin-top:12px;}
+  .apibar{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;} .apibar input{display:inline-block;width:62%;padding:7px 9px;font-size:11px;}
+  .foot{font-size:11px;color:var(--muted);margin-top:16px;border-top:1px solid var(--line);padding-top:13px;line-height:1.6;}
+  .hidden{display:none;}
+  .mapbox{height:300px;border-radius:12px;overflow:hidden;border:1px solid var(--line);}
+  .bar{height:8px;border-radius:5px;background:#EEF1F6;width:110px;display:inline-block;vertical-align:middle;overflow:hidden;} .bar i{display:block;height:100%;border-radius:5px;background:var(--blue);}
+  .rank{display:inline-block;width:20px;color:var(--gold);font-weight:800;}
+  .leaflet-control-attribution{font-size:8px;}
+  .secLab{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--slate);margin:8px 0 11px;display:flex;align-items:center;gap:8px;}
+  .secLab::after{content:"";flex:1;height:1px;background:var(--line);}
+  .valgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px;} @media(max-width:560px){.valgrid{grid-template-columns:1fr;}}
+  .vg-n{font-size:23px;font-weight:800;color:#fff;letter-spacing:-.5px;} .vg-l{font-size:12px;color:#C4D0DF;line-height:1.45;margin-top:2px;}
+  @media print{.switch,.top .out,.exp{display:none;} body{background:#fff;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginView">
+  <div class="login panel" style="padding:28px;">
+    <div style="text-align:center;font-weight:800;font-size:19px;letter-spacing:-.3px;margin-top:6px;">Plataforma de Empresas</div>
+    <div style="text-align:center;font-size:12.5px;color:var(--muted);margin-bottom:6px;">Camina y Alimenta · Portal del patrocinador</div>
+    <label>Correo de la empresa</label><input id="liEmail" value="demo@lacticol.co">
+    <label>Contraseña</label><input id="liPass" type="password" value="demo1234">
+    <button class="btn full" onclick="login()">Entrar</button>
+    <button class="btn sec full" style="margin-top:8px" onclick="demoMode()">Ver en modo demo (sin servidor)</button>
+    <div class="demoNote">Demo: demo@lacticol.co · demo1234</div>
+    <div class="apibar">API: <input id="apiUrl" placeholder="https://tu-api.onrender.com"> <button class="btn sec" style="margin:0;padding:6px 10px;font-size:11px" onclick="saveApi()">Guardar</button></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appView" class="hidden">
+  <div class="top">
+    <div><h1>Camina y Alimenta · Empresas</h1><div class="byline">Campañas · Premios · Reportes</div></div>
+    <div class="who"><b id="whoName">LactiCol</b> · <span class="out" onclick="logout()">Salir</span></div>
+  </div>
+  <div class="switch">
+    <button class="on" data-p="dash" onclick="go('dash',this)">Rep. Patrocinador</button>
+    <button data-p="gob" onclick="go('gob',this)">Rep. Gobierno</button>
+    <button data-p="banco" onclick="go('banco',this)">Rep. Bancos</button>
+    <button data-p="camp" onclick="go('camp',this)">Campaña</button>
+    <button data-p="prem" onclick="go('prem',this)">Premios y códigos</button>
+    <button data-p="setup" onclick="go('setup',this)">Configurar</button>
+  </div>
+  <div class="wrap">
+
+    <!-- REPORTE -->
+    <div class="page on" id="page-dash">
+      <div class="repHead"><h2 id="repTitle">LactiCol · Reporte de Impacto y Desempeño</h2>
+        <button class="exp" onclick="window.print()">⤓ Exportar PDF</button></div>
+      <p class="lead">Campaña "Cada km, un desayuno". Tres retornos en una sola inversión: descuento tributario, amor de marca y ventas medibles — con datos de intención de tus usuarios.</p>
+      <div class="kpis">
+        <div class="kpi accent"><div class="lab">Comidas donadas</div><div class="val" id="kMeals">48.215</div><div class="sub" id="kMealsSub">de 50.000 (presupuesto)</div></div>
+        <div class="kpi"><div class="lab">Cupones canjeados</div><div class="val" id="kRedeem">9.612</div><div class="sub" id="kRedeemSub">de 31.480 emitidos</div><div class="delta" id="kRate">30,5% de canje</div></div>
+        <div class="kpi"><div class="lab">Venta incremental</div><div class="val">$214 M</div><div class="sub">COP atribuidos</div><div class="delta">▲ 12% vs. mes anterior</div></div>
+        <div class="kpi"><div class="lab">Clientes nuevos</div><div class="val">2.480</div><div class="sub">recurrentes / mes</div></div>
+      </div>
+      <div class="panel"><h3>Mapa de calor · canjes por región</h3><div class="ph">Dónde tu marca convierte en ventas</div><div class="mapbox" id="spMap"></div></div>
+      <div class="grid2">
+        <div class="panel"><h3>Embudo: Camina → Dona → Canjea</h3><div class="ph">De la caminata a la venta</div><div class="chartbox"><canvas id="spFunnel"></canvas></div></div>
+        <div class="panel"><h3>Cupones por categoría</h3><div class="ph">Qué premios elige tu audiencia (zero-party data)</div><div class="chartbox"><canvas id="spDonut"></canvas></div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Mejores tiendas</h3><div class="ph">Por canjes verificados</div><table><thead><tr><th>Tienda</th><th class="r">Canjes</th><th class="r">Tasa</th></tr></thead><tbody id="spStores"></tbody></table></div>
+        <div class="panel"><h3>Mejores cupones</h3><div class="ph">Qué oferta convierte mejor</div><table><thead><tr><th>Oferta</th><th class="r">Emitidos</th><th class="r">Canje</th></tr></thead><tbody id="spCoupons"></tbody></table></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Demografía de quienes canjean</h3><div class="ph">Edad y sexo — afina tu segmentación</div><div class="chartbox"><canvas id="spAge"></canvas></div></div>
+        <div class="panel"><h3>Ocupación de tus usuarios</h3><div class="ph">Quiénes son (zero-party data)</div><table><tbody id="spJobs"></tbody></table></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>De qué canal llegó cada canje</h3><div class="ph">Atribución online→offline — invierte donde sí convierte</div><div class="chartbox"><canvas id="spChannel"></canvas></div></div>
+        <div class="panel"><h3>Recurrencia de compra</h3><div class="ph">¿Vuelven? Lealtad que genera tu marca</div><div class="chartbox"><canvas id="spRepeat"></canvas></div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Lo que tu audiencia QUIERE</h3><div class="ph">Productos que tus usuarios pidieron en la app — diseña tu próxima oferta con datos</div><table><thead><tr><th>Producto deseado</th><th class="r">Lo pidieron</th><th>Demanda</th></tr></thead><tbody id="spWish"></tbody></table></div>
+        <div class="panel"><h3>Economía por unidad</h3><div class="ph">Lo que cuesta cada resultado</div><table><tbody id="spUnit"></tbody></table></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Canjes por ciudad</h3><div class="ph">Dónde se convierte en ventas</div><table><tbody id="spCities"></tbody></table></div>
+        <div class="panel" style="background:linear-gradient(135deg,#16243A,#22344F);color:#fff;border:none;">
+          <h3 style="color:#fff">Tu retorno, en números</h3><div class="ph" style="color:#9FB0C6">Lo que compró tu inversión</div>
+          <table><tbody>
+            <tr><td style="border-color:#33455F;color:#C4D0DF">Comidas con tu marca</td><td class="r" style="border-color:#33455F"><b style="color:#fff" id="rMeals">48.215</b></td></tr>
+            <tr><td style="border-color:#33455F;color:#C4D0DF">Inversión total</td><td class="r" style="border-color:#33455F"><b style="color:#fff" id="rInvest">$144.645.000 COP</b></td></tr>
+            <tr><td style="border-color:#33455F;color:#C4D0DF">Impresiones de marca</td><td class="r" style="border-color:#33455F"><b style="color:#fff">2,1 M</b></td></tr>
+            <tr><td style="border-color:#33455F;color:#C4D0DF">NPS entre usuarios</td><td class="r" style="border-color:#33455F"><b style="color:#fff">72</b></td></tr>
+            <tr><td style="border-color:#33455F;color:#C4D0DF">Descuento tributario (art. 257)</td><td class="r" style="border-color:#33455F"><b style="color:#fff">25%</b></td></tr>
+            <tr><td style="color:#C4D0DF;border:none">Certificado de donación</td><td class="r" style="border:none"><span class="tag ok">Emitido ✓</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="foot">Datos de la plataforma Camina y Alimenta · periodo actual. Generado automáticamente — el mismo reporte que tu marca recibe cada mes.</div>
+    </div>
+
+    <!-- CAMPAÑA -->
+    <div class="page" id="page-camp">
+      <div class="repHead"><h2>Configura tu campaña</h2></div>
+      <p class="lead">Defines cuántas comidas patrocinas. El dinero va directo al banco de alimentos — la plataforma nunca lo toca.</p>
+      <div class="panel">
+        <div class="row">
+          <div><label>Comidas al mes (presupuesto)</label><input id="mealsBudget" type="number" value="50000"></div>
+          <div><label>Precio por comida (COP)</label><input id="costPerMeal" type="number" value="3000"></div>
+        </div>
+        <div class="row">
+          <div><label>Banco de alimentos</label><select id="foodBank"><option>Banco de Alimentos de Bogotá</option><option>ABACO (red nacional)</option><option>Fundación Saciar (Medellín)</option></select></div>
+          <div><label>Vigencia de la campaña</label><select id="campDur"><option value="30">1 mes</option><option value="90">3 meses</option><option value="180">6 meses</option></select></div>
+        </div>
+        <div class="golden">Regla de oro: toda campaña financia un mínimo de comidas. El dinero de las donaciones nunca pasa por la plataforma.</div>
+        <div class="summary" id="campSummary"></div>
+        <button class="btn gold" onclick="saveCampaign()">Guardar campaña</button>
+      </div>
+    </div>
+
+    <!-- PREMIOS -->
+    <div class="page" id="page-prem">
+      <div class="repHead"><h2>Premios y códigos de barras</h2></div>
+      <p class="lead">Crea las ofertas que el usuario elige al completar su caminata. Cada cupón es de único uso, con código de barras y QR para canjear en caja.</p>
+      <div class="panel">
+        <label>Título de la oferta</label><input id="offTitle" placeholder="Ej: 30% dcto. leche deslactosada 1L">
+        <div class="row">
+          <div><label>Tienda donde se canjea</label><input id="offRetailer" placeholder="Éxito, Carulla, D1…"></div>
+          <div><label>Categoría del cupón</label><select id="offCat">
+            <option value="comida_saludable">Comida saludable</option><option value="deporte">Deporte</option>
+            <option value="conciertos">Conciertos</option><option value="mercado">Mercado</option><option value="bienestar">Bienestar</option>
+          </select></div>
+        </div>
+        <div class="row">
+          <div><label>Vigencia del cupón (días)</label><input id="offDays" type="number" value="7"></div>
+          <div><label>Códigos de muestra a generar</label><input id="offCount" type="number" value="3"></div>
+        </div>
+        <button class="btn gold" onclick="addOffer()">＋ Crear oferta y generar códigos</button>
+        <div class="pushNote" id="pushNote" style="display:none">Tus premios ya aparecen en la app para los usuarios que completen su caminata.</div>
+        <div id="offerList"></div>
+      </div>
+    </div>
+
+    <!-- REPORTE GOBIERNO -->
+    <div class="page" id="page-gob">
+      <div class="repHead"><h2>Impacto Nacional · Cero Costo Fiscal</h2><button class="exp" onclick="window.print()">⤓ Exportar PDF</button></div>
+      <p class="lead">Resumen para el Ministerio de Educación, Salud y Deporte. Dos políticas públicas en una plataforma, sin recursos públicos: <b>alimentación escolar</b> financiada por el sector privado <b>y</b> un registro vivo de <b>actividad física</b> de los colombianos.</p>
+
+      <div class="secLab">① Alimentación escolar — cero costo fiscal</div>
+      <div class="kpis">
+        <div class="kpi accent"><div class="lab">Comidas donadas</div><div class="val">2,84 M</div><div class="sub">acumulado</div></div>
+        <div class="kpi"><div class="lab">Niños alimentados</div><div class="val">186.400</div><div class="sub">142 municipios</div></div>
+        <div class="kpi"><div class="lab">Brecha PAE cubierta</div><div class="val">9,2%</div><div class="sub">de 1,28 M</div></div>
+        <div class="kpi"><div class="lab">Costo fiscal</div><div class="val">$0</div><div class="sub">100% privado</div></div>
+      </div>
+
+      <div class="secLab">② Actividad física — el dato que ningún ministerio tiene hoy</div>
+      <div class="kpis">
+        <div class="kpi accent" style="background:linear-gradient(135deg,#1E9E77,#13795A)"><div class="lab" style="color:#CDEFE2">Kilómetros caminados</div><div class="val" style="color:#fff">4,9 M</div><div class="sub" style="color:#CDEFE2">km verificados por GPS</div></div>
+        <div class="kpi"><div class="lab">Minutos activos</div><div class="val">61,2 M</div><div class="sub">min/mes de actividad real</div></div>
+        <div class="kpi"><div class="lab">Cumplen meta OMS</div><div class="val">34%</div><div class="sub">≥150 min/sem · base 21%</div><div class="delta">▲ +13 pts</div></div>
+        <div class="kpi"><div class="lab">Ahorro en salud (est.)</div><div class="val">$8.700 M</div><div class="sub">COP/año · enf. no transmisibles</div></div>
+      </div>
+
+      <div class="panel"><h3>Mapa de calor · actividad y comidas por región</h3><div class="ph">Dónde el país camina y dónde llegan las comidas — focalización de política</div><div class="mapbox" id="gobMap"></div></div>
+      <div class="grid2">
+        <div class="panel"><h3>Ciclovías y corredores más caminados</h3><div class="ph">Qué infraestructura usa la gente — prioriza inversión y horarios</div><table><thead><tr><th>Corredor</th><th class="r">Caminantes</th><th>Uso</th></tr></thead><tbody id="gobCiclo"></tbody></table></div>
+        <div class="panel"><h3>Cuándo camina el país</h3><div class="ph">Franja horaria — seguridad, alumbrado y programación de ciclovías</div><div class="chartbox"><canvas id="gobHours"></canvas></div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Regiones más comprometidas</h3><div class="ph">Comidas + intensidad de participación por departamento</div><table><thead><tr><th>Departamento</th><th class="r">Comidas</th><th>Engagement</th></tr></thead><tbody id="gobRegions"></tbody></table></div>
+        <div class="panel"><h3>Actividad por edad y sexo</h3><div class="ph">Brecha de género y de edad — equidad en salud</div><div class="chartbox"><canvas id="gobAge"></canvas></div></div>
+      </div>
+      <div class="panel" style="background:linear-gradient(135deg,#16243A,#22344F);color:#fff;border:none;">
+        <h3 style="color:#fff">Por qué esto le importa al Estado</h3>
+        <div class="ph" style="color:#9FB0C6">Valor público que se genera solo — sin presupuesto</div>
+        <div class="valgrid">
+          <div><div class="vg-n">$8.700 M</div><div class="vg-l">Ahorro estimado en salud/año por reducir el sedentarismo (menos diabetes, hipertensión y obesidad).</div></div>
+          <div><div class="vg-n">1.240 ton</div><div class="vg-l">CO₂ evitado: trayectos hechos a pie en vez de en carro o moto.</div></div>
+          <div><div class="vg-n">142</div><div class="vg-l">Municipios con datos vivos de actividad física — insumo del Observatorio Nacional.</div></div>
+          <div><div class="vg-n">186.400</div><div class="vg-l">Niños alimentados que rinden más en clase (nutrición ↔ aprendizaje).</div></div>
+        </div>
+      </div>
+      <div class="foot">Fuentes: plataforma (datos agregados, anónimos · Ley 1581) · ENSIN · OMS · Contraloría/MinEducación. Apartidista. El ahorro en salud y el CO₂ son estimaciones con metodología publicada. Insumo del Observatorio Nacional de Actividad Física.</div>
+    </div>
+
+    <!-- REPORTE BANCOS -->
+    <div class="page" id="page-banco">
+      <div class="repHead"><h2>Operación de Bancos de Alimentos</h2><button class="exp" onclick="window.print()">⤓ Exportar PDF</button></div>
+      <p class="lead">Para la red de bancos (ABACO): donaciones recurrentes y predecibles, trazabilidad giro↔entrega, planeación de demanda y mapa de cobertura para llegar a donde más se necesita.</p>
+      <div class="kpis">
+        <div class="kpi accent"><div class="lab">Comidas financiadas</div><div class="val">487.300</div><div class="sub">este periodo</div></div>
+        <div class="kpi"><div class="lab">Donaciones recurrentes</div><div class="val">$1.218 M</div><div class="sub">COP girados</div></div>
+        <div class="kpi"><div class="lab">Ingreso predecible</div><div class="val">78%</div><div class="sub">de donantes recurrentes</div><div class="delta">▲ planeable a 6 meses</div></div>
+        <div class="kpi"><div class="lab">Entrega a tiempo</div><div class="val">96,4%</div><div class="sub">SLA giro→entrega ≤72 h</div></div>
+      </div>
+      <div class="panel"><h3>Mapa de calor · entregas por ciudad</h3><div class="ph">Red ABACO</div><div class="mapbox" id="bancoMap"></div></div>
+      <div class="grid2">
+        <div class="panel"><h3>Pronóstico de demanda</h3><div class="ph">Comidas financiadas + proyección — para planear compras y logística</div><div class="chartbox"><canvas id="bancoForecast"></canvas></div></div>
+        <div class="panel"><h3>Mezcla de lo donado</h3><div class="ph">Qué categorías financian los patrocinadores</div><div class="chartbox"><canvas id="bancoMix"></canvas></div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Mejores ciudades de entrega</h3><div class="ph">Volumen entregado</div><table><thead><tr><th>Ciudad</th><th class="r">Comidas</th><th>Vol.</th></tr></thead><tbody id="bancoCities"></tbody></table></div>
+        <div class="panel"><h3>Cobertura territorial</h3><div class="ph">Dónde llegamos y dónde falta — focaliza nuevos donantes</div><table><thead><tr><th>Zona</th><th class="r">Cubierto</th><th>Brecha</th></tr></thead><tbody id="bancoCover"></tbody></table></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Conciliación giros ↔ entregas</h3><div class="ph">Trazabilidad auditable</div><table><thead><tr><th>Banco</th><th class="r">Giros</th><th>Estado</th></tr></thead><tbody id="bancoRecon"></tbody></table></div>
+        <div class="panel"><h3>Alcance a beneficiarios</h3><div class="ph">A quién llega la comida</div><table><tbody id="bancoReach"></tbody></table></div>
+      </div>
+      <div class="foot">El dinero va directo del patrocinador al banco — la plataforma nunca lo toca. Pronóstico con media móvil sobre donaciones confirmadas. Cobertura cruzada con municipios PAE prioritarios.</div>
+    </div>
+
+    <!-- CONFIGURAR (food banks + sponsor setup) -->
+    <div class="page" id="page-setup">
+      <div class="repHead"><h2>Configuración de la plataforma</h2></div>
+      <p class="lead">Registra los bancos de alimentos y los patrocinadores que operan en la plataforma.</p>
+      <div class="panel">
+        <h3>Registrar banco de alimentos</h3><div class="ph">Aliados operativos que reciben las donaciones y entregan las comidas</div>
+        <div class="row"><div><label>Nombre del banco</label><input id="fbName" placeholder="Ej: Banco de Alimentos de Cali"></div>
+          <div><label>Ciudad</label><input id="fbCity" placeholder="Cali"></div></div>
+        <button class="btn" onclick="createFoodBank()">＋ Registrar banco</button>
+        <table style="margin-top:14px"><thead><tr><th>Banco</th><th>Ciudad</th></tr></thead><tbody id="fbList"><tr><td colspan="2" style="color:var(--muted)">Aún sin registrar (o en modo demo).</td></tr></tbody></table>
+      </div>
+      <div class="panel">
+        <h3>Registrar patrocinador</h3><div class="ph">Empresas que financian comidas y crean promociones</div>
+        <div class="row"><div><label>Nombre de la empresa</label><input id="spName" placeholder="Ej: Postobón"></div>
+          <div><label>Correo de contacto</label><input id="spEmail" placeholder="mercadeo@postobon.com"></div></div>
+        <button class="btn" onclick="createSponsor()">＋ Registrar patrocinador</button>
+        <div class="ph" style="margin-top:10px">Luego cada patrocinador entra a "Campaña" para definir presupuesto y a "Premios" para crear sus productos y promociones con código de barras.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let API=localStorage.getItem('cyaApi')||'https://cya-backend-deploy.vercel.app';
+let token=null, sponsor=null, demo=false, campaignId=null, offerN=0, charts={};
+const $ = id=>document.getElementById(id);
+const fmt = n=>Math.round(n).toLocaleString('es-CO');
+$('apiUrl').value=API;
+function saveApi(){ API=$('apiUrl').value.replace(/\/$/,''); localStorage.setItem('cyaApi',API); alert('API guardada: '+(API||'(vacía)')); }
+async function api(path,opts){ const r=await fetch(API+path,Object.assign({headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})}},opts||{}));
+  const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||('HTTP '+r.status)); return j; }
+
+async function login(){
+  if(!API){ alert('Pon la URL de tu API abajo, o usa el modo demo.'); return; }
+  try{ const r=await api('/admin/login',{method:'POST',body:JSON.stringify({email:$('liEmail').value,password:$('liPass').value})});
+    token=r.token; sponsor=r.sponsor; demo=false; enterApp(); loadCampaigns();
+  }catch(e){ alert('No se pudo entrar: '+e.message); }
+}
+function demoMode(){ demo=true; sponsor={name:'LactiCol (demo)'}; enterApp(); }
+function enterApp(){ $('loginView').classList.add('hidden'); $('appView').classList.remove('hidden'); $('whoName').textContent=sponsor.name; $('repTitle').textContent=sponsor.name+' · Reporte de Impacto y Desempeño'; updateCampSummary(); drawCharts(); }
+function logout(){ token=null;sponsor=null;demo=false; $('appView').classList.add('hidden'); $('loginView').classList.remove('hidden'); }
+function go(p,el){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('on')); document.querySelectorAll('.switch button').forEach(x=>x.classList.remove('on'));
+  $('page-'+p).classList.add('on'); el.classList.add('on');
+  if(p==='dash') drawCharts(); if(p==='gob') drawGob(); if(p==='banco') drawBanco(); if(p==='setup') loadFoodBanks(); }
+
+// ---- Gobierno + Bancos reports ----
+function heatMap(id, weights){
+  if(maps[id]||!window.L||!L.heatLayer) return;
+  const m=L.map(id,{zoomControl:false,attributionControl:true,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false,boxZoom:false,keyboard:false,tap:false}).setView([4.7,-73.8],5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{maxZoom:11,attribution:'© OSM © CARTO'}).addTo(m);
+  const mx=Math.max(...weights.map(w=>w[1])),pts=[];
+  weights.forEach(([c,v])=>{const k=CITIES[c]; if(!k)return; for(let i=0;i<8;i++) pts.push([k[0]+(Math.random()-.5)*.25,k[1]+(Math.random()-.5)*.25,v/mx]);});
+  L.heatLayer(pts,{radius:34,blur:24,maxZoom:11,gradient:{0.2:'#3D6CA8',0.5:'#B5953F',0.8:'#C2705B',1:'#A32D2D'}}).addTo(m);
+  weights.forEach(([c,v])=>{const k=CITIES[c]; if(k) L.circleMarker(k,{radius:3,color:'#16243A',fillOpacity:.6,weight:1}).addTo(m).bindTooltip(c+': '+fmt(v));});
+  setTimeout(()=>m.invalidateSize(),200); maps[id]=m;
+}
+let maps={};
+function ageStack(id){ if(charts[id]||!window.Chart) return;
+  charts[id]=new Chart($(id),{type:'bar',data:{labels:['18-24','25-34','35-44','45-59','60+'],datasets:[
+    {label:'Mujeres',data:[14,26,21,12,5],backgroundColor:'#C2705B',borderRadius:4,stack:'s'},
+    {label:'Hombres',data:[12,23,18,10,4],backgroundColor:'#3D6CA8',borderRadius:4,stack:'s'}]},
+    options:{plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:11}}}},scales:{x:{grid:{display:false},stacked:true},y:{stacked:true,grid:{color:'#EEF1F6'}}}}}); }
+function drawGob(){ heatMap('gobMap',[['Bogotá',842000],['Medellín',468000],['Cali',331000],['Barranquilla',224000],['Bucaramanga',151000],['Pereira',90000]]); ageStack('gobAge');
+  $('gobRegions').innerHTML=[['Cundinamarca/Bogotá',842000,72],['Antioquia',468000,61],['Valle del Cauca',331000,54],['Atlántico',224000,49],['Bolívar',176000,44],['Nariño',151000,57]].map(([d,m,c],i)=>`<tr><td><span class="rank">${i+1}</span>${d}</td><td class="r"><b>${fmt(m)}</b></td><td><span class="bar"><i style="width:${c}%"></i></span> ${c}%</td></tr>`).join('');
+  // Ciclovías y corredores más caminados (km verificados por GPS)
+  const CICLO=[['Ciclovía Cra. 7ª · Bogotá',418000,'Dom'],['Av. El Dorado / R. Salitre · Bogotá',287000,'Diario'],['Ciclovía Av. El Poblado · Medellín',236000,'Mar/Jue/Dom'],['Malecón del Río · Barranquilla',151000,'Diario'],['Ciclovía Av. Roosevelt · Cali',132000,'Dom'],['Carrera 27 · Bucaramanga',79000,'Dom']];
+  const cmx=CICLO[0][1];
+  $('gobCiclo').innerHTML=CICLO.map(([n,v,d],i)=>`<tr><td><span class="rank">${i+1}</span>${n}<br><span style="font-size:10.5px;color:var(--muted)">${d}</span></td><td class="r"><b>${fmt(v)}</b></td><td><span class="bar"><i style="width:${Math.round(v/cmx*100)}%"></i></span></td></tr>`).join('');
+  // Franja horaria de actividad
+  if(!charts.gobHours&&window.Chart){ charts.gobHours=new Chart($('gobHours'),{type:'bar',
+    data:{labels:['5-7','7-9','9-11','11-14','14-17','17-19','19-21'],datasets:[{data:[9,27,12,7,9,21,15],backgroundColor:['#1E9E77','#1E9E77','#3D6CA8','#3D6CA8','#3D6CA8','#B5953F','#C2705B'],borderRadius:5}]},
+    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+'% de las caminatas'}}},scales:{x:{grid:{display:false},title:{display:true,text:'hora del día',font:{size:10},color:'#8A94A6'}},y:{grid:{color:'#EEF1F6'},ticks:{callback:v=>v+'%'}}}}}); } }
+function drawBanco(){ heatMap('bancoMap',[['Bogotá',204000],['Medellín',95300],['Cali',66000],['Barranquilla',28000],['Bucaramanga',18000],['Pereira',11000]]);
+  $('bancoCities').innerHTML=[['Bogotá',204000],['Medellín',95300],['Cali',66000],['Barranquilla',28000],['Bucaramanga',18000]].map(([c,m],i)=>{const mx=204000;return `<tr><td><span class="rank">${i+1}</span>${c}</td><td class="r"><b>${fmt(m)}</b></td><td><span class="bar"><i style="width:${m/mx*100}%"></i></span></td></tr>`;}).join('');
+  $('bancoRecon').innerHTML=[['Banco de Bogotá','$612 M','ok','Conciliado'],['Saciar (Medellín)','$286 M','ok','Conciliado'],['Arquidiocesano Cali','$198 M','ok','Conciliado'],['ABACO — otras','$122 M','warn','En proceso']].map(([b,g,s,t])=>`<tr><td>${b}</td><td class="r"><b>${g}</b></td><td><span class="tag ${s}">${t}</span></td></tr>`).join('');
+  // Pronóstico de demanda (real + proyección)
+  if(!charts.bancoForecast&&window.Chart){ charts.bancoForecast=new Chart($('bancoForecast'),{
+    data:{labels:['Ene','Feb','Mar','Abr','May','Jun','Jul▸','Ago▸','Sep▸'],datasets:[
+      {type:'bar',label:'Financiadas',data:[312,340,358,402,449,487,null,null,null],backgroundColor:'#1E9E77',borderRadius:5},
+      {type:'line',label:'Proyección',data:[null,null,null,null,null,487,531,572,610],borderColor:'#B5953F',borderDash:[6,4],borderWidth:2,pointRadius:3,tension:.3}]},
+    options:{plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:11}}},tooltip:{callbacks:{label:c=>(c.parsed.y?c.parsed.y+' mil comidas':'')}}},scales:{x:{grid:{display:false}},y:{grid:{color:'#EEF1F6'},ticks:{callback:v=>v+'k'}}}}}); }
+  // Mezcla de categorías donadas
+  if(!charts.bancoMix&&window.Chart){ charts.bancoMix=new Chart($('bancoMix'),{type:'doughnut',
+    data:{labels:['Mercado básico','Proteína','Lácteos','Frutas/verduras','Cereales'],datasets:[{data:[34,22,18,15,11],backgroundColor:['#1E9E77','#3D6CA8','#B5953F','#C2705B','#7F77DD']}]},
+    options:{plugins:{legend:{position:'right',labels:{boxWidth:11,font:{size:11}}}},cutout:'58%'}}); }
+  // Cobertura territorial (cubierto vs brecha)
+  $('bancoCover').innerHTML=[['Región Andina',86,'14%','ok'],['Caribe',61,'39%','warn'],['Pacífico',43,'57%','warn'],['Orinoquía',38,'62%','warn'],['Amazonía',12,'88%','warn']].map(([z,c,b,s])=>`<tr><td>${z}</td><td class="r"><b>${c}%</b></td><td><span class="bar"><i style="width:${c}%;background:${s==='ok'?'#1E9E77':'#C2705B'}"></i></span> <span style="font-size:11px;color:var(--muted)">brecha ${b}</span></td></tr>`).join('');
+  // Alcance a beneficiarios
+  $('bancoReach').innerHTML=[['Niños en colegios (PAE)',124300],['Comedores comunitarios',38600],['Hogares vulnerables',19200],['Adultos mayores',8900]].map(([g,n])=>`<tr><td>${g}</td><td class="r"><b>${fmt(n)}</b></td></tr>`).join(''); }
+
+// ---- Setup: food banks + sponsors ----
+async function loadFoodBanks(){
+  if(demo){ return; }
+  try{ const fbs=await api('/admin/foodbanks'); $('fbList').innerHTML = fbs.length? fbs.map(f=>`<tr><td>${f.name}</td><td>${f.city}</td></tr>`).join('') : '<tr><td colspan="2" style="color:var(--muted)">Aún sin registrar.</td></tr>'; }catch(e){}
+}
+async function createFoodBank(){
+  const name=$('fbName').value.trim(),city=$('fbCity').value.trim();
+  if(!name||!city){ alert('Pon nombre y ciudad.'); return; }
+  if(demo){ alert('(demo) Banco registrado: '+name+' ('+city+').'); $('fbName').value='';$('fbCity').value=''; return; }
+  try{ await api('/admin/foodbanks',{method:'POST',body:JSON.stringify({name,city})}); $('fbName').value='';$('fbCity').value=''; loadFoodBanks(); alert('Banco registrado.'); }catch(e){ alert('Error: '+e.message); }
+}
+async function createSponsor(){
+  const name=$('spName').value.trim(),email=$('spEmail').value.trim();
+  if(!name){ alert('Pon el nombre de la empresa.'); return; }
+  if(demo){ alert('(demo) Patrocinador registrado: '+name+'.'); $('spName').value='';$('spEmail').value=''; return; }
+  try{ await api('/admin/sponsors',{method:'POST',body:JSON.stringify({name,contactEmail:email})}); $('spName').value='';$('spEmail').value=''; alert('Patrocinador registrado.'); }catch(e){ alert('Error: '+e.message); }
+}
+
+// campaign
+function updateCampSummary(){ const meals=+$('mealsBudget').value||0,cost=+$('costPerMeal').value||0,total=meals*cost,usd=Math.round(total/4200);
+  $('campSummary').innerHTML=`Patrocinas <b>${fmt(meals)}</b> comidas/mes · Inversión: <b>$${fmt(total)} COP</b> (~USD ${fmt(usd)})<br>
+    Por comida: ~$${fmt(cost-500)} al banco de alimentos · $500 comisión · descuento tributario del 25%.`; }
+['mealsBudget','costPerMeal'].forEach(id=>document.addEventListener('input',e=>{if(e.target.id===id)updateCampSummary();}));
+async function saveCampaign(){
+  const meals=+$('mealsBudget').value,cost=+$('costPerMeal').value,days=+$('campDur').value;
+  if(demo){ alert('(demo) Campaña guardada: '+fmt(meals)+' comidas/mes.\nVe a "Premios y códigos" para crear tus ofertas.'); return; }
+  try{ const fb='11111111-1111-1111-1111-111111111111'; const today=new Date().toISOString().slice(0,10); const end=new Date(Date.now()+days*864e5).toISOString().slice(0,10);
+    const r=await api('/admin/campaigns',{method:'POST',body:JSON.stringify({sponsorId:sponsor.id,foodBankId:fb,mealsBudget:meals,costPerMealCop:cost,startsAt:today,endsAt:end})});
+    campaignId=r.id; alert('Campaña guardada. Ya puedes crear premios.'); }catch(e){ alert('Error: '+e.message); }
+}
+async function loadCampaigns(){ try{ const cs=await api('/admin/sponsors/'+sponsor.id+'/campaigns'); if(cs.length){ campaignId=cs[0].id; loadReport(); } }catch(e){} }
+
+// premios + barcodes
+const EMOJI={comida_saludable:'',deporte:'',conciertos:'',mercado:'',bienestar:''};
+function rndCode(){ return 'CYA-'+Math.random().toString(36).slice(2,10).toUpperCase(); }
+async function addOffer(){
+  const title=$('offTitle').value.trim(),retailer=$('offRetailer').value.trim();
+  if(!title||!retailer){ alert('Pon el título y la tienda.'); return; }
+  const cat=$('offCat').value,days=+$('offDays').value||7,count=Math.min(+$('offCount').value||1,10);
+  let codes=Array.from({length:count},rndCode);
+  if(!demo&&campaignId){ try{ const r=await api('/admin/offers',{method:'POST',body:JSON.stringify({campaignId,title,retailer,categoryId:cat,validDays:days,generateCount:count})}); if(r.generatedCodes&&r.generatedCodes.length) codes=r.generatedCodes; }catch(e){ alert('Aviso: no se guardó en el servidor ('+e.message+'). Muestro códigos de demo.'); } }
+  else if(!demo&&!campaignId){ alert('Primero guarda una campaña en la pestaña Campaña.'); }
+  offerN++; const wrapId='offer'+offerN;
+  const div=document.createElement('div'); div.className='offerCard';
+  div.innerHTML=`<div style="display:flex;align-items:center;gap:10px">
+    <div><b style="font-size:14px">${title}</b> <span class="tag new">${count} códigos</span><br><span style="font-size:11.5px;color:#8A94A6">${retailer} · vigencia ${days} días</span></div></div><div id="${wrapId}"></div>`;
+  $('offerList').prepend(div); $('pushNote').style.display='block';
+  codes.forEach(code=>{ const bw=document.createElement('div'); bw.className='barcodeWrap';
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); bw.appendChild(svg);
+    const qd=document.createElement('div'); bw.appendChild(qd);
+    const ct=document.createElement('div'); ct.className='codeTxt'; ct.textContent=code; bw.appendChild(ct);
+    $(wrapId).appendChild(bw);
+    try{ JsBarcode(svg,code,{format:'CODE128',height:46,width:1.5,fontSize:11,margin:5}); }catch(e){}
+    try{ new QRCode(qd,{text:code,width:70,height:70,colorDark:'#16243A'}); }catch(e){}
+  });
+  $('offTitle').value=''; $('offRetailer').value='';
+}
+
+// reporting
+async function loadReport(){ if(!campaignId) return;
+  try{ const rep=await api('/admin/campaigns/'+campaignId+'/report');
+    $('kMeals').textContent=fmt(rep.meals.donated); $('kMealsSub').textContent='de '+fmt(rep.meals.budget)+' (presupuesto)';
+    $('kRedeem').textContent=fmt(rep.coupons.redeemed); $('kRedeemSub').textContent='de '+fmt(rep.coupons.issued)+' emitidos'; $('kRate').textContent=rep.coupons.redemptionRate+'% de canje';
+    $('rMeals').textContent=fmt(rep.meals.donated); $('rInvest').textContent='$'+fmt(rep.meals.investmentCop)+' COP';
+    drawFunnel(rep.coupons.issued*1.3, rep.coupons.issued, rep.coupons.redeemed);
+  }catch(e){}
+}
+const clean={plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#EEF1F6'},ticks:{callback:x=>fmt(x)}}}};
+function drawFunnel(a=42180,b=31480,c=9612){ const ctx=$('spFunnel'); if(!ctx||!window.Chart) return; if(charts.fun)charts.fun.destroy();
+  charts.fun=new Chart(ctx,{type:'bar',data:{labels:['Caminan','Donan','Canjean'],datasets:[{data:[a,b,c],backgroundColor:['#3D6CA8','#B5953F','#C2705B'],borderRadius:6}]},options:clean}); }
+let spMap=null;
+const CITIES={Bogotá:[4.66,-74.08],Medellín:[6.25,-75.56],Cali:[3.45,-76.53],Barranquilla:[10.96,-74.80],Bucaramanga:[7.12,-73.12],Pereira:[4.81,-75.69],Cartagena:[10.39,-75.51]};
+function drawHeat(){
+  if(spMap||!window.L||!L.heatLayer) return;
+  spMap=L.map('spMap',{zoomControl:false,attributionControl:true,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false,boxZoom:false,keyboard:false,tap:false}).setView([4.7,-73.8],5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{maxZoom:11,attribution:'© OSM © CARTO'}).addTo(spMap);
+  const W=[['Bogotá',5100],['Medellín',2300],['Cali',1600],['Barranquilla',1120],['Bucaramanga',740],['Pereira',430]],mx=5100,pts=[];
+  W.forEach(([c,v])=>{const k=CITIES[c]; if(!k)return; for(let i=0;i<8;i++) pts.push([k[0]+(Math.random()-.5)*.25,k[1]+(Math.random()-.5)*.25,v/mx]);});
+  L.heatLayer(pts,{radius:34,blur:24,maxZoom:11,gradient:{0.2:'#3D6CA8',0.5:'#B5953F',0.8:'#C2705B',1:'#A32D2D'}}).addTo(spMap);
+  W.forEach(([c,v])=>{const k=CITIES[c]; if(k) L.circleMarker(k,{radius:3,color:'#16243A',fillOpacity:.6,weight:1}).addTo(spMap).bindTooltip(c+': '+fmt(v));});
+  setTimeout(()=>spMap.invalidateSize(),200);
+}
+function drawCharts(){ if(!window.Chart) return; drawFunnel(); drawHeat();
+  const d=$('spDonut'); if(d&&!charts.don) charts.don=new Chart(d,{type:'doughnut',data:{labels:['Saludable','Deporte','Conciertos','Mercado','Bienestar'],datasets:[{data:[38,24,18,13,7],backgroundColor:['#1E9E77','#3D6CA8','#B5953F','#C2705B','#7F77DD']}]},options:{plugins:{legend:{position:'right',labels:{boxWidth:11,font:{size:11}}}},cutout:'58%'}});
+  const a=$('spAge'); if(a&&!charts.age) charts.age=new Chart(a,{type:'bar',data:{labels:['18-24','25-34','35-44','45-59','60+'],datasets:[
+    {label:'Mujeres',data:[14,26,21,12,5],backgroundColor:'#C2705B',borderRadius:4,stack:'s'},
+    {label:'Hombres',data:[12,23,18,10,4],backgroundColor:'#3D6CA8',borderRadius:4,stack:'s'}]},
+    options:{plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:11}}}},scales:{x:{grid:{display:false},stacked:true},y:{stacked:true,grid:{color:'#EEF1F6'}}}}});
+  // Atribución por canal (qué canal trajo cada canje)
+  const ch=$('spChannel'); if(ch&&!charts.ch) charts.ch=new Chart(ch,{type:'bar',data:{labels:['App / orgánico','QR en tienda','Influencers','Email','Vallas','Radio'],datasets:[{data:[3120,2740,1980,920,540,312],backgroundColor:['#1E9E77','#3D6CA8','#7F77DD','#B5953F','#C2705B','#8A94A6'],borderRadius:5}]},options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.x)+' canjes'}}},scales:{x:{grid:{color:'#EEF1F6'},ticks:{callback:v=>fmt(v)}},y:{grid:{display:false}}}}});
+  // Recurrencia de compra (cuántas veces canjea un mismo usuario)
+  const rp=$('spRepeat'); if(rp&&!charts.rp) charts.rp=new Chart(rp,{type:'doughnut',data:{labels:['1 vez','2 veces','3 veces','4+ veces'],datasets:[{data:[54,26,13,7],backgroundColor:['#C2705B','#B5953F','#3D6CA8','#1E9E77']}]},options:{plugins:{legend:{position:'right',labels:{boxWidth:11,font:{size:11}}},tooltip:{callbacks:{label:c=>c.label+': '+c.parsed+'% de quienes canjean'}}},cutout:'58%'}});
+}
+$('spStores').innerHTML=[['Éxito Country',1412,'34%'],['D1 (varios)',3210,'29%'],['Olímpica',2890,'31%'],['Carulla Cedritos',986,'27%'],['Éxito Chapinero',704,'25%']].sort((a,b)=>b[1]-a[1]).map(([s,n,r],i)=>`<tr><td><span class="rank">${i+1}</span>${s}</td><td class="r"><b>${fmt(n)}</b></td><td class="r">${r}</td></tr>`).join('');
+$('spCoupons').innerHTML=[['LactiCol 30% leche',12000,'34%'],['Alpina 2x1',7600,'28%'],['BebiFit 25%',5700,'22%'],['Éxito $10.000',4180,'19%']].map(([t,n,r],i)=>`<tr><td><span class="rank">${i+1}</span>${t}</td><td class="r">${fmt(n)}</td><td class="r"><b>${r}</b></td></tr>`).join('');
+$('spJobs').innerHTML=[['Empleado',38],['Estudiante',27],['Independiente',19],['Hogar',9],['Pensionado',7]].map(([j,p])=>`<tr><td>${j}</td><td class="r"><span class="bar"><i style="width:${p/38*100}%"></i></span> ${p}%</td></tr>`).join('');
+$('spCities').innerHTML=[['Éxito Country',1412],['D1 (varios)',3210],['Olímpica',2890],['Carulla Cedritos',986],['Éxito Chapinero',704]].sort((a,b)=>b[1]-a[1]).map(([s,n])=>`<tr><td>${s}</td><td class="r"><b>${fmt(n)}</b> canjes</td></tr>`).join('');
+// Lo que la audiencia QUIERE (zero-party demand: productos que pidieron en la app)
+$('spWish').innerHTML=[['Leche deslactosada 1L',8420],['Yogur griego sin azúcar',6110],['Queso bajo en sal',4730],['Bebida vegetal (avena)',3980],['Snack proteico',3240]].map(([p,n],i)=>{const mx=8420;return `<tr><td><span class="rank">${i+1}</span>${p}</td><td class="r"><b>${fmt(n)}</b></td><td><span class="bar"><i style="width:${Math.round(n/mx*100)}%;background:#1E9E77"></i></span></td></tr>`;}).join('');
+// Economía por unidad
+$('spUnit').innerHTML=[['Costo por comida donada','$3.000 COP'],['Costo por cupón canjeado','$15.040 COP'],['Costo por cliente nuevo','$58.300 COP'],['Ticket promedio del canje','$22.300 COP'],['Retorno por $1 invertido','$1,48 en venta'],['Recuperación vía descuento tributario','25%']].map(([k,v])=>`<tr><td style="color:var(--slate)">${k}</td><td class="r"><b>${v}</b></td></tr>`).join('');
+updateCampSummary();
+</script>
+</body>
+</html>

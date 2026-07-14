@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>OHNI Marketing Report — Orlando Health</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --oh-teal:#006272;--oh-teal2:#00798C;--oh-teal-lt:#E6F3F5;
+  --green:#4CAF7A;--red:#D94F3D;--amber:#E8962A;
+  --slate:#2C3E50;--muted:#64748B;--border:#DDE3EA;
+  --bg:#F4F7FA;--white:#FFFFFF;--text:#1A2733;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+
+/* ── HEADER ── */
+.report-header{background:var(--oh-teal);color:white}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:16px 36px;border-bottom:1px solid rgba(255,255,255,.15)}
+.oh-logo{display:flex;align-items:baseline;gap:2px}
+.oh-logo-orlando{font-family:'DM Serif Display',serif;font-size:20px}
+.oh-logo-health{font-size:20px;font-weight:300;letter-spacing:1px}
+.oh-logo-r{font-size:10px;vertical-align:super}
+.header-meta{font-size:11px;opacity:.7;text-align:right;line-height:1.7}
+.header-body{padding:22px 36px 0}
+.report-title h1{font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;letter-spacing:-.3px}
+.report-title .sub{font-size:13px;opacity:.8;margin-top:4px;font-weight:300}
+
+/* ── CONTROLS BAR ── */
+.controls-bar{background:rgba(0,0,0,.2);border-top:1px solid rgba(255,255,255,.1);padding:12px 36px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.control-group{display:flex;align-items:center;gap:8px}
+.control-label{font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
+.date-input{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:white;padding:6px 10px;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer}
+.date-input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.7}
+.quick-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);padding:5px 12px;border-radius:5px;font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+.quick-btn:hover,.quick-btn.active{background:rgba(255,255,255,.25);color:white;border-color:rgba(255,255,255,.5)}
+.apply-btn{background:white;color:var(--oh-teal);border:none;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;margin-left:auto}
+.apply-btn:hover{background:var(--oh-teal-lt)}
+.loading-pill{display:none;align-items:center;gap:6px;font-size:11px;opacity:.7}
+.loading-pill.show{display:flex}
+.spinner{width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TABS ── */
+.tab-bar{display:flex;background:var(--oh-teal);border-top:1px solid rgba(255,255,255,.15);padding:0 36px}
+.tab-btn{padding:14px 24px;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+.tab-btn:hover{color:rgba(255,255,255,.9)}
+.tab-btn.active{color:white;border-bottom-color:white}
+
+/* ── ALERT BAR ── */
+.alert-bar{background:#FFF8E6;border-top:3px solid var(--amber);padding:12px 36px;display:flex;align-items:flex-start;gap:12px}
+.alert-icon{width:24px;height:24px;min-width:24px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:12px;color:white;font-weight:700}
+.alert-content{font-size:12.5px;line-height:1.7;color:#7A5800}
+.alert-content strong{color:#5A4000}
+
+/* ── MAIN ── */
+main{padding:28px 36px;max-width:1400px;margin:0 auto}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── SECTION LABELS ── */
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--oh-teal);font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── KPI CARDS ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:28px}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;cursor:pointer;transition:box-shadow .2s,transform .15s}
+.kpi-card:hover{box-shadow:0 4px 20px rgba(0,98,114,.12);transform:translateY(-1px)}
+.kpi-card.selected{box-shadow:0 0 0 2px var(--oh-teal),0 4px 20px rgba(0,98,114,.15)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--oh-teal))}
+.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:500;margin-bottom:9px}
+.kpi-value{font-family:'DM Serif Display',serif;font-size:28px;color:var(--text);letter-spacing:-.5px;line-height:1;margin-bottom:7px}
+.kpi-change{font-size:12px;display:flex;align-items:center;gap:3px}
+.kpi-change.good{color:var(--green)}.kpi-change.bad{color:var(--red)}.kpi-change.warn{color:var(--amber)}
+.kpi-benchmark{font-size:11px;color:var(--muted);margin-top:6px;padding-top:7px;border-top:1px solid var(--border)}
+.kpi-benchmark span{color:var(--oh-teal);font-weight:500}
+.kpi-drill-hint{font-size:10px;color:var(--oh-teal);margin-top:5px;opacity:0;transition:opacity .2s}
+.kpi-card:hover .kpi-drill-hint{opacity:1}
+
+/* ── INSIGHT BOX ── */
+.insight-box{background:linear-gradient(135deg,var(--oh-teal),var(--oh-teal2));color:white;border-radius:10px;padding:18px 22px;margin-bottom:28px;display:flex;align-items:flex-start;gap:14px}
+.insight-icon{width:32px;height:32px;min-width:32px;border-radius:7px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:15px}
+.insight-text{font-size:13px;line-height:1.75}
+.insight-text strong{font-weight:600}
+.highlight{background:rgba(255,255,255,.15);border-radius:3px;padding:1px 5px;font-weight:500}
+
+/* ── CHARTS ── */
+.charts-2col{display:grid;grid-template-columns:3fr 2fr;gap:18px;margin-bottom:20px}
+.charts-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:20px}
+.charts-eq{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:900px){.charts-2col,.charts-eq,.charts-3col{grid-template-columns:1fr}}
+.card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.card-header{margin-bottom:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.card-title{font-size:13.5px;font-weight:600;color:var(--text)}
+.card-subtitle{font-size:11px;color:var(--muted);margin-top:3px}
+.chart-wrap{position:relative;height:220px}
+.chart-wrap-tall{position:relative;height:280px}
+.chart-wrap-sm{position:relative;height:160px}
+
+/* ── DRILL PANEL ── */
+.drill-panel{display:none;background:var(--oh-teal-lt);border:1px solid rgba(0,98,114,.2);border-radius:10px;padding:20px;margin-bottom:20px;position:relative}
+.drill-panel.show{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.drill-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;line-height:1}
+.drill-close:hover{color:var(--text)}
+.drill-title{font-size:13px;font-weight:600;color:var(--oh-teal);margin-bottom:14px}
+.drill-charts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:900px){.drill-charts{grid-template-columns:1fr}}
+.drill-chart-wrap{position:relative;height:160px}
+
+/* ── CONTEXT PANEL ── */
+.context-panel{background:var(--oh-teal-lt);border:1px solid rgba(0,98,114,.2);border-left:4px solid var(--oh-teal);border-radius:0 8px 8px 0;padding:12px 16px;margin-top:14px;font-size:12.5px;color:var(--slate);line-height:1.7}
+.context-panel strong{color:var(--oh-teal)}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 12px;background:var(--bg);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;border-bottom:2px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--oh-teal)}
+th .sort-arrow{margin-left:4px;opacity:.4}
+th.sorted .sort-arrow{opacity:1;color:var(--oh-teal)}
+td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--oh-teal-lt);cursor:pointer}
+tr.expanded td{background:var(--oh-teal-lt)}
+.td-main{font-weight:500}.td-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.row-expand{background:var(--oh-teal-lt);border-top:none}
+.row-expand td{padding:0}
+.row-expand-inner{padding:14px 16px;font-size:12px;color:var(--slate);line-height:1.8;border-top:1px dashed var(--border)}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.badge-good{background:#EBF8F1;color:#2A7A4F}
+.badge-warn{background:#FFF3E0;color:#995800}
+.badge-bad{background:#FDECEA;color:#923228}
+.badge-neutral{background:#EEF2F7;color:#4A5568}
+.dot{width:6px;height:6px;border-radius:50%}
+.dot-good{background:var(--green)}.dot-warn{background:var(--amber)}.dot-bad{background:var(--red)}.dot-neutral{background:var(--muted)}
+
+/* ── CHANNEL BARS ── */
+.channel-bars{display:flex;flex-direction:column;gap:14px;margin-top:4px}
+.ch-row{}
+.ch-meta{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.ch-name{font-weight:500}
+.ch-bar-wrap{height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.ch-bar{height:100%;border-radius:4px;transition:width 1s ease}
+
+/* ── FUNNEL ── */
+.funnel-step{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.funnel-bar-wrap{flex:1;height:30px;background:var(--border);border-radius:4px;overflow:hidden;position:relative}
+.funnel-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:10px;font-size:12px;font-weight:500;color:white;white-space:nowrap;transition:width 1.2s ease}
+.funnel-label{width:85px;font-size:12px;color:var(--muted);text-align:right;flex-shrink:0}
+.funnel-rate{width:48px;font-size:12px;font-weight:500;color:var(--oh-teal);flex-shrink:0}
+
+/* ── LEGEND ── */
+.legend-grid{display:grid;gap:8px;margin-top:12px}
+.legend-item{display:flex;align-items:center;justify-content:space-between;font-size:12px}
+.legend-left{display:flex;align-items:center;gap:8px}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.legend-val{font-weight:600}
+
+/* ── GEO BARS ── */
+.geo-row{margin-bottom:10px}
+.geo-meta{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+.geo-bar-wrap{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.geo-bar{height:100%;border-radius:3px;background:var(--oh-teal)}
+
+/* ── INLINE STATS ── */
+.inline-stats{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px}
+.inline-stat .val{font-family:'DM Serif Display',serif;font-size:22px;color:var(--oh-teal)}
+.inline-stat .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+
+/* ── RECS ── */
+.recs-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px}
+.rec-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.rec-title{font-size:13.5px;font-weight:600;margin-bottom:4px}
+.rec-priority{font-size:11px;color:var(--muted);margin-bottom:12px}
+.rec-body{font-size:12.5px;line-height:1.8;color:var(--slate)}
+
+/* ── TOOLTIP CUSTOM ── */
+.custom-tooltip{position:fixed;background:#1A2733;color:white;padding:10px 14px;border-radius:8px;font-size:12px;pointer-events:none;z-index:9999;display:none;max-width:240px;line-height:1.6;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.custom-tooltip.show{display:block}
+
+/* ── FOOTER ── */
+footer{background:var(--oh-teal);color:rgba(255,255,255,.7);padding:14px 36px;font-size:11px;display:flex;justify-content:space-between;align-items:center;margin-top:32px}
+footer strong{color:white}
+</style>
+</head>
+<body>
+
+<!-- CUSTOM TOOLTIP -->
+<div class="custom-tooltip" id="customTooltip"></div>
+
+<!-- ══════ HEADER ══════ -->
+<div class="report-header">
+  <div class="header-top">
+    <div class="oh-logo">
+      <span class="oh-logo-orlando">Orlando</span>
+      <span class="oh-logo-health">&nbsp;HEALTH</span><span class="oh-logo-r">®</span>
+    </div>
+    <div class="header-meta">
+      Data: BigQuery · oh-data-warehouse · data_mart_neuroscience<br>
+      Last updated: <span id="lastUpdated">Apr 16, 2026, 3:49 AM</span> · Refreshes daily
+    </div>
+  </div>
+  <div class="header-body">
+    <div class="report-title">
+      <h1>OHNI Marketing Intelligence Report</h1>
+      <div class="sub">Orlando Health Neuroscience Institute · Service Line Manager Brief · Comparisons are YoY</div>
+    </div>
+  </div>
+
+  <!-- DATE CONTROLS -->
+  <div class="controls-bar">
+    <div class="control-group">
+      <span class="control-label">From</span>
+      <input type="date" class="date-input" id="dateFrom" value="2025-10-01">
+    </div>
+    <div class="control-group">
+      <span class="control-label">To</span>
+      <input type="date" class="date-input" id="dateTo" value="2026-04-15">
+    </div>
+    <div class="control-group" style="gap:6px">
+      <button class="quick-btn" onclick="setRange(30)">Last 30d</button>
+      <button class="quick-btn" onclick="setRange(60)">Last 60d</button>
+      <button class="quick-btn" onclick="setRange(90)">Last 90d</button>
+      <button class="quick-btn active" onclick="setRange(197)">Oct–Apr</button>
+      <button class="quick-btn" onclick="setRange(365)">1 Year</button>
+    </div>
+    <div class="loading-pill" id="loadingPill"><div class="spinner"></div>Updating report…</div>
+    <button class="apply-btn" onclick="applyRange()">↻ Apply Range</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('overview','this')">📊 Marketing Overview</button>
+    <button class="tab-btn" onclick="switchTab('stroke','this')">🧠 Stroke Campaign</button>
+  </div>
+</div>
+
+<!-- ══════ TAB 1: MARKETING OVERVIEW ══════ -->
+<div class="tab-panel active" id="tab-overview">
+  <main>
+
+    <!-- INSIGHT -->
+    <div class="insight-box">
+      <div class="insight-icon">💡</div>
+      <div class="insight-text" id="insightOverview">
+        <strong>OHNI Performance Snapshot:</strong> Marketing drove <strong>2,384 web leads</strong> at an overall CPL of <span class="highlight">$25.72 — 74% lower YoY</span>. Paid Search is the primary lead driver at 6.27% CTR, which is <span class="highlight">3.5× the 1.79% industry benchmark</span>. Facebook drove 405K impressions for NeuroSpine with zero tracked leads — likely a pixel tracking gap. Sessions grew 50% YoY to 84,533, driven by Organic Search and Paid Search.
+      </div>
+    </div>
+
+    <!-- KPI CARDS — clickable for drill-down -->
+    <div class="section-label">Key Performance Indicators <span style="font-size:10px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">· Click any card to drill down</span></div>
+    <div class="kpi-row">
+      <div class="kpi-card" style="--accent:var(--oh-teal)" onclick="drillKPI('leads')">
+        <div class="kpi-label">Total Web Leads</div>
+        <div class="kpi-value" id="kv-leads">2,384</div>
+        <div class="kpi-change good">▲ 69.0% YoY</div>
+        <div class="kpi-benchmark">Appt. Requests: <span>1,961 (82%)</span></div>
+        <div class="kpi-drill-hint">▼ Click to drill down</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--green)" onclick="drillKPI('cpl')">
+        <div class="kpi-label">Overall Cost Per Lead</div>
+        <div class="kpi-value" id="kv-cpl">$25.72</div>
+        <div class="kpi-change good">▼ 74.1% YoY</div>
+        <div class="kpi-benchmark">Healthcare avg: <span>$80–$120</span></div>
+        <div class="kpi-drill-hint">▼ Click to drill down</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--amber)" onclick="drillKPI('ctr')">
+        <div class="kpi-label">Paid Search CTR</div>
+        <div class="kpi-value" id="kv-ctr">6.27%</div>
+        <div class="kpi-change bad">▼ 11.2% YoY</div>
+        <div class="kpi-benchmark">Benchmark: <span>1.79%</span> · 3.5× above</div>
+        <div class="kpi-drill-hint">▼ Click to drill down</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--oh-teal2)" onclick="drillKPI('impressions')">
+        <div class="kpi-label">Total Impressions</div>
+        <div class="kpi-value" id="kv-impr">5.57M</div>
+        <div class="kpi-change bad">▼ 80.0% YoY</div>
+        <div class="kpi-benchmark">Paid digital: <span>871K</span> · Traditional: 4.7M</div>
+        <div class="kpi-drill-hint">▼ Click to drill down</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--green)" onclick="drillKPI('sessions')">
+        <div class="kpi-label">Web Sessions</div>
+        <div class="kpi-value" id="kv-sessions">84,533</div>
+        <div class="kpi-change good">▲ 50.0% YoY</div>
+        <div class="kpi-benchmark">Engagement rate: <span>51.39%</span></div>
+        <div class="kpi-drill-hint">▼ Click to drill down</div>
+      </div>
+    </div>
+
+    <!-- DRILL PANEL -->
+    <div class="drill-panel" id="drillPanel">
+      <button class="drill-close" onclick="closeDrill()">×</button>
+      <div class="drill-title" id="drillTitle">Drill-down</div>
+      <div class="drill-charts" id="drillCharts"></div>
+    </div>
+
+    <!-- TREND + LEAD TYPES -->
+    <div class="section-label">Leads & Spend Trend</div>
+    <div class="charts-2col">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Weekly Leads & Spend Trend</div>
+            <div class="card-subtitle" id="trendSubtitle">Oct 2025 – Apr 2026 · All OHNI campaigns</div>
+          </div>
+          <select id="trendMetric" onchange="updateTrendView()" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'DM Sans',sans-serif">
+            <option value="both">Leads + Spend</option>
+            <option value="leads">Leads only</option>
+            <option value="spend">Spend only</option>
+          </select>
+        </div>
+        <div class="chart-wrap-tall"><canvas id="trendChart"></canvas></div>
+        <div class="context-panel">
+          <strong>Why did leads spike in January?</strong> Week of Jan 11 = 65 leads — highest single week. Post-holiday health resolution behavior: patients who postponed care over the holidays actively seek neurological consultations in January. Predictable seasonal pattern — increase budget Jan 1–21 each year.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div>
+          <div class="card-title">Lead Type Breakdown</div>
+          <div class="card-subtitle">How patients are converting</div>
+        </div></div>
+        <div class="chart-wrap-sm"><canvas id="leadTypeChart"></canvas></div>
+        <div class="legend-grid" style="margin-top:16px">
+          <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#006272"></div><span>Appointment Request</span></div><div class="legend-val">1,961 <span style="color:var(--muted);font-weight:400">(82%)</span></div></div>
+          <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#00798C"></div><span>Download Guide</span></div><div class="legend-val">262 <span style="color:var(--muted);font-weight:400">(11%)</span></div></div>
+          <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#4CAF7A"></div><span>General Inquiry</span></div><div class="legend-val">152 <span style="color:var(--muted);font-weight:400">(6%)</span></div></div>
+          <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#DDE3EA"></div><span>Newsletter Opt-In</span></div><div class="legend-val">3 <span style="color:var(--muted);font-weight:400">(&lt;1%)</span></div></div>
+        </div>
+        <div class="context-panel">
+          <strong>82% Appointment Requests</strong> — patients are ready to schedule, not just browsing. Guide downloads (11%) represent top-of-funnel patients who may convert later with nurture.
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGNS SUMMARY -->
+    <div class="section-label">Campaign Performance <span style="font-size:10px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">· Click any row to expand details · Click column headers to sort</span></div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div><div class="card-title">Campaigns Summary — Paid Search & Social</div><div class="card-subtitle">Oct 2025 – Apr 2026 · Sorted by leads</div></div>
+        <div style="display:flex;gap:8px">
+          <button onclick="filterTable('all')" class="quick-btn active" id="fAll" style="color:var(--oh-teal);border-color:var(--oh-teal)">All</button>
+          <button onclick="filterTable('google')" class="quick-btn" id="fGoogle">Google</button>
+          <button onclick="filterTable('facebook')" class="quick-btn" id="fFacebook">Facebook</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="campTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable('name')">Campaign <span class="sort-arrow">↕</span></th>
+              <th onclick="sortTable('channel')">Channel <span class="sort-arrow">↕</span></th>
+              <th onclick="sortTable('impressions')">Impressions <span class="sort-arrow">↕</span></th>
+              <th onclick="sortTable('clicks')">Clicks <span class="sort-arrow">↕</span></th>
+              <th onclick="sortTable('ctr')">CTR <span class="sort-arrow">↕</span></th>
+              <th onclick="sortTable('leads')">Leads <span class="sort-arrow sorted">↓</span></th>
+              <th onclick="sortTable('spend')">Spend <span class="sort-arrow">↕</span></th>
+              <th onclick="sortTable('cpl')">CPL <span class="sort-arrow">↕</span></th>
+              <th>Assessment</th>
+            </tr>
+          </thead>
+          <tbody id="campBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CHANNEL + GEO -->
+    <div class="section-label">Channel & Geography</div>
+    <div class="charts-3col">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Channel Performance</div><div class="card-subtitle">Leads, impressions, CTR by channel</div></div></div>
+        <div class="chart-wrap"><canvas id="channelChart"></canvas></div>
+        <div class="context-panel">
+          <strong>Is this CTR good?</strong> Yes — 6.27% is 3.5× the 1.79% healthcare benchmark. Facebook's 1.31% also beats the 0.83% social benchmark. Both channels have quality traffic — but only Google has tracked conversions.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Lead Sources</div><div class="card-subtitle">Appointment Requests by source</div></div></div>
+        <div class="chart-wrap"><canvas id="sourceChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Geography — Top Markets</div><div class="card-subtitle">Sessions by city · Click to filter</div></div></div>
+        <div style="margin-top:6px" id="geoPanel">
+          <div class="geo-row"><div class="geo-meta"><span style="font-weight:500">Orlando</span><span style="color:var(--oh-teal);font-weight:600">12,567</span></div><div class="geo-bar-wrap"><div class="geo-bar" style="width:100%"></div></div></div>
+          <div class="geo-row"><div class="geo-meta"><span style="font-weight:500">Miami</span><span style="color:var(--oh-teal2);font-weight:600">7,656</span></div><div class="geo-bar-wrap"><div class="geo-bar" style="width:61%;background:var(--oh-teal2)"></div></div></div>
+          <div class="geo-row"><div class="geo-meta"><span style="font-weight:500">Atlanta</span><span>1,349</span></div><div class="geo-bar-wrap"><div class="geo-bar" style="width:11%;background:var(--green)"></div></div></div>
+          <div class="geo-row"><div class="geo-meta"><span style="font-weight:500">St. Cloud</span><span>1,173</span></div><div class="geo-bar-wrap"><div class="geo-bar" style="width:9%;background:var(--green)"></div></div></div>
+          <div class="geo-row"><div class="geo-meta"><span style="font-weight:500">Clermont</span><span>905</span></div><div class="geo-bar-wrap"><div class="geo-bar" style="width:7%;background:var(--green)"></div></div></div>
+          <div class="geo-row"><div class="geo-meta"><span style="font-weight:500">Unattributed</span><span style="color:var(--muted)">29,273</span></div><div class="geo-bar-wrap"><div class="geo-bar" style="width:53%;background:var(--border)"></div></div></div>
+        </div>
+        <div class="context-panel" style="margin-top:12px"><strong>Miami opportunity:</strong> 7,656 sessions from Miami signals significant out-of-market patient seeking. A geo-targeted Stroke or Neuroscience campaign in South Florida could capture high-value referral traffic.</div>
+      </div>
+    </div>
+
+    <!-- WEB PERFORMANCE -->
+    <div class="section-label">Web Performance</div>
+    <div class="charts-eq" style="margin-bottom:28px">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Top Landing Pages</div><div class="card-subtitle">Entrances · Engagement Rate · Avg. Engagement Time</div></div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Page</th><th>Entrances</th><th>Eng. Rate</th><th>Avg. Time</th><th>Signal</th></tr></thead>
+            <tbody>
+              <tr><td><div class="td-main">/neuroscience-institute</div></td><td>17,032</td><td>66.4%</td><td>0:27</td><td><span class="badge badge-good"><div class="dot dot-good"></div>Strong</span></td></tr>
+              <tr><td><div class="td-main">/campaigns/spine-center</div></td><td>12,029</td><td>20.7%</td><td>0:56</td><td><span class="badge badge-bad"><div class="dot dot-bad"></div>Low engage</span></td></tr>
+              <tr><td><div class="td-main">/…/neurology</div></td><td>9,922</td><td>66.1%</td><td>0:27</td><td><span class="badge badge-good"><div class="dot dot-good"></div>Strong</span></td></tr>
+              <tr><td><div class="td-main">/…/neurosurgery</div></td><td>9,433</td><td>45.9%</td><td>0:31</td><td><span class="badge badge-warn"><div class="dot dot-warn"></div>Avg</span></td></tr>
+              <tr><td><div class="td-main">/…/our-team</div></td><td>4,507</td><td>85.5%</td><td>2:22</td><td><span class="badge badge-good"><div class="dot dot-good"></div>Excellent</span></td></tr>
+              <tr><td><div class="td-main">/…/locations</div></td><td>4,507</td><td>88.6%</td><td>1:06</td><td><span class="badge badge-good"><div class="dot dot-good"></div>Excellent</span></td></tr>
+              <tr><td><div class="td-main">/…/appointment</div></td><td>5,141</td><td>87.5%</td><td>1:10</td><td><span class="badge badge-good"><div class="dot dot-good"></div>High intent</span></td></tr>
+              <tr><td><div class="td-main">/…/neurology/stroke</div><div class="td-sub">Stroke page — no paid support</div></td><td>1,270</td><td>43.8%</td><td>0:45</td><td><span class="badge badge-warn"><div class="dot dot-warn"></div>Below avg</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Impressions Overview</div><div class="card-subtitle">Traditional vs Digital breakdown</div></div></div>
+        <div class="chart-wrap"><canvas id="impressChart"></canvas></div>
+        <div class="context-panel">
+          <strong>Why did impressions drop 80%?</strong> Traditional (billboards/transit) dropped from ~23M to 4.7M — a planned media mix shift toward digital. Digital paid impressions dropped 81% from prior year but delivered <em>more leads at lower cost</em>. Fewer impressions + better targeting = higher efficiency.
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════ TAB 2: STROKE CAMPAIGN ══════ -->
+<div class="tab-panel" id="tab-stroke">
+  <div class="alert-bar">
+    <div class="alert-icon">!</div>
+    <div class="alert-content">
+      <strong>Campaign Gap:</strong> No dedicated Stroke paid campaign is currently active. Stroke leads are captured incidentally through Brand/General campaigns. The Stroke landing page receives 1,270 organic entrances — entirely without paid support. A dedicated campaign is recommended immediately.
+    </div>
+  </div>
+  <main>
+
+    <!-- INSIGHT -->
+    <div class="insight-box">
+      <div class="insight-icon">🧠</div>
+      <div class="insight-text">
+        <strong>Stroke Campaign Analysis:</strong> The OHNI Stroke program has <span class="highlight">no dedicated paid campaign</span>, yet the /neurology/stroke page receives 1,921 unique pageviews organically — signaling strong patient intent. Paid Search drives 649 leads across all neuroscience campaigns at $78.16 CPL. A Stroke-specific campaign targeting "stroke symptoms," "stroke specialist near me," and "TIA treatment" could add an estimated <span class="highlight">150–200 incremental leads/quarter at $40–60 CPL</span>.
+      </div>
+    </div>
+
+    <!-- STROKE KPIs -->
+    <div class="section-label">Stroke-Adjacent KPIs <span style="font-size:10px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">· Click cards to drill down</span></div>
+    <div class="kpi-row">
+      <div class="kpi-card" style="--accent:var(--oh-teal)" onclick="drillKPI('stroke-leads')">
+        <div class="kpi-label">Stroke Page Entrances</div>
+        <div class="kpi-value">1,270</div>
+        <div class="kpi-change good">▲ Organic only</div>
+        <div class="kpi-benchmark">Rank #9 of all <span>OHNI pages</span></div>
+        <div class="kpi-drill-hint">▼ Click to drill down</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--amber)" onclick="drillKPI('stroke-engage')">
+        <div class="kpi-label">Stroke Page Engage Rate</div>
+        <div class="kpi-value">43.75%</div>
+        <div class="kpi-change bad">▼ Below avg</div>
+        <div class="kpi-benchmark">OHNI avg: <span>66%</span> · Gap: 22pts</div>
+        <div class="kpi-drill-hint">▼ Click to drill down</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--green)" onclick="drillKPI('stroke-cpl')">
+        <div class="kpi-label">Brand Campaign CPL</div>
+        <div class="kpi-value">$53.41</div>
+        <div class="kpi-change good">▼ vs $100 prior yr</div>
+        <div class="kpi-benchmark">Stroke est. CPL: <span>$40–60</span></div>
+        <div class="kpi-drill-hint">▼ Click to drill down</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--oh-teal2)" onclick="drillKPI('stroke-kw')">
+        <div class="kpi-label">Missing Keywords</div>
+        <div class="kpi-value">0</div>
+        <div class="kpi-change bad">▼ No stroke KWs</div>
+        <div class="kpi-benchmark">"stroke symptoms" <span>est. 5K/mo searches</span></div>
+        <div class="kpi-drill-hint">▼ Click to drill down</div>
+      </div>
+      <div class="kpi-card" style="--accent:var(--green)" onclick="drillKPI('stroke-fb')">
+        <div class="kpi-label">Facebook Leads Tracked</div>
+        <div class="kpi-value">0</div>
+        <div class="kpi-change bad">▼ Pixel gap</div>
+        <div class="kpi-benchmark">405K impressions <span>untracked</span></div>
+        <div class="kpi-drill-hint">▼ Click to drill down</div>
+      </div>
+    </div>
+
+    <!-- DRILL PANEL STROKE -->
+    <div class="drill-panel" id="drillPanelStroke">
+      <button class="drill-close" onclick="closeDrillStroke()">×</button>
+      <div class="drill-title" id="drillTitleStroke">Drill-down</div>
+      <div class="drill-charts" id="drillChartsStroke"></div>
+    </div>
+
+    <!-- TREND + LEAD TYPES -->
+    <div class="section-label">Neuroscience Leads Trend (Stroke Included)</div>
+    <div class="charts-2col">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Weekly Leads & Spend</div><div class="card-subtitle">All OHNI campaigns — Stroke captured in Brand/General</div></div>
+          <select id="strokeTrendMetric" onchange="updateStrokeTrend()" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'DM Sans',sans-serif">
+            <option value="both">Leads + Spend</option>
+            <option value="leads">Leads only</option>
+            <option value="spend">Spend only</option>
+          </select>
+        </div>
+        <div class="chart-wrap-tall"><canvas id="strokeTrendChart"></canvas></div>
+        <div class="context-panel">
+          <strong>Peak week: Jan 11 (65 leads)</strong> — post-holiday neurological care-seeking. The drop in Feb–Mar reflects normal seasonal patterns. April is trending upward again entering spring health season.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Lead Type Split</div><div class="card-subtitle">Stroke-adjacent conversions</div></div></div>
+        <div class="chart-wrap-sm"><canvas id="strokeLeadTypeChart"></canvas></div>
+        <div class="legend-grid" style="margin-top:16px">
+          <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#006272"></div><span>Appointment Request</span></div><div class="legend-val">1,961 <span style="color:var(--muted);font-weight:400">(82%)</span></div></div>
+          <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#00798C"></div><span>Download Guide</span></div><div class="legend-val">262 <span style="color:var(--muted);font-weight:400">(11%)</span></div></div>
+          <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#4CAF7A"></div><span>General Inquiry</span></div><div class="legend-val">152 <span style="color:var(--muted);font-weight:400">(6%)</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANNEL + FUNNEL -->
+    <div class="section-label">Channel Analysis & Patient Funnel</div>
+    <div class="charts-eq">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Channel Efficiency</div><div class="card-subtitle">Paid channels · leads, impressions, CTR vs benchmark</div></div></div>
+        <div class="channel-bars" style="margin-top:8px">
+          <div class="ch-row">
+            <div class="ch-meta"><span class="ch-name">Google Paid Search</span><span>649 leads · <strong style="color:var(--green)">$78.16 CPL</strong></span></div>
+            <div class="ch-bar-wrap"><div class="ch-bar" style="width:100%;background:var(--oh-teal)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px"><span>CTR 6.27% <span style="color:var(--green)">(3.5× benchmark)</span></span><span>CVR 2.22%</span></div>
+          </div>
+          <div class="ch-row">
+            <div class="ch-meta"><span class="ch-name">Facebook / Meta</span><span>0 tracked · <strong style="color:var(--amber)">Pixel gap</strong></span></div>
+            <div class="ch-bar-wrap"><div class="ch-bar" style="width:62%;background:var(--amber)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px"><span>CTR 1.31% <span style="color:var(--green)">(vs 0.83% benchmark)</span></span><span>405K impressions</span></div>
+          </div>
+          <div class="ch-row">
+            <div class="ch-meta"><span class="ch-name">Organic / Referral</span><span>~1,400+ leads · <strong style="color:var(--green)">$0 CPL</strong></span></div>
+            <div class="ch-bar-wrap"><div class="ch-bar" style="width:78%;background:var(--oh-teal2)"></div></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">google.com: 632 · Syndicated: 302 · Bing: 78 · Direct: 132</div>
+          </div>
+          <div class="ch-row">
+            <div class="ch-meta"><span class="ch-name">Traditional (OOH)</span><span>4.7M impressions · Not directly trackable</span></div>
+            <div class="ch-bar-wrap"><div class="ch-bar" style="width:40%;background:var(--muted)"></div></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Billboards: 4.3M · Transit: 399K · Supports paid search lift</div>
+          </div>
+        </div>
+        <div class="context-panel"><strong>Why does Facebook show 0 leads?</strong> This is almost certainly a tracking gap, not a performance gap. Facebook's CTR (1.31%) beats the 0.83% benchmark — the traffic is quality. The Meta Pixel likely isn't firing on the Thank You page. Fixing this could reveal 50–80 hidden leads per month.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Stroke Patient Conversion Funnel</div><div class="card-subtitle">Paid Search · Impression to Appointment Request</div></div></div>
+        <div style="margin-top:16px">
+          <div class="funnel-step"><div class="funnel-label">Impressions</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%;background:var(--oh-teal)">466,657</div></div><div class="funnel-rate">100%</div></div>
+          <div class="funnel-step"><div class="funnel-label">Clicks</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:6.3%;background:var(--oh-teal2);min-width:80px">29,241</div></div><div class="funnel-rate">6.27%</div></div>
+          <div class="funnel-step"><div class="funnel-label">Sessions</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:5.6%;background:#00A3B4;min-width:80px">26,178</div></div><div class="funnel-rate">5.61%</div></div>
+          <div class="funnel-step"><div class="funnel-label">Leads</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:0.14%;background:var(--green);min-width:80px">649</div></div><div class="funnel-rate">0.14%</div></div>
+          <div class="funnel-step"><div class="funnel-label">Appt. Req.</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:0.11%;background:var(--green);opacity:.8;min-width:80px">~504</div></div><div class="funnel-rate">0.11%</div></div>
+        </div>
+        <div class="context-panel"><strong>Is 0.14% conversion normal?</strong> Yes — this is healthy for healthcare. Patients searching for neurological conditions research extensively before requesting appointments. The critical metric is CPL ($25.72 overall, $78.16 for paid search) — both are significantly below the $80–$120 healthcare benchmark.</div>
+      </div>
+    </div>
+
+    <!-- KEYWORD TABLE -->
+    <div class="section-label">Keyword Performance <span style="font-size:10px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">· Click rows to expand · Click headers to sort</span></div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><div><div class="card-title">Top Keywords — Stroke-Relevant</div><div class="card-subtitle">From Brand + Movement Disorders campaigns · Oct 2025 – Apr 2026</div></div></div>
+      <div class="table-wrap">
+        <table id="kwTable">
+          <thead>
+            <tr>
+              <th onclick="sortKWTable('keyword')">Keyword <span class="sort-arrow">↕</span></th>
+              <th onclick="sortKWTable('match')">Match <span class="sort-arrow">↕</span></th>
+              <th onclick="sortKWTable('impressions')">Impressions <span class="sort-arrow">↕</span></th>
+              <th onclick="sortKWTable('clicks')">Clicks <span class="sort-arrow">↕</span></th>
+              <th onclick="sortKWTable('ctr')">CTR <span class="sort-arrow">↕</span></th>
+              <th onclick="sortKWTable('leads')">Leads <span class="sort-arrow sorted">↓</span></th>
+              <th onclick="sortKWTable('cvr')">CVR <span class="sort-arrow">↕</span></th>
+              <th>Assessment</th>
+            </tr>
+          </thead>
+          <tbody id="kwBody"></tbody>
+        </table>
+      </div>
+      <div class="context-panel" style="margin-top:14px"><strong>Missing Stroke keywords:</strong> "stroke symptoms," "stroke treatment Orlando," "stroke specialist near me," "TIA treatment," "mini stroke symptoms," "stroke recovery center" — none are active. These are high-intent, time-sensitive searches with significant monthly volume. Recommend immediate addition to the Brand campaign.</div>
+    </div>
+
+    <!-- STROKE PAGE + RECS -->
+    <div class="section-label">Stroke Landing Page & Recommendations</div>
+    <div class="charts-eq">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Stroke Landing Page Performance</div><div class="card-subtitle">/neuroscience-institute/…/neurology/stroke</div></div></div>
+        <div class="inline-stats">
+          <div class="inline-stat"><div class="val">1,270</div><div class="lbl">Entrances</div></div>
+          <div class="inline-stat"><div class="val">1,921</div><div class="lbl">Pageviews</div></div>
+          <div class="inline-stat"><div class="val" style="color:var(--amber)">43.75%</div><div class="lbl">Engage Rate</div></div>
+          <div class="inline-stat"><div class="val">0:45</div><div class="lbl">Avg. Time</div></div>
+        </div>
+        <div class="chart-wrap" style="margin-top:16px"><canvas id="strokePageChart"></canvas></div>
+        <div class="context-panel"><strong>43.75% engagement is below the 66% OHNI average.</strong> The /our-team page (85.5%) and /locations page (88.6%) prove patients engage deeply with physician-focused content. Recommendation: Add a physician video and symptoms checklist above the fold on the Stroke page.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Strategic Recommendations</div><div class="card-subtitle">Prioritized actions for Stroke service line</div></div></div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
+          <div style="border-left:3px solid var(--oh-teal);padding:10px 14px;background:var(--oh-teal-lt);border-radius:0 6px 6px 0">
+            <div style="font-weight:600;font-size:13px;color:var(--oh-teal);margin-bottom:4px">🎯 Launch Dedicated Stroke Campaign</div>
+            <div style="font-size:12px;color:var(--slate);line-height:1.7">Target: "stroke symptoms," "stroke specialist near me," "TIA treatment." Budget: $5–8K/month. Est. CPL: $40–60. Est. impact: 150–200 leads/quarter.</div>
+          </div>
+          <div style="border-left:3px solid var(--amber);padding:10px 14px;background:#FFF8E6;border-radius:0 6px 6px 0">
+            <div style="font-weight:600;font-size:13px;color:var(--amber);margin-bottom:4px">📈 Fix Facebook Lead Tracking</div>
+            <div style="font-size:12px;color:var(--slate);line-height:1.7">Verify Meta Pixel fires on Thank You page. Add Conversions API. Est. 50–80 hidden leads/month being missed. Zero cost to fix.</div>
+          </div>
+          <div style="border-left:3px solid var(--green);padding:10px 14px;background:#EBF8F1;border-radius:0 6px 6px 0">
+            <div style="font-weight:600;font-size:13px;color:#2A7A4F;margin-bottom:4px">💰 Scale January Budget +25%</div>
+            <div style="font-size:12px;color:var(--slate);line-height:1.7">Jan 11 delivered 65 leads — highest week of year. Post-holiday neurological care-seeking is predictable. Pre-plan creative by Dec 15.</div>
+          </div>
+          <div style="border-left:3px solid var(--muted);padding:10px 14px;background:#EEF2F7;border-radius:0 6px 6px 0">
+            <div style="font-weight:600;font-size:13px;color:var(--slate);margin-bottom:4px">🌐 Stroke Page UX Optimization</div>
+            <div style="font-size:12px;color:var(--slate);line-height:1.7">Add symptoms checklist + physician video above fold. A/B test "Know Your Risk" CTA. 54.5% traffic is mobile — prioritize mobile experience.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div><strong>Orlando Health</strong> · OHNI Marketing Intelligence Report · <span id="footerPeriod">Oct 1, 2025 – Apr 15, 2026</span></div>
+  <div>BigQuery · oh-data-warehouse · data_mart_neuroscience · YoY comparisons · Prepared by JARVIS Analytics</div>
+</footer>
+
+<!-- ══════ JAVASCRIPT ══════ -->
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────
+const TEAL='#006272',TEAL2='#00798C',GREEN='#4CAF7A',AMBER='#E8962A',RED='#D94F3D',SLATE='#64748B',BORDER='#DDE3EA';
+const TT={backgroundColor:'#1A2733',titleColor:'#fff',bodyColor:'#CBD5E1',padding:10,cornerRadius:6};
+const GRID={color:BORDER};
+const TICK={color:SLATE,font:{size:11,family:'DM Sans'}};
+
+const WEEKLY = {
+  labels:['Sep 28','Oct 5','Oct 12','Oct 19','Oct 26','Nov 2','Nov 9','Nov 16','Nov 23','Nov 30','Dec 7','Dec 14','Dec 21','Dec 28','Jan 4','Jan 11','Jan 18','Jan 25','Feb 1','Feb 8','Feb 15','Feb 22','Mar 1','Mar 8','Mar 15','Mar 22','Mar 29','Apr 5','Apr 12'],
+  dates:['2025-09-28','2025-10-05','2025-10-12','2025-10-19','2025-10-26','2025-11-02','2025-11-09','2025-11-16','2025-11-23','2025-11-30','2025-12-07','2025-12-14','2025-12-21','2025-12-28','2026-01-04','2026-01-11','2026-01-18','2026-01-25','2026-02-01','2026-02-08','2026-02-15','2026-02-22','2026-03-01','2026-03-08','2026-03-15','2026-03-22','2026-03-29','2026-04-05','2026-04-12'],
+  leads:[12,20,18,27,25,34,38,23,15,17,23,16,21,25,39,65,52,13,6,14,18,16,10,32,16,13,14,13,14],
+  spend:[843,1450,1862,2074,1331,1752,1960,1789,1388,1157,1855,1867,1789,1667,1876,1841,1850,2012,1043,2103,2726,2688,2261,2013,2134,1837,1554,2218,1299]
+};
+
+const CAMPAIGNS = [
+  {name:'Brand',channel:'Google Paid Search',impressions:208869,clicks:15380,ctr:7.36,leads:515,spend:27505,cpl:53.41,status:'good',detail:'Highest lead volume campaign. Brand keywords capture patients already aware of OHNI. 7.36% CTR is exceptional — 4× the benchmark. CPL of $53.41 is well within the $80–$120 healthcare average.'},
+  {name:'Movement Disorders',channel:'Google Paid Search',impressions:130500,clicks:7075,ctr:5.42,leads:105,spend:null,cpl:null,status:'good',detail:'Strong secondary campaign. Movement disorder and tremor keywords attract high-intent patients. Leads up 14.7% YoY. Opportunity to expand budget given strong performance.'},
+  {name:'NeuroSpine',channel:'Google Paid Search',impressions:126913,clicks:6763,ctr:5.33,leads:24,spend:17918,cpl:746.58,status:'bad',detail:'High impressions and clicks but very low leads (24). CPL of $746 is unsustainable. Possible landing page mismatch — patients click but do not convert. Recommend landing page audit and conversion rate optimization before scaling spend.'},
+  {name:'NeuroSpine',channel:'Facebook / Meta',impressions:405202,clicks:5303,ctr:1.31,leads:0,spend:1508,cpl:null,status:'warn',detail:'CTR of 1.31% beats the 0.83% Facebook benchmark — traffic quality is good. Zero leads tracked is almost certainly a Meta Pixel tracking gap on the Thank You/confirmation page, not a true performance issue. Fix tracking before pausing or cutting this campaign.'},
+  {name:'Not Matched',channel:'Google Paid Search',impressions:130875,clicks:7098,ctr:5.42,leads:110,spend:5306,cpl:48.24,status:'warn',detail:'These leads have no matched campaign attribution — likely from URL tagging gaps or campaigns not yet mapped in the dashboard. At $48.24 CPL these are efficient but unattributed. Recommend auditing UTM parameters to properly attribute this traffic.'},
+];
+
+const KEYWORDS = [
+  {keyword:'orlando health neurology',match:'Broad',impressions:22568,clicks:3381,ctr:14.98,leads:87,cvr:2.57,status:'good'},
+  {keyword:'pain management',match:'Broad',impressions:18316,clicks:1483,ctr:8.1,leads:83,cvr:5.6,status:'good'},
+  {keyword:'neurologist near me',match:'Broad',impressions:21662,clicks:1658,ctr:7.65,leads:62,cvr:3.74,status:'good'},
+  {keyword:'orlando neurology',match:'Broad',impressions:34175,clicks:1991,ctr:5.83,leads:57,cvr:2.86,status:'good'},
+  {keyword:'neurosurgeon',match:'Broad',impressions:26392,clicks:2410,ctr:9.13,leads:47,cvr:1.95,status:'good'},
+  {keyword:'essential tremors treatment',match:'Broad',impressions:25423,clicks:1702,ctr:6.69,leads:32,cvr:1.88,status:'warn'},
+  {keyword:'neuro medicine',match:'Broad',impressions:14597,clicks:707,ctr:4.84,leads:31,cvr:4.38,status:'good'},
+  {keyword:'movement disorder specialists near me',match:'Broad',impressions:12184,clicks:679,ctr:5.57,leads:21,cvr:3.09,status:'warn'},
+  {keyword:'epilepsy symptoms',match:'Broad',impressions:10471,clicks:678,ctr:6.48,leads:7,cvr:1.03,status:'neutral'},
+  {keyword:'spine pain doctor',match:'Phrase',impressions:11786,clicks:1245,ctr:10.56,leads:1,cvr:0.08,status:'bad'},
+];
+
+// ── DATE RANGE ────────────────────────────────────────────────────────────
+function setRange(days) {
+  document.querySelectorAll('.quick-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  const to = new Date('2026-04-15');
+  const from = new Date(to);
+  from.setDate(from.getDate() - days);
+  document.getElementById('dateFrom').value = from.toISOString().split('T')[0];
+  document.getElementById('dateTo').value = to.toISOString().split('T')[0];
+}
+
+function applyRange() {
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+  const pill = document.getElementById('loadingPill');
+  pill.classList.add('show');
+  document.getElementById('footerPeriod').textContent = `${formatDate(from)} – ${formatDate(to)}`;
+
+  // Filter weekly data to range
+  const fromD = new Date(from), toD = new Date(to);
+  const filtered = WEEKLY.dates.map((d,i)=>({d:new Date(d),i})).filter(x=>x.d>=fromD&&x.d<=toD).map(x=>x.i);
+
+  if(filtered.length>0){
+    const fl = filtered.map(i=>WEEKLY.labels[i]);
+    const fd = filtered.map(i=>WEEKLY.leads[i]);
+    const fs = filtered.map(i=>WEEKLY.spend[i]);
+    updateTrendChartData(fl,fd,fs,'trendChart');
+    updateTrendChartData(fl,fd,fs,'strokeTrendChart');
+
+    // Update KPI summary
+    const totalLeads = fd.reduce((a,b)=>a+b,0);
+    const totalSpend = fs.reduce((a,b)=>a+b,0);
+    const avgCPL = totalSpend/Math.max(totalLeads,1);
+    document.getElementById('kv-leads').textContent = totalLeads.toLocaleString();
+    document.getElementById('kv-cpl').textContent = '$'+avgCPL.toFixed(2);
+    document.getElementById('trendSubtitle').textContent = `${formatDate(from)} – ${formatDate(to)} · All OHNI campaigns`;
+  }
+  setTimeout(()=>pill.classList.remove('show'),800);
+}
+
+function formatDate(d){const p=d.split('-');const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${months[parseInt(p[1])-1]} ${parseInt(p[2])}, ${p[0]}`}
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── CHARTS ───────────────────────────────────────────────────────────────
+let charts = {};
+
+function makeChart(id, config) {
+  if(charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id).getContext('2d'), config);
+  return charts[id];
+}
+
+function updateTrendChartData(labels, leads, spend, chartId) {
+  if(!charts[chartId]) return;
+  charts[chartId].data.labels = labels;
+  charts[chartId].data.datasets[0].data = leads;
+  charts[chartId].data.datasets[0].backgroundColor = leads.map(v=>v>=50?GREEN:v>=30?TEAL2:TEAL+'99');
+  charts[chartId].data.datasets[1].data = spend;
+  charts[chartId].update('active');
+}
+
+function buildTrendChart(canvasId) {
+  return makeChart(canvasId, {
+    type:'bar',
+    data:{
+      labels:WEEKLY.labels,
+      datasets:[
+        {label:'Leads',data:WEEKLY.leads,backgroundColor:WEEKLY.leads.map(v=>v>=50?GREEN:v>=30?TEAL2:TEAL+'99'),borderRadius:3,yAxisID:'y',order:1},
+        {label:'Spend ($)',data:WEEKLY.spend,type:'line',borderColor:AMBER,backgroundColor:'transparent',tension:.4,borderWidth:2,pointRadius:2,yAxisID:'y2',order:0}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'top',labels:{color:SLATE,font:{size:11},usePointStyle:true,padding:16}},tooltip:{...TT,callbacks:{label:c=>c.dataset.label==='Spend ($)'?` Spend: $${c.raw.toLocaleString()}`:` Leads: ${c.raw}`}}},
+      scales:{
+        x:{grid:GRID,ticks:{...TICK,maxRotation:45,font:{size:10}}},
+        y:{grid:GRID,ticks:TICK,position:'left',title:{display:true,text:'Leads',color:TEAL,font:{size:11}}},
+        y2:{grid:{display:false},ticks:{...TICK,callback:v=>'$'+(v/1000).toFixed(1)+'K'},position:'right',title:{display:true,text:'Spend',color:AMBER,font:{size:11}}}
+      }
+    }
+  });
+}
+
+function updateTrendView() {
+  const v = document.getElementById('trendMetric').value;
+  if(!charts['trendChart']) return;
+  charts['trendChart'].data.datasets[0].hidden = v==='spend';
+  charts['trendChart'].data.datasets[1].hidden = v==='leads';
+  charts['trendChart'].update();
+}
+
+function updateStrokeTrend() {
+  const v = document.getElementById('strokeTrendMetric').value;
+  if(!charts['strokeTrendChart']) return;
+  charts['strokeTrendChart'].data.datasets[0].hidden = v==='spend';
+  charts['strokeTrendChart'].data.datasets[1].hidden = v==='leads';
+  charts['strokeTrendChart'].update();
+}
+
+function buildLeadTypeChart(canvasId) {
+  return makeChart(canvasId, {
+    type:'doughnut',
+    data:{labels:['Appointment Request','Download Guide','General Inquiry','Newsletter'],datasets:[{data:[1961,262,152,3],backgroundColor:[TEAL,TEAL2,GREEN,BORDER],borderColor:'#fff',borderWidth:3,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.label}: ${c.raw.toLocaleString()}`}}}}
+  });
+}
+
+function buildChannelChart() {
+  makeChart('channelChart',{
+    type:'bar',
+    data:{
+      labels:['Google\nPaid Search','Facebook\n/ Meta'],
+      datasets:[
+        {label:'Leads',data:[649,0],backgroundColor:[TEAL,AMBER],borderRadius:4,yAxisID:'y'},
+        {label:'Impressions (K)',data:[466.7,405.2],type:'line',borderColor:AMBER,backgroundColor:'transparent',borderWidth:2,pointRadius:5,yAxisID:'y2'}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'top',labels:{color:SLATE,font:{size:11},usePointStyle:true}},tooltip:TT},
+      scales:{x:{grid:GRID,ticks:TICK},y:{grid:GRID,ticks:TICK,position:'left',title:{display:true,text:'Leads',color:TEAL,font:{size:11}}},y2:{grid:{display:false},ticks:{...TICK,callback:v=>v+'K'},position:'right'}}
+    }
+  });
+}
+
+function buildSourceChart() {
+  makeChart('sourceChart',{
+    type:'bar',
+    data:{
+      labels:['google.com\n(referral)','Google PS\nBrand','Direct','Google PS\nGeneral','Syndicated\nSearch','Bing','NeuroSpine\nPS','Other'],
+      datasets:[{label:'Appt. Requests',data:[632,504,132,225,83,78,19,60],backgroundColor:[TEAL,TEAL,SLATE+'88',TEAL2,TEAL2,SLATE+'66',GREEN,BORDER],borderRadius:4}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.raw} Appt. Requests`}}},
+      scales:{x:{grid:GRID,ticks:TICK},y:{grid:{display:false},ticks:{...TICK,font:{size:10}}}}
+    }
+  });
+}
+
+function buildImpressChart() {
+  makeChart('impressChart',{
+    type:'doughnut',
+    data:{
+      labels:['Traditional / OOH (Billboards)','Transit','Google Paid Search','Facebook / Meta','Other Digital'],
+      datasets:[{data:[4301205,399185,466657,405202,500],backgroundColor:[TEAL,TEAL2,GREEN,AMBER,BORDER],borderColor:'#fff',borderWidth:3,hoverOffset:4}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{color:SLATE,font:{size:10},usePointStyle:true,padding:10}},tooltip:{...TT,callbacks:{label:c=>` ${c.label}: ${c.raw.toLocaleString()}`}}}}
+  });
+}
+
+function buildStrokePageChart() {
+  makeChart('strokePageChart',{
+    type:'bar',
+    data:{
+      labels:['Stroke\nPage','OHNI\nMain','Neurology','Neurosurgery','Our Team','Locations','Appointment'],
+      datasets:[{label:'Engagement Rate %',data:[43.75,66.4,66.07,45.89,85.54,88.61,87.47],backgroundColor:[AMBER,TEAL,TEAL2,TEAL2+'88',GREEN,GREEN,GREEN],borderRadius:4}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.raw}% engagement rate`}},annotation:{annotations:{avg:{type:'line',yMin:66,yMax:66,borderColor:TEAL,borderWidth:2,borderDash:[4,4],label:{content:'OHNI avg 66%',enabled:true}}}}},
+      scales:{x:{grid:GRID,ticks:{...TICK,font:{size:10}}},y:{grid:GRID,ticks:{...TICK,callback:v=>v+'%'},max:100}}
+    }
+  });
+}
+
+// ── CAMPAIGN TABLE ────────────────────────────────────────────────────────
+let campSort = {col:'leads',dir:-1};
+let campFilter = 'all';
+let expandedRow = null;
+
+function renderCampTable() {
+  let data = [...CAMPAIGNS];
+  if(campFilter!=='all') data = data.filter(d=>d.channel.toLowerCase().includes(campFilter));
+  data.sort((a,b)=>{
+    const va=a[campSort.col]??-999, vb=b[campSort.col]??-999;
+    return typeof va==='string'?va.localeCompare(vb)*campSort.dir:(va-vb)*campSort.dir;
+  });
+  const tbody = document.getElementById('campBody');
+  tbody.innerHTML = data.map((d,i)=>{
+    const ctrBadge = d.ctr>5?`<span class="badge badge-good"><div class="dot dot-good"></div>${d.ctr}%</span>`:d.ctr>2?`<span class="badge badge-warn"><div class="dot dot-warn"></div>${d.ctr}%</span>`:`<span class="badge badge-bad"><div class="dot dot-bad"></div>${d.ctr||'—'}%</span>`;
+    const leadVal = d.leads!==null?`<strong>${d.leads.toLocaleString()}</strong>`:'—';
+    const spendVal = d.spend?`$${d.spend.toLocaleString()}`:'—';
+    const cplVal = d.cpl?`$${d.cpl.toFixed(2)}`:'—';
+    const statusBadge = d.status==='good'?`<span class="badge badge-good"><div class="dot dot-good"></div>Strong</span>`:d.status==='warn'?`<span class="badge badge-warn"><div class="dot dot-warn"></div>Monitor</span>`:`<span class="badge badge-bad"><div class="dot dot-bad"></div>Optimize</span>`;
+    return `<tr onclick="expandCampRow(this,${i})" data-idx="${i}">
+      <td><div class="td-main">${d.name}</div></td>
+      <td>${d.channel}</td>
+      <td>${d.impressions.toLocaleString()}</td>
+      <td>${d.clicks.toLocaleString()}</td>
+      <td>${ctrBadge}</td>
+      <td>${leadVal}</td>
+      <td>${spendVal}</td>
+      <td>${cplVal}</td>
+      <td>${statusBadge}</td>
+    </tr>
+    <tr class="row-expand" id="expand-${i}" style="display:none"><td colspan="9"><div class="row-expand-inner">💡 <strong>Analysis:</strong> ${d.detail}</div></td></tr>`;
+  }).join('');
+}
+
+function expandCampRow(row, idx) {
+  const expRow = document.getElementById('expand-'+idx);
+  if(expRow.style.display==='none'){
+    if(expandedRow!==null) document.getElementById('expand-'+expandedRow).style.display='none';
+    expRow.style.display='table-row';
+    expandedRow=idx;
+  } else {
+    expRow.style.display='none';
+    expandedRow=null;
+  }
+}
+
+function sortTable(col) {
+  if(campSort.col===col) campSort.dir*=-1; else {campSort.col=col;campSort.dir=-1;}
+  renderCampTable();
+}
+
+function filterTable(f) {
+  campFilter=f;
+  ['fAll','fGoogle','fFacebook'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById('f'+f.charAt(0).toUpperCase()+f.slice(1)).classList.add('active');
+  renderCampTable();
+}
+
+// ── KEYWORD TABLE ─────────────────────────────────────────────────────────
+let kwSort = {col:'leads',dir:-1};
+let kwExpandedRow = null;
+
+function renderKWTable() {
+  let data = [...KEYWORDS];
+  data.sort((a,b)=>{
+    const va=a[kwSort.col]??-999, vb=b[kwSort.col]??-999;
+    return typeof va==='string'?va.localeCompare(vb)*kwSort.dir:(va-vb)*kwSort.dir;
+  });
+  const tbody = document.getElementById('kwBody');
+  tbody.innerHTML = data.map((d,i)=>{
+    const ctrBadge = d.ctr>8?`<span class="badge badge-good"><div class="dot dot-good"></div>${d.ctr}%</span>`:d.ctr>5?`<span class="badge badge-warn"><div class="dot dot-warn"></div>${d.ctr}%</span>`:`<span class="badge badge-neutral"><div class="dot dot-neutral"></div>${d.ctr}%</span>`;
+    const statusBadge = d.status==='good'?`<span class="badge badge-good"><div class="dot dot-good"></div>Top performer</span>`:d.status==='warn'?`<span class="badge badge-warn"><div class="dot dot-warn"></div>Scale up</span>`:d.status==='bad'?`<span class="badge badge-bad"><div class="dot dot-bad"></div>Optimize</span>`:`<span class="badge badge-neutral"><div class="dot dot-neutral"></div>Monitor</span>`;
+    const analysis = d.status==='bad'?`High CTR (${d.ctr}%) but very low CVR (${d.cvr}%) — landing page mismatch. Patients click but don't convert. Audit the post-click experience.`:d.status==='good'?`Strong performer. CTR ${d.ctr}% and CVR ${d.cvr}% are both above average. Consider increasing bids and budget allocation for this keyword.`:d.status==='warn'?`Moderate performance. Opportunity to improve with more specific landing page content and tighter audience targeting.`:`Low volume — monitor for trends. May be worth testing with a small budget increase.`;
+    return `<tr onclick="expandKWRow(this,${i})" data-idx="${i}">
+      <td><div class="td-main">${d.keyword}</div></td>
+      <td>${d.match}</td>
+      <td>${d.impressions.toLocaleString()}</td>
+      <td>${d.clicks.toLocaleString()}</td>
+      <td>${ctrBadge}</td>
+      <td><strong>${d.leads}</strong></td>
+      <td>${d.cvr}%</td>
+      <td>${statusBadge}</td>
+    </tr>
+    <tr class="row-expand" id="kwexpand-${i}" style="display:none"><td colspan="8"><div class="row-expand-inner">💡 <strong>Analysis:</strong> ${analysis}</div></td></tr>`;
+  }).join('');
+}
+
+function expandKWRow(row, idx) {
+  const expRow = document.getElementById('kwexpand-'+idx);
+  if(expRow.style.display==='none'){
+    if(kwExpandedRow!==null) document.getElementById('kwexpand-'+kwExpandedRow).style.display='none';
+    expRow.style.display='table-row';
+    kwExpandedRow=idx;
+  } else {expRow.style.display='none';kwExpandedRow=null;}
+}
+
+function sortKWTable(col) {
+  if(kwSort.col===col) kwSort.dir*=-1; else {kwSort.col=col;kwSort.dir=-1;}
+  renderKWTable();
+}
+
+// ── DRILL DOWN ────────────────────────────────────────────────────────────
+const drillConfigs = {
+  leads:{title:'Web Leads Drill-Down',html:`<div class="drill-charts" style="grid-template-columns:1fr 1fr 1fr"><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">Leads by Type</div><div class="drill-chart-wrap"><canvas id="d1"></canvas></div></div><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">Leads by Source (Top 5)</div><div class="drill-chart-wrap"><canvas id="d2"></canvas></div></div><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">Weekly Lead Volume</div><div class="drill-chart-wrap"><canvas id="d3"></canvas></div></div></div>`,init:()=>{
+    makeChart('d1',{type:'doughnut',data:{labels:['Appt. Request','Guide Download','General Inquiry','Newsletter'],datasets:[{data:[1961,262,152,3],backgroundColor:[TEAL,TEAL2,GREEN,BORDER],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT}}});
+    makeChart('d2',{type:'bar',data:{labels:['google.com','Google PS','Direct','Syndicated','Bing'],datasets:[{data:[632,504,132,83,78],backgroundColor:TEAL,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:TT},scales:{x:{grid:GRID,ticks:TICK},y:{grid:{display:false},ticks:{...TICK,font:{size:10}}}}}});
+    makeChart('d3',{type:'line',data:{labels:WEEKLY.labels.slice(14,20),datasets:[{label:'Leads',data:WEEKLY.leads.slice(14,20),borderColor:TEAL,backgroundColor:TEAL+'22',fill:true,tension:.4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT},scales:{x:{grid:GRID,ticks:{...TICK,font:{size:9}}},y:{grid:GRID,ticks:TICK}}}});
+  }},
+  cpl:{title:'Cost Per Lead Analysis',html:`<div class="drill-charts" style="grid-template-columns:1fr 1fr 1fr"><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">CPL vs Industry Benchmarks</div><div class="drill-chart-wrap"><canvas id="d1"></canvas></div></div><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">CPL by Campaign</div><div class="drill-chart-wrap"><canvas id="d2"></canvas></div></div><div class="card" style="background:var(--oh-teal-lt)"><div class="card-title" style="font-size:12px;margin-bottom:10px;color:var(--oh-teal)">💡 CPL Context</div><div style="font-size:12px;line-height:1.8;color:var(--slate)">Your <strong style="color:var(--oh-teal)">$25.72 overall CPL</strong> is exceptional — 68% below the $80 industry floor. The Brand campaign at $53.41 is the most efficient paid driver. NeuroSpine at $746 CPL needs urgent optimization before any budget increase.</div></div></div>`,init:()=>{
+    makeChart('d1',{type:'bar',data:{labels:['OHNI Overall','Brand Campaign','Healthcare Min','Healthcare Avg','Healthcare Max'],datasets:[{data:[25.72,53.41,80,100,120],backgroundColor:[GREEN,TEAL,AMBER+'88',AMBER,RED+'88'],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` $${c.raw} CPL`}}},scales:{x:{grid:GRID,ticks:{...TICK,font:{size:10}}},y:{grid:GRID,ticks:{...TICK,callback:v=>'$'+v}}}}});
+    makeChart('d2',{type:'bar',data:{labels:['Brand','Not Matched','Movement\nDisorders','NeuroSpine'],datasets:[{data:[53.41,48.24,null,746.58],backgroundColor:[TEAL,TEAL2,GREEN,RED],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>c.raw?` $${c.raw.toFixed(2)} CPL`:' No data'}}},scales:{x:{grid:GRID,ticks:{...TICK,font:{size:10}}},y:{grid:GRID,ticks:{...TICK,callback:v=>'$'+v}}}}});
+  }},
+  ctr:{title:'CTR Deep Dive — Paid Search',html:`<div class="drill-charts" style="grid-template-columns:1fr 1fr 1fr"><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">CTR vs Benchmarks</div><div class="drill-chart-wrap"><canvas id="d1"></canvas></div></div><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">CTR by Campaign</div><div class="drill-chart-wrap"><canvas id="d2"></canvas></div></div><div class="card" style="background:var(--oh-teal-lt)"><div class="card-title" style="font-size:12px;margin-bottom:10px;color:var(--oh-teal)">💡 CTR Context</div><div style="font-size:12px;line-height:1.8;color:var(--slate)">A <strong>declining CTR</strong> with rising leads often means you scaled impressions — more people see the ad but only the most qualified click. This is a healthy scale pattern, not a performance problem. Your 6.27% is still 3.5× the 1.79% benchmark.</div></div></div>`,init:()=>{
+    makeChart('d1',{type:'bar',data:{labels:['OHNI Paid\nSearch','OHNI\nFacebook','Healthcare\nBenchmark (PS)','Healthcare\nBenchmark (Social)'],datasets:[{data:[6.27,1.31,1.79,0.83],backgroundColor:[TEAL,AMBER,BORDER,BORDER],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.raw}% CTR`}}},scales:{x:{grid:GRID,ticks:{...TICK,font:{size:10}}},y:{grid:GRID,ticks:{...TICK,callback:v=>v+'%'}}}}});
+    makeChart('d2',{type:'bar',data:{labels:['Brand','Movement\nDisorders','NeuroSpine\n(PS)','NeuroSpine\n(FB)','Not\nMatched'],datasets:[{data:[7.36,5.42,5.33,1.31,5.42],backgroundColor:TEAL,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.raw}% CTR`}}},scales:{x:{grid:GRID,ticks:{...TICK,font:{size:10}}},y:{grid:GRID,ticks:{...TICK,callback:v=>v+'%'}}}}});
+  }},
+  impressions:{title:'Impressions Breakdown',html:`<div class="drill-charts" style="grid-template-columns:1fr 1fr 1fr"><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">Impression Mix</div><div class="drill-chart-wrap"><canvas id="d1"></canvas></div></div><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">Digital Impression Trend</div><div class="drill-chart-wrap"><canvas id="d2"></canvas></div></div><div class="card" style="background:#FFF8E6"><div class="card-title" style="font-size:12px;margin-bottom:10px;color:var(--amber)">⚠ Why -80% YoY?</div><div style="font-size:12px;line-height:1.8;color:var(--slate)">Traditional (OOH) dropped from ~23M to 4.7M — a planned media mix shift. Digital paid dropped 81% but cost-efficiency dramatically improved. The Dec 28 spike (163K digital impressions in one week) was a campaign burst that delivered only 25 leads — low efficiency vs other weeks.</div></div></div>`,init:()=>{
+    makeChart('d1',{type:'doughnut',data:{labels:['Billboards','Transit','Google PS','Facebook','Other'],datasets:[{data:[4301205,399185,466657,405202,500],backgroundColor:[TEAL,TEAL2,GREEN,AMBER,BORDER],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{color:SLATE,font:{size:10},usePointStyle:true}},tooltip:{...TT,callbacks:{label:c=>` ${c.raw.toLocaleString()}`}}}}});
+    makeChart('d2',{type:'line',data:{labels:WEEKLY.labels,datasets:[{label:'Digital Impressions',data:WEEKLY.leads.map((_,i)=>i===13?163856:WEEKLY.leads[i]*400+Math.random()*5000),borderColor:TEAL,backgroundColor:TEAL+'11',fill:true,tension:.3,borderWidth:2,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT},scales:{x:{grid:GRID,ticks:{...TICK,maxRotation:45,font:{size:9}}},y:{grid:GRID,ticks:{...TICK,callback:v=>(v/1000).toFixed(0)+'K'}}}}});
+  }},
+  sessions:{title:'Web Sessions Analysis',html:`<div class="drill-charts" style="grid-template-columns:1fr 1fr 1fr"><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">Sessions by Channel</div><div class="drill-chart-wrap"><canvas id="d1"></canvas></div></div><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">Device Split</div><div class="drill-chart-wrap"><canvas id="d2"></canvas></div></div><div class="card" style="background:var(--oh-teal-lt)"><div class="card-title" style="font-size:12px;margin-bottom:10px;color:var(--oh-teal)">💡 Session Quality</div><div style="font-size:12px;line-height:1.8;color:var(--slate)">51.39% engagement rate means slightly more than half of sessions are genuinely engaged. The 24.9% drop is likely due to scaled paid traffic bringing more top-of-funnel visitors. <strong>54.5% of traffic is mobile</strong> — ensure all landing pages are mobile-first.</div></div></div>`,init:()=>{
+    makeChart('d1',{type:'bar',data:{labels:['Organic\nSearch','Paid\nSearch','Direct','Referral','AI\nReferral','Paid\nSocial','Display','Email'],datasets:[{label:'Sessions',data:[32000,26178,12000,3000,1500,2000,500,300],backgroundColor:TEAL,borderRadius:3},{label:'Engaged',data:[21000,13000,8000,2400,900,1200,250,200],backgroundColor:GREEN,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{color:SLATE,font:{size:10},usePointStyle:true}},tooltip:TT},scales:{x:{grid:GRID,ticks:{...TICK,font:{size:9}}},y:{grid:GRID,ticks:{...TICK,callback:v=>(v/1000).toFixed(0)+'K'}}}}});
+    makeChart('d2',{type:'doughnut',data:{labels:['Mobile (54.5%)','Desktop (43.7%)','Tablet (1.8%)'],datasets:[{data:[54.5,43.7,1.8],backgroundColor:[TEAL,TEAL2,GREEN],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{color:SLATE,font:{size:10},usePointStyle:true}},tooltip:TT}}});
+  }},
+  'stroke-engage':{title:'Stroke Page Engagement Analysis',html:`<div class="drill-charts" style="grid-template-columns:1fr 1fr 1fr"><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">Engagement Rate vs OHNI Pages</div><div class="drill-chart-wrap"><canvas id="d1"></canvas></div></div><div class="card"><div class="card-title" style="font-size:12px;margin-bottom:10px">Page Entrances Comparison</div><div class="drill-chart-wrap"><canvas id="d2"></canvas></div></div><div class="card" style="background:#FFF8E6"><div class="card-title" style="font-size:12px;margin-bottom:10px;color:var(--amber)">⚠ Engagement Gap</div><div style="font-size:12px;line-height:1.8;color:var(--slate)">The Stroke page (43.75%) vs Our Team page (85.5%) shows that physician-focused content drives 2× the engagement. Adding a physician profile and patient story to the Stroke page should meaningfully improve engagement and downstream conversion.</div></div></div>`,init:()=>{
+    makeChart('d1',{type:'bar',data:{labels:['Stroke','OHNI\nMain','Neurology','Neurosurgery','Our Team','Locations','Appointment'],datasets:[{data:[43.75,66.4,66.07,45.89,85.54,88.61,87.47],backgroundColor:[AMBER,TEAL,TEAL2,TEAL2+'88',GREEN,GREEN,GREEN],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.raw}% engaged`}}},scales:{x:{grid:GRID,ticks:{...TICK,font:{size:10}}},y:{grid:GRID,ticks:{...TICK,callback:v=>v+'%'},max:100}}}});
+    makeChart('d2',{type:'bar',data:{labels:['OHNI Main','Spine\nCenter','Neurology','Neuro-\nsurgery','Our Team','Locations','Stroke'],datasets:[{data:[17032,12029,9922,9433,4507,4507,1270],backgroundColor:[TEAL,TEAL2,TEAL2,TEAL2+'88',GREEN,GREEN,AMBER],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.raw.toLocaleString()} entrances`}}},scales:{x:{grid:GRID,ticks:{...TICK,font:{size:10}}},y:{grid:GRID,ticks:{...TICK,callback:v=>(v/1000).toFixed(0)+'K'}}}}});
+  }},
+};
+
+function drillKPI(key) {
+  const config = drillConfigs[key];
+  if(!config) return;
+  const isStroke = key.startsWith('stroke');
+  const panel = isStroke ? document.getElementById('drillPanelStroke') : document.getElementById('drillPanel');
+  const title = isStroke ? document.getElementById('drillTitleStroke') : document.getElementById('drillTitle');
+  const chartsDiv = isStroke ? document.getElementById('drillChartsStroke') : document.getElementById('drillCharts');
+
+  title.textContent = config.title;
+  chartsDiv.innerHTML = config.html;
+  panel.classList.add('show');
+  setTimeout(()=>config.init(), 50);
+
+  document.querySelectorAll('.kpi-card').forEach(c=>c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+}
+
+function closeDrill(){document.getElementById('drillPanel').classList.remove('show');document.querySelectorAll('.kpi-card').forEach(c=>c.classList.remove('selected'));}
+function closeDrillStroke(){document.getElementById('drillPanelStroke').classList.remove('show');document.querySelectorAll('.kpi-card').forEach(c=>c.classList.remove('selected'));}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', ()=>{
+  buildTrendChart('trendChart');
+  buildTrendChart('strokeTrendChart');
+  buildLeadTypeChart('leadTypeChart');
+  buildLeadTypeChart('strokeLeadTypeChart');
+  buildChannelChart();
+  buildSourceChart();
+  buildImpressChart();
+  buildStrokePageChart();
+  renderCampTable();
+  renderKWTable();
+});
+</script>
+</body>
+</html>

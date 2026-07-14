@@ -1,0 +1,56 @@
+name: ga4_dim_webpage
+descriptions:
+  user: Dimension table storing parsed webpage URL components tracked via Google Analytics 4 across Orlando Health web properties.
+table: oh-data-warehouse.gold.ga4_dim_webpage
+grain:
+- page_url
+columns:
+- name: page_url
+  type: string
+  descriptions:
+    ai: Full webpage URL including protocol scheme as recorded in GA4.
+- name: page_url_no_scheme
+  type: string
+  descriptions:
+    ai: Full URL with the http/https protocol prefix stripped out.
+- name: page_hostname
+  type: string
+  descriptions:
+    ai: Domain and subdomain portion of the webpage URL.
+- name: page_path_1
+  type: string
+  descriptions:
+    ai: First segment of the URL path after the hostname.
+- name: page_path_2
+  type: string
+  descriptions:
+    ai: Second segment of the URL path hierarchy.
+- name: page_path_3
+  type: string
+  descriptions:
+    ai: Third segment of the URL path hierarchy.
+- name: page_path_4
+  type: string
+  descriptions:
+    ai: Fourth segment of the URL path hierarchy.
+- name: page_path_5
+  type: string
+  descriptions:
+    ai: Fifth segment of the URL path hierarchy.
+- name: page_path_6
+  type: string
+  descriptions:
+    ai: Sixth segment of the URL path hierarchy.
+- name: page_path_7
+  type: string
+  descriptions:
+    ai: Seventh segment of the URL path hierarchy.
+- name: page_path_8
+  type: string
+  descriptions:
+    ai: Eighth segment of the URL path hierarchy.
+- name: page_path_9
+  type: string
+  descriptions:
+    ai: Ninth segment of the URL path hierarchy.
+measures: []

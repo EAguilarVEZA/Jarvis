@@ -1,0 +1,74 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "google_ads_8903973019",
+  "name": "p_ads_Customer_8903973019",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 1301,
+  "columns": [
+    {
+      "name": "customer_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The ID of the customer."
+    },
+    {
+      "name": "customer_auto_tagging_enabled",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Whether auto-tagging is enabled for the customer."
+    },
+    {
+      "name": "customer_currency_code",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The currency in which the account operates. A subset of the currency codes from the ISO 4217 standard is supported."
+    },
+    {
+      "name": "customer_descriptive_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Optional, non-unique descriptive name of the customer."
+    },
+    {
+      "name": "customer_manager",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Whether the customer is a manager."
+    },
+    {
+      "name": "customer_test_account",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Whether the customer is a test account."
+    },
+    {
+      "name": "customer_time_zone",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The local timezone ID of the customer."
+    }
+  ],
+  "foreignKeys": []
+}

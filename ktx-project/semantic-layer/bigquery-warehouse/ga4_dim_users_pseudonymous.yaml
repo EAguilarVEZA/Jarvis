@@ -1,0 +1,71 @@
+name: ga4_dim_users_pseudonymous
+descriptions:
+  user: GA4 pseudonymous user dimension with lifetime engagement metrics, device info, and geographic data per cookie-based user.
+table: oh-data-warehouse.gold.ga4_dim_users_pseudonymous
+grain:
+- pseudo_user_id
+columns:
+- name: pseudo_user_id
+  type: string
+  descriptions:
+    db: unique device ID based on cookie
+    ai: Cookie-based anonymous identifier uniquely representing a device or browser.
+- name: user_last_active_timestamp
+  type: time
+  descriptions:
+    ai: Most recent session activity timestamp for this user.
+  role: time
+- name: user_first_touch_timestamp
+  type: time
+  descriptions:
+    ai: Timestamp when the user first interacted with the property.
+  role: time
+- name: sessions_ltv
+  type: number
+  descriptions:
+    ai: Lifetime total number of sessions attributed to this user.
+- name: engagement_time_millis_ltv
+  type: number
+  descriptions:
+    ai: Lifetime cumulative active engagement time in milliseconds.
+- name: engagement_time_seconds_ltv
+  type: number
+  descriptions:
+    ai: Lifetime cumulative active engagement time in seconds.
+- name: engaged_sessions_ltv
+  type: number
+  descriptions:
+    ai: Lifetime count of sessions meeting GA4 engagement threshold.
+- name: session_duration_micros_ltv
+  type: number
+  descriptions:
+    ai: Lifetime total session duration in microseconds.
+- name: device
+  type: string
+  descriptions:
+    ai: Nested record with OS, device category, brand, and model details.
+- name: geo
+  type: string
+  descriptions:
+    ai: Nested record with city, region, country, and continent location data.
+- name: last_updated_date
+  type: time
+  descriptions:
+    ai: Date this user record was last refreshed in the dataset.
+  role: time
+measures:
+- name: total_sessions_ltv
+  expr: SUM(sessions_ltv)
+  description: Sessions Ltv (sum of sessions_ltv).
+- name: total_engagement_time_millis_ltv
+  expr: SUM(engagement_time_millis_ltv)
+  description: Engagement Time Millis Ltv (sum of engagement_time_millis_ltv).
+- name: total_engagement_time_seconds_ltv
+  expr: SUM(engagement_time_seconds_ltv)
+  description: Engagement Time Seconds Ltv (sum of engagement_time_seconds_ltv).
+- name: total_engaged_sessions_ltv
+  expr: SUM(engaged_sessions_ltv)
+  description: Engaged Sessions Ltv (sum of engaged_sessions_ltv).
+- name: total_session_duration_micros_ltv
+  expr: SUM(session_duration_micros_ltv) / 1000000
+  description: Session Duration Micros Ltv (sum of session_duration_micros_ltv).

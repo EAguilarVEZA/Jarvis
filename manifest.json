@@ -1,0 +1,50 @@
+{
+  "name": "Jarvis — Orlando Health Marketing Intelligence",
+  "short_name": "Jarvis",
+  "description": "Live BigQuery dashboards, automation, and AI-assisted marketing analytics for Orlando Health.",
+  "start_url": "./martin_app.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#0f766e",
+  "lang": "en-US",
+  "categories": ["business", "productivity", "analytics"],
+  "icons": [
+    {
+      "src": "./icons/jarvis-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/jarvis-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/jarvis.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Content Hub",
+      "short_name": "Hub",
+      "description": "Open the Orlando Health Content Hub with all 24 reports",
+      "url": "./martin_app.html#view=hub-content-orlando-health",
+      "icons": [{ "src": "./icons/jarvis-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Ask Jarvis",
+      "short_name": "Ask",
+      "description": "Ask Jarvis a marketing question",
+      "url": "./martin_app.html#ask",
+      "icons": [{ "src": "./icons/jarvis-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false
+}

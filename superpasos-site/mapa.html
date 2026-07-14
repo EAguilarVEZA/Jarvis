@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperPasos — Mapa Interactivo</title>
+<style>
+  :root{--navy:#2DD4FF;--terra:#FF5C7A;--blue:#19E37D;--gold:#FFD23F;--goldSoft:rgba(255,210,63,.16);
+        --cream:#070B16;--ink:#EAF0FA;--muted:#9CA9C2;--blueSoft:rgba(25,227,125,.16);--terraSoft:rgba(255,92,122,.16);
+        --glass:rgba(255,255,255,.05);--gline:rgba(255,255,255,.12);}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;}
+  body{background:transparent;color:var(--ink);min-height:100vh;padding:8px;}
+  header{text-align:center;margin-bottom:14px;}
+  header h1{font-size:24px;color:#fff;font-weight:900;letter-spacing:-.5px;}
+  header .biline{font-size:15px;font-weight:800;background:linear-gradient(90deg,var(--blue),var(--navy));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-top:2px;}
+  header p{font-size:12.5px;color:var(--muted);margin-top:4px;}
+  .personas{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0;}
+  .chip{padding:9px 16px;border:1.5px solid var(--gline);border-radius:22px;background:var(--glass);font-size:13px;
+        font-weight:700;color:var(--muted);cursor:pointer;transition:all .25s;backdrop-filter:blur(6px);}
+  .chip:hover{transform:translateY(-1px);color:#fff;}
+  .chip.on{background:linear-gradient(135deg,var(--blue),var(--navy));border-color:transparent;color:#04210f;}
+  .chip.b2b.on{background:linear-gradient(135deg,var(--gold),#ffb347);border-color:transparent;color:#3a2a00;}
+  .wrap{display:grid;grid-template-columns:1fr 330px;gap:16px;max-width:1280px;margin:0 auto;}
+  @media(max-width:980px){.wrap{grid-template-columns:1fr;}}
+  .mapcard{background:var(--glass);border:1px solid var(--gline);border-radius:16px;padding:10px;backdrop-filter:blur(8px);}
+  svg{width:100%;height:auto;display:block;}
+  .node rect{fill:#0e1830;stroke:var(--gline);stroke-width:1.5;rx:12;transition:all .3s;}
+  .node text{transition:all .3s;}
+  .node .ico{font-size:24px;}
+  .node .ttl{font-size:14px;font-weight:800;fill:#fff;}
+  .node .sub{font-size:10px;fill:var(--muted);}
+  .node{cursor:pointer;}
+  .node:hover rect{stroke:var(--navy);stroke-width:2.5;}
+  .node.hot rect{stroke-width:3;filter:drop-shadow(0 4px 14px rgba(45,212,255,.4));}
+  .node.hot.c-blue rect{stroke:var(--blue);fill:var(--blueSoft);}
+  .node.hot.c-terra rect{stroke:var(--terra);fill:var(--terraSoft);}
+  .node.hot.c-gold rect{stroke:var(--gold);fill:var(--goldSoft);}
+  .node.hot.c-navy rect{stroke:var(--navy);fill:rgba(45,212,255,.14);}
+  .dimmed{opacity:.2;}
+  .edge{fill:none;stroke:rgba(255,255,255,.18);stroke-width:2;transition:all .3s;}
+  .edge.hot{stroke-width:3;}
+  .edge.hot.e-blue{stroke:var(--blue);}
+  .edge.hot.e-terra{stroke:var(--terra);}
+  .edge.hot.e-gold{stroke:var(--gold);}
+  .edge.flow{stroke-dasharray:7 6;animation:dashmove 1.1s linear infinite;}
+  @keyframes dashmove{to{stroke-dashoffset:-13;}}
+  .elabel{font-size:10px;font-weight:700;fill:var(--muted);transition:all .3s;}
+  .elabel.hot{fill:#fff;}
+  .panel{background:var(--glass);border:1px solid var(--gline);border-radius:16px;padding:18px;backdrop-filter:blur(8px);display:flex;flex-direction:column;}
+  .panel h2{font-size:16px;color:#fff;margin-bottom:4px;}
+  .panel .role{font-size:11.5px;color:var(--muted);margin-bottom:12px;}
+  .steps{flex:1;display:flex;flex-direction:column;gap:7px;}
+  .step{display:flex;gap:10px;padding:9px 11px;border-radius:11px;border:1px solid var(--gline);font-size:12.5px;
+        color:var(--muted);transition:all .3s;cursor:pointer;}
+  .step .n{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.1);color:var(--muted);font-weight:800;
+           font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;}
+  .step.on{border-color:var(--blue);background:rgba(25,227,125,.1);color:#fff;transform:translateX(3px);}
+  .step.on .n{background:linear-gradient(135deg,var(--blue),var(--navy));color:#04210f;}
+  .controls{display:flex;gap:8px;margin-top:14px;}
+  .controls button{flex:1;padding:11px;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;}
+  #playBtn{background:linear-gradient(135deg,var(--blue),var(--navy));color:#04210f;}
+  #resetBtn{background:rgba(255,255,255,.08);color:#fff;border:1px solid var(--gline);}
+  .modal{position:fixed;inset:0;background:rgba(4,7,14,.8);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  .modal.show{display:flex;}
+  .mcard{background:#0d1426;border:1px solid var(--gline);border-radius:18px;max-width:430px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .mcard h3{font-size:18px;color:#fff;margin-bottom:2px;}
+  .mcard .mrole{font-size:12px;color:var(--muted);margin-bottom:12px;}
+  .mcard ul{list-style:none;display:flex;flex-direction:column;gap:7px;}
+  .mcard li{font-size:13px;padding-left:20px;position:relative;color:#D4DEF0;}
+  .mcard li::before{content:"\25CF";position:absolute;left:4px;color:var(--blue);font-size:9px;top:4px;}
+  .mcard .close{margin-top:16px;width:100%;padding:11px;border:none;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--navy));color:#04210f;font-weight:800;font-size:13px;cursor:pointer;}
+  .golden{max-width:1280px;margin:14px auto 0;background:var(--goldSoft);border:1px solid rgba(255,210,63,.3);border-radius:13px;padding:11px 18px;
+          text-align:center;font-size:13px;font-weight:700;color:var(--gold);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SuperPasos — Mapa de la Plataforma</h1>
+  <div class="biline">Tus pasos, su superpoder.</div>
+  <p>Elige una persona para ver su viaje · haz clic en cualquier nodo para descubrir toda su funcionalidad</p>
+</header>
+
+<div class="personas" id="personaBar">
+  <button class="chip on" data-p="caminante">🚶 Caminante</button>
+  <button class="chip" data-p="patrocinador">🏢 Patrocinador</button>
+  <button class="chip" data-p="banco">🏛 Banco de Alimentos</button>
+  <button class="chip" data-p="retail">🛒 Cajero / Retail</button>
+  <button class="chip" data-p="admin">🛡 Admin</button>
+  <button class="chip b2b" data-p="b2b">✨ Marca B2B (Fase 5)</button>
+</div>
+
+<div class="wrap">
+  <div class="mapcard">
+    <svg viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg">
+      <!-- EDGES (paths drawn under nodes) -->
+      <path id="e-cam-plat"  class="edge" d="M255,170 C330,180 360,210 395,250"/>
+      <path id="e-plat-cam"  class="edge" d="M395,290 C350,300 300,260 255,210"/>
+      <path id="e-web-plat"  class="edge" d="M255,420 C320,400 350,340 400,310"/>
+      <path id="e-plat-pat"  class="edge" d="M605,250 C660,220 690,180 740,150"/>
+      <path id="e-pat-banco" class="edge" d="M860,185 C880,250 880,300 860,360"/>
+      <path id="e-banco-nin" class="edge" d="M845,440 C830,480 800,510 760,540"/>
+      <path id="e-banco-plat" class="edge" d="M740,395 C680,370 650,330 605,300"/>
+      <path id="e-cam-ret"   class="edge" d="M210,230 C260,380 340,480 395,520"/>
+      <path id="e-ret-plat"  class="edge" d="M500,490 C500,440 500,390 500,330"/>
+      <path id="e-adm-plat"  class="edge" d="M500,115 C500,150 500,180 500,225"/>
+      <path id="e-b2b-plat"  class="edge" d="M740,560 C660,540 600,420 545,330" stroke-dasharray="3 4"/>
+
+      <!-- edge labels -->
+      <text class="elabel" data-e="e-cam-plat"  x="290" y="195">pasos verificados</text>
+      <text class="elabel" data-e="e-plat-cam"  x="280" y="290">cupón de tu categoría 🎁</text>
+      <text class="elabel" data-e="e-web-plat"  x="290" y="392">QR · sin descarga</text>
+      <text class="elabel" data-e="e-plat-pat"  x="625" y="190">métricas en vivo</text>
+      <text class="elabel" data-e="e-pat-banco" x="888" y="280">$ donación DIRECTA</text>
+      <text class="elabel" data-e="e-banco-nin" x="845" y="505">comida 🍲</text>
+      <text class="elabel" data-e="e-banco-plat" x="615" y="362">evidencias (fotos)</text>
+      <text class="elabel" data-e="e-cam-ret"   x="240" y="430">muestra su QR</text>
+      <text class="elabel" data-e="e-ret-plat"  x="510" y="420">canje verificado ✓</text>
+      <text class="elabel" data-e="e-adm-plat"  x="510" y="170">control y emergencias</text>
+      <text class="elabel" data-e="e-b2b-plat"  x="600" y="480">campañas promo (Fase 5)</text>
+
+      <!-- NODES -->
+      <g class="node c-blue" id="n-caminante" transform="translate(80,130)">
+        <rect width="175" height="84" rx="12"/>
+        <text class="ico" x="16" y="36">🚶</text>
+        <text class="ttl" x="52" y="33">Caminante</text>
+        <text class="sub" x="52" y="50">app móvil · web</text>
+        <text class="sub" x="16" y="70">camina · dona · canjea</text>
+      </g>
+      <g class="node c-blue" id="n-web" transform="translate(80,380)">
+        <rect width="175" height="78" rx="12"/>
+        <text class="ico" x="16" y="34">📱</text>
+        <text class="ttl" x="52" y="31">Web sin descarga</text>
+        <text class="sub" x="52" y="48">QR ciclovía → navegador</text>
+        <text class="sub" x="16" y="66">participa en 10 segundos</text>
+      </g>
+      <g class="node c-navy" id="n-plataforma" transform="translate(395,225)">
+        <rect width="210" height="105" rx="14"/>
+        <text class="ico" x="18" y="40">⚙️</text>
+        <text class="ttl" x="58" y="36">PLATAFORMA</text>
+        <text class="sub" x="58" y="53">motor de donaciones</text>
+        <text class="sub" x="18" y="74">antifraude · cupones · impacto</text>
+        <text class="sub" x="18" y="90">mueve datos, no plata</text>
+      </g>
+      <g class="node c-gold" id="n-patrocinador" transform="translate(740,90)">
+        <rect width="190" height="95" rx="12"/>
+        <text class="ico" x="16" y="38">🏢</text>
+        <text class="ttl" x="52" y="34">Patrocinador</text>
+        <text class="sub" x="52" y="51">portal web</text>
+        <text class="sub" x="16" y="72">compra comidas · ve su ROI</text>
+      </g>
+      <g class="node c-terra" id="n-banco" transform="translate(740,360)">
+        <rect width="190" height="80" rx="12"/>
+        <text class="ico" x="16" y="36">🏛</text>
+        <text class="ttl" x="52" y="32">Banco de Alimentos</text>
+        <text class="sub" x="52" y="49">ABACO · 26 bancos</text>
+        <text class="sub" x="16" y="68">entrega y certifica</text>
+      </g>
+      <g class="node c-terra" id="n-ninos" transform="translate(640,520)">
+        <rect width="160" height="70" rx="12"/>
+        <text class="ico" x="16" y="34">🍲</text>
+        <text class="ttl" x="52" y="30">Niños</text>
+        <text class="sub" x="52" y="47">desayunos escolares</text>
+        <text class="sub" x="16" y="60">su superpoder de aprender</text>
+      </g>
+      <g class="node c-blue" id="n-retail" transform="translate(395,490)">
+        <rect width="190" height="75" rx="12"/>
+        <text class="ico" x="16" y="34">🛒</text>
+        <text class="ttl" x="52" y="30">Cajero / Retail</text>
+        <text class="sub" x="52" y="47">validador web</text>
+        <text class="sub" x="16" y="64">escanea · valida · canjea</text>
+      </g>
+      <g class="node c-navy" id="n-admin" transform="translate(410,40)">
+        <rect width="180" height="72" rx="12"/>
+        <text class="ico" x="16" y="33">🛡</text>
+        <text class="ttl" x="52" y="29">Admin (nosotros)</text>
+        <text class="sub" x="52" y="46">consola interna</text>
+        <text class="sub" x="16" y="62">fraude · campañas · emergencias</text>
+      </g>
+      <g class="node c-gold" id="n-b2b" transform="translate(740,520)">
+        <rect width="190" height="80" rx="12" style="stroke-dasharray:5 4;"/>
+        <text class="ico" x="16" y="36">✨</text>
+        <text class="ttl" x="52" y="32">Marca B2B</text>
+        <text class="sub" x="52" y="49">Ofertas con Propósito</text>
+        <text class="sub" x="16" y="68">Fase 5 · toda campaña dona</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="panel">
+    <h2 id="pTitle">🚶 El Caminante</h2>
+    <div class="role" id="pRole">El corazón del sistema. Nunca paga: sus pasos son la moneda.</div>
+    <div class="steps" id="pSteps"></div>
+    <div class="controls">
+      <button id="playBtn" onclick="play()">▶ Reproducir viaje</button>
+      <button id="resetBtn" onclick="stopPlay(true)">Reiniciar</button>
+    </div>
+  </div>
+</div>
+
+<div class="golden">Regla de oro de la plataforma: el dinero de las donaciones va directo del patrocinador al banco de alimentos — y desde la Fase 5, toda campaña de cualquier marca financia un mínimo de comidas.</div>
+
+<!-- modal -->
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="mcard">
+    <h3 id="mTitle"></h3>
+    <div class="mrole" id="mRole"></div>
+    <ul id="mList"></ul>
+    <button class="close" onclick="closeModal()">Cerrar</button>
+  </div>
+</div>
+
+<script>
+// ====== DATA ======
+const NODES = {
+  'n-caminante': { t:'🚶 Caminante', r:'App móvil (iOS/Android) — la experiencia central', f:[
+    'Onboarding en 3 minutos: registro, consentimiento de datos (Ley 1581), permisos de pasos, categorías de premios favoritas, meta diaria',
+    'Pantalla Hoy: anillo de pasos en vivo, botón "¡Dale de comer a un niño!", reto comunitario',
+    'Voz de celebración en español al cumplir la meta',
+    'Ofertas: cupones de único uso SOLO de las categorías que el usuario eligió',
+    'Impacto: mis comidas, contador comunitario, fotos reales de las entregas, rachas e insignias',
+    'Tope de 1 comida/día: hábito diario y presupuesto protegido' ]},
+  'n-web': { t:'📱 Web sin descarga', r:'Adquisición masiva sin fricción (idea validada por Vizer en EE. UU.)', f:[
+    'QR en la ciclovía → página web en el navegador → participando en 10 segundos',
+    'Sin app store, sin instalación: el número de teléfono es la identidad',
+    'Cuenta la caminata del día y desbloquea la donación',
+    'El cupón vive en el navegador (y se guarda en Apple/Google Wallet)',
+    'Conversión a instalación de la app después de sentir la magia (~34%)',
+    'Cada canal (valla, influencer, radio) tiene su link único rastreable' ]},
+  'n-plataforma': { t:'⚙️ La Plataforma', r:'El motor central — mueve datos, nunca plata', f:[
+    'Actividad y antifraude: valida pasos del sistema operativo, cadencia ≤220/min, techo diario, device attestation',
+    'Motor de donaciones: 1 comida/usuario/día, presupuestos atómicos por campaña, libro mayor inmutable',
+    'Cupones: códigos de único uso, matching por categorías declaradas (zero-party data), expiración 7 días',
+    'Impacto y reportes: embudo Camina→Dona→Canjea en tiempo real, certificados mensuales',
+    'Multi-tenant desde el día 1: campañas tipo "donación" y tipo "promo" (Fase 5)',
+    'Stack open source: React Native, Node/TypeScript, PostgreSQL, Redis, Docker' ]},
+  'n-patrocinador': { t:'🏢 Patrocinador', r:'El que paga — y el que más gana (4 capas de retorno)', f:[
+    'Compra paquetes de comidas ($3.000 COP/comida, ej. 50.000/mes)',
+    'Capa tributaria: descuento del 25% (art. 257 E.T.) — gira directo al banco de alimentos',
+    'Capa de marca: ~600.000 momentos emocionales al año con su nombre',
+    'Capa de ventas: cupones con canje esperado 15–35% → ventas medibles por tienda y ciudad',
+    'Capa de datos: audiencias por intención declarada (zero-party data)',
+    'Portal de autogestión: crear campañas, ajustar presupuesto y ofertas en vivo, reportes y facturas' ]},
+  'n-banco': { t:'🏛 Banco de Alimentos', r:'ABACO: 26 bancos en todo el país — entrega y certifica', f:[
+    'Recibe las donaciones DIRECTO del patrocinador (la plataforma nunca toca ese dinero)',
+    'Entrega desayunos escolares en municipios sin cobertura del PAE',
+    'Sube evidencias (fotos, confirmaciones) que cierran el ciclo emocional en la app',
+    'Emite certificados de donación válidos ante la DIAN',
+    'Multiplica cada peso: ración a $2.500–3.000 vs. $5.600 del costo estatal implícito',
+    'Portal ligero: entregas del mes, conciliación, certificados' ]},
+  'n-ninos': { t:'🍲 Los Niños', r:'El propósito de todo — el superpoder de aprender', f:[
+    'Una comida diaria = mejor memoria, concentración y aprendizaje',
+    'La alimentación escolar sube la matrícula 9% y mejora asistencia (WFP)',
+    'Prevenir la desnutrición protege 2 años de escolaridad y 22% de ingresos futuros',
+    '392.000 niños <5 con desnutrición crónica · 1,28 M estudiantes sin PAE',
+    'Las fotos de las entregas aparecen en la app: el caminante ve a quién alimentó' ]},
+  'n-retail': { t:'🛒 Cajero / Retail', r:'Validador web (Fase 4) — el canje sin proyecto de integración', f:[
+    'Escanea el QR del cupón con un validador web simple',
+    'La API verifica: único uso + vigencia + anti-acumulación',
+    'Modelo "tender" (como Vizer): el código se procesa como medio de pago — sin proyecto POS de 6 meses',
+    'Cada canje alimenta el dashboard del patrocinador al instante',
+    'El retailer gana tráfico medible y el halo de un programa que alimenta niños' ]},
+  'n-admin': { t:'🛡 Admin (nosotros)', r:'Consola interna — operación y protección', f:[
+    'Alertas de fraude y gestión de usuarios',
+    'Aprobación de patrocinadores y campañas',
+    'Retos y contenido, notificaciones push',
+    'Emergencia PAE: activar campaña territorial en 48 horas',
+    'Métricas globales del negocio: usuarios, comidas, canjes, ingresos' ]},
+  'n-b2b': { t:'✨ Marca B2B — Ofertas con Propósito (Fase 5)', r:'El mismo motor, abierto a cualquier marca de Colombia', f:[
+    'Cualquier marca corre promociones medibles: links por canal, landing sin descarga, canje verificado',
+    'REGLA DE ORO: toda campaña financia un mínimo de comidas — el propósito es el foso competitivo',
+    'Ingresos nuevos: tarifa SaaS + tarifa por canje verificado',
+    'El embudo comercial: las marcas entran como patrocinadoras, expanden a todas sus promos',
+    'Misma infraestructura de retail: el pipe que abre Éxito sirve para todos' ]},
+};
+
+const JOURNEYS = {
+  caminante: { t:'🚶 El Caminante', r:'El corazón del sistema. Nunca paga: sus pasos son la moneda.', steps:[
+    { n:'n-caminante', e:[], txt:'Notificación matutina: "Faltan 8.000 pasos para el desayuno de hoy". Camina a su trabajo — la app cuenta sola.' },
+    { n:'n-plataforma', e:['e-cam-plat'], txt:'Sus pasos llegan a la plataforma, que los valida (antifraude: cadencia, topes, sensores del sistema operativo).' },
+    { n:'n-caminante', e:[], txt:'¡Meta cumplida! Toca "¡Dale de comer a un niño!" — voz de celebración, confetti, racha +1.' },
+    { n:'n-plataforma', e:['e-plat-cam'], txt:'La plataforma descuenta 1 comida del presupuesto del patrocinador y le entrega un cupón de SU categoría favorita.' },
+    { n:'n-retail', e:['e-cam-ret'], txt:'Días después, muestra el QR del cupón en la caja del Éxito — descuento inmediato.' },
+    { n:'n-ninos', e:['e-banco-nin'], txt:'Semanas después ve en su pestaña Impacto las fotos reales de los desayunos que sus pasos pagaron. Vuelve mañana.' },
+  ]},
+  patrocinador: { t:'🏢 El Patrocinador', r:'Paga las comidas — recibe impuestos, marca, ventas y datos.', steps:[
+    { n:'n-patrocinador', e:[], txt:'Crea su campaña en el portal: 50.000 comidas/mes, su oferta (30% dcto.), sus tiendas.' },
+    { n:'n-plataforma', e:['e-plat-pat'], txt:'Ve el embudo en vivo: usuarios activos → comidas donadas → cupones canjeados, por canal y por ciudad.' },
+    { n:'n-banco', e:['e-pat-banco'], txt:'Día 5 del mes: gira el dinero DIRECTO al banco de alimentos — la plataforma nunca lo toca. Recibe su certificado (25% de descuento tributario).' },
+    { n:'n-retail', e:['e-ret-plat'], txt:'Cada canje verificado en caja aparece en su dashboard: ventas medibles, ~2.500 clientes nuevos recurrentes/mes.' },
+    { n:'n-patrocinador', e:[], txt:'Mes 8: ve el ROI completo (tributario + marca + ventas + datos) y renueva con un paquete mayor.' },
+  ]},
+  banco: { t:'🏛 El Banco de Alimentos', r:'Entrega y certifica — donaciones recurrentes sin costo de recaudación.', steps:[
+    { n:'n-banco', e:['e-pat-banco'], txt:'Recibe el giro mensual directo del patrocinador, con previsibilidad para planear compras.' },
+    { n:'n-ninos', e:['e-banco-nin'], txt:'Entrega los desayunos escolares en los municipios priorizados sin cobertura del PAE.' },
+    { n:'n-plataforma', e:['e-banco-plat'], txt:'Sube fotos y confirmaciones en su portal ligero — la evidencia que cierra el ciclo emocional.' },
+    { n:'n-banco', e:[], txt:'Emite el certificado de donación DIAN para el patrocinador. Concilia giros vs. entregas. Listo para el mes siguiente.' },
+  ]},
+  retail: { t:'🛒 El Cajero / Retail', r:'El punto donde el cupón se vuelve venta.', steps:[
+    { n:'n-caminante', e:['e-cam-ret'], txt:'El caminante llega a la caja con su cupón QR (ganado con 8.000 pasos).' },
+    { n:'n-retail', e:[], txt:'El cajero lo escanea con el validador web — sin integración POS compleja: el código se procesa como medio de pago.' },
+    { n:'n-plataforma', e:['e-ret-plat'], txt:'La API valida único uso y vigencia, lo marca canjeado, y el dashboard del patrocinador se actualiza al instante.' },
+    { n:'n-retail', e:[], txt:'El retailer ganó una visita medible y la canasta completa de esa compra.' },
+  ]},
+  admin: { t:'🛡 El Admin (nosotros)', r:'Operamos, protegemos y respondemos a emergencias.', steps:[
+    { n:'n-admin', e:['e-adm-plat'], txt:'Monitorea alertas de fraude, aprueba campañas nuevas y publica retos comunitarios.' },
+    { n:'n-plataforma', e:[], txt:'Supervisa la salud del motor: presupuestos, canjes, métricas globales del negocio.' },
+    { n:'n-admin', e:[], txt:'🚨 Noticia: el PAE se suspende en un departamento. Activa la plantilla "Emergencia PAE" en 48 horas.' },
+    { n:'n-caminante', e:['e-plat-cam'], txt:'Push a todos los usuarios: "Magdalena nos necesita — esta semana tus pasos van allá". Contador en vivo, patrocinadores se suman.' },
+  ]},
+  b2b: { t:'✨ La Marca B2B — Fase 5', r:'Ofertas con Propósito: el motor de promociones, abierto a todos.', steps:[
+    { n:'n-b2b', e:['e-b2b-plat'], txt:'Cualquier marca de consumo crea su campaña de promoción medible: producto, tiendas, oferta, links por canal.' },
+    { n:'n-plataforma', e:[], txt:'El mismo motor de cupones de único uso y atribución por canal — diseñado multi-tenant desde el día 1.' },
+    { n:'n-banco', e:['e-pat-banco'], txt:'REGLA DE ORO: toda campaña financia un mínimo de comidas. El propósito no se negocia.' },
+    { n:'n-retail', e:['e-ret-plat'], txt:'Canjes verificados en el pipe de retail que ya construimos — la marca paga SaaS + tarifa por canje.' },
+    { n:'n-b2b', e:[], txt:'El embudo comercial completo: entró como patrocinadora de comidas, ahora corre TODAS sus promos aquí.' },
+  ]},
+};
+
+// ====== STATE & RENDER ======
+let persona = 'caminante', stepIdx = -1, timer = null;
+const $ = id => document.getElementById(id);
+
+function setPersona(p){
+  persona = p; stepIdx = -1; stopPlay(false);
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on', c.dataset.p===p));
+  const J = JOURNEYS[p];
+  $('pTitle').textContent = J.t;
+  $('pRole').textContent = J.r;
+  $('pSteps').innerHTML = J.steps.map((s,i)=>
+    `<div class="step" data-i="${i}" onclick="goStep(${i})"><div class="n">${i+1}</div><div>${s.txt}</div></div>`).join('');
+  // highlight all journey nodes lightly (no dim), clear edges
+  paint(-1);
+}
+
+function paint(idx){
+  const J = JOURNEYS[persona];
+  const hotNodes = idx>=0 ? [J.steps[idx].n] : [...new Set(J.steps.map(s=>s.n))];
+  const hotEdges = idx>=0 ? J.steps[idx].e : [];
+  const journeyNodes = new Set(J.steps.map(s=>s.n));
+  const journeyEdges = new Set(J.steps.flatMap(s=>s.e));
+  document.querySelectorAll('.node').forEach(n=>{
+    n.classList.toggle('hot', hotNodes.includes(n.id));
+    n.classList.toggle('dimmed', idx>=0 ? !hotNodes.includes(n.id) && !journeyNodes.has(n.id)===true && true : !journeyNodes.has(n.id));
+    if (idx>=0 && !hotNodes.includes(n.id)) n.classList.toggle('dimmed', !journeyNodes.has(n.id));
+  });
+  document.querySelectorAll('.edge').forEach(e=>{
+    const active = hotEdges.includes(e.id);
+    const inJourney = journeyEdges.has(e.id);
+    e.classList.toggle('hot', active);
+    e.classList.toggle('flow', active);
+    e.classList.toggle('dimmed', !inJourney);
+    e.classList.remove('e-blue','e-terra','e-gold');
+    if (active) e.classList.add(persona==='patrocinador'||persona==='b2b' ? 'e-gold' : (persona==='banco' ? 'e-terra' : 'e-blue'));
+  });
+  document.querySelectorAll('.elabel').forEach(l=>{
+    const active = hotEdges.includes(l.dataset.e);
+    l.classList.toggle('hot', active);
+    l.classList.toggle('dimmed', !journeyEdges.has(l.dataset.e));
+  });
+  document.querySelectorAll('.step').forEach(s=>s.classList.toggle('on', +s.dataset.i===idx));
+}
+
+function goStep(i){ stopPlay(false); stepIdx = i; paint(i); }
+
+function play(){
+  stopPlay(false);
+  stepIdx = -1;
+  $('playBtn').textContent = '⏸ Pausar';
+  $('playBtn').onclick = ()=>stopPlay(true);
+  const advance = ()=>{
+    stepIdx++;
+    if (stepIdx >= JOURNEYS[persona].steps.length){ stopPlay(true); return; }
+    paint(stepIdx);
+  };
+  advance();
+  timer = setInterval(advance, 3400);
+}
+function stopPlay(reset){
+  if (timer){ clearInterval(timer); timer = null; }
+  $('playBtn').textContent = '▶ Reproducir viaje';
+  $('playBtn').onclick = play;
+  if (reset){ stepIdx = -1; paint(-1); }
+}
+
+// node click → modal
+document.querySelectorAll('.node').forEach(n=>{
+  n.addEventListener('click', ()=>{
+    const d = NODES[n.id]; if (!d) return;
+    $('mTitle').textContent = d.t;
+    $('mRole').textContent = d.r;
+    $('mList').innerHTML = d.f.map(x=>`<li>${x}</li>`).join('');
+    $('modal').classList.add('show');
+  });
+});
+function closeModal(){ $('modal').classList.remove('show'); }
+
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click', ()=>setPersona(c.dataset.p)));
+setPersona('caminante');
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+{
+  "items": [
+    {
+      "id": "00000000-0000-0000-0000-000000000002",
+      "summary": "ROI Expense",
+      "content": "ROI Expense\n\nWhen calculating ROI, if it's being referenced in context of marketing metrics this is equivalent to ROMI, and vice versa.\n\nUnless specified otherwise, the expenses should total campaign costs and marketing department operation expense. OpEx data may be unavailable until the end of the fiscal year.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 10,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000003",
+      "summary": "Campaign ROI Attribution",
+      "content": "Campaign ROI Attribution\n\nWhen calculating ROI for a marketing campaign, the period of time requested for the report refers to the time that the campaign was in market. Specifically: campaign metrics and leads created within that time period.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 11,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000004",
+      "summary": "Pediatric Campaign Success Criteria",
+      "content": "Pediatric Campaign Success Criteria\n\nWhen being asked to measure the success of campaigns with Pediatrics or Orlando Health Children's Institute, the following explains the unique success criteria:\n\nThe current goal for campaigns is building awareness. The campaigns can be considered successful with a cost-effective reach, such as with ad impressions. Leads are secondary, but still carry direct value and ROI and for this reason they are notable.\n\nWhen this success criteria is being referenced in a response, it should be acknowledged that the response in accordance to our customized success criteria.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 12,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000005",
+      "summary": "Date Dimension Reference",
+      "content": "Date Dimension Reference\n\nWhen vague dates are provided, first reference the date dimension table `oh-data-warehouse.gold.dim_date`. This contains clarification of Fiscal Year and other business definitions. If the vague prompt is not clarified by the date dimension table, only then seek clarification from the user.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 13,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000006",
+      "summary": "Provider engagement data",
+      "content": "Provider engagement data\n\nUse data_mart_claims data source to answer provider engagement questions.\n\nCreate new metrics/scores when asked, suggest your definitions.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 14,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000007",
+      "summary": "PRM Log Format on SalesForce Comments",
+      "content": "PRM Log Format on SalesForce Comments\n\nWhen a PRM logs a visit, best practice is to use the GAIN acronym within the comments field.\n\n- G stands for \"Goal\" \u2013 what is the goal of this visit,\n- A stands for \"Action\" \u2013 what was discussed,\n- I stands for \"Intel\" \u2013 what was something new/interesting that was garnered from this visit,\n- N stands for \"Next Steps\" \u2013 what are the next steps (follow up items).",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 15,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000008",
+      "summary": "PRM Targets",
+      "content": "PRM Targets\n\nEach PRM has 160-180 targets and a goal to visit 40 of them a week. Those targets are broken out to four zones and ideally, each PRM should be able to visit and complete one zone per week which equates to roughly about 40-45 targets/calls. When this is working ideally, that means that every physician should be visited at least once within 31-60 days. Anything above the 60-day threshold indicates area for improvement.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 16,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000009",
+      "summary": "Visit Category Definitions",
+      "content": "Visit Category Definitions\n\nThe visit category is defined by who the audience was for the visit.\n\nThree types are:\n- PRM to Office Staff,\n- PRM to Physician,\n- Physician to Physician\n\nOur goal is to access physicians 50% of the time whether PRM to Physician or Physician to Physician. Physician is inclusive of MD, DO, PA, APRN, NP. Office staff includes front desk, reception, MA's, referral coordinators, office managers.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 17,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000010",
+      "summary": "Daily PRM Call Goal",
+      "content": "Daily PRM Call Goal\n\nEach PRM has a target to make 8 to 10 office visits per day.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 18,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000011",
+      "summary": "PRM Call Volume",
+      "content": "PRM Call Volume\n\nWhen users ask about PRM calls the volumes are located in the PRM_CALL_ACTIVITY_FAC table.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 19,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000012",
+      "summary": "Campaign benchmarks",
+      "content": "Campaign benchmarks\n\nFollowing this explanation are healthcare industry benchmarks for common digital campaign metrics. These are overall averages, the benchmarks could vary depending on the service line. Because of this, it is sometimes more useful to benchmark current performance against historical performance for a specific service. All the same, it is useful to compare our performance to industry average. These benchmarks are the performance targets for campaigns if none other are specified.\n\n- Google Paid Search: CTR Benchmark 1.79%\n- Google Display: CTR Benchmark 0.31%\n- Paid Video: View Rate Benchmark 31.2%\n- Meta Paid Social: CTR Benchmark 0.83%",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 20,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000013",
+      "summary": "What are Social Campaigns",
+      "content": "What are Social Campaigns\n\n\"Social Campaigns\" or \"Social Media Campaigns\" can refer to paid media campaigns on Meta (which includes Facebook, Instagram, Threads, and Facebook Messenger), TikTok, Pinterest, Snapchat, Twitter, X, or any other various social media platforms and a paid media campaign within it.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 21,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000014",
+      "summary": "Find similar campaign names",
+      "content": "Find similar campaign names\n\nWhen a user is asking for results related to a campaign name or list of campaign names, you MUST use stemming to convert search terms to a base form to refine which campaign names the user is interested in.\nFetch all the similar campaign names within the specified timeframe and ask the user for to clarify which campaigns to focus on.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 22,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000015",
+      "summary": "Campaign Name Matching",
+      "content": "Campaign Name Matching\n\nWhenever matching campaign names between different tables or with a string, a case insensitive match should be used.\n\nFor example: `LOWER(a.campaign_name) LIKE LOWER('%Example%Campaign%')`.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 23,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000016",
+      "summary": "Comparison of provider performance",
+      "content": "Comparison of provider performance\n\nWhen the user is asking to compare providers, compare based on number of patients by default.",
+      "scope": "global",
+      "usage_mode": "always",
+      "sort_order": 24,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000017",
+      "summary": "Website Engaged Session Definition",
+      "content": "An engaged session from our website data can be explained as a session that either views more than 1 web page during the session, or spends at least 30 seconds on a single page during the session.\n\nThis is a slight modification to the default definition in Google Analytics 4, and one that is applied upstream at the source. The \"is_engaged\" flags in downstream data already reflect our modified definition.",
+      "scope": "global",
+      "usage_mode": "auto",
+      "sort_order": 30,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000018",
+      "summary": "Use the is_engaged_session field for engagement metrics instead of custom CTEs",
+      "content": "Engaged Session Metric\n\n- Always use the pre-built `is_engaged_session` field from session data for engagement calculations.\n- Do not create custom engagement CTEs or definitions.\n- This field already incorporates the organization's standard engagement criteria (multi-page visits or 30+ seconds on single page).\n- Using this field ensures metric consistency across analyses.",
+      "scope": "user",
+      "usage_mode": "auto",
+      "sort_order": 31,
+      "used_count": 0,
+      "created_at": 1717459200,
+      "updated_at": 1717459200
+    }
+  ]
+}

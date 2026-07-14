@@ -1,0 +1,24 @@
+{
+  "connectionId": "bigquery-warehouse",
+  "driver": "bigquery",
+  "extractedAt": "2026-06-01T18:56:50.698Z",
+  "scope": {
+    "catalogs": [
+      "oh-data-warehouse"
+    ],
+    "datasets": [
+      "adwords_orlando_health",
+      "gold"
+    ]
+  },
+  "metadata": {
+    "project_id": "oh-data-warehouse",
+    "datasets": [
+      "adwords_orlando_health",
+      "gold"
+    ],
+    "table_count": 57,
+    "total_columns": 1008
+  },
+  "tableCount": 57
+}

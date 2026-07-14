@@ -1,0 +1,107 @@
+name: campaign_dim_adgroup
+descriptions:
+  user: Dimension table storing Google Ads ad group configuration and bidding settings linked to campaigns and customers.
+table: oh-data-warehouse.gold.campaign_dim_adgroup
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the ad group.
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Parent campaign this ad group belongs to.
+- name: customer_id
+  type: number
+  descriptions:
+    ai: Google Ads account owner of this ad group.
+- name: ad_group_ad_rotation_mode
+  type: string
+  descriptions:
+    ai: How ads within the group are rotated for serving.
+- name: ad_group_cpc_bid_micros
+  type: number
+  descriptions:
+    ai: Cost-per-click bid amount in micros (millionths of currency unit).
+- name: ad_group_cpm_bid_micros
+  type: number
+  descriptions:
+    ai: Cost-per-thousand-impressions bid in micros.
+- name: ad_group_cpv_bid_micros
+  type: number
+  descriptions:
+    ai: Cost-per-view bid in micros for video ads.
+- name: ad_group_display_custom_bid_dimension
+  type: string
+  descriptions:
+    ai: Custom bid dimension used for display network targeting.
+- name: ad_group_effective_target_cpa_micros
+  type: number
+  descriptions:
+    ai: Resolved target cost-per-acquisition in micros.
+- name: ad_group_effective_target_cpa_source
+  type: string
+  descriptions:
+    ai: Origin of the effective CPA target value.
+- name: ad_group_effective_target_roas
+  type: number
+  descriptions:
+    ai: Resolved target return on ad spend ratio.
+- name: ad_group_effective_target_roas_source
+  type: string
+  descriptions:
+    ai: Origin of the effective ROAS target value.
+- name: ad_group_name
+  type: string
+  descriptions:
+    ai: Human-readable label assigned to the ad group.
+- name: ad_group_status
+  type: string
+  descriptions:
+    ai: 'Current serving state: ENABLED, PAUSED, or REMOVED.'
+- name: ad_group_tracking_url_template
+  type: string
+  descriptions:
+    ai: URL template for tracking ad group click traffic.
+- name: ad_group_type
+  type: string
+  descriptions:
+    ai: Ad group format type, e.g., SEARCH_STANDARD or DISPLAY_STANDARD.
+- name: ad_group_url_custom_parameters
+  type: string
+  descriptions:
+    ai: Custom key-value parameters appended to destination URLs.
+- name: campaign_bidding_strategy
+  type: string
+  descriptions:
+    ai: Resource path of the portfolio bidding strategy applied.
+- name: campaign_bidding_strategy_type
+  type: string
+  descriptions:
+    ai: Bidding strategy type, e.g., MANUAL_CPC or TARGET_SPEND.
+- name: campaign_manual_cpc_enhanced_cpc_enabled
+  type: boolean
+  descriptions:
+    ai: Whether enhanced CPC is active for manual CPC campaigns.
+- name: campaign_percent_cpc_enhanced_cpc_enabled
+  type: boolean
+  descriptions:
+    ai: Whether enhanced CPC is active for percent CPC campaigns.
+measures:
+- name: total_ad_group_cpc_bid_micros
+  expr: SUM(ad_group_cpc_bid_micros) / 1000000
+  description: Ad Group Cpc Bid Micros (sum of ad_group_cpc_bid_micros).
+- name: total_ad_group_cpm_bid_micros
+  expr: SUM(ad_group_cpm_bid_micros) / 1000000
+  description: Ad Group Cpm Bid Micros (sum of ad_group_cpm_bid_micros).
+- name: total_ad_group_cpv_bid_micros
+  expr: SUM(ad_group_cpv_bid_micros) / 1000000
+  description: Ad Group Cpv Bid Micros (sum of ad_group_cpv_bid_micros).
+- name: total_ad_group_effective_target_cpa_micros
+  expr: SUM(ad_group_effective_target_cpa_micros) / 1000000
+  description: Ad Group Effective Target Cpa Micros (sum of ad_group_effective_target_cpa_micros).
+- name: total_ad_group_effective_target_roas
+  expr: SUM(ad_group_effective_target_roas)
+  description: Ad Group Effective Target Roas (sum of ad_group_effective_target_roas).

@@ -1,0 +1,26 @@
+name: ad_group_explorer_auto_optimizer_setting_history
+descriptions:
+  user: Tracks historical opt-in status changes for the Explorer auto-optimizer feature at the ad group level.
+table: oh-data-warehouse.adwords_orlando_health.ad_group_explorer_auto_optimizer_setting_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the ad group being configured.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the optimizer setting was last changed.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record.
+  role: time
+- name: opt_in
+  type: boolean
+  descriptions:
+    ai: Whether the ad group is enrolled in Explorer auto-optimization.
+measures: []

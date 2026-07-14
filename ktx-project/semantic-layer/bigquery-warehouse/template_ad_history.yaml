@@ -1,0 +1,49 @@
+name: template_ad_history
+descriptions:
+  user: Historical record of template-based ads, tracking ad configurations and their template associations over time.
+table: oh-data-warehouse.adwords_orlando_health.template_ad_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier for the ad group containing this ad.
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the individual ad.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the ad record was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record.
+  role: time
+- name: ad_union_id
+  type: number
+  descriptions:
+    ai: Identifier linking related ads across union groups.
+- name: duration
+  type: number
+  descriptions:
+    ai: Length of the ad in seconds or defined time units.
+- name: name
+  type: string
+  descriptions:
+    ai: Human-readable label or campaign theme for the ad.
+- name: origin_ad_id
+  type: number
+  descriptions:
+    ai: Source ad ID this ad was derived or copied from.
+- name: template_id
+  type: number
+  descriptions:
+    ai: Identifier of the creative template used to build this ad.
+measures:
+- name: total_duration
+  expr: SUM(duration)
+  description: Duration (sum of duration).

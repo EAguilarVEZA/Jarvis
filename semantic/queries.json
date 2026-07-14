@@ -1,0 +1,174 @@
+{
+  "queries": [
+    {
+      "id": "ad9c842a-ad63-4284-a21a-9e077df77fe6",
+      "name": "campaign name and budget",
+      "description": "budget by campaign",
+      "qdict": {
+        "primary_table": "campaigns",
+        "dimensions": [
+          {
+            "table": "campaigns",
+            "field": "campaign_name"
+          },
+          {
+            "table": "campaigns",
+            "field": "start_date"
+          }
+        ],
+        "metrics": [
+          {
+            "table": "campaigns",
+            "field": "campaign_budget"
+          }
+        ],
+        "filters": [],
+        "limit": 100
+      },
+      "owner_email": "edgar@smartwithmartin.com",
+      "scope": "private",
+      "created_at": 1780977256.5807738,
+      "updated_at": 1780977256.5807738
+    },
+    {
+      "id": "ec72ad82-78b4-4835-9850-2384c17c574d",
+      "name": "campaign budget",
+      "description": ".",
+      "qdict": {
+        "primary_table": "campaigns",
+        "dimensions": [
+          {
+            "table": "campaigns",
+            "field": "campaign_name"
+          },
+          {
+            "table": "campaigns",
+            "field": "start_date"
+          }
+        ],
+        "metrics": [
+          {
+            "table": "campaigns",
+            "field": "campaign_budget"
+          }
+        ],
+        "filters": [],
+        "limit": 100
+      },
+      "owner_email": "edgar@smartwithmartin.com",
+      "scope": "private",
+      "created_at": 1780977365.87617,
+      "updated_at": 1780977365.876171
+    },
+    {
+      "id": "c7ca2874-66ed-40fd-9752-68c56b29aac0",
+      "name": "new query",
+      "description": "",
+      "qdict": {
+        "primary_table": "campaigns",
+        "dimensions": [
+          {
+            "table": "campaigns",
+            "field": "campaign_name"
+          },
+          {
+            "table": "campaigns",
+            "field": "start_date"
+          },
+          {
+            "table": "ad_performance",
+            "field": "platform"
+          }
+        ],
+        "metrics": [
+          {
+            "table": "campaigns",
+            "field": "campaign_budget"
+          },
+          {
+            "table": "ad_performance",
+            "field": "spend"
+          }
+        ],
+        "filters": [],
+        "limit": 100
+      },
+      "owner_email": "edgar@smartwithmartin.com",
+      "scope": "private",
+      "created_at": 1780977607.122972,
+      "updated_at": 1780977607.122973
+    },
+    {
+      "id": "588e5bd6-6b18-4458-b312-2991b9a74fd8",
+      "name": "final",
+      "description": "",
+      "qdict": {
+        "primary_table": "campaigns",
+        "dimensions": [
+          {
+            "table": "campaigns",
+            "field": "campaign_name"
+          },
+          {
+            "table": "campaigns",
+            "field": "start_date"
+          },
+          {
+            "table": "ad_performance",
+            "field": "platform"
+          }
+        ],
+        "metrics": [
+          {
+            "table": "campaigns",
+            "field": "campaign_budget"
+          },
+          {
+            "table": "ad_performance",
+            "field": "spend"
+          }
+        ],
+        "filters": [],
+        "limit": 100
+      },
+      "owner_email": "edgar@smartwithmartin.com",
+      "scope": "private",
+      "created_at": 1781006653.921124,
+      "updated_at": 1781006653.9211252
+    },
+    {
+      "id": "6eb0ebbd-9256-4bb2-a4ea-9c2e1971e4b8",
+      "name": "daniel set",
+      "description": "",
+      "qdict": {
+        "primary_table": "campaigns",
+        "dimensions": [
+          {
+            "table": "campaigns",
+            "field": "campaign_name"
+          },
+          {
+            "table": "campaigns",
+            "field": "sub_specialty"
+          },
+          {
+            "table": "campaigns",
+            "field": "platform"
+          }
+        ],
+        "metrics": [
+          {
+            "table": "campaigns",
+            "field": "campaign_budget"
+          }
+        ],
+        "filters": [],
+        "limit": 100
+      },
+      "owner_email": "edgar@smartwithmartin.com",
+      "scope": "private",
+      "created_at": 1781039927.65975,
+      "updated_at": 1781039927.659751
+    }
+  ]
+}

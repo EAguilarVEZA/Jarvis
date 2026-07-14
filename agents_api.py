@@ -251,12 +251,16 @@ async def run_agent_turn(agent: dict, message: str, history=None, use_tools=True
         import anthropic
         client = anthropic.AsyncAnthropic(api_key=key)
         model = os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6")
-        tools_used, answer = [], ""
+        tools_used, answer, trace = [], "", []
         for _ in range(6):
             kwargs = {"model": model, "max_tokens": 1600, "system": system, "messages": msgs}
             if use_tools:
                 kwargs["tools"] = _AGENT_TOOLS
             resp = await client.messages.create(**kwargs)
+            # Capture the agent's reasoning text on this step (before any tool call).
+            think = "".join(b.text for b in resp.content if getattr(b, "type", "") == "text").strip()
+            if think:
+                trace.append({"kind": "thought", "text": think[:1200]})
             if getattr(resp, "stop_reason", "") == "tool_use":
                 msgs.append({"role": "assistant", "content": resp.content})
                 results = []
@@ -264,16 +268,21 @@ async def run_agent_turn(agent: dict, message: str, history=None, use_tools=True
                     if getattr(block, "type", "") == "tool_use":
                         out = await _execute_tool(block.name, block.input or {})
                         tools_used.append({"tool": block.name, "input": block.input})
+                        summary = json.dumps(out, default=str)
+                        trace.append({"kind": "tool", "tool": block.name,
+                                      "input": block.input or {},
+                                      "result": summary[:600]})
                         results.append({"type": "tool_result", "tool_use_id": block.id,
-                                        "content": json.dumps(out, default=str)[:6000]})
+                                        "content": summary[:6000]})
                 msgs.append({"role": "user", "content": results})
                 continue
-            answer = "".join(b.text for b in resp.content if getattr(b, "type", "") == "text")
+            answer = think
             break
     except Exception as e:
         log.warning(f"agent turn failed: {e}")
         return {"error": f"Agent unavailable: {e}"}
-    return {"ok": True, "agent": agent["name"], "answer": answer, "tools_used": tools_used}
+    return {"ok": True, "agent": agent["name"], "answer": answer,
+            "tools_used": tools_used, "trace": trace}
 
 
 def agent_by_slug(slug):  # non-route accessor for other modules (workflows)

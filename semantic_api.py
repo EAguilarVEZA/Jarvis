@@ -1239,6 +1239,751 @@ async def delete_hierarchy(key: str):
 
 
 # ═══════════════════════════════════════════════════════════════════
+#  Metric Lab — governed metric definitions + BigQuery compile & preview
+# ═══════════════════════════════════════════════════════════════════
+import metric_lab as _mlab
+
+
+def _field_column(table, field_key):
+    """Resolve a field key to its physical column within a curated table."""
+    for f in list(table.metrics) + list(table.dimensions) + list(table.dates):
+        if f.key == field_key or f.column == field_key:
+            return f.column
+    return field_key  # fall back to the given name (may already be a column)
+
+
+def _metric_enrich(m):
+    """Attach display names for the list view (best-effort)."""
+    try:
+        model = _loadm(draft=False)
+        t = model.table(m.get("base_table"))
+        m = dict(m)
+        m["base_table_name"] = t.display_name if t else m.get("base_table")
+    except Exception:
+        pass
+    return m
+
+
+@router.get("/metric_lab")
+async def metric_lab_list():
+    return {"metrics": [_metric_enrich(m) for m in _mlab.list_metrics()],
+            "aggregations": _mlab.AGGREGATIONS, "grains": _mlab.GRAINS}
+
+
+class MetricLabBody(BaseModel):
+    id: Optional[str] = None
+    name: str
+    label: Optional[str] = ""
+    description: Optional[str] = ""
+    synonyms: Optional[list] = None
+    type: Optional[str] = "simple"            # 'simple' | 'ratio'
+    numerator: Optional[dict] = None          # ratio: {measure_field, aggregation, filters}
+    denominator: Optional[dict] = None        # ratio: {measure_field, aggregation, filters}
+    base_table: str
+    measure_field: Optional[str] = ""
+    aggregation: str = "sum"
+    expression: Optional[str] = ""
+    time_field: str
+    default_grain: str = "month"
+    filters: Optional[list] = None            # [{field, op, value}] fixed definition filters
+    dimensions: Optional[list] = None         # breakdown dimension keys
+    format: Optional[dict] = None             # {type, currency, decimals}
+    direction: str = "favorable_up"           # favorable_up | unfavorable_up | neutral
+    comparison: str = "prior_period"          # prior_period | prior_year
+    certified: bool = False
+
+
+@router.post("/metric_lab")
+async def metric_lab_save(body: MetricLabBody):
+    if not (body.name or "").strip():
+        return _err(400, "name required", "A metric needs a name.")
+    if body.aggregation not in _mlab.AGGREGATIONS:
+        return _err(400, "bad aggregation", f"aggregation must be one of {_mlab.AGGREGATIONS}")
+    saved = _mlab.upsert_metric(body.dict())
+    return {"ok": True, "metric": saved}
+
+
+@router.delete("/metric_lab/{mid}")
+async def metric_lab_delete(mid: str):
+    _mlab.delete_metric(mid)
+    return {"ok": True}
+
+
+class MetricPreviewBody(BaseModel):
+    id: Optional[str] = None
+    metric: Optional[dict] = None     # an unsaved draft definition
+    grain: Optional[str] = None
+    breakdown: Optional[str] = ""     # optional breakdown dimension key
+    extra_filters: Optional[list] = None
+
+
+@router.post("/metric_lab/preview")
+async def metric_lab_preview(body: MetricPreviewBody, request: Request):
+    m = body.metric or (_mlab.get_metric(body.id) if body.id else None)
+    if not m:
+        return _err(400, "no metric", "Provide a metric id or a draft metric definition.")
+    try:
+        model = _loadm(draft=False)
+    except SemanticLoadError as e:
+        return _err(400, "semantic.yaml failed to load", str(e))
+    table = model.table(m.get("base_table"))
+    if not table:
+        return _err(404, "table not found", f"No curated table '{m.get('base_table')}'")
+    raw_table = getattr(table, "raw_table", None) or getattr(table, "source", None)
+    if not raw_table:
+        return _err(400, "no raw table", "The base table has no physical table mapping.")
+    # resolve columns
+    measure_col = _field_column(table, m.get("measure_field")) if m.get("measure_field") else ""
+    time_col = _field_column(table, m.get("time_field"))
+    breakdown_col = _field_column(table, body.breakdown) if body.breakdown else ""
+    filters = []
+    for f in (m.get("filters") or []) + (body.extra_filters or []):
+        col = _field_column(table, f.get("field") or f.get("column"))
+        filters.append({"column": col, "op": f.get("op", "eq"), "value": f.get("value")})
+    grain = body.grain or m.get("default_grain") or "month"
+    try:
+        sql = _mlab.compile_metric_sql(raw_table=raw_table, measure_col=measure_col,
+                                       aggregation=m.get("aggregation", "sum"),
+                                       time_col=time_col, grain=grain,
+                                       expression=m.get("expression", ""),
+                                       filters=filters, breakdown_col=breakdown_col)
+    except ValueError as e:
+        return _err(400, "compile error", str(e))
+    # governance + execute
+    from sql_security import enforce as _sec_enforce, SecurityError as _SecErr
+    email = (request.headers.get("X-Jarvis-User") or "").strip() or None
+    try:
+        gsql = _sec_enforce(sql, email)
+    except _SecErr as e:
+        return _err(403, "blocked by security policy", str(e))
+    try:
+        result = await asyncio.get_running_loop().run_in_executor(None, run_query, gsql)
+    except ExecutorConfigError as e:
+        return _err(503, "BigQuery not configured", str(e))
+    except (QueryExecutionError, ExecutorError) as e:
+        return _err(400, "query failed", str(e))
+    # shape response: series + latest value + delta vs prior point
+    cols = [c.lower() for c in result.columns]
+    pi = cols.index("period") if "period" in cols else 0
+    vi = cols.index("value") if "value" in cols else len(cols) - 1
+    series = [{"period": str(r[pi]), "value": (r[vi] if r[vi] is not None else 0)} for r in result.rows]
+    latest = series[-1]["value"] if series else None
+    prev = series[-2]["value"] if len(series) > 1 else None
+    delta = (latest - prev) if (latest is not None and prev is not None) else None
+    delta_pct = (delta / prev * 100) if (delta is not None and prev) else None
+    return {"ok": True, "sql": gsql, "series": series,
+            "latest": latest, "previous": prev, "delta": delta, "delta_pct": delta_pct,
+            "format": m.get("format") or {"type": "number", "decimals": 0},
+            "direction": m.get("direction", "favorable_up"), "grain": grain}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  Topics / subject areas + relationship cardinality (Phase B)
+# ═══════════════════════════════════════════════════════════════════
+import json as _json
+
+_TOPICS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "topics_semantic.json")
+_RELMETA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "relationship_meta.json")
+CARDINALITIES = ["one_to_one", "one_to_many", "many_to_one", "many_to_many"]
+
+
+def _jload(path, key):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return _json.load(f).get(key, [] if key != "rels" else {})
+    except Exception:
+        return [] if key != "rels" else {}
+
+
+def _jsave(path, key, val):
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        _json.dump({key: val}, f, indent=2)
+    os.replace(tmp, path)
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  Business context — plain-language descriptions + synonyms/aliases on
+#  tables and fields. This is the "wiki pillar" that makes NL/agent queries
+#  accurate (dbt column docs, Tableau field descriptions + synonyms). Stored
+#  separately so it survives model re-curation. Keyed:
+#    "table:<table_key>"            → {description, synonyms:[...]}
+#    "field:<table_key>.<field_key>" → {description, synonyms:[...]}
+# ═══════════════════════════════════════════════════════════════════
+_CTX_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "business_context.json")
+
+
+def _ctx_load() -> dict:
+    try:
+        with open(_CTX_PATH, "r", encoding="utf-8") as f:
+            return _json.load(f).get("context", {}) or {}
+    except Exception:
+        return {}
+
+
+def _ctx_save(ctx: dict):
+    tmp = _CTX_PATH + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        _json.dump({"context": ctx}, f, indent=2)
+    os.replace(tmp, _CTX_PATH)
+
+
+def _ctx_key(kind: str, key: str, table_key: str = "") -> str:
+    if kind == "field":
+        return f"field:{table_key}.{key}"
+    return f"table:{key}"
+
+
+def _clean_synonyms(v) -> list:
+    """Accept a list or a comma/newline-separated string; return a de-duped list."""
+    if isinstance(v, str):
+        parts = re.split(r"[,\n]", v)
+    elif isinstance(v, list):
+        parts = v
+    else:
+        parts = []
+    out, seen = [], set()
+    for p in parts:
+        s = str(p).strip()
+        if s and s.lower() not in seen:
+            seen.add(s.lower())
+            out.append(s)
+    return out
+
+
+@router.get("/context")
+async def get_business_context():
+    """Return the full business-context map (table + field descriptions/synonyms)."""
+    return {"context": _ctx_load()}
+
+
+class ContextBody(BaseModel):
+    kind: str                          # 'table' | 'field'
+    key: str                           # table_key (table) or field_key (field)
+    table_key: Optional[str] = ""      # required for kind='field'
+    description: Optional[str] = None
+    synonyms: Optional[object] = None  # list or comma/newline string
+
+
+@router.post("/context")
+async def set_business_context(body: ContextBody):
+    if body.kind not in ("table", "field"):
+        return _err(400, "bad kind", "kind must be 'table' or 'field'")
+    if body.kind == "field" and not body.table_key:
+        return _err(400, "table_key required", "field context needs a table_key")
+    ctx = _ctx_load()
+    ck = _ctx_key(body.kind, body.key, body.table_key or "")
+    entry = dict(ctx.get(ck) or {})
+    if body.description is not None:
+        entry["description"] = body.description.strip()
+    if body.synonyms is not None:
+        entry["synonyms"] = _clean_synonyms(body.synonyms)
+    # Drop empty entries so the store stays clean.
+    if not (entry.get("description") or entry.get("synonyms")):
+        ctx.pop(ck, None)
+    else:
+        entry["updated_at"] = time.time()
+        ctx[ck] = entry
+    _ctx_save(ctx)
+    return {"ok": True, "key": ck, "entry": ctx.get(ck, {})}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  Model validation — deterministic health checks over the draft model, so
+#  mistakes surface BEFORE publish (dbt's inline-validation idea). Pure logic,
+#  no warehouse round-trip; each issue points at the table/join/metric to fix.
+# ═══════════════════════════════════════════════════════════════════
+def _table_field_index(t):
+    """Return (keys, columns, date_keys, date_cols) for a curated table."""
+    keys, cols, dkeys, dcols = set(), set(), set(), set()
+    for f in list(t.dimensions) + list(t.metrics) + list(t.dates):
+        keys.add(f.key)
+        if getattr(f, "column", None):
+            cols.add(f.column)
+    for f in t.dates:
+        dkeys.add(f.key)
+        if getattr(f, "column", None):
+            dcols.add(f.column)
+    return keys, cols, dkeys, dcols
+
+
+@router.get("/validate")
+async def validate_model(draft: bool = True):
+    """Run deterministic checks over the (draft) model and return ranked issues."""
+    try:
+        model = _loadm(draft=draft)
+    except SemanticLoadError as e:
+        return _err(400, "semantic.yaml failed to load", str(e))
+    ctx = _ctx_load()
+    relmeta = _jload(_RELMETA_PATH, "rels") or {}
+    issues = []
+
+    def add(sev, scope, ref, title, detail, ref_name=""):
+        issues.append({"severity": sev, "scope": scope, "ref": ref, "ref_name": ref_name or ref,
+                       "title": title, "detail": detail})
+
+    tables = list(model.tables.values())
+    joined = set()
+    for j in model.joins:
+        joined.add(j.left); joined.add(j.right)
+
+    # Per-table checks
+    for t in tables:
+        tname = t.display_name or t.key
+        if not t.dates:
+            add("warning", "table", t.key, "No time field",
+                "This table has no date/time field, so it can't power time-series metrics.", tname)
+        if (t.kind or "").lower() == "fact" and not t.metrics:
+            add("warning", "table", t.key, "Fact table has no measures",
+                "A fact table with no numeric measures usually means a field was misclassified.", tname)
+        tctx = ctx.get(f"table:{t.key}") or {}
+        if not (t.description or tctx.get("description")):
+            add("info", "table", t.key, "No description",
+                "Add a plain-language description so the AI and your team know what this table means.", tname)
+        if len(tables) > 1 and t.key not in joined:
+            add("info", "table", t.key, "Not linked",
+                "This table isn't related to any other table — link it on the canvas to use it alongside others.", tname)
+
+    # Per-join checks
+    for j in model.joins:
+        lt, rt = model.table(j.left), model.table(j.right)
+        pair = f"{j.left} ↔ {j.right}"
+        if not lt or not rt:
+            add("error", "join", f"{j.left}|{j.right}", "Broken relationship",
+                f"Relationship references a table that no longer exists ({j.left} ↔ {j.right}).", pair)
+            continue
+        lk, lc, ldk, ldc = _table_field_index(lt)
+        rk, rc, rdk, rdc = _table_field_index(rt)
+        on = j.on
+        if (on in ldk or on in ldc) or (on in rdk or on in rdc):
+            add("error", "join", f"{j.left}|{j.right}", "Joined on a date",
+                f"'{on}' is a date column — joining tables on a raw date almost always produces wrong results.", pair)
+        in_left = on in lk or on in lc or on in (lt.join_keys or [])
+        in_right = on in rk or on in rc or on in (rt.join_keys or [])
+        if not in_left or not in_right:
+            miss = j.left if not in_left else j.right
+            add("warning", "join", f"{j.left}|{j.right}", "Unverified join key",
+                f"'{on}' isn't a recognized field/key on '{miss}'. Double-check the relationship.", pair)
+        if not relmeta.get(f"{j.left}|{j.right}") and not relmeta.get(f"{j.right}|{j.left}"):
+            add("info", "join", f"{j.left}|{j.right}", "Cardinality not set",
+                "Using the safe default (nothing double-counts). Set it in Relationships to speed up joins.", pair)
+
+    # Per-metric checks (governed Metric Lab metrics)
+    seen_names = {}
+    for m in _mlab.list_metrics():
+        mname = m.get("name") or m.get("id")
+        bt = m.get("base_table")
+        t = model.table(bt) if bt else None
+        if not t:
+            add("error", "metric", m.get("id", ""), "Metric base table missing",
+                f"Metric '{mname}' points at table '{bt}', which isn't in the model.", mname)
+            continue
+        keys, cols, _, _ = _table_field_index(t)
+        mf = m.get("measure_field")
+        if mf and not (m.get("expression") or "").strip() and mf not in keys and mf not in cols:
+            add("error", "metric", m.get("id", ""), "Measure field missing",
+                f"Metric '{mname}' uses measure '{mf}', which no longer exists on '{bt}'.", mname)
+        tf = m.get("time_field")
+        if tf and tf not in keys and tf not in cols:
+            add("error", "metric", m.get("id", ""), "Time field missing",
+                f"Metric '{mname}' uses time field '{tf}', which no longer exists on '{bt}'.", mname)
+        if not (m.get("description") or (m.get("synonyms") or [])):
+            add("info", "metric", m.get("id", ""), "No context on metric",
+                f"Add a description or synonyms to '{mname}' so the AI can match questions to it.", mname)
+        low = (mname or "").strip().lower()
+        if low:
+            seen_names.setdefault(low, []).append(mname)
+    for low, names in seen_names.items():
+        if len(names) > 1:
+            add("warning", "metric", "", "Duplicate metric name",
+                f"{len(names)} metrics are named '{names[0]}' — rename so the AI and users can tell them apart.", names[0])
+
+    order = {"error": 0, "warning": 1, "info": 2}
+    issues.sort(key=lambda i: order.get(i["severity"], 3))
+    summary = {"error": sum(1 for i in issues if i["severity"] == "error"),
+               "warning": sum(1 for i in issues if i["severity"] == "warning"),
+               "info": sum(1 for i in issues if i["severity"] == "info")}
+    summary["ok"] = summary["error"] == 0 and summary["warning"] == 0
+    return {"issues": issues, "summary": summary,
+            "checked": {"tables": len(tables), "joins": len(model.joins), "metrics": len(_mlab.list_metrics())}}
+
+
+@router.get("/topics")
+async def list_topics():
+    """Topics = subject areas: a base table + its safe joins + a curated set of
+    metrics and dimensions (the Looker 'explore' / Cube 'view' concept)."""
+    topics = _jload(_TOPICS_PATH, "topics")
+    # enrich with display names
+    try:
+        model = _loadm(draft=False)
+        for t in topics:
+            bt = model.table(t.get("base_table"))
+            t["base_table_name"] = bt.display_name if bt else t.get("base_table")
+    except Exception:
+        pass
+    return {"topics": topics}
+
+
+class TopicBody(BaseModel):
+    id: Optional[str] = None
+    name: str
+    label: Optional[str] = ""
+    description: Optional[str] = ""
+    base_table: str
+    tables: Optional[list] = None        # joined table keys included in the topic
+    metrics: Optional[list] = None       # metric_lab ids
+    dimensions: Optional[list] = None     # field keys available for breakdown
+
+
+@router.post("/topics")
+async def save_topic(body: TopicBody):
+    if not (body.name or "").strip():
+        return _err(400, "name required", "A topic needs a name.")
+    topics = _jload(_TOPICS_PATH, "topics")
+    d = body.dict()
+    d["id"] = d.get("id") or ("top_" + uuid.uuid4().hex[:10])
+    d.setdefault("created_at", time.time())
+    d["updated_at"] = time.time()
+    for i, t in enumerate(topics):
+        if t.get("id") == d["id"]:
+            topics[i] = d
+            break
+    else:
+        topics.append(d)
+    _jsave(_TOPICS_PATH, "topics", topics)
+    return {"ok": True, "topic": d}
+
+
+@router.delete("/topics/{tid}")
+async def delete_topic(tid: str):
+    topics = [t for t in _jload(_TOPICS_PATH, "topics") if t.get("id") != tid]
+    _jsave(_TOPICS_PATH, "topics", topics)
+    return {"ok": True}
+
+
+@router.get("/relationships")
+async def list_relationships(draft: bool = True):
+    """List the model's joins enriched with stored cardinality. Cardinality drives
+    fan-out-safe query compilation (aggregate the 'many' side before joining)."""
+    try:
+        model = _loadm(draft=draft)
+    except SemanticLoadError as e:
+        return _err(400, "semantic.yaml failed to load", str(e))
+    meta = _jload(_RELMETA_PATH, "rels") or {}
+    rels = []
+    for j in model.joins:
+        sig = f"{j.left}|{j.right}"
+        rels.append({"left": j.left, "right": j.right, "on": j.on,
+                     "left_name": (model.table(j.left).display_name if model.table(j.left) else j.left),
+                     "right_name": (model.table(j.right).display_name if model.table(j.right) else j.right),
+                     "cardinality": (meta.get(sig) or {}).get("cardinality", "many_to_many"),
+                     "cardinality_set": bool(meta.get(sig))})
+    return {"relationships": rels, "cardinalities": CARDINALITIES}
+
+
+class CardinalityBody(BaseModel):
+    left: str
+    right: str
+    cardinality: str
+
+
+@router.post("/relationships/cardinality")
+async def set_cardinality(body: CardinalityBody):
+    if body.cardinality not in CARDINALITIES:
+        return _err(400, "bad cardinality", f"cardinality must be one of {CARDINALITIES}")
+    meta = _jload(_RELMETA_PATH, "rels") or {}
+    meta[f"{body.left}|{body.right}"] = {"cardinality": body.cardinality, "updated_at": time.time()}
+    _jsave(_RELMETA_PATH, "rels", meta)
+    return {"ok": True}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  Phase C — Metric-grounded agent (discover → select → execute)
+# ═══════════════════════════════════════════════════════════════════
+def _metric_dims(model, m):
+    """Dimension field keys available for a metric's base table (for breakdown/filter)."""
+    t = model.table(m.get("base_table"))
+    if not t:
+        return []
+    return [{"key": f.key, "name": getattr(f, "display_name", f.key)} for f in t.dimensions]
+
+
+async def _metric_execute(m: dict, grain: str, breakdown: str, extra_filters: list, email):
+    """Compile + run a metric (governed). Returns the shaped series dict, or {error}."""
+    model = _loadm(draft=False)
+    table = model.table(m.get("base_table"))
+    if not table:
+        return {"error": f"No curated table '{m.get('base_table')}'"}
+    raw_table = getattr(table, "raw_table", None) or getattr(table, "source", None)
+    if not raw_table:
+        return {"error": "base table has no physical mapping"}
+    measure_col = _field_column(table, m.get("measure_field")) if m.get("measure_field") else ""
+    time_col = _field_column(table, m.get("time_field"))
+    breakdown_col = _field_column(table, breakdown) if breakdown else ""
+    filters = []
+    for f in (m.get("filters") or []) + (extra_filters or []):
+        filters.append({"column": _field_column(table, f.get("field") or f.get("column")),
+                        "op": f.get("op", "eq"), "value": f.get("value")})
+
+    def _resolve_side(side):
+        """Resolve a ratio side's field keys → columns for the compiler."""
+        s = dict(side or {})
+        if s.get("measure_field"):
+            s["measure_col"] = _field_column(table, s["measure_field"])
+        sf = []
+        for f in (s.get("filters") or []):
+            sf.append({"column": _field_column(table, f.get("field") or f.get("column")),
+                       "op": f.get("op", "eq"), "value": f.get("value")})
+        s["filters"] = sf
+        return s
+
+    try:
+        if (m.get("type") or "simple") == "ratio":
+            sql = _mlab.compile_ratio_sql(raw_table=raw_table, time_col=time_col,
+                                          numerator=_resolve_side(m.get("numerator")),
+                                          denominator=_resolve_side(m.get("denominator")),
+                                          grain=grain or m.get("default_grain", "month"),
+                                          filters=filters, breakdown_col=breakdown_col)
+        else:
+            sql = _mlab.compile_metric_sql(raw_table=raw_table, measure_col=measure_col,
+                                           aggregation=m.get("aggregation", "sum"), time_col=time_col,
+                                           grain=grain or m.get("default_grain", "month"),
+                                           expression=m.get("expression", ""), filters=filters,
+                                           breakdown_col=breakdown_col)
+    except ValueError as e:
+        return {"error": f"compile error: {e}"}
+    from sql_security import enforce as _sec_enforce, SecurityError as _SecErr
+    try:
+        gsql = _sec_enforce(sql, email)
+    except _SecErr as e:
+        return {"error": f"blocked by security policy: {e}"}
+    try:
+        result = await asyncio.get_running_loop().run_in_executor(None, run_query, gsql)
+    except (ExecutorConfigError, QueryExecutionError, ExecutorError) as e:
+        return {"error": str(e)}
+    cols = [c.lower() for c in result.columns]
+    pi = cols.index("period") if "period" in cols else 0
+    vi = cols.index("value") if "value" in cols else len(cols) - 1
+    series = [{"period": str(r[pi]), "value": (r[vi] if r[vi] is not None else 0)} for r in result.rows]
+    latest = series[-1]["value"] if series else None
+    prev = series[-2]["value"] if len(series) > 1 else None
+    delta = (latest - prev) if (latest is not None and prev is not None) else None
+    return {"ok": True, "sql": gsql, "series": series, "latest": latest, "previous": prev,
+            "delta": delta, "delta_pct": (delta / prev * 100 if (delta is not None and prev) else None),
+            "format": m.get("format") or {"type": "number", "decimals": 0},
+            "direction": m.get("direction", "favorable_up")}
+
+
+class MetricAskBody(BaseModel):
+    question: str
+
+
+@router.post("/metric_ask")
+async def metric_ask(body: MetricAskBody, request: Request):
+    """Answer a natural-language question by GROUNDING on governed metrics: the LLM
+    selects the best metric + grain + breakdown + filters from the catalog (it never
+    writes SQL); the deterministic compiler runs it. This is the anti-hallucination
+    pattern (Tableau VDS / dbt / Cube)."""
+    metrics = _mlab.list_metrics()
+    if not metrics:
+        return _err(400, "no metrics", "No governed metrics yet — build some in the Metric Lab first.")
+    key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not key:
+        return _err(503, "AI not configured", "ANTHROPIC_API_KEY is not set.")
+    try:
+        model = _loadm(draft=False)
+    except SemanticLoadError as e:
+        return _err(400, "model load failed", str(e))
+    ctx = _ctx_load()
+    catalog = []
+    for m in metrics:
+        tk = m.get("base_table") or ""
+        t = model.table(tk)
+        tctx = ctx.get(f"table:{tk}") or {}
+        # Business context makes NL map to the right metric: metric synonyms, plus
+        # the base table's plain-language description + synonyms.
+        table_terms = list(tctx.get("synonyms") or [])
+        table_desc = (tctx.get("description") or (t.description if t else "") or "").strip()
+        entry = {"id": m["id"], "name": m["name"], "description": m.get("description", ""),
+                 "aggregation": m.get("aggregation"), "measure": m.get("measure_field"),
+                 "default_grain": m.get("default_grain", "month"),
+                 "dimensions": [d["key"] for d in _metric_dims(model, m)][:25]}
+        syns = _clean_synonyms(m.get("synonyms")) + table_terms
+        if syns:
+            entry["also_known_as"] = syns[:20]
+        if table_desc:
+            entry["subject"] = table_desc[:200]
+        catalog.append(entry)
+    import llm_router
+    prov = {"type": "anthropic", "api_key": key,
+            "model": os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6"), "name": "Claude"}
+    sysp = ("You ground analytics questions in a catalog of GOVERNED METRICS. Given the question and the catalog "
+            "(JSON), pick the single best metric and query parameters. Each metric may include 'also_known_as' "
+            "(synonyms/aliases the business uses for it) and 'subject' (what the underlying data is about) — use "
+            "these to match everyday wording to the right metric (e.g. 'sales' or 'topline' → a revenue metric). "
+            "Respond with ONLY JSON: "
+            '{"metric_id": str|null, "grain": one of day/week/month/quarter/year, "breakdown": dimension key or "", '
+            '"filters": [{"field": dimension key, "op": eq|neq|gt|lt|gte|lte, "value": str}], "reason": str}. '
+            "Use ONLY ids, dimension keys, and grains from the catalog. If nothing fits, set metric_id to null.")
+    msg = f"Question: {body.question}\n\nMetric catalog (JSON):\n{json.dumps(catalog)[:6000]}"
+    r = await llm_router.complete(prov, sysp, [{"role": "user", "content": msg}], max_tokens=500)
+    txt = r.get("output", "") or ""
+    mt = re.search(r"\{.*\}", txt, re.DOTALL)
+    sel = {}
+    try:
+        sel = json.loads(mt.group(0)) if mt else {}
+    except Exception:
+        sel = {}
+    mid = sel.get("metric_id")
+    if not mid:
+        return {"ok": True, "answer": "I couldn't match that to a governed metric. Try rephrasing, or define the metric in the Metric Lab.",
+                "metric": None, "reason": sel.get("reason", "")}
+    m = _mlab.get_metric(mid)
+    if not m:
+        return {"ok": True, "answer": "The AI picked a metric that no longer exists.", "metric": None}
+    email = (request.headers.get("X-Jarvis-User") or "").strip() or None
+    res = await _metric_execute(m, sel.get("grain") or m.get("default_grain", "month"),
+                                sel.get("breakdown", ""), sel.get("filters") or [], email)
+    if res.get("error"):
+        return {"ok": False, "error": res["error"], "metric": {"id": m["id"], "name": m["name"]}, "sql": res.get("sql")}
+    fmt = res.get("format") or {}
+    latest = _mlab.format_value(res.get("latest"), fmt) if res.get("latest") is not None else "—"
+    grain = sel.get("grain") or m.get("default_grain", "month")
+    answer = f"**{m['name']}** for the latest {grain} is **{latest}**."
+    if res.get("delta") is not None:
+        dv = _mlab.format_value(abs(res["delta"]), fmt)
+        updown = "up" if res["delta"] >= 0 else "down"
+        pct = f" ({res['delta_pct']:+.1f}%)" if res.get("delta_pct") is not None else ""
+        answer += f" It's {updown} {dv}{pct} vs the prior {grain}."
+    return {"ok": True, "answer": answer, "metric": {"id": m["id"], "name": m["name"]},
+            "reason": sel.get("reason", ""), "series": res.get("series"), "latest": res.get("latest"),
+            "delta": res.get("delta"), "delta_pct": res.get("delta_pct"), "format": fmt,
+            "direction": res.get("direction"), "grain": grain, "breakdown": sel.get("breakdown", ""),
+            "sql": res.get("sql")}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  Phase D — Pulse-style metric monitoring (deterministic facts → digest)
+# ═══════════════════════════════════════════════════════════════════
+def _metric_facts(m: dict, series: list) -> list:
+    """Deterministic insight facts about a metric's time series — the ground truth
+    (Tableau Pulse's model). Each fact carries an impact score for ranking."""
+    vals = [float(p["value"]) for p in series if p.get("value") is not None]
+    n = len(vals)
+    facts = []
+    direction = m.get("direction", "favorable_up")
+
+    def _good(up):
+        return up if direction == "favorable_up" else (not up if direction == "unfavorable_up" else True)
+
+    # 1) Period-over-period change
+    if n >= 2 and vals[-2] not in (0, None):
+        delta = vals[-1] - vals[-2]
+        pct = delta / vals[-2] * 100 if vals[-2] else None
+        up = delta >= 0
+        facts.append({"type": "change", "impact": abs(pct) if pct is not None else abs(delta),
+                      "severity": "good" if _good(up) else "bad",
+                      "text": f"{'Up' if up else 'Down'} {abs(delta):,.2f}" + (f" ({pct:+.1f}%)" if pct is not None else "") + " vs the prior period."})
+
+    # 2) Trend (linear slope over the window)
+    if n >= 4:
+        xs = list(range(n)); mx = sum(xs) / n; my = sum(vals) / n
+        den = sum((x - mx) ** 2 for x in xs) or 1
+        slope = sum((xs[i] - mx) * (vals[i] - my) for i in range(n)) / den
+        if abs(slope) > (abs(my) * 0.005 if my else 0):
+            up = slope > 0
+            facts.append({"type": "trend", "impact": abs(slope) / (abs(my) or 1) * 100,
+                          "severity": "good" if _good(up) else "bad",
+                          "text": f"The overall trend is {'rising' if up else 'falling'} over the last {n} periods."})
+
+    # 3) Anomaly (latest outside the expected range from a forecast on the prior points)
+    if n >= 6:
+        try:
+            from experiments_api import _forecast_core
+            fc = _forecast_core(vals[:-1], 1, alpha=0.05)
+            if fc.get("ok") and fc.get("lower") and fc.get("upper"):
+                lo, hi = fc["lower"][0], fc["upper"][0]
+                if vals[-1] < lo or vals[-1] > hi:
+                    up = vals[-1] > hi
+                    facts.append({"type": "anomaly", "impact": 100.0,
+                                  "severity": "good" if _good(up) else "bad",
+                                  "text": f"Unexpected value: the latest point ({vals[-1]:,.2f}) is {'above' if up else 'below'} the expected range ({lo:,.1f}–{hi:,.1f})."})
+        except Exception:
+            pass
+
+    # 4) Forecast next period
+    if n >= 4:
+        try:
+            from experiments_api import _forecast_core
+            fc = _forecast_core(vals, 1, alpha=0.1)
+            if fc.get("ok") and fc.get("forecast"):
+                nxt = fc["forecast"][0]
+                up = nxt >= vals[-1]
+                facts.append({"type": "forecast", "impact": 20.0, "severity": "info",
+                              "text": f"Next period is forecast at ~{nxt:,.2f} ({'up' if up else 'down'} from now), method {fc.get('method')}.",
+                              "forecast": nxt})
+        except Exception:
+            pass
+
+    # 5) Goal / threshold pace
+    goal = (m.get("goal") or {})
+    gv = goal.get("value")
+    if gv not in (None, "") and n >= 1:
+        try:
+            gv = float(gv)
+            cur = vals[-1]
+            hit = cur >= gv
+            facts.append({"type": "goal", "impact": abs(cur - gv) / (abs(gv) or 1) * 100,
+                          "severity": "good" if hit else "bad",
+                          "text": f"{'Met' if hit else 'Below'} goal: latest {cur:,.2f} vs goal {gv:,.2f} ({(cur-gv):+,.2f})."})
+        except Exception:
+            pass
+
+    facts.sort(key=lambda f: -f.get("impact", 0))
+    return facts
+
+
+class MetricInsightsBody(BaseModel):
+    id: str
+    grain: Optional[str] = None
+
+
+@router.post("/metric_insights")
+async def metric_insights_impl(body: MetricInsightsBody, request: Request):
+    """Monitor a metric: compute deterministic insight facts (change, trend, anomaly,
+    forecast, goal pace) and phrase the top ones into a plain-language digest with an
+    LLM (the LLM phrases facts, it never computes them — Tableau Pulse's pattern)."""
+    m = _mlab.get_metric(body.id)
+    if not m:
+        return _err(404, "metric not found", "No such metric.")
+    email = (request.headers.get("X-Jarvis-User") or "").strip() or None
+    res = await _metric_execute(m, body.grain or m.get("default_grain", "month"), "", [], email)
+    if res.get("error"):
+        return {"ok": False, "error": res["error"]}
+    series = res.get("series") or []
+    facts = _metric_facts(m, series)
+    top = facts[:5]
+    digest = ""
+    key = os.getenv("ANTHROPIC_API_KEY", "")
+    if key and top:
+        try:
+            import llm_router
+            prov = {"type": "anthropic", "api_key": key,
+                    "model": os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6"), "name": "Claude"}
+            sysp = ("You write a 2-3 sentence executive digest for a business metric. You are given the metric name "
+                    "and a list of NUMERIC FACTS already computed. Phrase them clearly and prioritize the most "
+                    "important. Do NOT invent numbers or add facts not in the list.")
+            msg = f"Metric: {m['name']}\nFacts:\n" + "\n".join(f"- {f['text']}" for f in top)
+            r = await llm_router.complete(prov, sysp, [{"role": "user", "content": msg}], max_tokens=280)
+            digest = r.get("output", "") or ""
+        except Exception:
+            pass
+    return {"ok": True, "metric": {"id": m["id"], "name": m["name"]}, "digest": digest,
+            "facts": top, "series": series, "format": m.get("format") or {"type": "number", "decimals": 0},
+            "direction": m.get("direction", "favorable_up"), "grain": body.grain or m.get("default_grain", "month")}
+
+
+# ═══════════════════════════════════════════════════════════════════
 #  AUTO-CURATION — introspect a raw BQ table and generate a curated
 #  TableDef with heuristics. Lets us scale from 4 curated tables to all
 #  24 Gold tables without hand-writing every definition.
@@ -1319,17 +2064,26 @@ def _classify_column(col) -> Optional[str]:
 
 def _build_table_def_from_schema(raw_table: str, schema, table_key: str,
                                  cluster: Optional[str], kind: Optional[str],
-                                 source_key: str = "bigquery_gold") -> tuple[TableDef, dict]:
-    """Build a TableDef from a live RawTableSchema. Returns (table_def, summary)."""
+                                 source_key: str = "bigquery_gold",
+                                 overrides: Optional[dict] = None) -> tuple[TableDef, dict]:
+    """Build a TableDef from a live RawTableSchema. Returns (table_def, summary).
+
+    `overrides` (from the 'Generate model' review step) may force per-column roles
+    ({col: 'dimension'|'metric'|'date'|'skip'}), per-measure aggregation
+    ({col: 'SUM'|...}), and the table display_name / description."""
     cluster = cluster or _infer_cluster(raw_table)
     kind = kind or _infer_kind(raw_table)
+    ov = overrides or {}
+    role_ov = {str(k).lower(): str(v).lower() for k, v in (ov.get("roles") or {}).items()}
+    agg_ov = {str(k).lower(): str(v).upper() for k, v in (ov.get("aggregations") or {}).items()}
 
     dims, mets, dates, join_keys, skipped = [], [], [], [], []
     for col in schema.columns:
-        kind_of = _classify_column(col)
         name = col.name
         lname = name.lower()
-        if kind_of is None:
+        # A reviewer's explicit role wins over the heuristic classifier.
+        kind_of = role_ov.get(lname) or _classify_column(col)
+        if kind_of is None or kind_of == "skip":
             skipped.append(name)
             continue
         display = _title_case(name)
@@ -1340,7 +2094,7 @@ def _build_table_def_from_schema(raw_table: str, schema, table_key: str,
             divide_by = 1_000_000 if "micros" in lname else None
             fmt = "currency" if any(k in lname for k in ("cost", "spend", "value", "revenue", "budget")) else "number"
             mets.append(FieldDef(key=lname, column=name, display_name=display, field_kind="metric",
-                                 aggregation="SUM", format=fmt, divide_by=divide_by))
+                                 aggregation=agg_ov.get(lname, "SUM"), format=fmt, divide_by=divide_by))
         else:  # dimension
             dims.append(FieldDef(key=lname, column=name, display_name=display,
                                  field_kind="dimension", type=col.type))
@@ -1349,8 +2103,8 @@ def _build_table_def_from_schema(raw_table: str, schema, table_key: str,
 
     td = TableDef(
         key=table_key,
-        display_name=_strip_table_display(raw_table),
-        description=f"Auto-curated from {raw_table}. Refine names and field roles as needed.",
+        display_name=(ov.get("display_name") or "").strip() or _strip_table_display(raw_table),
+        description=(ov.get("description") or "").strip() or f"Auto-curated from {raw_table}. Refine names and field roles as needed.",
         source=source_key,
         raw_table=raw_table,
         cluster=cluster,
@@ -1363,6 +2117,7 @@ def _build_table_def_from_schema(raw_table: str, schema, table_key: str,
     )
     summary = {
         "key": table_key, "raw_table": raw_table, "display_name": td.display_name,
+        "description": td.description,
         "cluster": cluster, "kind": kind,
         "dimensions": len(dims), "metrics": len(mets), "dates": len(dates),
         "skipped": skipped,
@@ -1398,6 +2153,7 @@ class AutocurateRequest(BaseModel):
     cluster: Optional[str] = None
     kind: Optional[str] = None
     overwrite: bool = False
+    overrides: Optional[dict] = None   # from the 'Generate model' review step
 
 
 @router.post("/autocurate")
@@ -1445,7 +2201,7 @@ async def autocurate_table(body: AutocurateRequest):
         base_key if base_key not in taken else _derive_table_key(f"{dataset}_{body.raw_table}", taken)
     )
 
-    td, summary = _build_table_def_from_schema(body.raw_table, schema, table_key, body.cluster, body.kind, source_key=src_key)
+    td, summary = _build_table_def_from_schema(body.raw_table, schema, table_key, body.cluster, body.kind, source_key=src_key, overrides=body.overrides)
     model.tables[table_key] = td
 
     try:
@@ -1454,6 +2210,92 @@ async def autocurate_table(body: AutocurateRequest):
         return _err(500, "save failed", str(e))
     out["curated"] = summary
     return out
+
+
+# ─── 15b. POST /api/semantic/autocurate/preview — "Generate model" draft ──────
+# Introspect a raw table and return a full, field-level DRAFT (roles, default
+# aggregations, a starter description, and suggested joins to already-curated
+# tables) WITHOUT saving. The frontend shows this for review; the user tweaks and
+# then commits via /autocurate with `overrides`. This is the dbt-Copilot /
+# Tableau-AI "generate the model, then review" pattern.
+@router.post("/autocurate/preview")
+async def autocurate_preview(body: AutocurateRequest):
+    try:
+        model = _load_fresh()
+    except SemanticLoadError as e:
+        return _err(400, "semantic.yaml failed to load", str(e))
+    if body.project and body.dataset:
+        project, dataset = body.project, body.dataset
+    else:
+        project, dataset = _source_project_dataset(model)
+    if not project or not dataset:
+        return _err(400, "no source", "No default BigQuery source in semantic.yaml")
+    try:
+        schema = await asyncio.get_running_loop().run_in_executor(
+            None, introspect_table, project, dataset, body.raw_table)
+    except ExecutorConfigError as e:
+        return _err(503, "BigQuery not configured", str(e))
+    except Exception as e:
+        return _err(500, "introspect failed", str(e))
+
+    src_key = _source_key_for(model, project, dataset) or "bigquery_gold"
+    existing_key = next((t.key for t in model.tables.values()
+                         if t.raw_table == body.raw_table and t.source == src_key), None)
+    taken = set(model.tables.keys())
+    base_key = _derive_table_key(body.raw_table, set())
+    table_key = existing_key or (base_key if base_key not in taken else _derive_table_key(f"{dataset}_{body.raw_table}", taken))
+
+    td, summary = _build_table_def_from_schema(body.raw_table, schema, table_key,
+                                               body.cluster, body.kind, source_key=src_key,
+                                               overrides=body.overrides)
+    # Per-field draft the reviewer can edit (role + aggregation).
+    fields = []
+    for f in td.dates:
+        fields.append({"column": f.column, "display_name": f.display_name, "role": "date",
+                       "type": getattr(f, "type", ""), "aggregation": None})
+    for f in td.metrics:
+        fields.append({"column": f.column, "display_name": f.display_name, "role": "metric",
+                       "type": getattr(f, "type", ""), "aggregation": getattr(f, "aggregation", "SUM"),
+                       "format": getattr(f, "format", "number")})
+    for f in td.dimensions:
+        fields.append({"column": f.column, "display_name": f.display_name, "role": "dimension",
+                       "type": getattr(f, "type", ""), "aggregation": None,
+                       "is_join_key": f.column in (td.join_keys or [])})
+    for c in summary.get("skipped", []):
+        fields.append({"column": c, "display_name": _title_case(c), "role": "skip", "aggregation": None})
+
+    # Suggested joins: match this table's join keys against already-curated tables.
+    my_keys = {f["column"].lower() for f in fields if f.get("role") != "skip"}
+    suggested = []
+    for t in model.tables.values():
+        if t.key == table_key:
+            continue
+        other_keys = ({d.key for d in t.dimensions} | {m.key for m in t.metrics} | {d.key for d in t.dates})
+        for col in (my_keys & {k.lower() for k in other_keys}):
+            cl = col.lower()
+            score, why = 0, []
+            if cl == "id" or cl.endswith(("_id", "_key", "_uuid", "_fk")):
+                score += 55; why.append("shared key following foreign-key naming")
+            else:
+                score += 20; why.append("shared column name")
+            tn = re.sub(r"[^a-z0-9]", "", t.key.lower())
+            if tn and len(tn) >= 4 and tn in re.sub(r"[^a-z0-9]", "", cl):
+                score += 30; why.append(f"references the '{t.key}' table")
+            if score >= 40:
+                suggested.append({"left": table_key, "right": t.key, "on": col,
+                                  "right_name": t.display_name or t.key,
+                                  "confidence": score, "reasons": why})
+    suggested.sort(key=lambda x: -x["confidence"])
+
+    return {"draft": {
+        "table_key": table_key, "raw_table": body.raw_table, "project": project, "dataset": dataset,
+        "display_name": td.display_name, "description": td.description,
+        "cluster": summary["cluster"], "kind": summary["kind"],
+        "counts": {"dimensions": summary["dimensions"], "metrics": summary["metrics"],
+                   "dates": summary["dates"], "skipped": len(summary.get("skipped", []))},
+        "fields": fields, "suggested_joins": suggested,
+        "already_curated": bool(existing_key), "warnings": summary.get("warnings", []),
+    }}
 
 
 # ─── 16. POST /api/semantic/autocurate_all — curate all uncurated ────

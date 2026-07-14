@@ -1,0 +1,29 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "data_mart_claims",
+  "name": "PRM_TERR_ZIPS_DIM",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 2242,
+  "columns": [
+    {
+      "name": "ZIPCODE",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "TERR_ID",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

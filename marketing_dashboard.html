@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Orlando Health · Marketing Intelligence</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.min.css" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c232c; --line:#2a313c;
+    --txt:#e6edf3; --muted:#9aa7b4; --accent:#3fb6ff; --accent2:#7c5cff;
+    --good:#3fb950; --warn:#e3b341; --bad:#f85149; --chip:#21303f;
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.25);
+    --radius:14px; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:1280px;margin:0 auto;padding:20px 22px 64px}
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+  header h1{font-size:19px;font-weight:650;margin:0;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:12.5px}
+  .spacer{flex:1}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:var(--chip);border:1px solid var(--line);
+    border-radius:999px;padding:4px 11px;font-size:12px;color:var(--muted)}
+  .pill.ok{color:var(--good);border-color:#1f3b29}
+  .pill.live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px rgba(63,185,80,.18)}
+  .pill.sample{color:var(--warn);border-color:#3b3520}
+  .pill.sample::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--warn)}
+  button,select,input{font-family:inherit;font-size:13px;color:var(--txt);background:var(--panel2);
+    border:1px solid var(--line);border-radius:9px;padding:7px 11px;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  .btn-primary{background:var(--accent);color:#04121f;border-color:var(--accent);font-weight:600}
+  .tabs{display:flex;gap:4px;margin:18px 0 16px;border-bottom:1px solid var(--line)}
+  .tab{padding:9px 15px;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;border-radius:0;font-weight:550}
+  .tab.active{color:var(--txt);border-bottom-color:var(--accent)}
+  .tab:hover{color:var(--txt)}
+  .view{display:none}
+  .view.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .grid{display:grid;gap:14px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 14px;box-shadow:var(--shadow)}
+  .kpi .label{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12.5px;font-weight:550;text-transform:none}
+  .kpi .val{font-size:27px;font-weight:680;margin:7px 0 2px;letter-spacing:-.5px}
+  .kpi .delta{font-size:12px;color:var(--muted)}
+  .kpi .delta.up{color:var(--good)} .kpi .delta.down{color:var(--bad)}
+  .badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:999px;border:1px solid}
+  .badge.approved{color:var(--good);border-color:#1f3b29;background:#102016}
+  .badge.explore{color:var(--warn);border-color:#3b3520;background:#1f1c10}
+  .info{display:inline-flex;width:15px;height:15px;border-radius:50%;border:1px solid var(--line);color:var(--muted);
+    align-items:center;justify-content:center;font-size:10px;cursor:help;position:relative;font-style:italic;font-weight:700}
+  .info:hover{color:var(--accent);border-color:var(--accent)}
+  .tip{position:absolute;bottom:140%;left:50%;transform:translateX(-50%);width:268px;background:#0a0e14;border:1px solid var(--line);
+    border-radius:10px;padding:11px 12px;box-shadow:var(--shadow);font-size:12px;color:var(--txt);font-style:normal;font-weight:400;
+    z-index:30;display:none;text-align:left;line-height:1.45}
+  .info:hover .tip{display:block}
+  .tip .tname{font-weight:650;margin-bottom:3px}
+  .tip .tdef{color:var(--muted);margin-bottom:7px}
+  .tip .trow{display:flex;gap:6px;margin-top:4px;font-size:11px}
+  .tip .tk{color:var(--muted);min-width:54px}
+  .tip code{font-family:var(--mono);font-size:11px;color:var(--accent);background:#0f1822;padding:1px 5px;border-radius:5px;display:inline-block}
+  .tip .caveat{margin-top:7px;color:var(--warn);font-size:11.5px;display:flex;gap:6px}
+  .sec-title{display:flex;align-items:center;gap:9px;margin:24px 0 12px;font-size:15px;font-weight:620}
+  .sec-title .pill{font-weight:500}
+  .two{grid-template-columns:1.6fr 1fr}
+  @media(max-width:880px){.two{grid-template-columns:1fr}}
+  canvas{max-width:100%}
+  .muted{color:var(--muted)}
+  .banner{background:#1f1c10;border:1px solid #3b3520;color:var(--warn);border-radius:10px;padding:9px 13px;margin-bottom:14px;font-size:12.5px;display:none}
+  .banner.show{display:block}
+  table.simple{width:100%;border-collapse:collapse;font-size:13px}
+  table.simple th{text-align:left;color:var(--muted);font-weight:550;padding:8px 10px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel)}
+  table.simple td{padding:8px 10px;border-bottom:1px solid #20262f}
+  table.simple tr:hover td{background:var(--panel2)}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:12px;cursor:pointer;user-select:none}
+  .chip.sel{border-color:var(--accent);color:var(--accent);background:#0f2230}
+  .sqlbox{font-family:var(--mono);font-size:12px;background:#0a0e14;border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;color:#bcd;margin-top:12px;display:none}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:11.5px;margin-top:10px}
+  .sl-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+  .sl-card{cursor:pointer;transition:border-color .15s}
+  .sl-card:hover{border-color:var(--accent)}
+  .sl-card .v{font-size:20px;font-weight:650;margin-top:6px}
+  .loading{color:var(--muted);font-size:12.5px}
+  .cav{display:flex;gap:8px;background:#1f1c10;border:1px solid #3b3520;color:var(--warn);border-radius:9px;padding:9px 11px;font-size:12.5px;margin-top:7px;line-height:1.45}
+  .brief-headline{font-size:18px;font-weight:700;letter-spacing:-.3px;margin-bottom:6px}
+  .brief-find{margin:10px 0;padding-left:18px} .brief-find li{margin:5px 0}
+  .brief-narr{color:var(--muted);margin:12px 0 4px}
+  #askInput{font-size:14px;padding:10px 12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Orlando Health · Marketing Intelligence</h1>
+      <div class="sub">Powered by <strong>ktx</strong> — approved, version-controlled metric definitions</div>
+    </div>
+    <div class="spacer"></div>
+    <span id="conn" class="pill">connecting…</span>
+    <label class="muted" style="font-size:12px">From <input type="date" id="startDate" value="2015-01-01"></label>
+    <label class="muted" style="font-size:12px">To <input type="date" id="endDate" value="2016-12-31"></label>
+    <button id="reloadBtn" class="btn-primary">↻ Apply</button>
+  </header>
+
+  <div id="banner" class="banner"></div>
+
+  <div class="tabs">
+    <button class="tab active" data-view="ask">✦ Ask</button>
+    <button class="tab" data-view="overview">Leadership Overview</button>
+    <button class="tab" data-view="service">Service Lines</button>
+    <button class="tab" data-view="analyst">Analyst</button>
+  </div>
+
+  <!-- ASK -->
+  <section id="ask" class="view active">
+    <div class="card">
+      <div style="font-size:15px;font-weight:620;margin-bottom:4px">Ask your data</div>
+      <div class="muted" style="font-size:12.5px;margin-bottom:12px">Plain-English question → a brief grounded in approved ktx measures, with a chart, cited sources, and caveats. <strong>Applies the From/To date range set in the header above.</strong> Planned by Haiku, written by Sonnet, executed through ktx.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <input id="askInput" placeholder="e.g. How is our ad spend trending, and where is CPC highest?" style="flex:1;min-width:280px" />
+        <button id="askBtn" class="btn-primary">Generate brief</button>
+      </div>
+      <div class="chips" id="askSuggest" style="margin-top:10px"></div>
+    </div>
+    <div id="briefOut" style="margin-top:16px"></div>
+  </section>
+
+  <!-- OVERVIEW -->
+  <section id="overview" class="view">
+    <div class="grid kpis" id="kpiRow"></div>
+    <div class="sec-title">Spend &amp; clicks over time <span class="pill ok">approved measures</span></div>
+    <div class="grid two">
+      <div class="card"><canvas id="trendChart" height="118"></canvas></div>
+      <div class="card"><canvas id="mixChart" height="118"></canvas></div>
+    </div>
+    <div class="legend">
+      <span><span class="badge approved">✓ Approved</span> value from a ktx-defined measure</span>
+      <span><span class="badge explore">~ Exploratory</span> ad-hoc / unverified</span>
+      <span>Hover <span class="info">i</span> on any metric for its definition, source &amp; caveats</span>
+    </div>
+  </section>
+
+  <!-- SERVICE LINES -->
+  <section id="service" class="view">
+    <div class="sec-title">Performance by service line <span class="pill ok">approved measures</span></div>
+    <div id="slGrid" class="grid sl-grid"><div class="loading">Loading service lines…</div></div>
+    <div id="slDetail" style="margin-top:20px"></div>
+  </section>
+
+  <!-- ANALYST -->
+  <section id="analyst" class="view">
+    <div class="sec-title">Query builder <span class="muted" style="font-size:12px;font-weight:400">— compose approved measures &amp; dimensions</span></div>
+    <div class="card">
+      <div class="controls">
+        <label class="muted">Source&nbsp;
+          <select id="tableSel"></select>
+        </label>
+        <button id="runBtn" class="btn-primary">Run query</button>
+        <button id="sqlToggle">Show compiled SQL</button>
+        <span id="qStatus" class="muted"></span>
+      </div>
+      <div style="margin:4px 0 10px">
+        <div class="muted" style="font-size:12px;margin-bottom:5px">Metrics <span class="badge approved">✓ approved</span></div>
+        <div id="metricChips" class="chips"></div>
+      </div>
+      <div style="margin:4px 0 10px">
+        <div class="muted" style="font-size:12px;margin-bottom:5px">Group by (dimension)</div>
+        <div id="dimChips" class="chips"></div>
+      </div>
+      <div class="sqlbox" id="sqlBox"></div>
+    </div>
+    <div class="card" style="margin-top:14px"><div id="resultTable"><div class="muted">Pick metrics and run a query.</div></div></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.umd.js"></script>
+<script>
+/* ============ CONFIG ============ */
+const API = (
+  localStorage.getItem('jarvisApi') ||
+  (location.protocol.startsWith('http') ? location.origin : 'https://localhost:8340')
+).replace(/\/$/,'');
+let LIVE = false;
+
+/* ============ PROVENANCE: curated caveats; definitions fetched live ============ */
+const CAVEATS = {
+  roas: "Conversion value is sparsely tracked in this warehouse (~$485 lifetime). roas is unreliable here — prefer CTR / CPC / CPA.",
+  conversion_value: "Sparsely populated; most rows are null. Treat totals as a floor, not actuals.",
+  conversions: "Counts micro-conversions (secondary events), not just primary conversions.",
+  spend: "ad_fact_ads.cost is already in account currency. (Historic /1e6 bug fixed — see ktx migration notes.)"
+};
+let DEFS = {};   // field_key -> {name, def, source, formula}
+
+/* ============ NUMBER FORMATTING ============ */
+const fmtCurrency = v => v==null?'—':'$'+Number(v).toLocaleString(undefined,{maximumFractionDigits:0});
+const fmtNum = v => v==null?'—':Number(v).toLocaleString(undefined,{maximumFractionDigits:0});
+const fmtPct = v => v==null?'—':(Number(v)*100).toFixed(2)+'%';
+const fmtMoney2 = v => v==null?'—':'$'+Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const FMT = {spend:fmtCurrency, clicks:fmtNum, impressions:fmtNum, conversions:fmtNum,
+  ctr:fmtPct, cpc:fmtMoney2, cpa:fmtMoney2, cpm:fmtMoney2, roas:v=>v==null?'—':Number(v).toFixed(4)};
+
+/* ============ API ============ */
+async function api(path, opts){
+  const r = await fetch(API+path, Object.assign({headers:{'Content-Type':'application/json'}}, opts||{}));
+  if(!r.ok) throw new Error('HTTP '+r.status+' '+path);
+  return r.json();
+}
+async function runQuery(body){
+  return api('/api/semantic/query?include_sql=true', {method:'POST', body:JSON.stringify(body)});
+}
+function rowsToObjects(res){
+  return (res.rows||[]).map(r=>{const o={};res.columns.forEach((c,i)=>o[c]=r[i]);return o;});
+}
+
+/* ============ PROVENANCE TOOLTIP ============ */
+function infoTip(key){
+  const d = DEFS[key] || {};
+  const src = d.source ? `<div class="trow"><span class="tk">Source</span><code>${d.source}</code></div>`:'';
+  const exp = d.formula ? `<div class="trow"><span class="tk">Expr</span><code>${d.formula}</code></div>`:'';
+  const cav = CAVEATS[key] ? `<div class="caveat">⚠ ${CAVEATS[key]}</div>`:'';
+  return `<span class="info">i<span class="tip">
+      <div class="tname">${(d.name||key)} <span class="badge approved">✓ approved</span></div>
+      <div class="tdef">${d.def||'Approved ktx measure.'}</div>${src}${exp}${cav}
+    </span></span>`;
+}
+
+/* ============ SAMPLE DATA (fallback when backend offline) ============ */
+const SAMPLE = {
+  totals:{spend:133171991, clicks:33072969, impressions:980443210, conversions:1263229, ctr:0.0337, cpc:4.03, cpa:105.4, roas:0.0000036},
+  trend:Array.from({length:14},(_,i)=>({date:`2025-09-${String(i+8).padStart(2,'0')}`,
+    spend:90000+Math.random()*15000, clicks:22000+Math.random()*4000})),
+  serviceLines:[
+    {name:'Heart & Vascular',spend:28400000,clicks:6900000,ctr:0.036,cpc:4.12},
+    {name:'Cancer',spend:21100000,clicks:5100000,ctr:0.031,cpc:4.14},
+    {name:'Orthopedics',spend:18700000,clicks:4800000,ctr:0.034,cpc:3.90},
+    {name:'Primary Care',spend:15200000,clicks:4100000,ctr:0.039,cpc:3.71},
+    {name:"Women's",spend:12600000,clicks:3200000,ctr:0.035,cpc:3.94},
+    {name:'Neuroscience',spend:9800000,clicks:2300000,ctr:0.030,cpc:4.26},
+  ]
+};
+
+/* ============ DEFINITIONS (live) ============ */
+async function loadDefs(){
+  try{
+    const t = await api('/api/semantic/tables/ad_performance');
+    (t.metrics||[]).forEach(m=>DEFS[m.key]={name:m.display_name||m.key,def:m.description||'',source:'gold.ad_fact_ads.'+(m.column||m.key),formula:null});
+    const c = await api('/api/semantic/calculated');
+    (c.calculated_metrics||[]).forEach(m=>DEFS[m.key]={name:m.display_name||m.key,def:m.description||'',source:'ad_performance',formula:m.formula});
+  }catch(e){ /* defs optional */ }
+}
+
+/* ============ OVERVIEW ============ */
+let trendChart, mixChart;
+const KPI_DEFS = [
+  {key:'spend',label:'Ad Spend',calc:s=>s.spend},
+  {key:'clicks',label:'Clicks',calc:s=>s.clicks},
+  {key:'ctr',label:'CTR',calc:s=>s.impressions?s.clicks/s.impressions:null},
+  {key:'cpc',label:'Cost / Click',calc:s=>s.clicks?s.spend/s.clicks:null},
+  {key:'conversions',label:'Conversions',calc:s=>s.conversions},
+  {key:'cpa',label:'Cost / Acq.',calc:s=>s.conversions?s.spend/s.conversions:null},
+];
+function dateRange(){ return {start:document.getElementById('startDate').value, end:document.getElementById('endDate').value}; }
+function dateFilter(table, field){ const {start,end}=dateRange(); field=field||'date';
+  return (start&&end)?[{table, field, op:'between', value:[start,end]}]:[]; }
+async function loadOverview(){
+  const {start,end}=dateRange();
+  let rows;
+  try{
+    const tr=await runQuery({primary_table:'ad_performance',
+      dimensions:[{table:'ad_performance',field:'date'}],
+      metrics:['spend','clicks','impressions','conversions'].map(f=>({table:'ad_performance',field:f})),
+      filters:dateFilter('ad_performance'),
+      order_by:[{field:'date',direction:'asc'}], limit:800});
+    rows=rowsToObjects(tr);
+    setLive(true);
+  }catch(e){
+    rows=SAMPLE.trend.map(r=>({date:r.date,spend:r.spend,clicks:r.clicks,impressions:Math.round(r.clicks*30),conversions:0}));
+    setLive(false,e.message);
+  }
+  const sum=rows.reduce((a,r)=>({spend:a.spend+(+r.spend||0),clicks:a.clicks+(+r.clicks||0),
+    impressions:a.impressions+(+r.impressions||0),conversions:a.conversions+(+r.conversions||0)}),
+    {spend:0,clicks:0,impressions:0,conversions:0});
+  document.getElementById('kpiRow').innerHTML=KPI_DEFS.map(k=>{
+    const f=FMT[k.key]||fmtNum; const v=k.calc(sum);
+    return `<div class="card kpi"><div class="label">${k.label} ${infoTip(k.key)} <span class="badge approved">✓</span></div>
+      <div class="val">${f(v)}</div><div class="delta muted">${start} → ${end} · ${rows.length} days</div></div>`;
+  }).join('');
+  drawTrend(rows.map(r=>r.date), rows.map(r=>r.spend), rows.map(r=>r.clicks));
+  try{ const sl=await loadServiceData(); drawMix(sl.map(s=>s.name), sl.map(s=>s.spend)); }
+  catch(e){ drawMix(SAMPLE.serviceLines.map(s=>s.name), SAMPLE.serviceLines.map(s=>s.spend)); }
+}
+function drawTrend(labels, spend, clicks){
+  const ctx=document.getElementById('trendChart'); if(trendChart)trendChart.destroy();
+  trendChart=new Chart(ctx,{type:'line',data:{labels,datasets:[
+    {label:'Spend ($)',data:spend,borderColor:'#3fb6ff',backgroundColor:'rgba(63,182,255,.12)',fill:true,tension:.3,yAxisID:'y',pointRadius:0,borderWidth:2},
+    {label:'Clicks',data:clicks,borderColor:'#7c5cff',tension:.3,yAxisID:'y1',pointRadius:0,borderWidth:2}
+  ]},options:chartOpts('Spend & clicks by day',{dual:true})});
+}
+function drawMix(labels,data){
+  const ctx=document.getElementById('mixChart'); if(mixChart)mixChart.destroy();
+  mixChart=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,
+    backgroundColor:['#3fb6ff','#7c5cff','#3fb950','#e3b341','#f0883e','#db61a2','#56d4dd']}]},
+    options:{plugins:{legend:{position:'right',labels:{color:'#9aa7b4',boxWidth:12,font:{size:11}}},
+      title:{display:true,text:'Spend by service line',color:'#e6edf3',font:{size:13,weight:'600'}}},
+      cutout:'62%'}});
+}
+function chartOpts(title,o){o=o||{};return{responsive:true,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{labels:{color:'#9aa7b4',boxWidth:12,font:{size:11}}},
+    title:{display:true,text:title,color:'#e6edf3',font:{size:13,weight:'600'}}},
+  scales:Object.assign({x:{ticks:{color:'#6e7b8a',maxTicksLimit:8,font:{size:10}},grid:{color:'#1c232c'}},
+    y:{ticks:{color:'#6e7b8a',font:{size:10}},grid:{color:'#1c232c'}}},
+    o.dual?{y1:{position:'right',ticks:{color:'#6e7b8a',font:{size:10}},grid:{display:false}}}:{})};}
+
+/* ============ SERVICE LINES ============ */
+async function loadServiceData(){
+  // group spend/clicks by the service_line_group combined dimension, within the chosen date range
+  const r = await runQuery({primary_table:'ad_performance',
+    dimensions:[{table:'campaigns',field:'service_line_group'}],
+    metrics:[{table:'ad_performance',field:'spend'},{table:'ad_performance',field:'clicks'},
+             {table:'ad_performance',field:'ctr'},{table:'ad_performance',field:'cpc'}],
+    filters:dateFilter('ad_performance'), order_by:[{field:'spend',direction:'desc'}], limit:25});
+  return rowsToObjects(r).map(o=>({name:o.service_line_group||o.service_line||'—',
+    spend:+o.spend||0,clicks:+o.clicks||0,ctr:+o.ctr||0,cpc:+o.cpc||0}));
+}
+async function loadServiceView(){
+  const el=document.getElementById('slGrid');
+  let data;
+  try{ data=await loadServiceData(); setLive(true);}catch(e){ data=SAMPLE.serviceLines; setLive(false,e.message);}
+  if(!data.length){el.innerHTML='<div class="muted">No service-line data.</div>';return;}
+  el.innerHTML=data.map(s=>`<div class="card sl-card" onclick='showSL(${JSON.stringify(s).replace(/'/g,"&#39;")})'>
+      <div class="muted" style="font-weight:600;color:var(--txt)">${s.name}</div>
+      <div class="v">${fmtCurrency(s.spend)}</div>
+      <div class="muted" style="font-size:12px;margin-top:4px">${fmtNum(s.clicks)} clicks · ${fmtPct(s.ctr)} CTR · ${fmtMoney2(s.cpc)} CPC</div>
+    </div>`).join('');
+}
+function showSL(s){
+  document.getElementById('slDetail').innerHTML=`<div class="card">
+    <div class="sec-title" style="margin-top:0">${s.name} <span class="pill ok">approved</span></div>
+    <div class="grid kpis">
+      <div class="card kpi"><div class="label">Spend ${infoTip('spend')}</div><div class="val">${fmtCurrency(s.spend)}</div></div>
+      <div class="card kpi"><div class="label">Clicks ${infoTip('clicks')}</div><div class="val">${fmtNum(s.clicks)}</div></div>
+      <div class="card kpi"><div class="label">CTR ${infoTip('ctr')}</div><div class="val">${fmtPct(s.ctr)}</div></div>
+      <div class="card kpi"><div class="label">CPC ${infoTip('cpc')}</div><div class="val">${fmtMoney2(s.cpc)}</div></div>
+    </div></div>`;
+  document.getElementById('slDetail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ============ ANALYST ============ */
+let TABLES=[], selMetrics=new Set(), selDim=null, curTable='ad_performance', curDateField=null;
+async function loadAnalyst(){
+  try{
+    const t=await api('/api/semantic/tables'); TABLES=t.tables||[]; setLive(true);
+    const sel=document.getElementById('tableSel');
+    sel.innerHTML=TABLES.map(t=>`<option value="${t.key}">${t.display_name||t.key}</option>`).join('');
+    sel.value = TABLES.find(x=>x.key==='ad_performance')?'ad_performance':(TABLES[0]&&TABLES[0].key);
+    curTable=sel.value; await loadTableFields(curTable);
+    sel.onchange=async()=>{curTable=sel.value;selMetrics.clear();selDim=null;await loadTableFields(curTable);};
+  }catch(e){
+    setLive(false,e.message);
+    document.getElementById('metricChips').innerHTML='<span class="muted">Backend offline — analyst view needs the Jarvis server running.</span>';
+  }
+}
+async function loadTableFields(key){
+  const t=await api('/api/semantic/tables/'+key);
+  curDateField=(t.dates&&t.dates[0]&&t.dates[0].key)||null;
+  const mc=document.getElementById('metricChips'), dc=document.getElementById('dimChips');
+  const mets=(t.metrics||[]).concat(t.calculated_metrics||[]);
+  mc.innerHTML=mets.map(m=>`<span class="chip" data-m="${m.key}">${m.display_name||m.key}</span>`).join('')||'<span class="muted">no metrics</span>';
+  dc.innerHTML=(t.dimensions||[]).concat(t.dates||[]).map(d=>`<span class="chip" data-d="${d.key}">${d.display_name||d.key}</span>`).join('')||'<span class="muted">no dimensions</span>';
+  mc.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{const k=c.dataset.m;if(selMetrics.has(k)){selMetrics.delete(k);c.classList.remove('sel');}else{selMetrics.add(k);c.classList.add('sel');}});
+  dc.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{const k=c.dataset.d;
+    if(selDim===k){selDim=null;c.classList.remove('sel');}else{selDim=k;dc.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');}});
+}
+async function runAnalyst(){
+  if(!selMetrics.size){document.getElementById('qStatus').textContent='Pick at least one metric.';return;}
+  const body={primary_table:curTable,
+    metrics:[...selMetrics].map(f=>({table:curTable,field:f})),
+    dimensions:selDim?[{table:curTable,field:selDim}]:[],
+    filters: curDateField?dateFilter(curTable,curDateField):[], limit:200};
+  document.getElementById('qStatus').textContent='Running…';
+  try{
+    const res=await runQuery(body); setLive(true);
+    document.getElementById('qStatus').textContent=`${res.row_count} rows · ${res.elapsed_ms}ms`;
+    document.getElementById('sqlBox').textContent=res.sql||'(sql not returned)';
+    const rt=document.getElementById('resultTable'); rt.innerHTML='';
+    new gridjs.Grid({columns:res.columns,data:res.rows,sort:true,search:true,
+      pagination:{limit:25},style:{table:{fontSize:'13px'}}}).render(rt);
+  }catch(e){ document.getElementById('qStatus').textContent='Error: '+e.message; setLive(false,e.message);}
+}
+
+/* ============ SHELL ============ */
+function setLive(live, msg){
+  LIVE=live; const c=document.getElementById('conn'), b=document.getElementById('banner');
+  if(live){c.className='pill live ok';c.textContent='live · ktx';b.classList.remove('show');}
+  else{c.className='pill sample';c.textContent='sample data';
+    b.classList.add('show');b.innerHTML=`Showing <strong>sample data</strong> — couldn't reach Jarvis at <code>${API}</code>. Start the backend (<code>JARVIS_SQL_ENGINE=ktx python server.py</code>) and hit Reload. <span class="muted">(${msg||''})</span>`;}
+}
+function switchView(v){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===v));
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active',s.id===v));
+  if(v==='service')loadServiceView(); if(v==='analyst'&&!TABLES.length)loadAnalyst();
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchView(t.dataset.view));
+document.getElementById('reloadBtn').onclick=()=>{ boot(); if(document.getElementById('service').classList.contains('active')) loadServiceView(); };
+document.getElementById('sqlToggle').onclick=()=>{const s=document.getElementById('sqlBox');s.style.display=s.style.display==='block'?'none':'block';};
+document.getElementById('runBtn').onclick=runAnalyst;
+
+/* ============ ASK → BRIEF ============ */
+const SUGGESTIONS = [
+  "How is our ad spend trending over time?",
+  "Which service line has the highest CPC?",
+  "Summarize ad performance: spend, clicks, CTR and CPC.",
+  "Where are we getting the most clicks for the least cost?"
+];
+let briefChart;
+function initSuggest(){
+  document.getElementById('askSuggest').innerHTML =
+    SUGGESTIONS.map(s=>`<span class="chip" onclick="document.getElementById('askInput').value=this.textContent;askBrief()">${s}</span>`).join('');
+}
+async function askBrief(){
+  const q=document.getElementById('askInput').value.trim(); if(!q) return;
+  const {start,end}=dateRange();
+  if(!start||!end){ alert('Set a From and To date in the header first.'); return; }
+  const out=document.getElementById('briefOut');
+  out.innerHTML=`<div class="card"><div class="loading">✦ Planning the query, running it through ktx for ${start} → ${end}, writing your brief…</div></div>`;
+  try{
+    const r=await api('/api/briefs/ask',{method:'POST',body:JSON.stringify({question:q,start,end})});
+    setLive(true); renderBrief(r.brief);
+  }catch(e){
+    setLive(false,e.message);
+    out.innerHTML=`<div class="card"><div class="muted">Couldn't generate a brief. The Ask feature needs the Jarvis backend running with <code>JARVIS_SQL_ENGINE=ktx</code> and an ANTHROPIC_API_KEY. <br><span class="muted">(${e.message})</span></div></div>`;
+  }
+}
+function renderBrief(b){
+  const out=document.getElementById('briefOut');
+  const findings=(b.findings||[]).map(f=>`<li>${f}</li>`).join('');
+  const caveats=(b.caveats||[]).map(c=>`<div class="cav">⚠ <span>${c}</span></div>`).join('');
+  const sources=(b.sources||[]).map(s=>`<span class="badge approved">✓ ${s}</span>`).join(' ');
+  out.innerHTML=`<div class="card">
+     <div class="brief-headline">${b.headline||''}</div>
+     <ul class="brief-find">${findings}</ul>
+     ${b.chart?'<canvas id="briefChart" height="110"></canvas>':''}
+     <p class="brief-narr">${(b.narrative||'').replace(/\n/g,'<br>')}</p>
+     ${caveats?`<div style="margin-top:10px">${caveats}</div>`:''}
+     <div style="margin-top:13px;font-size:11.5px"><span class="muted">Sources: </span>${sources||'<span class="muted">—</span>'}</div>
+     <div style="margin-top:12px;display:flex;gap:8px">
+       <button id="saveBriefBtn">★ Save to library</button>
+       <span class="pill ok">engine: ${b.engine||'?'}</span>
+     </div>
+   </div>`;
+  if(b.chart) drawBriefChart(b.chart);
+  const sb=document.getElementById('saveBriefBtn');
+  if(sb) sb.onclick=async()=>{
+    const prompt=(b.question||b.headline||'').trim();
+    if(!prompt){ sb.textContent='Cannot save (no prompt)'; return; }
+    sb.textContent='Saving…'; sb.disabled=true;
+    try{
+      await api('/api/briefs',{method:'POST',body:JSON.stringify({title:b.headline,prompt,brief:b,widget:{chart:b.chart}})});
+      sb.textContent='Saved ✓';
+    }catch(e){
+      sb.disabled=false;
+      sb.textContent='Save failed — tap for details';
+      console.error('Save brief failed:',e);
+      alert('No se pudo guardar el brief.\n\n'+(e&&e.message?e.message:e)+'\n\nServidor: '+API+'/api/briefs\n\nSi dice "Failed to fetch" o "HTTP 0/404", la página está apuntando a un servidor distinto al que tienes corriendo. Revisa el API en Configuración.');
+    }
+  };
+}
+function drawBriefChart(ch){
+  const ctx=document.getElementById('briefChart'); if(!ctx) return; if(briefChart)briefChart.destroy();
+  briefChart=new Chart(ctx,{type:ch.type==='bar'?'bar':'line',
+    data:{labels:ch.labels,datasets:[{label:ch.datasets[0].label,data:ch.datasets[0].data,
+      borderColor:'#3fb6ff',backgroundColor:'rgba(63,182,255,.15)',fill:ch.type!=='bar',tension:.3,pointRadius:0,borderWidth:2}]},
+    options:chartOpts(ch.y+' by '+ch.x,{})});
+}
+document.getElementById('askBtn').onclick=askBrief;
+document.getElementById('askInput').addEventListener('keydown',e=>{if(e.key==='Enter')askBrief();});
+initSuggest();
+
+async function boot(){ await loadDefs(); await loadOverview(); }
+boot();
+</script>
+</body>
+</html>

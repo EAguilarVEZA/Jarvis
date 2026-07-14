@@ -1,0 +1,26 @@
+name: ad_label_history
+descriptions:
+  user: Tracks historical associations between ads and their assigned labels over time.
+table: oh-data-warehouse.adwords_orlando_health.ad_label_history
+grain:
+- ad_id
+columns:
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the advertising creative or ad unit.
+- name: label_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the label assigned to the ad.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the ad-label association was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+measures: []

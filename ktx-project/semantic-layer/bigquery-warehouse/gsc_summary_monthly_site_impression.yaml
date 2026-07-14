@@ -1,0 +1,49 @@
+name: gsc_summary_monthly_site_impression
+descriptions:
+  user: Monthly Google Search Console performance metrics aggregated by site, hostname, and search query.
+table: oh-data-warehouse.gold.gsc_summary_monthly_site_impression
+grain:
+- month
+columns:
+- name: month
+  type: time
+  descriptions:
+    ai: First day of the month representing the reporting period.
+  role: time
+- name: page_hostname
+  type: string
+  descriptions:
+    ai: Website domain where search traffic was directed.
+- name: query
+  type: string
+  descriptions:
+    ai: Search term users typed that triggered an impression.
+- name: impressions
+  type: number
+  descriptions:
+    ai: Number of times the site appeared in search results.
+- name: clicks
+  type: number
+  descriptions:
+    ai: Number of times users clicked through from search results.
+- name: ctr
+  type: number
+  descriptions:
+    ai: Ratio of clicks to impressions as a decimal.
+- name: average_results_position
+  type: number
+  descriptions:
+    ai: Mean ranking position in Google search results pages.
+measures:
+- name: total_impressions
+  expr: SUM(impressions)
+  description: Impressions (sum of impressions).
+- name: total_clicks
+  expr: SUM(clicks)
+  description: Clicks (sum of clicks).
+- name: total_ctr
+  expr: SUM(ctr)
+  description: Ctr (sum of ctr).
+- name: total_average_results_position
+  expr: SUM(average_results_position)
+  description: Average Results Position (sum of average_results_position).

@@ -1,0 +1,132 @@
+name: ad_fact_ads
+descriptions:
+  user: Daily ad performance metrics by ad, device, network, and click type across platforms.
+table: oh-data-warehouse.gold.ad_fact_ads
+grain:
+- ad_platform
+columns:
+- name: ad_platform
+  type: string
+  descriptions:
+    ai: Advertising platform where the ad ran, e.g. Google Ads.
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the individual ad creative.
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier for the ad group containing this ad.
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Identifier for the campaign this ad belongs to.
+- name: account_id
+  type: number
+  descriptions:
+    ai: Advertiser account identifier owning the campaign.
+- name: entity_key
+  type: string
+  descriptions:
+    ai: UUID linking this record to an internal entity reference.
+- name: active_view_impressions
+  type: number
+  descriptions:
+    ai: Impressions measured as viewable by Active View standard.
+- name: clicks
+  type: number
+  descriptions:
+    ai: Total clicks recorded on the ad.
+- name: micro_conversions
+  type: number
+  descriptions:
+    ai: Count of lower-funnel conversion events tracked.
+- name: micro_conversions_value
+  type: number
+  descriptions:
+    ai: Monetary value attributed to micro-conversion events.
+- name: cost
+  type: number
+  descriptions:
+    ai: Ad spend in account currency for the reporting period.
+- name: gmail_forwards
+  type: number
+  descriptions:
+    ai: Number of times a Gmail ad was forwarded.
+- name: gmail_saves
+  type: number
+  descriptions:
+    ai: Number of times a Gmail ad was saved.
+- name: gmail_secondary_click
+  type: number
+  descriptions:
+    ai: Clicks on secondary links within a Gmail ad.
+- name: impressions
+  type: number
+  descriptions:
+    ai: Total times the ad was shown to users.
+- name: interaction_event_types
+  type: string
+  descriptions:
+    ai: List of interaction types recorded, e.g. CLICK.
+- name: interactions
+  type: number
+  descriptions:
+    ai: Total user interactions beyond simple impressions.
+- name: ad_network_type
+  type: string
+  descriptions:
+    ai: Network where ad served, e.g. SEARCH or CONTENT.
+- name: click_type
+  type: string
+  descriptions:
+    ai: Specific click category, e.g. URL_CLICKS or LOCATION_EXPANSION.
+- name: date
+  type: time
+  descriptions:
+    ai: Calendar date of the performance data row.
+  role: time
+- name: device
+  type: string
+  descriptions:
+    ai: Device type used by the user, e.g. MOBILE or TABLET.
+measures:
+- name: spend
+  expr: SUM(cost)
+  description: Ad Spend (sum of cost).
+- name: total_impressions
+  expr: SUM(impressions)
+  description: Impressions (sum of impressions).
+- name: total_clicks
+  expr: SUM(clicks)
+  description: Clicks (sum of clicks).
+- name: conversions
+  expr: SUM(micro_conversions)
+  description: Conversions (sum of micro_conversions).
+- name: conversion_value
+  expr: SUM(micro_conversions_value)
+  description: Conversion Value (sum of micro_conversions_value).
+- name: total_interactions
+  expr: SUM(interactions)
+  description: Interactions (sum of interactions).
+- name: total_active_view_impressions
+  expr: SUM(active_view_impressions)
+  description: Viewable Impressions (sum of active_view_impressions).
+- name: ctr
+  expr: (SUM(clicks)) / NULLIF((SUM(impressions)), 0)
+  description: Click-Through Rate = {clicks} / NULLIF({impressions}, 0)
+- name: conversion_rate
+  expr: (SUM(micro_conversions)) / NULLIF((SUM(clicks)), 0)
+  description: Conversion Rate = {conversions} / NULLIF({clicks}, 0)
+- name: cpa
+  expr: (SUM(cost)) / NULLIF((SUM(micro_conversions)), 0)
+  description: Cost per Acquisition = {spend} / NULLIF({conversions}, 0)
+- name: cpc
+  expr: (SUM(cost)) / NULLIF((SUM(clicks)), 0)
+  description: Cost per Click = {spend} / NULLIF({clicks}, 0)
+- name: cpm
+  expr: ((SUM(cost)) / NULLIF((SUM(impressions)), 0)) * 1000
+  description: Cost per 1000 Impressions = ({spend} / NULLIF({impressions}, 0)) * 1000
+- name: roas
+  expr: (SUM(micro_conversions_value)) / NULLIF((SUM(cost)), 0)
+  description: ROAS = {conversion_value} / NULLIF({spend}, 0)

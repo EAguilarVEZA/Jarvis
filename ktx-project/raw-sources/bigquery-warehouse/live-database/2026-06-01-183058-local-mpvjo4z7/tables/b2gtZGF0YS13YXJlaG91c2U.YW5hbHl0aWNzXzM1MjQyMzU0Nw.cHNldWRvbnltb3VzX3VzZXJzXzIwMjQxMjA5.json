@@ -1,0 +1,119 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "analytics_352423547",
+  "name": "pseudonymous_users_20241209",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 49608,
+  "columns": [
+    {
+      "name": "pseudo_user_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "stream_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_info",
+      "nativeType": "RECORD",
+      "normalizedType": "JSON",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "device",
+      "nativeType": "RECORD",
+      "normalizedType": "JSON",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "geo",
+      "nativeType": "RECORD",
+      "normalizedType": "JSON",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "audiences",
+      "nativeType": "RECORD",
+      "normalizedType": "JSON",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_properties",
+      "nativeType": "RECORD",
+      "normalizedType": "JSON",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_ltv",
+      "nativeType": "RECORD",
+      "normalizedType": "JSON",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "predictions",
+      "nativeType": "RECORD",
+      "normalizedType": "JSON",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "privacy_info",
+      "nativeType": "RECORD",
+      "normalizedType": "JSON",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "occurrence_date",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "last_updated_date",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

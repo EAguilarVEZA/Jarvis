@@ -1,0 +1,147 @@
+name: sample_flat_ad_fact
+descriptions:
+  user: Daily ad performance metrics from Google Ads, segmented by ad, device, network, and organizational hierarchy.
+table: oh-data-warehouse.gold.sample_flat_ad_fact
+grain:
+- ad_platform
+columns:
+- name: ad_platform
+  type: string
+  descriptions:
+    ai: Advertising platform where the ad ran, e.g., Google Ads.
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the individual ad creative.
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier for the ad group containing the ad.
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Identifier for the campaign containing the ad group.
+- name: account_id
+  type: number
+  descriptions:
+    ai: Identifier for the advertiser account.
+- name: entity_key
+  type: string
+  descriptions:
+    ai: Unique UUID linking the row to an internal entity record.
+- name: active_view_impressions
+  type: number
+  descriptions:
+    ai: Impressions measured as viewable by Active View standard.
+- name: clicks
+  type: number
+  descriptions:
+    ai: Total clicks recorded on the ad.
+- name: micro_conversions
+  type: number
+  descriptions:
+    ai: Count of lower-funnel conversion actions tracked.
+- name: micro_conversions_value
+  type: number
+  descriptions:
+    ai: Monetary value attributed to micro conversions.
+- name: cost
+  type: number
+  descriptions:
+    ai: Total ad spend in account currency.
+- name: gmail_forwards
+  type: number
+  descriptions:
+    ai: Number of times a Gmail ad was forwarded.
+- name: gmail_saves
+  type: number
+  descriptions:
+    ai: Number of times a Gmail ad was saved.
+- name: gmail_secondary_click
+  type: number
+  descriptions:
+    ai: Clicks on expanded Gmail ad content.
+- name: impressions
+  type: number
+  descriptions:
+    ai: Total times the ad was shown to users.
+- name: interaction_event_types
+  type: string
+  descriptions:
+    ai: List of interaction types recorded, e.g., CLICK.
+- name: interactions
+  type: number
+  descriptions:
+    ai: Total user interactions with the ad.
+- name: ad_network_type
+  type: string
+  descriptions:
+    ai: Network where ad served, e.g., SEARCH or SEARCH_PARTNERS.
+- name: click_type
+  type: string
+  descriptions:
+    ai: Type of click recorded, e.g., URL_CLICKS, CALLS, SITELINKS.
+- name: date
+  type: time
+  descriptions:
+    ai: Calendar date of the performance data.
+  role: time
+- name: device
+  type: string
+  descriptions:
+    ai: Device category of the user, e.g., MOBILE, DESKTOP, TABLET.
+- name: Hierarchy_L1
+  type: string
+  descriptions:
+    ai: Top-level organizational entity, e.g., health system name.
+- name: Hierarchy_L2
+  type: string
+  descriptions:
+    ai: Second organizational level, typically geographic region.
+- name: Hierarchy_L3
+  type: string
+  descriptions:
+    ai: Third organizational level, typically health network brand.
+- name: Hierarchy_L4
+  type: string
+  descriptions:
+    ai: Fourth level representing a service line or department.
+- name: Hierarchy_L5
+  type: string
+  descriptions:
+    ai: Fifth level representing a specific facility or program.
+- name: Hierarchy_L6
+  type: string
+  descriptions:
+    ai: Sixth level representing a sub-specialty or service within a facility.
+measures:
+- name: total_active_view_impressions
+  expr: SUM(active_view_impressions)
+  description: Active View Impressions (sum of active_view_impressions).
+- name: total_clicks
+  expr: SUM(clicks)
+  description: Clicks (sum of clicks).
+- name: total_micro_conversions
+  expr: SUM(micro_conversions)
+  description: Micro Conversions (sum of micro_conversions).
+- name: total_micro_conversions_value
+  expr: SUM(micro_conversions_value)
+  description: Micro Conversions Value (sum of micro_conversions_value).
+- name: total_cost
+  expr: SUM(cost)
+  description: Cost (sum of cost).
+- name: total_gmail_forwards
+  expr: SUM(gmail_forwards)
+  description: Gmail Forwards (sum of gmail_forwards).
+- name: total_gmail_saves
+  expr: SUM(gmail_saves)
+  description: Gmail Saves (sum of gmail_saves).
+- name: total_gmail_secondary_click
+  expr: SUM(gmail_secondary_click)
+  description: Gmail Secondary Click (sum of gmail_secondary_click).
+- name: total_impressions
+  expr: SUM(impressions)
+  description: Impressions (sum of impressions).
+- name: total_interactions
+  expr: SUM(interactions)
+  description: Interactions (sum of interactions).

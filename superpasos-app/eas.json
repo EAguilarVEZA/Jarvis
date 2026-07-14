@@ -1,0 +1,25 @@
+{
+  "cli": { "version": ">= 5.9.0" },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": { "simulator": false }
+    },
+    "production": {
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "REEMPLAZA_con_tu_correo_de_Apple_ID",
+        "ascAppId": "REEMPLAZA_con_el_App_ID_de_App_Store_Connect",
+        "appleTeamId": "REEMPLAZA_con_tu_Team_ID"
+      }
+    }
+  }
+}

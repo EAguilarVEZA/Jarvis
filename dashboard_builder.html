@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dashboard Builder · Orlando Health</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.min.css" rel="stylesheet"/>
+<style>
+  :root{--bg:#0d1117;--panel:#161b22;--panel2:#1c232c;--line:#2a313c;--txt:#e6edf3;--muted:#9aa7b4;
+    --accent:#3fb6ff;--accent2:#7c5cff;--good:#3fb950;--warn:#e3b341;--bad:#f85149;--chip:#21303f;
+    --radius:13px;--mono:ui-monospace,Menlo,monospace;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.22);}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14px}
+  .wrap{max-width:1440px;margin:0 auto;padding:16px 20px 70px}
+  header{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px}
+  header h1{font-size:17px;margin:0;font-weight:650} .spacer{flex:1}
+  button,select,input,textarea{font-family:inherit;font-size:13px;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+  button{cursor:pointer} button:hover{border-color:var(--accent)}
+  .btn-primary{background:var(--accent);color:#04121f;border-color:var(--accent);font-weight:600}
+  .btn-good{background:var(--good);color:#04140a;border-color:var(--good);font-weight:600}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:12px;color:var(--muted)}
+  .pill.ok{color:var(--good);border-color:#1f3b29}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{border:none;border-radius:0;background:var(--panel2);padding:6px 12px;color:var(--muted);font-weight:550}
+  .seg button.on{background:#0f2230;color:var(--accent)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:13px;box-shadow:var(--shadow)}
+  .muted{color:var(--muted)} .small{font-size:12px}
+  .banner{background:#1f1c10;border:1px solid #3b3520;color:var(--warn);border-radius:9px;padding:8px 12px;margin:8px 0;font-size:12.5px;display:none}
+  .banner.show{display:block}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-top:10px}
+  .bar .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .qf{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px}
+  .qf select,.qf input{padding:3px 6px;font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:14px}
+  .w{grid-column:span 6;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:13px;box-shadow:var(--shadow);min-height:120px;position:relative}
+  .w.span3{grid-column:span 3}.w.span4{grid-column:span 4}.w.span6{grid-column:span 6}.w.span12{grid-column:span 12}
+  .w.drag{opacity:.4} .w.over{outline:2px dashed var(--accent)}
+  .w .wh{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+  .w .wt{font-weight:600;font-size:13.5px;flex:1;cursor:grab}
+  .w .wact button{font-size:11px;padding:2px 6px;border-radius:6px}
+  .kpival{font-size:30px;font-weight:700;letter-spacing:-.5px;margin-top:6px}
+  .kpisub{color:var(--muted);font-size:12px;margin-top:2px}
+  canvas{max-width:100%}
+  .crumb{font-size:11px;color:var(--muted);margin-bottom:6px} .crumb a{color:var(--accent);cursor:pointer}
+  .cfg{display:none;margin-top:14px} .cfg.show{display:block}
+  .build{display:grid;grid-template-columns:210px 1fr;gap:12px}
+  @media(max-width:840px){.build{grid-template-columns:1fr}}
+  .pane{border:1px solid var(--line);border-radius:9px;background:var(--panel2)}
+  .pane .ph{padding:6px 9px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.04em}
+  .pane .body{max-height:330px;overflow:auto;padding:4px}
+  .tok{display:block;background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px;margin:3px;cursor:grab;user-select:none}
+  .tok.met{border-left:3px solid #7c5cff}.tok.dim{border-left:3px solid #3fb6ff}
+  .shelf{display:flex;align-items:center;gap:6px;flex-wrap:wrap;border:1px dashed var(--line);border-radius:8px;padding:5px 8px;margin:5px 0;min-height:34px}
+  .shelf.over{border-color:var(--accent);background:#0f2230}
+  .shelf .lbl{font-size:11px;color:var(--muted);min-width:74px}
+  .pelt{background:#0f2230;border:1px solid var(--line);border-radius:6px;padding:3px 7px;font-size:12px;color:var(--accent);display:inline-flex;gap:5px;align-items:center}
+  .pelt b{cursor:pointer;color:var(--muted)}
+  .row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:6px 0} label.fld{font-size:12px;color:var(--muted)}
+  .chip{background:var(--chip);border:1px solid var(--line);border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer} .chip.sel{border-color:var(--accent);color:var(--accent);background:#0f2230}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .toast{position:fixed;bottom:18px;right:18px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 14px;box-shadow:var(--shadow);font-size:13px;max-width:440px;display:none;z-index:60}
+  .toast.show{display:block}
+  .loading{color:var(--muted);font-size:12px;padding:18px;text-align:center}
+  textarea{width:100%;min-height:60px;resize:vertical} .aiwrap{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+  input[type=range]{padding:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Dashboard Builder</h1>
+    <input id="dashName" placeholder="Dashboard name" style="width:180px"/>
+    <span class="seg"><button id="modeAI" class="on">✦ AI</button><button id="modeManual">✎ Manual</button></span>
+    <div class="spacer"></div>
+    <span id="conn" class="pill">connecting…</span>
+    <label class="muted small">range
+      <select id="datePreset" style="width:auto"><option value="custom">custom</option><option value="30">last 30d</option><option value="90">last 90d</option><option value="365" selected>last 12mo</option><option value="qtd">QTD</option><option value="ytd">YTD</option></select></label>
+    <input type="date" id="startDate" value="2015-01-01" style="width:135px"/>
+    <input type="date" id="endDate" value="2015-12-31" style="width:135px"/>
+    <button id="applyBtn">↻</button><button id="loadBtn">Open</button><button id="newBtn">New</button><button id="saveBtn" class="btn-good">Save</button>
+  </header>
+  <div id="banner" class="banner"></div>
+
+  <!-- interactive filters + parameters bars -->
+  <div class="bar"><span class="lbl">Filters</span><div id="qfList" style="display:flex;gap:8px;flex-wrap:wrap"></div><button id="addQF" class="chip">＋ filter</button>
+    <span class="lbl" style="margin-left:14px">Parameters</span><div id="paramList" style="display:flex;gap:10px;flex-wrap:wrap"></div><button id="addParam" class="chip">＋ parameter</button></div>
+
+  <!-- AI mode -->
+  <div id="ai" class="card" style="margin-top:12px">
+    <div style="font-weight:620;margin-bottom:4px">✦ Describe the dashboard you want</div>
+    <div class="muted small" style="margin-bottom:10px">AI plans the widgets from your approved measures, using the date range above.</div>
+    <div class="aiwrap"><textarea id="aiPrompt" placeholder="e.g. Marketing overview: spend/clicks/CTR/CPC KPIs; spend trend; top 10 campaigns by spend; CTR by device." style="flex:1;min-width:300px"></textarea><button id="aiGen" class="btn-primary">Generate</button></div>
+    <div class="chips" id="aiSuggest" style="margin-top:10px"></div>
+  </div>
+
+  <!-- Manual mode -->
+  <div id="manual" class="card" style="display:none;margin-top:12px">
+    <div class="row"><button id="addWidget" class="btn-primary">＋ Add widget</button><span class="muted small">drag fields onto shelves · color/sort/dual-axis · live preview</span></div>
+    <div id="cfg" class="cfg card" style="background:var(--panel2)">
+      <div class="row">
+        <label class="fld">Title <input id="cTitle" placeholder="Widget title" style="width:180px"/></label>
+        <label class="fld">Chart <select id="cType"><option value="kpi">KPI</option><option value="line">line</option><option value="bar">bar</option><option value="area">area</option><option value="pie">pie</option><option value="scatter">scatter</option><option value="table">table</option></select></label>
+        <label class="fld">Data source <select id="cTable" title="base table; its joined tables become available below"></select></label>
+        <label class="fld">Width <select id="cWidth"><option value="3">¼</option><option value="4">⅓</option><option value="6" selected>½</option><option value="12">full</option></select></label>
+        <span id="cShowMe" class="muted small"></span>
+      </div>
+      <div class="build">
+        <div class="pane"><div class="ph">Data — drag onto shelves</div><div class="body" id="dataPane"></div></div>
+        <div>
+          <div class="shelf" id="shMetrics" data-shelf="metrics"><span class="lbl">Measures</span></div>
+          <div class="shelf" id="shDim" data-shelf="dim"><span class="lbl">Group by</span></div>
+          <div class="shelf" id="shColor" data-shelf="color"><span class="lbl">Color / series</span></div>
+          <div class="shelf" id="shFilt" data-shelf="filter"><span class="lbl">Filters (WHERE/HAVING)</span></div>
+          <div class="row">
+            <label class="fld">Top/Bottom <select id="cTopDir"><option value="">—</option><option value="desc">Top</option><option value="asc">Bottom</option></select><input id="cTopN" placeholder="N or {param}" style="width:90px"/></label>
+            <label class="fld">Sort <select id="cSort"><option value="">—</option><option value="desc">by measure ↓</option><option value="asc">by measure ↑</option></select></label>
+            <label class="fld"><input type="checkbox" id="cDual" style="width:auto"> dual axis</label>
+          </div>
+          <div class="row">
+            <label class="fld">Table calc <select id="cCalc"><option value="">none</option><option value="running">running total</option><option value="movavg">3-pt moving avg</option><option value="pct_total">% of total</option><option value="pop">period-over-period</option><option value="rank">rank</option></select></label>
+            <label class="fld">on <select id="cCalcMeasure"></select></label>
+            <label class="fld">Drill <select id="cDrill"><option value="">none</option></select></label>
+          </div>
+          <div class="row"><label class="fld" style="align-self:flex-start">Saved filters</label><div id="cFilters" class="chips"></div></div>
+          <div class="card" style="background:var(--panel);margin-top:6px"><div class="muted small" style="margin-bottom:6px">Live preview</div><div id="cPreview" style="min-height:80px"><span class="muted small">drag metrics onto the Metrics shelf to preview</span></div></div>
+          <div class="row"><button id="cAdd" class="btn-primary">Add to dashboard</button><button id="cCancel">Cancel</button><span id="cStatus" class="muted small"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="canvas" class="grid"></div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.umd.js"></script>
+<script>
+const API=(localStorage.getItem('jarvisApi')||'https://localhost:8340').replace(/\/$/,'');
+const PALETTE=['#3fb6ff','#7c5cff','#3fb950','#e3b341','#f0883e','#db61a2','#56d4dd','#a5d6ff'];
+let view={id:null,name:'',widgets:[],quickFilters:[],params:[]};
+let TABLES=[], fieldCache={}, HIERS=[], charts={}, maxDate=null;
+const SUGG=["Marketing overview: spend/clicks/CTR/CPC KPIs; spend trend; top 10 campaigns by spend; CTR by device.",
+  "Service-line performance: spend & clicks by service line, CPC by service line, spend trend.",
+  "Efficiency: CPC & CTR over time, top campaigns by conversions, spend by platform."];
+
+async function api(p,o){const r=await fetch(API+p,Object.assign({headers:{'Content-Type':'application/json'}},o||{}));const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.detail||j.error||('HTTP '+r.status));return j;}
+function toast(m,ok=true){const t=document.getElementById('toast');t.textContent=m;t.style.borderColor=ok?'#1f3b29':'#4a1d1d';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4200);}
+function setConn(live,msg){const c=document.getElementById('conn'),b=document.getElementById('banner');if(live){c.className='pill ok';c.textContent='live · ktx';b.classList.remove('show');}else{c.className='pill';c.textContent='offline';b.classList.add('show');b.innerHTML=`Can't reach Jarvis at <code>${API}</code>. Start the server and accept the cert at <a href="${API}/api/views" target="_blank">${API}</a>. ${msg||''}`;}}
+function dr(){return {start:document.getElementById('startDate').value,end:document.getElementById('endDate').value};}
+function fmtNum(v,key){ if(v==null)return '—'; v=Number(v); if(isNaN(v))return '—'; const k=(key||'').toLowerCase();
+  if(/ctr|rate|pct|engagement/.test(k))return (v*100).toFixed(2)+'%';
+  if(/spend|cost|cpc|cpa|cpm|revenue|value|budget/.test(k))return '$'+v.toLocaleString(undefined,{maximumFractionDigits:v<100?2:0});
+  if(/roas/.test(k))return v.toFixed(3); return v.toLocaleString(undefined,{maximumFractionDigits:2}); }
+
+// ── date presets ──
+async function fetchMaxDate(){ try{ const r=await api('/api/semantic/query',{method:'POST',body:JSON.stringify({primary_table:'ad_performance',dimensions:[{table:'ad_performance',field:'date'}],metrics:[{table:'ad_performance',field:'spend'}],order_by:[{field:'date',direction:'desc'}],limit:1})}); maxDate=(r.rows&&r.rows[0]&&r.rows[0][0])||null; }catch(e){maxDate=null;} }
+function applyPreset(){ const p=document.getElementById('datePreset').value; if(p==='custom')return; const ref=maxDate?new Date(maxDate):new Date(); let s=new Date(ref);
+  if(p==='qtd')s=new Date(ref.getFullYear(),Math.floor(ref.getMonth()/3)*3,1); else if(p==='ytd')s=new Date(ref.getFullYear(),0,1); else s.setDate(s.getDate()-parseInt(p,10));
+  document.getElementById('startDate').value=s.toISOString().slice(0,10); document.getElementById('endDate').value=ref.toISOString().slice(0,10); }
+document.getElementById('datePreset').onchange=()=>{applyPreset();renderCanvas();};
+
+// ── parameters ──
+function paramVal(name){ const p=view.params.find(p=>p.name===name); return p?p.value:null; }
+function resolveParam(v){ if(typeof v==='string'){ const m=v.match(/^\{(.+)\}$/); if(m){ const pv=paramVal(m[1]); return pv==null?v:pv; } } return v; }
+function renderParams(){ const el=document.getElementById('paramList');
+  el.innerHTML=view.params.map((p,i)=>`<span class="qf">${p.name}: <input type="range" min="${p.min}" max="${p.max}" step="${p.step||1}" value="${p.value}" data-pi="${i}" style="width:90px"><b id="pv${i}">${p.value}</b> <span style="cursor:pointer;color:var(--muted)" onclick="rmParam(${i})">✕</span></span>`).join('');
+  el.querySelectorAll('input[type=range]').forEach(r=>r.oninput=()=>{view.params[+r.dataset.pi].value=+r.value;document.getElementById('pv'+r.dataset.pi).textContent=r.value;renderCanvas();});
+}
+window.rmParam=(i)=>{view.params.splice(i,1);renderParams();renderCanvas();};
+document.getElementById('addParam').onclick=()=>{ const name=prompt('Parameter name (e.g. topN):'); if(!name)return; const max=+(prompt('Max value:','20')||20);
+  view.params.push({name:name.trim(),value:Math.min(10,max),min:1,max,step:1}); renderParams(); };
+
+// ── interactive quick filters ──
+function renderQF(){ const el=document.getElementById('qfList');
+  el.innerHTML=view.quickFilters.map((f,i)=>`<span class="qf">${f.field} in <select multiple size="1" data-qi="${i}" style="max-width:160px">${(f._opts||[]).map(o=>`<option value="${o}" ${f.values.includes(String(o))?'selected':''}>${o}</option>`).join('')}</select><span style="cursor:pointer;color:var(--muted)" onclick="rmQF(${i})">✕</span></span>`).join('');
+  el.querySelectorAll('select').forEach(s=>s.onchange=()=>{view.quickFilters[+s.dataset.qi].values=[...s.selectedOptions].map(o=>o.value);renderCanvas();});
+}
+window.rmQF=(i)=>{view.quickFilters.splice(i,1);renderQF();renderCanvas();};
+document.getElementById('addQF').onclick=async()=>{
+  if(!TABLES.length){toast('Connect first',false);return;}
+  const table=prompt('Filter on which table? (e.g. ad_performance)','ad_performance'); if(!table)return;
+  let t; try{ t=await fields(table); }catch(e){ toast('Unknown table',false); return; }
+  const dims=(t.dimensions||[]).map(d=>d.key); const field=prompt('Filter on which dimension?\n'+dims.join(', ')); if(!field||!dims.includes(field))return;
+  let opts=[]; try{ const r=await api(`/api/semantic/distinct?table=${table}&field=${field}&limit=50`); opts=(r.values||[]).map(String); }catch(e){}
+  view.quickFilters.push({table,field,values:[],_opts:opts}); renderQF();
+};
+
+// ── query building ──
+function rowsObj(res){return (res.rows||[]).map(r=>{const o={};res.columns.forEach((c,i)=>o[c]=r[i]);return o;});}
+function applyCalc(rows,calc,measure){ if(!calc||!measure)return rows; const vals=rows.map(r=>+r[measure]||0); let out;
+  if(calc==='running'){let c=0;out=vals.map(v=>c+=v);} else if(calc==='movavg'){out=vals.map((_,i)=>{const w=vals.slice(Math.max(0,i-2),i+1);return w.reduce((a,b)=>a+b,0)/w.length;});}
+  else if(calc==='pct_total'){const t=vals.reduce((a,b)=>a+b,0)||1;out=vals.map(v=>v/t);} else if(calc==='pop'){out=vals.map((v,i)=>i?v-vals[i-1]:0);}
+  else if(calc==='rank'){const sr=[...vals].map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]);const rk={};sr.forEach(([_,i],r)=>rk[i]=r+1);out=vals.map((_,i)=>rk[i]);} else return rows;
+  return rows.map((r,i)=>Object.assign({},r,{[measure]:out[i]})); }
+function buildQuery(w){ const q=JSON.parse(JSON.stringify(w.query||{})); const {start,end}=dr();
+  q.filters=(q.filters||[]).filter(f=>!/date/i.test(f.field||''));
+  q.filters.push({table:q.primary_table,field:'date',op:'between',value:[start,end]});
+  // interactive quick filters that match this widget's table
+  view.quickFilters.forEach(f=>{ if(f.values&&f.values.length && f.table===q.primary_table) q.filters.push({table:f.table,field:f.field,op:'in',value:f.values}); });
+  // color → second dimension
+  if(w.color) q.dimensions=(q.dimensions||[]).slice(0,1).concat([{table:q.primary_table,field:w.color}]);
+  // top-N (resolve param refs)
+  if(w.topn&&w.topn.n&&w.topn.measure){ const n=+resolveParam(w.topn.n); q.order_by=[{field:w.topn.measure,direction:w.topn.dir||'desc'}]; if(n)q.limit=n; }
+  return q; }
+
+// ── render ──
+async function renderCanvas(){ const cv=document.getElementById('canvas'); cv.innerHTML='';
+  if(!view.widgets.length){cv.innerHTML='<div class="muted" style="padding:30px">No widgets yet. Use ✦ AI or ✎ Manual.</div>';return;}
+  view.widgets.forEach((w,i)=>{const el=document.createElement('div'); el.className='w '+(w.chart_type==='kpi'?'span3':('span'+(w.width||6))); el.id='w'+i;
+    el.setAttribute('draggable','true'); el.dataset.i=i; wireDrag(el,i); cv.appendChild(el); renderWidget(w,el,i);}); }
+function wireDrag(el,i){ el.addEventListener('dragstart',e=>{ if(e.target.classList.contains('tok'))return; el.classList.add('drag'); e.dataTransfer.setData('text/widx',i);});
+  el.addEventListener('dragend',()=>el.classList.remove('drag'));
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over');});
+  el.addEventListener('dragleave',()=>el.classList.remove('over'));
+  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('over');const from=+e.dataTransfer.getData('text/widx');if(isNaN(from)||from===i)return;const w=view.widgets.splice(from,1)[0];view.widgets.splice(i,0,w);renderCanvas();}); }
+async function renderWidget(w,el,idx){
+  const wd=applyDrill(w); const crumb=(w._drill&&w._drill.length)?`<div class="crumb">${w._drill.map((d,i)=>`<a onclick="drillUp(${idx},${i})">${d.value}</a>`).join(' › ')} <a onclick="drillUp(${idx},-1)">⟲ reset</a></div>`:'';
+  const canRemove=(typeof idx==='number')&&view.widgets._manual;
+  el.innerHTML=`<div class="wh"><span class="wt">${w.title||'Widget'}</span><span class="wact">${canRemove?`<button onclick="rmWidget(${idx})">✕</button>`:''}</span></div>${crumb}<div class="loading">loading…</div>`;
+  let res; try{ res=await api('/api/semantic/query',{method:'POST',body:JSON.stringify(buildQuery(wd))}); setConn(true);}catch(e){setConn(false,e.message);el.querySelector('.loading').textContent='⚠ '+e.message;return;}
+  const cols=res.columns||[]; let rows=rowsObj(res); el.querySelector('.loading')?.remove();
+  const dim=(wd.query.dimensions||[])[0]; const dimCol=dim?dim.field:null;
+  const metCols=(w.query.metrics||[]).map(m=>m.field).filter(c=>cols.includes(c));
+  if(w.tablecalc&&w.tablecalc.type&&w.tablecalc.measure&&cols.includes(w.tablecalc.measure)) rows=applyCalc(rows,w.tablecalc.type,w.tablecalc.measure);
+  if(w.sort&&metCols[0]) rows=[...rows].sort((a,b)=>(+(b[metCols[0]]||0)-+(a[metCols[0]]||0))*(w.sort==='asc'?-1:1));
+  if(w.chart_type==='kpi'){ const m=metCols[0]; const v=rows.length?rows[0][m]:null; const d=document.createElement('div'); d.innerHTML=`<div class="kpival">${fmtNum(v,m)}</div><div class="kpisub">${m||''}</div>`; el.appendChild(d); return; }
+  if(w.chart_type==='table'){ const td=document.createElement('div'); el.appendChild(td); new gridjs.Grid({columns:cols,data:rows.map(r=>cols.map(c=>r[c])),sort:true,search:true,pagination:{limit:10},style:{table:{fontSize:'12.5px'}}}).render(td); return; }
+  const canvas=document.createElement('canvas'); canvas.height=160; el.appendChild(canvas);
+  let labels, datasets;
+  const colorCol=w.color;
+  if(colorCol && cols.includes(colorCol)){ // series split by color dimension
+    labels=[...new Set(rows.map(r=>r[dimCol]))]; const series=[...new Set(rows.map(r=>r[colorCol]))]; const m=metCols[0];
+    datasets=series.map((sv,i)=>({label:String(sv),data:labels.map(l=>{const rr=rows.find(r=>r[dimCol]===l&&r[colorCol]===sv);return rr?+rr[m]||0:0;}),
+      borderColor:PALETTE[i%PALETTE.length],backgroundColor:PALETTE[i%PALETTE.length],fill:w.chart_type==='area',tension:.3,pointRadius:0,borderWidth:2}));
+  } else {
+    labels=rows.map(r=>r[dimCol]);
+    datasets=metCols.map((m,i)=>({label:m,data:rows.map(r=>+r[m]||0),borderColor:PALETTE[i%PALETTE.length],backgroundColor:(['bar'].includes(w.chart_type)?PALETTE[i%PALETTE.length]:'rgba(63,182,255,.14)'),
+      fill:(w.chart_type==='area'),tension:.3,pointRadius:w.chart_type==='scatter'?4:0,borderWidth:2,yAxisID:(w.dual&&i===1)?'y1':'y'}));
+  }
+  if(w.chart_type==='pie'){ const m=metCols[0]; const pl=labels, pd=pl.map((l,i)=>colorCol?datasets.reduce((a,ds)=>a+(ds.data[i]||0),0):datasets[0].data[i]);
+    if(charts['w'+idx])charts['w'+idx].destroy(); charts['w'+idx]=new Chart(canvas,{type:'doughnut',data:{labels:pl,datasets:[{data:pd,backgroundColor:PALETTE}]},options:{plugins:{legend:{position:'right',labels:{color:'#9aa7b4',font:{size:11}}}},cutout:'58%'}}); return; }
+  const scales={x:{ticks:{color:'#6e7b8a',maxTicksLimit:10,font:{size:10}},grid:{color:'#1c232c'}},y:{ticks:{color:'#6e7b8a',font:{size:10}},grid:{color:'#1c232c'}}};
+  if(w.dual) scales.y1={position:'right',ticks:{color:'#6e7b8a',font:{size:10}},grid:{display:false}};
+  const ctype=(w.chart_type==='area')?'line':(w.chart_type==='scatter'?'scatter':(w.chart_type==='line'?'line':'bar'));
+  if(charts['w'+idx])charts['w'+idx].destroy();
+  charts['w'+idx]=new Chart(canvas,{type:ctype,data:{labels,datasets},options:{responsive:true,
+    onClick:(e,els)=>{if(els.length&&w.drill)drillDown(idx,labels[els[0].index]);},
+    plugins:{legend:{labels:{color:'#9aa7b4',boxWidth:12,font:{size:11}}}},scales}});
+  if(w.drill){const h=document.createElement('div');h.className='crumb';h.textContent='↳ click to drill down';el.appendChild(h);}
+}
+// drill
+function hierFor(k){return HIERS.find(h=>h.key===k);}
+function applyDrill(w){ if(!w._drill||!w._drill.length)return w; const h=hierFor(w.drill); if(!h)return w; const lvl=w._drill.length; const nd=h.levels[lvl]; if(!nd)return w;
+  const q=JSON.parse(JSON.stringify(w.query)); q.dimensions=[{table:q.primary_table,field:nd}]; q.filters=(q.filters||[]).concat(w._drill.map(d=>({table:q.primary_table,field:d.field,op:'eq',value:d.value}))); return Object.assign({},w,{query:q}); }
+window.drillDown=(idx,value)=>{const w=view.widgets[idx];const h=hierFor(w.drill);if(!h)return;const lvl=(w._drill||[]).length;const cd=h.levels[lvl];if(lvl+1>=h.levels.length){toast('Deepest level',false);return;}w._drill=(w._drill||[]).concat([{field:cd,value}]);renderWidget(w,document.getElementById('w'+idx),idx);};
+window.drillUp=(idx,to)=>{const w=view.widgets[idx];w._drill=to<0?[]:(w._drill||[]).slice(0,to);renderWidget(w,document.getElementById('w'+idx),idx);};
+window.rmWidget=(idx)=>{view.widgets.splice(idx,1);renderCanvas();};
+
+// ── AI mode ──
+document.getElementById('aiSuggest').innerHTML=SUGG.map(s=>`<span class="chip" onclick="document.getElementById('aiPrompt').value=this.textContent;genAI()">${s.slice(0,44)}…</span>`).join('');
+async function genAI(){ const desc=document.getElementById('aiPrompt').value.trim(); if(!desc)return; const {start,end}=dr();
+  document.getElementById('canvas').innerHTML='<div class="loading">✦ Designing your dashboard…</div>';
+  try{ const r=await api('/api/views/ai',{method:'POST',body:JSON.stringify({description:desc,start,end})}); setConn(true);
+    view.widgets=(r.widgets||[]).map(w=>Object.assign({width:(w.chart_type==='kpi'?3:6)},w)); view.widgets._manual=false; view.id=null; view.name=r.name||'AI dashboard';
+    document.getElementById('dashName').value=view.name; renderCanvas(); toast(`Generated ${view.widgets.length} widgets.`);
+  }catch(e){ setConn(false,e.message); document.getElementById('canvas').innerHTML='<div class="loading">⚠ '+e.message+'</div>'; } }
+document.getElementById('aiGen').onclick=genAI; window.genAI=genAI;
+
+// ── Manual mode: MULTI-TABLE query panel (drag fields from any joined table) ──
+let JOINS=[], cMetrics=[], cDim=null, cColor=null, cFilters=[], cRules=[], cSelFilters=new Set(), cTypeTouched=false;
+const tkey=o=>o?o.table+'.'+o.field:'';
+async function loadTables(){ try{const t=await api('/api/semantic/tables');TABLES=t.tables||[];setConn(true);}catch(e){setConn(false,e.message);return;}
+  document.getElementById('cTable').innerHTML=TABLES.map(t=>`<option value="${t.key}" ${t.key==='ad_performance'?'selected':''}>${t.display_name||t.key}</option>`).join('');
+  try{const h=await api('/api/semantic/hierarchies');HIERS=h.hierarchies||[];}catch(e){HIERS=[];}
+  try{const g=await api('/api/semantic/graph');JOINS=g.joins||[];}catch(e){JOINS=[];} }
+async function fields(key){ if(fieldCache[key])return fieldCache[key]; const t=await api('/api/semantic/tables/'+key); fieldCache[key]=t; return t; }
+function joinComponent(base){ const comp=new Set([base]); let add=true; while(add){add=false;JOINS.forEach(j=>{if(comp.has(j.left)&&!comp.has(j.right)){comp.add(j.right);add=true;}if(comp.has(j.right)&&!comp.has(j.left)){comp.add(j.left);add=true;}});} return [...comp]; }
+async function loadDataPane(){ const base=document.getElementById('cTable').value||'ad_performance';
+  const comp=joinComponent(base); let html=''; const allDims=[];
+  for(const tk of comp){ let t; try{t=await fields(tk);}catch(e){continue;}
+    const mets=(t.metrics||[]).concat(t.calculated_metrics||[]);
+    const groups=(t.combined_dimensions||[]).map(c=>({key:c.key,display_name:(c.display_name||c.key)+' · group'}));
+    const dims=(t.dimensions||[]).concat(t.dates||[]).concat(groups);
+    dims.forEach(d=>allDims.push({table:tk,field:d.key}));
+    html+=`<div class="ph" style="border-top:1px solid var(--line)">${t.display_name||tk}${tk!==base?' · joined':''}</div>`;
+    html+=mets.map(m=>`<span class="tok met" draggable="true" data-t="${tk}" data-k="${m.key}" data-kind="met">${m.display_name||m.key}</span>`).join('');
+    html+=dims.map(d=>`<span class="tok dim" draggable="true" data-t="${tk}" data-k="${d.key}" data-kind="dim">${d.display_name||d.key}</span>`).join('');
+  }
+  document.getElementById('dataPane').innerHTML=html||'<div class="muted small" style="padding:8px">no fields</div>';
+  document.querySelectorAll('#dataPane .tok').forEach(tk=>tk.addEventListener('dragstart',e=>{e.dataTransfer.setData('t',tk.dataset.t);e.dataTransfer.setData('k',tk.dataset.k);e.dataTransfer.setData('kind',tk.dataset.kind);}));
+  // drill + saved filters across the component
+  document.getElementById('cDrill').innerHTML='<option value="">none</option>'+HIERS.filter(h=>(h.available_in||[]).some(x=>comp.includes(x))).map(h=>`<option value="${h.key}">${h.display_name||h.key}</option>`).join('');
+  cSelFilters=new Set(); try{const rr=await api('/api/semantic/rules');cRules=(rr.business_rules||[]).filter(r=>comp.includes(r.table));}catch(e){cRules=[];}
+  document.getElementById('cFilters').innerHTML=cRules.length?cRules.map(r=>`<span class="chip" data-f="${r.key}">${r.display_name||r.key}</span>`).join(''):'<span class="muted small">none defined</span>';
+  document.getElementById('cFilters').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{const k=c.dataset.f;if(cSelFilters.has(k)){cSelFilters.delete(k);c.classList.remove('sel');}else{cSelFilters.add(k);c.classList.add('sel');}previewSoon();});
+  renderShelves(); suggestChart(); previewSoon();
+}
+function pelt(o,kind){return `<span class="pelt">${o.field}<span class="muted" style="font-size:10px">·${o.table}</span> <b onclick="rmShelf('${kind}','${tkey(o)}')">✕</b></span>`;}
+function renderShelves(){
+  document.getElementById('shMetrics').innerHTML='<span class="lbl">Measures</span>'+cMetrics.map(m=>pelt(m,'met')).join('');
+  document.getElementById('shDim').innerHTML='<span class="lbl">Group by</span>'+(cDim?pelt(cDim,'dim'):'');
+  document.getElementById('shColor').innerHTML='<span class="lbl">Color / series</span>'+(cColor?pelt(cColor,'color'):'');
+  document.getElementById('shFilt').innerHTML='<span class="lbl">Filters (WHERE/HAVING)</span>'+cFilters.map((f,i)=>`<span class="pelt">${f.field} ${f.op} ${Array.isArray(f.value)?f.value.join('..'):f.value} <b onclick="rmFilt(${i})">✕</b></span>`).join('');
+  updateCalcMeasures();
+}
+window.rmShelf=(kind,key)=>{ if(kind==='met')cMetrics=cMetrics.filter(x=>tkey(x)!==key); else if(kind==='dim')cDim=null; else if(kind==='color')cColor=null; renderShelves(); suggestChart(); previewSoon(); };
+window.rmFilt=(i)=>{cFilters.splice(i,1);renderShelves();previewSoon();};
+['shMetrics','shDim','shColor','shFilt'].forEach(id=>{ const sh=document.getElementById(id);
+  sh.addEventListener('dragover',e=>{e.preventDefault();sh.classList.add('over');});
+  sh.addEventListener('dragleave',()=>sh.classList.remove('over'));
+  sh.addEventListener('drop',e=>{e.preventDefault();sh.classList.remove('over');const o={table:e.dataTransfer.getData('t'),field:e.dataTransfer.getData('k')};const kind=e.dataTransfer.getData('kind');const shelf=sh.dataset.shelf;
+    if(shelf==='metrics'){if(kind==='met'&&!cMetrics.some(x=>tkey(x)===tkey(o)))cMetrics.push(o);}
+    else if(shelf==='dim'){if(kind==='dim')cDim=o;} else if(shelf==='color'){if(kind==='dim')cColor=o;}
+    else if(shelf==='filter'){ const isMet=kind==='met'; const op=prompt(isMet?'Filter op (gt, lt, gte, lte, between, eq):':'Filter op (eq, in, like, between):',(isMet?'gt':'eq')); if(!op)return;
+      let value=prompt('Value (comma-separated for in/between):'); if(value==null)return; value=(op==='in'||op==='between')?value.split(',').map(x=>x.trim()):value;
+      cFilters.push({table:o.table,field:o.field,op:op.trim(),value}); }
+    renderShelves();suggestChart();previewSoon();}); });
+function updateCalcMeasures(){document.getElementById('cCalcMeasure').innerHTML='<option value="">—</option>'+cMetrics.map(m=>`<option value="${m.field}">${m.field}</option>`).join('');}
+function suggestChart(){ const nm=cMetrics.length; const isDate=cDim&&/date|month|week|day|year|quarter/i.test(cDim.field);
+  const sug=(!cDim&&nm<=1)?'kpi':(isDate?'line':(cColor?'bar':(nm>=3?'table':'bar'))); document.getElementById('cShowMe').textContent='Show Me: '+sug; if(!cTypeTouched)document.getElementById('cType').value=sug; }
+function buildWidgetFromConfig(){ const type=document.getElementById('cType').value;
+  const primary=(cMetrics[0]||cDim||cColor||{table:document.getElementById('cTable').value}).table;
+  const filters=cFilters.slice().concat(cRules.filter(r=>cSelFilters.has(r.key)).map(r=>({table:r.table,field:r.field,op:r.op,value:r.value})));
+  const w={id:Math.random().toString(36).slice(2),title:document.getElementById('cTitle').value||cMetrics.map(m=>m.field).join(', ')||'Widget',chart_type:type,width:+document.getElementById('cWidth').value,
+    query:{primary_table:primary,metrics:cMetrics.map(m=>({table:m.table,field:m.field})),dimensions:cDim?[{table:cDim.table,field:cDim.field}]:[],filters,order_by:[],limit:200}};
+  if(cColor)w.color={table:cColor.table,field:cColor.field};
+  const td=document.getElementById('cTopDir').value,tn=document.getElementById('cTopN').value; if(td&&tn&&cMetrics.length)w.topn={dir:td,n:tn,measure:cMetrics[0].field};
+  const sort=document.getElementById('cSort').value; if(sort)w.sort=sort;
+  if(document.getElementById('cDual').checked)w.dual=true;
+  const calc=document.getElementById('cCalc').value,cm=document.getElementById('cCalcMeasure').value; if(calc&&cm)w.tablecalc={type:calc,measure:cm};
+  const drill=document.getElementById('cDrill').value; if(drill)w.drill=drill;
+  return w; }
+let prevTimer=null; function previewSoon(){clearTimeout(prevTimer);prevTimer=setTimeout(renderPreview,500);}
+async function renderPreview(){const el=document.getElementById('cPreview'); if(!cMetrics.length){el.innerHTML='<span class="muted small">drag measures onto the Measures shelf to preview</span>';return;} el.innerHTML='<span class="muted small">rendering…</span>'; try{await renderWidget(buildWidgetFromConfig(),el,'prev');}catch(e){el.innerHTML='<span class="muted small">⚠ '+e.message+'</span>';} }
+['cType','cTopDir','cTopN','cSort','cDual','cCalc','cCalcMeasure','cDrill','cTitle','cWidth'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.addEventListener('change',()=>{if(id==='cType')cTypeTouched=true;previewSoon();});el.addEventListener('input',previewSoon);});
+document.getElementById('cTable').onchange=()=>{cMetrics=[];cDim=null;cColor=null;cFilters=[];loadDataPane();};
+document.getElementById('addWidget').onclick=()=>{cTypeTouched=false;cMetrics=[];cDim=null;cColor=null;cFilters=[];document.getElementById('cfg').classList.add('show');if(TABLES.length)loadDataPane();};
+document.getElementById('cCancel').onclick=()=>document.getElementById('cfg').classList.remove('show');
+document.getElementById('cAdd').onclick=()=>{if(!cMetrics.length){document.getElementById('cStatus').textContent='Add at least one measure.';return;}view.widgets.push(buildWidgetFromConfig());view.widgets._manual=true;document.getElementById('cfg').classList.remove('show');document.getElementById('cTitle').value='';renderCanvas();};
+
+// ── save / load ──
+document.getElementById('saveBtn').onclick=async()=>{ const name=document.getElementById('dashName').value.trim()||'Untitled dashboard';
+  const pages=[{id:'p1',name:'Page 1',widgets:view.widgets.map(w=>({title:w.title,chart_type:w.chart_type,width:w.width,query:w.query,color:w.color,topn:w.topn,sort:w.sort,dual:w.dual,tablecalc:w.tablecalc,drill:w.drill}))}];
+  const filters=view.quickFilters.map(f=>({table:f.table,field:f.field,values:f.values}));
+  try{ if(view.id){await api('/api/views/'+view.id,{method:'PUT',body:JSON.stringify({name,pages,filters})});}else{const v=await api('/api/views',{method:'POST',body:JSON.stringify({name,pages})});view.id=v.id; if(filters.length||view.params.length)await api('/api/views/'+v.id,{method:'PUT',body:JSON.stringify({filters})});}
+    toast('Saved "'+name+'".'); }catch(e){toast('Save failed: '+e.message,false);} };
+document.getElementById('loadBtn').onclick=async()=>{ try{const l=await api('/api/views');if(!l.views.length){toast('No saved dashboards.');return;}
+    const pick=prompt('Open which dashboard?\n'+l.views.map((v,i)=>`${i+1}. ${v.name} (${v.widget_count} widgets)`).join('\n')+'\n\nEnter number:'); const idx=parseInt(pick,10)-1; if(isNaN(idx)||!l.views[idx])return;
+    const v=await api('/api/views/'+l.views[idx].id); view={id:v.id,name:v.name,widgets:((v.pages||[])[0]||{}).widgets||[],quickFilters:(v.filters||[]).map(f=>Object.assign({_opts:[]},f)),params:[]}; view.widgets._manual=true;
+    document.getElementById('dashName').value=v.name; renderQF(); renderParams(); renderCanvas();
+  }catch(e){toast('Load failed: '+e.message,false);} };
+document.getElementById('newBtn').onclick=()=>{view={id:null,name:'',widgets:[],quickFilters:[],params:[]};document.getElementById('dashName').value='';renderQF();renderParams();renderCanvas();};
+document.getElementById('applyBtn').onclick=()=>renderCanvas();
+document.getElementById('modeAI').onclick=()=>{document.getElementById('modeAI').classList.add('on');document.getElementById('modeManual').classList.remove('on');document.getElementById('ai').style.display='block';document.getElementById('manual').style.display='none';};
+document.getElementById('modeManual').onclick=()=>{document.getElementById('modeManual').classList.add('on');document.getElementById('modeAI').classList.remove('on');document.getElementById('manual').style.display='block';document.getElementById('ai').style.display='none';};
+
+(async function boot(){ await loadTables(); await fetchMaxDate(); applyPreset(); renderQF(); renderParams(); renderCanvas(); })();
+</script>
+</body>
+</html>

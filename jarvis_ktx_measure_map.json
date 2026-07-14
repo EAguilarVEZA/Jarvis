@@ -1,0 +1,261 @@
+{
+  "ad_dim_campaign": {
+    "campaign_budget": "campaign_budget"
+  },
+  "ad_fact_ads": {
+    "spend": "spend",
+    "impressions": "total_impressions",
+    "clicks": "total_clicks",
+    "conversions": "conversions",
+    "conversion_value": "conversion_value",
+    "interactions": "total_interactions",
+    "active_view_impressions": "total_active_view_impressions",
+    "ctr": "ctr",
+    "conversion_rate": "conversion_rate",
+    "cpa": "cpa",
+    "cpc": "cpc",
+    "cpm": "cpm",
+    "roas": "roas"
+  },
+  "dim_date": {},
+  "ga4_dim_sessions": {
+    "sessions": "sessions",
+    "engaged_sessions": "engaged_sessions",
+    "avg_session_duration_seconds": "avg_session_duration_seconds",
+    "engagement_rate": "engagement_rate"
+  },
+  "ad_dim_ad": {
+    "ad_group_ad_ad_image_ad_pixel_height": "total_ad_group_ad_ad_image_ad_pixel_height",
+    "ad_group_ad_ad_image_ad_pixel_width": "total_ad_group_ad_ad_image_ad_pixel_width"
+  },
+  "ad_dim_ad_platform": {},
+  "ad_dim_adgroup": {
+    "ad_group_cpc_bid_micros": "total_ad_group_cpc_bid_micros",
+    "ad_group_cpm_bid_micros": "total_ad_group_cpm_bid_micros",
+    "ad_group_cpv_bid_micros": "total_ad_group_cpv_bid_micros",
+    "ad_group_effective_target_cpa_micros": "total_ad_group_effective_target_cpa_micros",
+    "ad_group_effective_target_roas": "total_ad_group_effective_target_roas"
+  },
+  "ad_summary_ad_networks": {
+    "cost": "total_cost",
+    "impressions": "total_impressions",
+    "clicks": "total_clicks"
+  },
+  "campaign_dim_ad": {
+    "ad_group_ad_ad_image_ad_pixel_height": "total_ad_group_ad_ad_image_ad_pixel_height",
+    "ad_group_ad_ad_image_ad_pixel_width": "total_ad_group_ad_ad_image_ad_pixel_width"
+  },
+  "campaign_dim_adgroup": {
+    "ad_group_cpc_bid_micros": "total_ad_group_cpc_bid_micros",
+    "ad_group_cpm_bid_micros": "total_ad_group_cpm_bid_micros",
+    "ad_group_cpv_bid_micros": "total_ad_group_cpv_bid_micros",
+    "ad_group_effective_target_cpa_micros": "total_ad_group_effective_target_cpa_micros",
+    "ad_group_effective_target_roas": "total_ad_group_effective_target_roas"
+  },
+  "campaign_dim_customer": {},
+  "campaign_fact_ads": {
+    "active_view_impressions": "total_active_view_impressions",
+    "clicks": "total_clicks",
+    "micro_conversions": "total_micro_conversions",
+    "micro_conversions_value": "total_micro_conversions_value",
+    "cost": "total_cost",
+    "gmail_forwards": "total_gmail_forwards",
+    "gmail_saves": "total_gmail_saves",
+    "gmail_secondary_click": "total_gmail_secondary_click",
+    "impressions": "total_impressions",
+    "interactions": "total_interactions"
+  },
+  "campaign_summary_ad_networks": {
+    "cost": "total_cost",
+    "impressions": "total_impressions",
+    "clicks": "total_clicks"
+  },
+  "er_wait_time": {
+    "recentwaittime": "recentwaittime"
+  },
+  "er_wait_time_mockup": {
+    "recentwaittime": "recentwaittime"
+  },
+  "ga4_dim_event_params": {},
+  "ga4_dim_users_pseudonymous": {
+    "sessions_ltv": "total_sessions_ltv",
+    "engagement_time_millis_ltv": "total_engagement_time_millis_ltv",
+    "engagement_time_seconds_ltv": "total_engagement_time_seconds_ltv",
+    "engaged_sessions_ltv": "total_engaged_sessions_ltv",
+    "session_duration_micros_ltv": "total_session_duration_micros_ltv"
+  },
+  "ga4_dim_webpage": {},
+  "ga4_fact_events": {
+    "event_timestamp": "total_event_timestamp",
+    "ga_session_number": "total_ga_session_number",
+    "event_sequence": "total_event_sequence",
+    "entrances": "total_entrances",
+    "engagement_time_msec": "total_engagement_time_msec",
+    "engagement_time_sec": "total_engagement_time_sec"
+  },
+  "gsc_fact_site_impression": {
+    "impressions": "total_impressions",
+    "clicks": "total_clicks",
+    "sum_top_results_position": "total_sum_top_results_position",
+    "average_results_position": "total_average_results_position"
+  },
+  "gsc_summary_monthly_site_impression": {
+    "impressions": "total_impressions",
+    "clicks": "total_clicks",
+    "ctr": "total_ctr",
+    "average_results_position": "total_average_results_position"
+  },
+  "sample_flat_ad_fact": {
+    "active_view_impressions": "total_active_view_impressions",
+    "clicks": "total_clicks",
+    "micro_conversions": "total_micro_conversions",
+    "micro_conversions_value": "total_micro_conversions_value",
+    "cost": "total_cost",
+    "gmail_forwards": "total_gmail_forwards",
+    "gmail_saves": "total_gmail_saves",
+    "gmail_secondary_click": "total_gmail_secondary_click",
+    "impressions": "total_impressions",
+    "interactions": "total_interactions"
+  },
+  "account": {},
+  "ad_final_mobile_url_history": {},
+  "ad_final_url_history": {},
+  "ad_group_criterion_history": {
+    "bid_modifier": "total_bid_modifier",
+    "bidding_strategy_bid_ceiling": "total_bidding_strategy_bid_ceiling",
+    "bidding_strategy_bid_floor": "total_bidding_strategy_bid_floor",
+    "bidding_strategy_bid_modifier": "total_bidding_strategy_bid_modifier",
+    "bidding_strategy_cpa_bid_amount": "total_bidding_strategy_cpa_bid_amount",
+    "bidding_strategy_cpc_bid_amount": "total_bidding_strategy_cpc_bid_amount",
+    "bidding_strategy_cpm_bid_amount": "total_bidding_strategy_cpm_bid_amount",
+    "bidding_strategy_max_cpc_bid_ceiling": "total_bidding_strategy_max_cpc_bid_ceiling",
+    "bidding_strategy_max_cpc_bid_floor": "total_bidding_strategy_max_cpc_bid_floor",
+    "bidding_strategy_spend_target": "total_bidding_strategy_spend_target",
+    "bidding_strategy_target_cpa": "total_bidding_strategy_target_cpa",
+    "bidding_strategy_target_outrank_share": "total_bidding_strategy_target_outrank_share",
+    "bidding_strategy_target_roas": "total_bidding_strategy_target_roas",
+    "bidding_strategy_target_roas_override": "total_bidding_strategy_target_roas_override",
+    "first_page_cpc": "total_first_page_cpc",
+    "first_position_cpc": "total_first_position_cpc",
+    "product_bidding_category_value": "total_product_bidding_category_value",
+    "quality_info_score": "total_quality_info_score",
+    "top_of_page_cpc": "total_top_of_page_cpc"
+  },
+  "ad_group_criterion_label_history": {},
+  "ad_group_explorer_auto_optimizer_setting_history": {},
+  "ad_group_history": {
+    "bidding_strategy_bid_ceiling": "total_bidding_strategy_bid_ceiling",
+    "bidding_strategy_bid_floor": "total_bidding_strategy_bid_floor",
+    "bidding_strategy_bid_modifier": "total_bidding_strategy_bid_modifier",
+    "bidding_strategy_cpa_bid_amount": "total_bidding_strategy_cpa_bid_amount",
+    "bidding_strategy_cpc_bid_amount": "total_bidding_strategy_cpc_bid_amount",
+    "bidding_strategy_cpm_bid_amount": "total_bidding_strategy_cpm_bid_amount",
+    "bidding_strategy_max_cpc_bid_ceiling": "total_bidding_strategy_max_cpc_bid_ceiling",
+    "bidding_strategy_max_cpc_bid_floor": "total_bidding_strategy_max_cpc_bid_floor",
+    "bidding_strategy_spend_target": "total_bidding_strategy_spend_target",
+    "bidding_strategy_target_cpa": "total_bidding_strategy_target_cpa",
+    "bidding_strategy_target_outrank_share": "total_bidding_strategy_target_outrank_share",
+    "bidding_strategy_target_roas": "total_bidding_strategy_target_roas",
+    "bidding_strategy_target_roas_override": "total_bidding_strategy_target_roas_override"
+  },
+  "ad_group_label_history": {},
+  "ad_group_targeting_setting_history": {},
+  "ad_history": {
+    "device_preference": "total_device_preference"
+  },
+  "ad_label_history": {},
+  "ad_policy_constraint_history": {
+    "total_targeted_countries": "total_total_targeted_countries"
+  },
+  "ad_policy_evidence_history": {},
+  "ad_policy_topic_history": {},
+  "ad_stats": {
+    "active_view_impressions": "total_active_view_impressions",
+    "active_view_measurability": "total_active_view_measurability",
+    "active_view_measurable_cost": "total_active_view_measurable_cost",
+    "active_view_measurable_impressions": "total_active_view_measurable_impressions",
+    "active_view_viewability": "total_active_view_viewability",
+    "clicks": "total_clicks",
+    "conversion_value": "total_conversion_value",
+    "conversions": "total_conversions",
+    "cost": "total_cost",
+    "impressions": "total_impressions",
+    "interactions": "total_interactions",
+    "view_through_conversions": "total_view_through_conversions"
+  },
+  "budget_history": {
+    "amount": "total_amount",
+    "reference_count": "total_reference_count"
+  },
+  "campaign_conversion_optimizer_eligibility_history": {},
+  "campaign_criterion_history": {
+    "ad_schedule_end_hour": "total_ad_schedule_end_hour",
+    "ad_schedule_start_hour": "total_ad_schedule_start_hour",
+    "bid_modifier": "total_bid_modifier",
+    "operating_system_os_major_version": "total_operating_system_os_major_version",
+    "operating_system_os_minor_version": "total_operating_system_os_minor_version",
+    "proximity_geo_point_latitude_in_micro_degrees": "total_proximity_geo_point_latitude_in_micro_degrees",
+    "proximity_geo_point_longitude_in_micro_degrees": "total_proximity_geo_point_longitude_in_micro_degrees",
+    "proximity_radius_in_units": "total_proximity_radius_in_units"
+  },
+  "campaign_geo_target_type_setting_history": {},
+  "campaign_history": {
+    "bidding_strategy_bid_ceiling": "total_bidding_strategy_bid_ceiling",
+    "bidding_strategy_bid_floor": "total_bidding_strategy_bid_floor",
+    "bidding_strategy_bid_modifier": "total_bidding_strategy_bid_modifier",
+    "bidding_strategy_cpa_bid_amount": "total_bidding_strategy_cpa_bid_amount",
+    "bidding_strategy_cpc_bid_amount": "total_bidding_strategy_cpc_bid_amount",
+    "bidding_strategy_cpm_bid_amount": "total_bidding_strategy_cpm_bid_amount",
+    "bidding_strategy_max_cpc_bid_ceiling": "total_bidding_strategy_max_cpc_bid_ceiling",
+    "bidding_strategy_max_cpc_bid_floor": "total_bidding_strategy_max_cpc_bid_floor",
+    "bidding_strategy_spend_target": "total_bidding_strategy_spend_target",
+    "bidding_strategy_target_cpa": "total_bidding_strategy_target_cpa",
+    "bidding_strategy_target_outrank_share": "total_bidding_strategy_target_outrank_share",
+    "bidding_strategy_target_roas": "total_bidding_strategy_target_roas",
+    "bidding_strategy_target_roas_override": "total_bidding_strategy_target_roas_override",
+    "frequency_cap_impressions": "total_frequency_cap_impressions"
+  },
+  "campaign_label_history": {},
+  "campaign_targeting_setting_history": {},
+  "disapproval_reason_history": {},
+  "dynamic_search_ad_history": {},
+  "expanded_text_ad_history": {},
+  "final_url_history": {},
+  "fivetran_audit": {
+    "rows_updated_or_inserted": "total_rows_updated_or_inserted"
+  },
+  "image_ad_history": {
+    "image_dimensions_height": "total_image_dimensions_height",
+    "image_dimensions_width": "total_image_dimensions_width",
+    "image_file_size": "total_image_file_size"
+  },
+  "keyword_stats": {
+    "active_view_impressions": "total_active_view_impressions",
+    "active_view_measurability": "total_active_view_measurability",
+    "active_view_measurable_cost": "total_active_view_measurable_cost",
+    "active_view_measurable_impressions": "total_active_view_measurable_impressions",
+    "active_view_viewability": "total_active_view_viewability",
+    "clicks": "total_clicks",
+    "conversion_value": "total_conversion_value",
+    "conversions": "total_conversions",
+    "cost": "total_cost",
+    "impressions": "total_impressions",
+    "interactions": "total_interactions",
+    "view_through_conversions": "total_view_through_conversions"
+  },
+  "label": {},
+  "location": {
+    "parent_location": "total_parent_location"
+  },
+  "template_ad_history": {
+    "duration": "total_duration"
+  },
+  "text_ad_history": {},
+  "campaign_dim_campaign": {
+    "campaign_budget_amount_micros": "total_campaign_budget_amount_micros",
+    "campaign_budget_recommended_budget_amount_micros": "total_campaign_budget_recommended_budget_amount_micros",
+    "campaign_budget_total_amount_micros": "total_campaign_budget_total_amount_micros",
+    "campaign_maximize_conversion_value_target_roas": "total_campaign_maximize_conversion_value_target_roas"
+  },
+  "ad_dim_account": {}
+}

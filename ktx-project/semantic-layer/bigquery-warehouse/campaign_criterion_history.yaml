@@ -1,0 +1,318 @@
+name: campaign_criterion_history
+descriptions:
+  user: Historical record of targeting criteria applied to Google Ads campaigns, including inclusions and exclusions.
+table: oh-data-warehouse.adwords_orlando_health.campaign_criterion_history
+grain:
+- campaign_id
+columns:
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Identifier of the Google Ads campaign this criterion belongs to.
+- name: id
+  type: number
+  descriptions:
+    ai: Unique identifier for the campaign criterion record.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when this criterion record was last updated.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record.
+  role: time
+- name: ad_schedule_day_of_week
+  type: string
+  descriptions:
+    ai: Day of week for ad scheduling targeting.
+- name: ad_schedule_end_hour
+  type: number
+  descriptions:
+    ai: Hour when the ad schedule targeting window ends.
+- name: ad_schedule_end_minute
+  type: string
+  descriptions:
+    ai: Minute when the ad schedule targeting window ends.
+- name: ad_schedule_start_hour
+  type: number
+  descriptions:
+    ai: Hour when the ad schedule targeting window begins.
+- name: ad_schedule_start_minute
+  type: string
+  descriptions:
+    ai: Minute when the ad schedule targeting window begins.
+- name: age_range_type
+  type: string
+  descriptions:
+    ai: Targeted age range demographic segment.
+- name: base_campaign_id
+  type: number
+  descriptions:
+    ai: Original campaign ID, relevant for draft or experiment campaigns.
+- name: bid_modifier
+  type: number
+  descriptions:
+    ai: Multiplier adjusting bids for this criterion.
+- name: campaign_criterion_status
+  type: string
+  descriptions:
+    ai: Active or paused status of this criterion.
+- name: campaign_criterion_type
+  type: string
+  descriptions:
+    ai: Whether criterion is a positive target or negative exclusion.
+- name: carrier_country_code
+  type: string
+  descriptions:
+    ai: Country code of the mobile carrier being targeted.
+- name: carrier_name
+  type: string
+  descriptions:
+    ai: Name of the mobile carrier being targeted.
+- name: content_label_type
+  type: string
+  descriptions:
+    ai: Type of content label excluded from ad serving.
+- name: criterion_type
+  type: string
+  descriptions:
+    ai: Category of targeting criterion such as Location, Keyword, or Platform.
+- name: gender_type
+  type: string
+  descriptions:
+    ai: Targeted gender demographic segment.
+- name: income_range_type
+  type: string
+  descriptions:
+    ai: Targeted household income range segment.
+- name: ip_block_ip_address
+  type: string
+  descriptions:
+    ai: IP address blocked from seeing ads.
+- name: is_negative
+  type: boolean
+  descriptions:
+    ai: Indicates whether this criterion is an exclusion rather than inclusion.
+- name: keyword_match_type
+  type: string
+  descriptions:
+    ai: 'Match type for keyword targeting: broad, phrase, or exact.'
+- name: keyword_text
+  type: string
+  descriptions:
+    ai: The keyword text used for targeting or exclusion.
+- name: language_code
+  type: string
+  descriptions:
+    ai: ISO code of the targeted language.
+- name: language_name
+  type: string
+  descriptions:
+    ai: Human-readable name of the targeted language.
+- name: location_display_type
+  type: string
+  descriptions:
+    ai: Geographic level of the location such as Country or City.
+- name: location_name
+  type: string
+  descriptions:
+    ai: Name of the targeted geographic location.
+- name: location_parent_locations
+  type: string
+  descriptions:
+    ai: Parent geographic locations containing the targeted location.
+- name: location_targeting_status
+  type: string
+  descriptions:
+    ai: Availability status of the targeted location.
+- name: mobile_app_category_id
+  type: number
+  descriptions:
+    ai: Identifier for the targeted mobile app category.
+- name: mobile_app_display_name
+  type: string
+  descriptions:
+    ai: Display name of the targeted mobile app category.
+- name: mobile_application_app_id
+  type: string
+  descriptions:
+    ai: Store identifier of the targeted mobile application.
+- name: mobile_application_display_name
+  type: string
+  descriptions:
+    ai: Display name of the targeted mobile application.
+- name: mobile_device_manufacturer_name
+  type: string
+  descriptions:
+    ai: Manufacturer of the targeted mobile device.
+- name: mobile_device_name
+  type: string
+  descriptions:
+    ai: Model name of the targeted mobile device.
+- name: mobile_device_operating_system_name
+  type: string
+  descriptions:
+    ai: Operating system of the targeted mobile device.
+- name: mobile_device_type
+  type: string
+  descriptions:
+    ai: Type classification of the targeted mobile device.
+- name: operating_system_name
+  type: string
+  descriptions:
+    ai: Name of the targeted device operating system.
+- name: operating_system_operator_type
+  type: string
+  descriptions:
+    ai: Comparison operator for OS version targeting.
+- name: operating_system_os_major_version
+  type: number
+  descriptions:
+    ai: Major version number of the targeted operating system.
+- name: operating_system_os_minor_version
+  type: number
+  descriptions:
+    ai: Minor version number of the targeted operating system.
+- name: parent_type
+  type: string
+  descriptions:
+    ai: Parental status demographic segment being targeted.
+- name: placement_url
+  type: string
+  descriptions:
+    ai: Website URL targeted or excluded as a placement.
+- name: platform_name
+  type: string
+  descriptions:
+    ai: Platform targeted such as desktop or high-end mobile.
+- name: proximity_address_street_address
+  type: string
+  descriptions:
+    ai: Primary street address for proximity radius targeting.
+- name: proximity_address_street_address_2
+  type: string
+  descriptions:
+    ai: Secondary street address line for proximity targeting.
+- name: proximity_city_name
+  type: string
+  descriptions:
+    ai: City of the proximity targeting center point.
+- name: proximity_country_code
+  type: string
+  descriptions:
+    ai: Country code of the proximity targeting center point.
+- name: proximity_geo_point_latitude_in_micro_degrees
+  type: number
+  descriptions:
+    ai: Latitude in micro-degrees for proximity targeting center.
+- name: proximity_geo_point_longitude_in_micro_degrees
+  type: number
+  descriptions:
+    ai: Longitude in micro-degrees for proximity targeting center.
+- name: proximity_postal_code
+  type: string
+  descriptions:
+    ai: Postal code of the proximity targeting center point.
+- name: proximity_province_code
+  type: string
+  descriptions:
+    ai: Province or state code for proximity targeting.
+- name: proximity_province_name
+  type: string
+  descriptions:
+    ai: Province or state name for proximity targeting.
+- name: proximity_radius_distance_units
+  type: string
+  descriptions:
+    ai: Unit of measurement for the proximity targeting radius.
+- name: proximity_radius_in_units
+  type: number
+  descriptions:
+    ai: Radius size for proximity geographic targeting.
+- name: user_interest_id
+  type: number
+  descriptions:
+    ai: Identifier of the targeted user interest audience segment.
+- name: user_interest_name
+  type: string
+  descriptions:
+    ai: Name of the targeted user interest audience segment.
+- name: user_interest_parent_id
+  type: number
+  descriptions:
+    ai: Parent category identifier for the user interest segment.
+- name: user_list_eligible_for_display
+  type: boolean
+  descriptions:
+    ai: Indicates if the user list can be used for display campaigns.
+- name: user_list_eligible_for_search
+  type: boolean
+  descriptions:
+    ai: Indicates if the user list can be used for search campaigns.
+- name: user_list_id
+  type: number
+  descriptions:
+    ai: Identifier of the targeted remarketing user list.
+- name: user_list_membership_status
+  type: string
+  descriptions:
+    ai: Whether the user list is open or closed for membership.
+- name: user_list_name
+  type: string
+  descriptions:
+    ai: Name of the targeted remarketing user list.
+- name: vertical_id
+  type: number
+  descriptions:
+    ai: Identifier of the targeted content vertical category.
+- name: vertical_parent_id
+  type: number
+  descriptions:
+    ai: Parent category identifier for the content vertical.
+- name: vertical_path
+  type: string
+  descriptions:
+    ai: Full hierarchical path of the targeted content vertical.
+- name: youtube_channel_id
+  type: string
+  descriptions:
+    ai: Identifier of the targeted or excluded YouTube channel.
+- name: youtube_channel_name
+  type: string
+  descriptions:
+    ai: Name of the targeted or excluded YouTube channel.
+- name: youtube_video_id
+  type: string
+  descriptions:
+    ai: Identifier of the targeted or excluded YouTube video.
+- name: youtube_video_name
+  type: string
+  descriptions:
+    ai: Title of the targeted or excluded YouTube video.
+measures:
+- name: total_ad_schedule_end_hour
+  expr: SUM(ad_schedule_end_hour)
+  description: Ad Schedule End Hour (sum of ad_schedule_end_hour).
+- name: total_ad_schedule_start_hour
+  expr: SUM(ad_schedule_start_hour)
+  description: Ad Schedule Start Hour (sum of ad_schedule_start_hour).
+- name: total_bid_modifier
+  expr: SUM(bid_modifier)
+  description: Bid Modifier (sum of bid_modifier).
+- name: total_operating_system_os_major_version
+  expr: SUM(operating_system_os_major_version)
+  description: Operating System Os Major Version (sum of operating_system_os_major_version).
+- name: total_operating_system_os_minor_version
+  expr: SUM(operating_system_os_minor_version)
+  description: Operating System Os Minor Version (sum of operating_system_os_minor_version).
+- name: total_proximity_geo_point_latitude_in_micro_degrees
+  expr: SUM(proximity_geo_point_latitude_in_micro_degrees)
+  description: Proximity Geo Point Latitude In Micro Degrees (sum of proximity_geo_point_latitude_in_micro_degrees).
+- name: total_proximity_geo_point_longitude_in_micro_degrees
+  expr: SUM(proximity_geo_point_longitude_in_micro_degrees)
+  description: Proximity Geo Point Longitude In Micro Degrees (sum of proximity_geo_point_longitude_in_micro_degrees).
+- name: total_proximity_radius_in_units
+  expr: SUM(proximity_radius_in_units)
+  description: Proximity Radius In Units (sum of proximity_radius_in_units).

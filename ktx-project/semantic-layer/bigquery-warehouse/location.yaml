@@ -1,0 +1,45 @@
+name: location
+descriptions:
+  user: Geographic location targets associated with ad campaigns for location-based ad targeting.
+table: oh-data-warehouse.adwords_orlando_health.location
+grain:
+- campaign_id
+columns:
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Foreign key linking this location target to a specific ad campaign.
+- name: id
+  type: number
+  descriptions:
+    ai: Unique identifier for this location targeting record.
+- name: parent_location
+  type: number
+  descriptions:
+    ai: Identifier of the parent geographic region containing this location.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when this location targeting record was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+- name: display_type
+  type: string
+  descriptions:
+    ai: How the location is categorized or displayed in targeting UI.
+- name: name
+  type: string
+  descriptions:
+    ai: Human-readable label for the targeted geographic location.
+- name: targeting_status
+  type: string
+  descriptions:
+    ai: Indicates whether this location is actively included or excluded from targeting.
+measures:
+- name: total_parent_location
+  expr: SUM(parent_location)
+  description: Parent Location (sum of parent_location).

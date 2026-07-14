@@ -1,0 +1,154 @@
+name: keyword_stats
+descriptions:
+  user: Daily Google Ads keyword performance metrics segmented by device, network, and ad placement slot.
+table: oh-data-warehouse.adwords_orlando_health.keyword_stats
+grain:
+- _fivetran_id
+columns:
+- name: _fivetran_id
+  type: string
+  descriptions:
+    ai: Unique row identifier assigned by Fivetran for deduplication.
+- name: customer_id
+  type: number
+  descriptions:
+    ai: Internal Google Ads account identifier for the advertiser.
+- name: date
+  type: time
+  descriptions:
+    ai: Date of the reported keyword performance metrics.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record.
+  role: time
+- name: active_view_impressions
+  type: number
+  descriptions:
+    ai: Impressions measured for viewability via Active View.
+- name: active_view_measurability
+  type: number
+  descriptions:
+    ai: Ratio of impressions measurable for viewability to total impressions.
+- name: active_view_measurable_cost
+  type: number
+  descriptions:
+    ai: Cost attributed to Active View measurable impressions.
+- name: active_view_measurable_impressions
+  type: number
+  descriptions:
+    ai: Count of impressions eligible for Active View measurement.
+- name: active_view_viewability
+  type: number
+  descriptions:
+    ai: Ratio of viewable impressions to measurable Active View impressions.
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier of the ad group containing the keyword.
+- name: ad_network_type_1
+  type: string
+  descriptions:
+    ai: Broad network category where the ad was served (e.g., Search).
+- name: ad_network_type_2
+  type: string
+  descriptions:
+    ai: Specific network sub-type where the ad appeared.
+- name: base_ad_group_id
+  type: number
+  descriptions:
+    ai: Original ad group ID, relevant for draft or experiment campaigns.
+- name: base_campaign_id
+  type: number
+  descriptions:
+    ai: Original campaign ID, relevant for draft or experiment campaigns.
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Identifier of the campaign containing the keyword.
+- name: clicks
+  type: number
+  descriptions:
+    ai: Total clicks received by the keyword on the given date.
+- name: conversion_value
+  type: number
+  descriptions:
+    ai: Total monetary value attributed to keyword-driven conversions.
+- name: conversions
+  type: number
+  descriptions:
+    ai: Number of conversion actions attributed to the keyword.
+- name: cost
+  type: number
+  descriptions:
+    ai: Total advertising spend for the keyword in account currency.
+- name: device
+  type: string
+  descriptions:
+    ai: Device type on which the ad was served.
+- name: external_customer_id
+  type: number
+  descriptions:
+    ai: Google Ads account ID visible externally to advertisers.
+- name: id
+  type: number
+  descriptions:
+    ai: Unique identifier for the keyword within the ad group.
+- name: impressions
+  type: number
+  descriptions:
+    ai: Total times the keyword triggered an ad display.
+- name: interaction_types
+  type: string
+  descriptions:
+    ai: Types of user interactions recorded (e.g., clicks).
+- name: interactions
+  type: number
+  descriptions:
+    ai: Total count of all user interactions with the ad.
+- name: slot
+  type: string
+  descriptions:
+    ai: Ad placement position on the search results page.
+- name: view_through_conversions
+  type: number
+  descriptions:
+    ai: Conversions where ad was seen but not clicked before converting.
+measures:
+- name: total_active_view_impressions
+  expr: SUM(active_view_impressions)
+  description: Active View Impressions (sum of active_view_impressions).
+- name: total_active_view_measurability
+  expr: SUM(active_view_measurability)
+  description: Active View Measurability (sum of active_view_measurability).
+- name: total_active_view_measurable_cost
+  expr: SUM(active_view_measurable_cost)
+  description: Active View Measurable Cost (sum of active_view_measurable_cost).
+- name: total_active_view_measurable_impressions
+  expr: SUM(active_view_measurable_impressions)
+  description: Active View Measurable Impressions (sum of active_view_measurable_impressions).
+- name: total_active_view_viewability
+  expr: SUM(active_view_viewability)
+  description: Active View Viewability (sum of active_view_viewability).
+- name: total_clicks
+  expr: SUM(clicks)
+  description: Clicks (sum of clicks).
+- name: total_conversion_value
+  expr: SUM(conversion_value)
+  description: Conversion Value (sum of conversion_value).
+- name: total_conversions
+  expr: SUM(conversions)
+  description: Conversions (sum of conversions).
+- name: total_cost
+  expr: SUM(cost)
+  description: Cost (sum of cost).
+- name: total_impressions
+  expr: SUM(impressions)
+  description: Impressions (sum of impressions).
+- name: total_interactions
+  expr: SUM(interactions)
+  description: Interactions (sum of interactions).
+- name: total_view_through_conversions
+  expr: SUM(view_through_conversions)
+  description: View Through Conversions (sum of view_through_conversions).

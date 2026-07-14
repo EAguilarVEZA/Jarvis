@@ -1,0 +1,42 @@
+name: ad_policy_evidence_history
+descriptions:
+  user: Historical log of policy violation evidence found in Google Ads, tracking flagged ad content over time.
+table: oh-data-warehouse.adwords_orlando_health.ad_policy_evidence_history
+grain:
+- policy_topic_ad_group_id
+columns:
+- name: policy_topic_ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier for the ad group associated with the policy violation.
+- name: policy_topic_ad_id
+  type: number
+  descriptions:
+    ai: Identifier for the specific ad flagged for a policy violation.
+- name: policy_topic_sequence_id
+  type: number
+  descriptions:
+    ai: Ordering index for multiple policy topics on the same ad.
+- name: sequence_id
+  type: number
+  descriptions:
+    ai: Ordering index for multiple evidence entries within a policy topic.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the policy evidence record was last updated.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+- name: evidence_text_list
+  type: string
+  descriptions:
+    ai: Specific text within the ad that triggered the policy flag.
+- name: policy_type_evidence_type
+  type: string
+  descriptions:
+    ai: Category of evidence type, such as ad text or URL content.
+measures: []

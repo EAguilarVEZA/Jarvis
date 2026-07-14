@@ -1,0 +1,31 @@
+name: er_wait_time_mockup
+descriptions:
+  user: Tracks emergency department wait times and location info for hospital triage and patient routing decisions.
+table: oh-data-warehouse.gold.er_wait_time_mockup
+grain:
+- EmergencyDepartment
+columns:
+- name: EmergencyDepartment
+  type: string
+  descriptions:
+    ai: Name or identifier of the hospital emergency department facility.
+- name: AvgWaitTime
+  type: string
+  descriptions:
+    ai: Historical average patient wait time, likely formatted as a duration string.
+- name: RecentWaitTime
+  type: number
+  descriptions:
+    ai: Most recent recorded wait time in minutes for the emergency department.
+- name: MapLink
+  type: string
+  descriptions:
+    ai: URL linking to the geographic location of the emergency department.
+- name: LastUpdated
+  type: string
+  descriptions:
+    ai: Timestamp or date string indicating when wait time data was refreshed.
+measures:
+- name: recentwaittime
+  expr: SUM(RecentWaitTime)
+  description: RecentWaitTime (sum of RecentWaitTime).

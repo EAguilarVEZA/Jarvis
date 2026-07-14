@@ -1,0 +1,155 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "supermetrics_bing_webmaster_tools",
+  "name": "BINGWEBMASTERS_CRAWL_STATS_20220924",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 2,
+  "columns": [
+    {
+      "name": "account_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Please note that this field will be removed on 2021-01-21"
+    },
+    {
+      "name": "account_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "data_source_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The name of the source for this data, as listed on supermetrics.com/docs"
+    },
+    {
+      "name": "date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "crawls_2_xx",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of pages with HTTP status code 200-299"
+    },
+    {
+      "name": "crawls_301",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of pages with \"Moved Permanently\" HTTP error code"
+    },
+    {
+      "name": "crawls_302",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of pages with \"Moved Temporarily\" HTTP error code"
+    },
+    {
+      "name": "crawls_4_xx",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of pages with HTTP status code 400-499"
+    },
+    {
+      "name": "crawls_5_xx",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of pages with HTTP status code 500-599"
+    },
+    {
+      "name": "crawls_blocked_robots_txt",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of pages blocked by robots.txt"
+    },
+    {
+      "name": "crawls_contains_malware",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of pages infected with malware"
+    },
+    {
+      "name": "crawls_errors",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of crawl errors"
+    },
+    {
+      "name": "crawls_other",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of pages with other HTTP status codes"
+    },
+    {
+      "name": "crawls_pages",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of crawled pages"
+    },
+    {
+      "name": "in_index",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Total number of pages stored in index"
+    },
+    {
+      "name": "in_links",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Total number of inbound links referred to the site"
+    }
+  ],
+  "foreignKeys": []
+}

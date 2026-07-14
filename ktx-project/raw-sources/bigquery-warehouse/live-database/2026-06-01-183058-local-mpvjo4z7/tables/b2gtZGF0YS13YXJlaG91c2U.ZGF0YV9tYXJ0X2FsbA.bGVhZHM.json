@@ -1,0 +1,173 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "data_mart_all",
+  "name": "leads",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 1145940,
+  "columns": [
+    {
+      "name": "date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": "date that the lead was created"
+    },
+    {
+      "name": "timestamp",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": "timestamp that the lead was created"
+    },
+    {
+      "name": "lead_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": false,
+      "primaryKey": true,
+      "comment": "unique record ID from the data source"
+    },
+    {
+      "name": "data_source",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "the source system of the record. Salesforce is current, others are legacy."
+    },
+    {
+      "name": "subject",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "subject line of the case record"
+    },
+    {
+      "name": "form_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "which form the customer submitted"
+    },
+    {
+      "name": "lead_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "which category of form was submitted"
+    },
+    {
+      "name": "lead_source",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "the utm_source value by 30-day first-click attribution"
+    },
+    {
+      "name": "lead_medium",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "the utm_medium value by 30-day first-click attribution"
+    },
+    {
+      "name": "is_paid_lead",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "true if utm_medium indicates paid media"
+    },
+    {
+      "name": "campaign_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "the utm_campaign value by 30-day first-click attribution"
+    },
+    {
+      "name": "lead_content",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "the utm_content value by 30-day first-click attribution"
+    },
+    {
+      "name": "sf_lead_kw_matchtype",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "extract the paid search keyword match type from utm_term"
+    },
+    {
+      "name": "sf_lead_keyword",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "extract the paid search keyword or display ad detail from utm_term"
+    },
+    {
+      "name": "form_url",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "webpage the form was submitted from"
+    },
+    {
+      "name": "record_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "unique record ID from Salesforce"
+    },
+    {
+      "name": "_fivetran_synced",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "the most recent data extract timestamp from Fivetran ETL"
+    },
+    {
+      "name": "combined_campaign_id",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

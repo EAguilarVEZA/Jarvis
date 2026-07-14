@@ -1,0 +1,28 @@
+name: ga4_dim_event_params
+descriptions:
+  user: Dimension table storing GA4 event parameters as key-value pairs with typed values for each event.
+table: oh-data-warehouse.gold.ga4_dim_event_params
+grain:
+- event_key
+columns:
+- name: event_key
+  type: number
+  descriptions:
+    db: event_key from Fact table
+    ai: Foreign key linking this parameter record to its parent event in the fact table.
+- name: parameter_name_key
+  type: string
+  descriptions:
+    db: event parameter name from key-value pair
+    ai: Name identifier of the event parameter, e.g., page_referrer or batch_ordering_id.
+- name: parameter_data_type
+  type: string
+  descriptions:
+    db: data type of value from key-value pair. Values found in bridge_event_params.
+    ai: 'Data type of the parameter value: string, int, float, or double.'
+- name: parameter_value
+  type: string
+  descriptions:
+    db: the value of the event_param as a STRUCT
+    ai: Structured record holding the parameter value in the appropriate typed field.
+measures: []

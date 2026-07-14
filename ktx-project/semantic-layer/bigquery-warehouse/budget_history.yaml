@@ -1,0 +1,56 @@
+name: budget_history
+descriptions:
+  user: Historical record of advertising campaign budget configurations and changes over time.
+table: oh-data-warehouse.adwords_orlando_health.budget_history
+grain:
+- campaign_id
+columns:
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Foreign key linking the budget to its associated advertising campaign.
+- name: id
+  type: number
+  descriptions:
+    ai: Unique identifier for each budget record.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the budget record was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+- name: amount
+  type: number
+  descriptions:
+    ai: Budget amount in micros; divide by one million for actual currency value.
+- name: delivery_method
+  type: string
+  descriptions:
+    ai: Pacing strategy for ad spend, e.g., STANDARD for even daily distribution.
+- name: is_explicitly_shared
+  type: boolean
+  descriptions:
+    ai: Indicates whether this budget is intentionally shared across multiple campaigns.
+- name: name
+  type: string
+  descriptions:
+    ai: Descriptive label identifying the campaign and service line for the budget.
+- name: reference_count
+  type: number
+  descriptions:
+    ai: Number of campaigns currently using this budget.
+- name: status
+  type: string
+  descriptions:
+    ai: Current operational state of the budget, e.g., ENABLED or PAUSED.
+measures:
+- name: total_amount
+  expr: SUM(amount)
+  description: Amount (sum of amount).
+- name: total_reference_count
+  expr: SUM(reference_count)
+  description: Reference Count (sum of reference_count).

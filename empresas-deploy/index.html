@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperPasos — Plataforma de Empresas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<style>
+  :root{--navy:#16243A;--navy2:#22344F;--slate:#5B6B82;--line:#E7EBF0;--bg:#F6F8FB;
+        --gold:#B5953F;--teal:#1E9E77;--coral:#C2705B;--blue:#3D6CA8;--purple:#7F77DD;--ink:#1A2230;--muted:#8A94A6;--card:#fff;}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',-apple-system,sans-serif;}
+  body{background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-feature-settings:"tnum";}
+  /* header */
+  .top{background:var(--navy);color:#fff;padding:16px 30px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20;}
+  .top .mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#9A7B2E);display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .top h1{font-size:16px;font-weight:700;letter-spacing:-.2px;} .top .byline{font-size:11px;color:#9FB0C6;}
+  .top .who{margin-left:auto;font-size:12.5px;display:flex;align-items:center;gap:12px;}
+  .top .who b{font-weight:600;} .top .out{cursor:pointer;color:#9FB0C6;text-decoration:underline;}
+  .switch{background:var(--navy2);padding:0 30px;display:flex;gap:2px;position:sticky;top:64px;z-index:19;overflow-x:auto;}
+  .switch button{background:none;border:none;color:#9FB0C6;font-size:13.5px;font-weight:600;padding:13px 20px;cursor:pointer;border-bottom:3px solid transparent;font-family:inherit;white-space:nowrap;}
+  .switch button.on{color:#fff;border-bottom-color:var(--gold);}
+  .mCard{border:1px solid #E2E8F0;border-radius:12px;padding:12px;margin-bottom:12px;background:#fff;}
+  .mSub{border-left:3px solid #E2E8F0;margin:8px 0 8px 8px;padding:6px 0 6px 12px;}
+  .mOffer{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#F6F8FB;border-radius:8px;padding:7px 10px;margin:5px 0;font-size:12.5px;}
+  .mRow{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+  .mAct button{background:#EEF1F6;border:none;border-radius:7px;padding:5px 9px;font-size:12px;font-weight:700;cursor:pointer;margin-left:5px;font-family:inherit;color:#16243A;}
+  .mAct button.del{background:#FBE2E2;color:#A32D2D;}
+  /* master-detail: list (left) + form (right) */
+  .md{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;}
+  .mdlist{flex:1 1 280px;min-width:240px;max-width:420px;}
+  .mdform{flex:1.3 1 320px;min-width:280px;}
+  .mdItem{padding:10px 12px;border:1px solid #E2E8F0;border-radius:10px;margin-bottom:8px;cursor:pointer;background:#fff;transition:border-color .15s,background .15s;}
+  .mdItem:hover{border-color:#B9C4D4;}
+  .mdItem.sel{border-color:var(--gold);background:#FFFBF0;}
+  .mdItem b{font-size:13.5px;color:#16243A;} .mdItem .sub{font-size:11.5px;color:var(--muted);margin-top:1px;}
+  .delBtn{background:#FBE2E2;color:#A32D2D;}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 22px 70px;}
+  .page{display:none;} .page.on{display:block;}
+  .repHead{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:10px;}
+  .repHead h2{font-size:22px;font-weight:800;letter-spacing:-.4px;} .repHead .exp{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-size:12.5px;font-weight:600;color:var(--navy);cursor:pointer;}
+  .lead{font-size:13px;color:var(--slate);max-width:680px;line-height:1.55;margin:4px 0 20px;}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px;}
+  @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr);}}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px;}
+  .kpi .lab{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  .kpi .val{font-size:29px;font-weight:800;letter-spacing:-1px;margin-top:6px;color:var(--navy);}
+  .kpi .sub{font-size:11px;color:var(--slate);margin-top:3px;} .kpi .delta{font-size:11px;font-weight:700;margin-top:7px;color:var(--teal);}
+  .kpi.accent{background:linear-gradient(135deg,var(--navy),var(--navy2));border:none;}
+  .kpi.accent .lab{color:#9FB0C6;} .kpi.accent .val{color:#fff;} .kpi.accent .sub{color:#C4D0DF;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px;} @media(max-width:760px){.grid2{grid-template-columns:1fr;}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:19px;margin-bottom:15px;}
+  .panel h3{font-size:14.5px;font-weight:700;} .panel .ph{font-size:12px;color:var(--muted);margin:2px 0 15px;}
+  .chartbox{position:relative;height:220px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;} th{text-align:left;color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;padding:8px 6px;border-bottom:1px solid var(--line);}
+  td{padding:9px 6px;border-bottom:1px solid #F1F4F8;} td.r,th.r{text-align:right;} td b{color:var(--navy);}
+  label{display:block;font-size:12px;font-weight:700;margin:13px 0 5px;}
+  input,select{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:#fff;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:13px;} @media(max-width:560px){.row{grid-template-columns:1fr;}}
+  .btn{margin-top:16px;padding:12px 18px;border:none;border-radius:11px;background:var(--navy);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn.sec{background:#EDEFF2;color:var(--ink);} .btn.gold{background:linear-gradient(135deg,var(--gold),#9A7B2E);} .btn.full{width:100%;}
+  .btn:active{transform:scale(.99);}
+  .golden{background:#FBF0DC;color:#8A6512;border-radius:10px;padding:10px 13px;font-size:12px;font-weight:600;margin-top:12px;}
+  .summary{background:#F8FAFB;border:1px solid var(--line);border-radius:11px;padding:14px;font-size:13px;margin-top:10px;line-height:1.5;} .summary b{color:var(--navy);}
+  .payGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+  .payGrid .pm{border:1px solid var(--line);border-radius:11px;padding:11px 10px;font-size:12.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px;background:#fff;}
+  .payGrid .pm .e{font-size:18px;} .payGrid .pm small{display:block;color:var(--muted);font-weight:600;font-size:10.5px;}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;} .tag.ok{background:#E4F4EE;color:#0F6E56;} .tag.new{background:#EEF0FB;color:#3A33A0;}
+  .offerCard{border:1px solid var(--line);border-radius:12px;padding:15px;margin-top:13px;}
+  .barcodeWrap{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px;background:#FBFCFD;border:1px dashed var(--line);border-radius:10px;padding:11px;}
+  .codeTxt{font-family:'SF Mono',Menlo,monospace;font-size:12.5px;color:var(--blue);font-weight:700;}
+  .pushNote{background:#E4F4EE;border:1px solid #BfE6D5;color:#0F6E56;border-radius:11px;padding:11px 14px;font-size:12.5px;font-weight:600;margin-top:14px;}
+  .login{max-width:380px;margin:64px auto;} .demoNote{font-size:12px;color:var(--muted);text-align:center;margin-top:12px;}
+  .apibar{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;} .apibar input{display:inline-block;width:62%;padding:7px 9px;font-size:11px;}
+  .foot{font-size:11px;color:var(--muted);margin-top:16px;border-top:1px solid var(--line);padding-top:13px;line-height:1.6;}
+  .hidden{display:none;}
+  .mapbox{height:300px;border-radius:12px;overflow:hidden;border:1px solid var(--line);}
+  .bar{height:8px;border-radius:5px;background:#EEF1F6;width:110px;display:inline-block;vertical-align:middle;overflow:hidden;} .bar i{display:block;height:100%;border-radius:5px;background:var(--blue);}
+  .rank{display:inline-block;width:20px;color:var(--gold);font-weight:800;}
+  .leaflet-control-attribution{font-size:8px;}
+  .secLab{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--slate);margin:8px 0 11px;display:flex;align-items:center;gap:8px;}
+  .secLab::after{content:"";flex:1;height:1px;background:var(--line);}
+  .valgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px;} @media(max-width:560px){.valgrid{grid-template-columns:1fr;}}
+  .vg-n{font-size:23px;font-weight:800;color:#fff;letter-spacing:-.5px;} .vg-l{font-size:12px;color:#C4D0DF;line-height:1.45;margin-top:2px;}
+  @media print{.switch,.top .out,.exp{display:none;} body{background:#fff;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginView">
+  <div class="login panel" style="padding:28px;">
+    <div style="text-align:center;font-weight:800;font-size:19px;letter-spacing:-.3px;margin-top:6px;">Plataforma de Empresas</div>
+    <div style="text-align:center;font-size:12.5px;color:var(--muted);margin-bottom:6px;">SuperPasos · Portal del patrocinador</div>
+    <label>Correo de la empresa</label><input id="liEmail" value="demo@lacticol.co">
+    <label>Contraseña</label><input id="liPass" type="password" value="demo1234">
+    <button class="btn full" onclick="login()">Entrar</button>
+    <button class="btn sec full" style="margin-top:8px" onclick="demoMode()">Ver en modo demo (sin servidor)</button>
+    <div class="demoNote">Demo: demo@lacticol.co · demo1234</div>
+    <div class="apibar">API: <input id="apiUrl" placeholder="https://tu-api.onrender.com"> <button class="btn sec" style="margin:0;padding:6px 10px;font-size:11px" onclick="saveApi()">Guardar</button></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appView" class="hidden">
+  <div class="top">
+    <div><h1>SuperPasos · Empresas</h1><div class="byline">Campañas · Premios · Reportes</div></div>
+    <div class="who"><b id="whoName">LactiCol</b> · <span class="out" onclick="logout()">Salir</span></div>
+  </div>
+  <div class="switch">
+    <button class="on" data-p="dash" onclick="go('dash',this)">Rep. Patrocinador</button>
+    <button data-p="gob" onclick="go('gob',this)">Rep. Gobierno</button>
+    <button data-p="banco" onclick="go('banco',this)">Rep. Bancos</button>
+    <button data-p="camp" onclick="go('camp',this)">Campañas</button>
+    <button data-p="prem" onclick="go('prem',this)">Cupones</button>
+    <button data-p="reto" onclick="go('reto',this)">🏆 Reto del Mes</button>
+    <button data-p="fact" onclick="go('fact',this)">💳 Facturación y pago</button>
+    <button data-p="setup" onclick="go('setup',this)">Bancos y patrocinadores</button>
+  </div>
+  <div class="wrap">
+
+    <!-- REPORTE -->
+    <div class="page on" id="page-dash">
+      <div class="repHead"><h2 id="repTitle">LactiCol · Reporte de Impacto y Desempeño</h2>
+        <button class="exp" onclick="window.print()">⤓ Exportar PDF</button></div>
+      <p class="lead">Campaña "Cada km, un desayuno". Tres retornos en una sola inversión: deducción tributaria del 125% (art. 126‑2), amor de marca y ventas medibles — con datos de intención de tus usuarios.</p>
+      <div class="kpis">
+        <div class="kpi accent"><div class="lab">Comidas donadas</div><div class="val" id="kMeals">48.215</div><div class="sub" id="kMealsSub">de 50.000 (presupuesto)</div></div>
+        <div class="kpi"><div class="lab">Cupones canjeados</div><div class="val" id="kRedeem">9.612</div><div class="sub" id="kRedeemSub">de 31.480 emitidos</div><div class="delta" id="kRate">30,5% de canje</div></div>
+        <div class="kpi"><div class="lab">Venta incremental</div><div class="val">$214 M</div><div class="sub">COP atribuidos · estimado*</div><div class="delta">▲ 12% vs. mes anterior</div></div>
+        <div class="kpi"><div class="lab">Caminantes que donaron</div><div class="val" id="kClients">2.480</div><div class="sub" id="kClientsSub">donantes únicos</div></div>
+      </div>
+      <div class="panel"><h3>Mapa de calor · canjes por región</h3><div class="ph">Dónde tu marca convierte en ventas</div><div class="mapbox" id="spMap"></div></div>
+      <div class="grid2">
+        <div class="panel"><h3>Embudo: Camina → Dona → Canjea</h3><div class="ph">De la caminata a la venta</div><div class="chartbox"><canvas id="spFunnel"></canvas></div></div>
+        <div class="panel"><h3>Cupones por categoría</h3><div class="ph">Qué premios elige tu audiencia (zero-party data)</div><div class="chartbox"><canvas id="spDonut"></canvas></div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Mejores tiendas</h3><div class="ph">Por canjes verificados</div><table><thead><tr><th>Tienda</th><th class="r">Canjes</th><th class="r">Tasa</th></tr></thead><tbody id="spStores"></tbody></table></div>
+        <div class="panel"><h3>Mejores cupones</h3><div class="ph">Qué oferta convierte mejor</div><table><thead><tr><th>Oferta</th><th class="r">Emitidos</th><th class="r">Canje</th></tr></thead><tbody id="spCoupons"></tbody></table></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Demografía de quienes canjean</h3><div class="ph">Edad y sexo — afina tu segmentación</div><div class="chartbox"><canvas id="spAge"></canvas></div></div>
+        <div class="panel"><h3>Ocupación de tus usuarios</h3><div class="ph">Quiénes son (zero-party data)</div><table><tbody id="spJobs"></tbody></table></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>De qué canal llegó cada canje</h3><div class="ph">Atribución online→offline — invierte donde sí convierte</div><div class="chartbox"><canvas id="spChannel"></canvas></div></div>
+        <div class="panel"><h3>Recurrencia de compra</h3><div class="ph">¿Vuelven? Lealtad que genera tu marca</div><div class="chartbox"><canvas id="spRepeat"></canvas></div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Lo que tu audiencia QUIERE</h3><div class="ph">Productos que tus usuarios pidieron en la app — diseña tu próxima oferta con datos</div><table><thead><tr><th>Producto deseado</th><th class="r">Lo pidieron</th><th>Demanda</th></tr></thead><tbody id="spWish"></tbody></table></div>
+        <div class="panel"><h3>Economía por unidad</h3><div class="ph">Lo que cuesta cada resultado</div><table><tbody id="spUnit"></tbody></table></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Canjes por ciudad</h3><div class="ph">Dónde se convierte en ventas</div><table><tbody id="spCities"></tbody></table></div>
+        <div class="panel" style="background:linear-gradient(135deg,#16243A,#22344F);color:#fff;border:none;">
+          <h3 style="color:#fff">Tu retorno, en números</h3><div class="ph" style="color:#9FB0C6">Lo que compró tu inversión</div>
+          <table><tbody>
+            <tr><td style="border-color:#33455F;color:#C4D0DF">Comidas con tu marca</td><td class="r" style="border-color:#33455F"><b style="color:#fff" id="rMeals">48.215</b></td></tr>
+            <tr><td style="border-color:#33455F;color:#C4D0DF">Inversión total</td><td class="r" style="border-color:#33455F"><b style="color:#fff" id="rInvest">$144.645.000 COP</b></td></tr>
+            <tr><td style="border-color:#33455F;color:#C4D0DF">Impresiones de marca</td><td class="r" style="border-color:#33455F"><b style="color:#fff">2,1 M</b></td></tr>
+            <tr><td style="border-color:#33455F;color:#C4D0DF">NPS entre usuarios</td><td class="r" style="border-color:#33455F"><b style="color:#fff">72</b></td></tr>
+            <tr><td style="border-color:#33455F;color:#C4D0DF">Deducción tributaria (art. 126‑2)</td><td class="r" style="border-color:#33455F"><b style="color:#fff">125%</b></td></tr>
+            <tr><td style="color:#C4D0DF;border:none">Certificado de donación</td><td class="r" style="border:none"><span class="tag ok">Emitido ✓</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="foot">Datos de la plataforma SuperPasos · periodo actual. Generado automáticamente — el mismo reporte que tu marca recibe cada mes.</div>
+    </div>
+
+    <!-- CAMPAÑA -->
+    <div class="page" id="page-camp">
+      <div class="repHead"><h2>Campañas</h2></div>
+      <p class="lead">A la izquierda, tus campañas. Selecciona una para editarla, o crea una nueva.</p>
+      <div class="md">
+        <div class="mdlist">
+          <button class="btn gold" onclick="newCampaign()">＋ Nueva campaña</button>
+          <div id="campListM" style="margin-top:10px"><div class="ph">Cargando…</div></div>
+        </div>
+        <div class="panel mdform">
+          <div class="repHead"><h3 id="campFormTitle">Nueva campaña</h3></div>
+          <div class="row">
+            <div><label>Comidas al mes (presupuesto)</label><input id="mealsBudget" type="number" value="50000"></div>
+            <div><label>Precio por comida (COP)</label><input id="costPerMeal" type="number" value="3000"></div>
+          </div>
+          <div class="row">
+            <div><label>Banco de alimentos</label><select id="foodBank"><option>Banco de Alimentos de Bogotá</option><option>ABACO (red nacional)</option><option>Fundación Saciar (Medellín)</option></select></div>
+            <div><label>Vigencia de la campaña</label><select id="campDur"><option value="30">1 mes</option><option value="90">3 meses</option><option value="180">6 meses</option></select></div>
+          </div>
+          <div class="golden">Regla de oro: toda campaña financia un mínimo de comidas. El dinero nunca pasa por la plataforma.</div>
+          <div class="summary" id="campSummary"></div>
+          <button class="btn gold" onclick="saveCampaign()">Guardar campaña</button>
+          <button class="btn delBtn" id="campDelBtn" style="display:none" onclick="deleteCurrentCampaign()">🗑 Eliminar campaña</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREMIOS -->
+    <div class="page" id="page-prem">
+      <div class="repHead"><h2>Cupones</h2></div>
+      <p class="lead">A la izquierda, tus cupones. Selecciona uno para editarlo, o crea uno nuevo. Cada cupón es de único uso, con código de barras y QR.</p>
+      <div class="md">
+        <div class="mdlist">
+          <button class="btn gold" onclick="newOffer()">＋ Nuevo cupón</button>
+          <div id="cuponListM" style="margin-top:10px"><div class="ph">Cargando…</div></div>
+        </div>
+        <div class="panel mdform">
+          <div class="repHead"><h3 id="offFormTitle">Nuevo cupón</h3></div>
+          <label>Título del cupón</label><input id="offTitle" placeholder="Ej: 30% dcto. leche deslactosada 1L">
+          <div class="row">
+            <div><label>Tienda donde se canjea</label><input id="offRetailer" placeholder="Éxito, Carulla, D1…"></div>
+            <div><label>Categoría del cupón</label><select id="offCat">
+              <option value="comida_saludable">Comida saludable</option><option value="deporte">Deporte</option>
+              <option value="conciertos">Conciertos</option><option value="mercado">Mercado</option><option value="bienestar">Bienestar</option>
+            </select></div>
+          </div>
+          <div class="row" id="offCreateOnly">
+            <div><label>Vigencia del cupón (días)</label><input id="offDays" type="number" value="7"></div>
+            <div><label>Códigos a generar</label><input id="offCount" type="number" value="3"></div>
+          </div>
+          <label>Código del retailer <span style="font-weight:500;color:var(--muted)">(opcional — el que reconoce la caja del retailer)</span></label>
+          <input id="offRetailerCode" placeholder="Ej: 7700000123456 (EAN/UPC) o el código de tu promoción">
+          <div class="ph" style="margin-top:4px">Si lo pones, el código de barras codificará ESTE valor para que el POS lo procese. Si lo dejas vacío, usamos un código propio.</div>
+          <button class="btn gold" onclick="saveOffer()">Guardar cupón</button>
+          <button class="btn delBtn" id="offDelBtn" style="display:none" onclick="deleteCurrentOffer()">🗑 Eliminar cupón</button>
+          <div class="pushNote" id="pushNote" style="display:none">Tus cupones ya aparecen en la app para los usuarios que completen su caminata.</div>
+          <div id="offerList"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Probar un código</h3><div class="ph">Verifica que un código está activo y listo para que un usuario lo redima — antes de entregarlo al retailer.</div>
+        <div class="row"><div><label>Código del cupón</label><input id="testCodeInput" placeholder="CYA-XXXXXXXX"></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn" style="width:100%" onclick="testCode()">Probar código</button></div></div>
+        <div id="testResult" class="summary" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- REPORTE GOBIERNO -->
+    <div class="page" id="page-gob">
+      <div class="repHead"><h2>Impacto Nacional · Cero Costo Fiscal</h2><button class="exp" onclick="window.print()">⤓ Exportar PDF</button></div>
+      <p class="lead">Resumen para el Ministerio de Educación, Salud y Deporte. Dos políticas públicas en una plataforma, sin recursos públicos: <b>alimentación escolar</b> financiada por el sector privado <b>y</b> un registro vivo de <b>actividad física</b> de los colombianos.</p>
+
+      <div class="secLab">① Alimentación escolar — cero costo fiscal</div>
+      <div class="kpis">
+        <div class="kpi accent"><div class="lab">Comidas donadas</div><div class="val">2,84 M</div><div class="sub">acumulado</div></div>
+        <div class="kpi"><div class="lab">Niños alimentados</div><div class="val">186.400</div><div class="sub">142 municipios</div></div>
+        <div class="kpi"><div class="lab">Brecha PAE cubierta</div><div class="val">9,2%</div><div class="sub">de 1,28 M</div></div>
+        <div class="kpi"><div class="lab">Costo fiscal</div><div class="val">$0</div><div class="sub">100% privado</div></div>
+      </div>
+
+      <div class="secLab">② Actividad física — el dato que ningún ministerio tiene hoy</div>
+      <div class="kpis">
+        <div class="kpi accent" style="background:linear-gradient(135deg,#1E9E77,#13795A)"><div class="lab" style="color:#CDEFE2">Kilómetros caminados</div><div class="val" style="color:#fff">4,9 M</div><div class="sub" style="color:#CDEFE2">km verificados por GPS</div></div>
+        <div class="kpi"><div class="lab">Minutos activos</div><div class="val">61,2 M</div><div class="sub">min/mes de actividad real</div></div>
+        <div class="kpi"><div class="lab">Cumplen meta OMS</div><div class="val">34%</div><div class="sub">≥150 min/sem · base 21%</div><div class="delta">▲ +13 pts</div></div>
+        <div class="kpi"><div class="lab">Ahorro en salud (est.)</div><div class="val">$8.700 M</div><div class="sub">COP/año · enf. no transmisibles</div></div>
+      </div>
+
+      <div class="panel"><h3>Mapa de calor · actividad y comidas por región</h3><div class="ph">Dónde el país camina y dónde llegan las comidas — focalización de política</div><div class="mapbox" id="gobMap"></div></div>
+      <div class="grid2">
+        <div class="panel"><h3>Ciclovías y corredores más caminados</h3><div class="ph">Qué infraestructura usa la gente — prioriza inversión y horarios</div><table><thead><tr><th>Corredor</th><th class="r">Caminantes</th><th>Uso</th></tr></thead><tbody id="gobCiclo"></tbody></table></div>
+        <div class="panel"><h3>Cuándo camina el país</h3><div class="ph">Franja horaria — seguridad, alumbrado y programación de ciclovías</div><div class="chartbox"><canvas id="gobHours"></canvas></div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Regiones más comprometidas</h3><div class="ph">Comidas + intensidad de participación por departamento</div><table><thead><tr><th>Departamento</th><th class="r">Comidas</th><th>Engagement</th></tr></thead><tbody id="gobRegions"></tbody></table></div>
+        <div class="panel"><h3>Actividad por edad y sexo</h3><div class="ph">Brecha de género y de edad — equidad en salud</div><div class="chartbox"><canvas id="gobAge"></canvas></div></div>
+      </div>
+      <div class="panel" style="background:linear-gradient(135deg,#16243A,#22344F);color:#fff;border:none;">
+        <h3 style="color:#fff">Por qué esto le importa al Estado</h3>
+        <div class="ph" style="color:#9FB0C6">Valor público que se genera solo — sin presupuesto</div>
+        <div class="valgrid">
+          <div><div class="vg-n">$8.700 M</div><div class="vg-l">Ahorro estimado en salud/año por reducir el sedentarismo (menos diabetes, hipertensión y obesidad).</div></div>
+          <div><div class="vg-n">1.240 ton</div><div class="vg-l">CO₂ evitado: trayectos hechos a pie en vez de en carro o moto.</div></div>
+          <div><div class="vg-n">142</div><div class="vg-l">Municipios con datos vivos de actividad física — insumo del Observatorio Nacional.</div></div>
+          <div><div class="vg-n">186.400</div><div class="vg-l">Niños alimentados que rinden más en clase (nutrición ↔ aprendizaje).</div></div>
+        </div>
+      </div>
+      <div class="foot">Fuentes: plataforma (datos agregados, anónimos · Ley 1581) · ENSIN · OMS · Contraloría/MinEducación. Apartidista. El ahorro en salud y el CO₂ son estimaciones con metodología publicada. Insumo del Observatorio Nacional de Actividad Física.</div>
+    </div>
+
+    <!-- REPORTE BANCOS -->
+    <div class="page" id="page-banco">
+      <div class="repHead"><h2>Operación de Bancos de Alimentos</h2><button class="exp" onclick="window.print()">⤓ Exportar PDF</button></div>
+      <p class="lead">Para la red de bancos (ABACO): donaciones recurrentes y predecibles, trazabilidad giro↔entrega, planeación de demanda y mapa de cobertura para llegar a donde más se necesita.</p>
+      <div class="kpis">
+        <div class="kpi accent"><div class="lab">Comidas financiadas</div><div class="val">487.300</div><div class="sub">este periodo</div></div>
+        <div class="kpi"><div class="lab">Donaciones recurrentes</div><div class="val">$1.218 M</div><div class="sub">COP girados</div></div>
+        <div class="kpi"><div class="lab">Ingreso predecible</div><div class="val">78%</div><div class="sub">de donantes recurrentes</div><div class="delta">▲ planeable a 6 meses</div></div>
+        <div class="kpi"><div class="lab">Entrega a tiempo</div><div class="val">96,4%</div><div class="sub">SLA giro→entrega ≤72 h</div></div>
+      </div>
+      <div class="panel"><h3>Mapa de calor · entregas por ciudad</h3><div class="ph">Red ABACO</div><div class="mapbox" id="bancoMap"></div></div>
+      <div class="grid2">
+        <div class="panel"><h3>Pronóstico de demanda</h3><div class="ph">Comidas financiadas + proyección — para planear compras y logística</div><div class="chartbox"><canvas id="bancoForecast"></canvas></div></div>
+        <div class="panel"><h3>Mezcla de lo donado</h3><div class="ph">Qué categorías financian los patrocinadores</div><div class="chartbox"><canvas id="bancoMix"></canvas></div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Mejores ciudades de entrega</h3><div class="ph">Volumen entregado</div><table><thead><tr><th>Ciudad</th><th class="r">Comidas</th><th>Vol.</th></tr></thead><tbody id="bancoCities"></tbody></table></div>
+        <div class="panel"><h3>Cobertura territorial</h3><div class="ph">Dónde llegamos y dónde falta — focaliza nuevos donantes</div><table><thead><tr><th>Zona</th><th class="r">Cubierto</th><th>Brecha</th></tr></thead><tbody id="bancoCover"></tbody></table></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Conciliación giros ↔ entregas</h3><div class="ph">Trazabilidad auditable</div><table><thead><tr><th>Banco</th><th class="r">Giros</th><th>Estado</th></tr></thead><tbody id="bancoRecon"></tbody></table></div>
+        <div class="panel"><h3>Alcance a beneficiarios</h3><div class="ph">A quién llega la comida</div><table><tbody id="bancoReach"></tbody></table></div>
+      </div>
+      <div class="foot">El dinero va directo del patrocinador al banco — la plataforma nunca lo toca. Pronóstico con media móvil sobre donaciones confirmadas. Cobertura cruzada con municipios PAE prioritarios.</div>
+    </div>
+
+    <!-- CONFIGURAR (food banks + sponsor setup) -->
+    <div class="page" id="page-manage">
+      <h2 style="margin:0 0 4px">Gestionar — crear · editar · eliminar</h2>
+      <div class="ph" style="margin-bottom:10px">Tus patrocinadores, sus promociones y sus premios/cupones. Edita o elimina cualquiera. (Crear nuevos: en "Configurar", "Campaña" y "Premios".)</div>
+      <button class="btn" onclick="renderLists()">🔄 Actualizar lista</button>
+      <div id="manageTree" style="margin-top:12px"></div>
+    </div>
+    <!-- RETO DEL MES (top walkers + reward push) -->
+    <div class="page" id="page-reto">
+      <div class="repHead"><h2>🏆 Reto del Mes — premia a quienes más caminan</h2></div>
+      <p class="lead">Estos son los <b>usuarios del mes</b>: quienes más pasos dieron este mes. Decide a cuántos quieres premiar y envíales un <b>cupón especial o regalo</b> directo a su app, como un "gracias" por llevar el reto al siguiente nivel.</p>
+
+      <div class="md">
+        <div class="mdlist">
+          <div class="row" style="margin-bottom:8px"><div style="flex:0 0 130px"><label>¿Cuántos premiar?</label><input id="retoN" type="number" value="10" min="1" max="100" oninput="loadReto()"></div>
+            <div style="align-self:flex-end"><button class="btn" style="margin-top:0" onclick="loadReto()">🔄 Actualizar</button></div></div>
+          <div class="panel" style="margin-top:0"><h3>Top caminantes del mes</h3><div class="ph">Ordenados por pasos · este mes</div>
+            <table><thead><tr><th>#</th><th>Usuario</th><th>Ciudad</th><th class="r">Pasos</th><th class="r">Días</th></tr></thead><tbody id="retoTop"><tr><td colspan="5" class="ph">Cargando…</td></tr></tbody></table></div>
+        </div>
+        <div class="panel mdform">
+          <div class="repHead"><h3>Enviar recompensa a los mejores</h3></div>
+          <div class="ph" style="margin-bottom:8px">El cupón especial llega a la billetera de los <b id="retoNEcho">10</b> mejores con tu mensaje de agradecimiento.</div>
+          <label>Campaña a la que se carga</label><select id="retoCamp"></select>
+          <label>Título del premio</label><input id="retoTitle" placeholder="Ej: Mercado gratis $50.000 — Usuario del Mes">
+          <div class="row"><div><label>Comercio / regalo</label><input id="retoRetailer" placeholder="Éxito"></div>
+            <div style="flex:0 0 130px"><label>Vence en (días)</label><input id="retoDays" type="number" value="21" min="1" max="90"></div></div>
+          <label>Mensaje de agradecimiento</label><input id="retoMsg" placeholder="🎁 ¡Eres usuario del mes! Gracias por caminar tanto.">
+          <button class="btn gold" onclick="pushReward()">🎁 Enviar recompensa</button>
+          <div id="retoResult" class="summary" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FACTURACIÓN Y PAGO -->
+    <div class="page" id="page-fact">
+      <div class="repHead"><h2>💳 Facturación y pago</h2><button class="exp" onclick="window.print()">⤓ Imprimir factura</button></div>
+      <p class="lead">Dos flujos de dinero, separados y claros: la <b>donación de comidas</b> va directo al banco de alimentos, y la <b>tarifa de plataforma</b> se paga a SuperPasos. Aquí ves ambos.</p>
+
+      <div class="row" style="margin:14px 0 6px;gap:10px;flex-wrap:wrap">
+        <div><label>Comidas entregadas / contratadas</label><input id="fbMeals" type="number" value="50000" oninput="calcBill()"></div>
+        <div><label>Costo por comida al banco (COP)</label><input id="fbCostMeal" type="number" value="3000" oninput="calcBill()"></div>
+        <div><label>Tarifa SuperPasos por comida (COP)</label><input id="fbFeeMeal" type="number" value="500" oninput="calcBill()"></div>
+      </div>
+
+      <div class="kpis" style="margin-top:6px">
+        <div class="kpi"><div class="lab">Donación al banco de alimentos</div><div class="val" id="fbDonation">—</div><div class="sub">va directo · no lo toca la plataforma</div></div>
+        <div class="kpi accent"><div class="lab">Tarifa de plataforma SuperPasos</div><div class="val" id="fbFee">—</div><div class="sub" id="fbFeeSub">$500 × comida</div></div>
+        <div class="kpi" style="background:linear-gradient(135deg,#1E9E77,#13795A);border:none;"><div class="lab" style="color:#CDEFE2">Beneficio tributario (est.)</div><div class="val" style="color:#fff" id="fbTax">—</div><div class="sub" style="color:#CDEFE2">deducción art. 126-2 E.T.</div></div>
+        <div class="kpi"><div class="lab">Inversión total de la marca</div><div class="val" id="fbTotal">—</div><div class="sub">donación + plataforma</div></div>
+      </div>
+
+      <div class="grid2" style="margin-top:14px">
+        <!-- PAY THE PLATFORM -->
+        <div class="panel">
+          <h3>1 · Paga la tarifa de plataforma a SuperPasos</h3>
+          <div class="ph" style="margin-bottom:10px">Tarifa: <b id="fbFee2">—</b> · todos los medios de pago de Colombia</div>
+          <div id="payGrid" class="payGrid"></div>
+          <div id="wompiBox" style="margin-top:12px"></div>
+          <button class="btn" onclick="payPlatform()">💳 Pagar ahora</button>
+          <button class="btn gold" style="margin-left:6px" onclick="payByWhatsApp()">🟢 Enviar link por WhatsApp</button>
+          <div class="ph" style="margin-top:10px">¿Aún sin pasarela? <a href="#" onclick="configWompi();return false" style="color:var(--blue);font-weight:700">Configurar Wompi / link de pago</a></div>
+        </div>
+        <!-- PAY THE FOOD BANK -->
+        <div class="panel">
+          <h3>2 · Paga la donación al banco de alimentos (ABACO)</h3>
+          <div class="summary">
+            <b>Cómo pagan las empresas a ABACO:</b><br>
+            • <b>PSE / botón de pago</b> en abaco.org.co/donar (débito de cuenta empresarial)<br>
+            • <b>Transferencia / consignación</b> a la cuenta de ABACO (acuerdo de donación)<br>
+            • <b>Tarjeta de crédito</b> en su portal de donación<br>
+            • <b>Convenio corporativo</b> directo con factura y certificado<br>
+            ABACO expide el <b>certificado de donación (art. 126-2 E.T.)</b> que sustenta tu deducción de renta.
+          </div>
+          <div class="summary" style="background:#EAF7F0;border-color:#BFE6D2;color:#13795A"><b style="color:#13795A">✅ Garantía SuperPasos:</b> al ser socio, nos encargamos de que el banco de alimentos te emita tu <b>certificado de donación 126‑2</b> por cada campaña — tú solo caminas con tu marca.</div>
+          <a class="btn gold" href="https://abaco.org.co/donar/" target="_blank" rel="noopener" style="margin-top:12px;display:inline-block;text-decoration:none">Ir a donar en ABACO →</a>
+          <div class="ph" style="margin-top:10px">El dinero de la donación nunca pasa por SuperPasos — esa es la regla de oro.</div>
+        </div>
+      </div>
+
+      <div class="foot">La deducción del art. 126-2 E.T. permite deducir el 125% del valor donado, limitada al 30% de la renta líquida; el beneficio real depende de la tarifa de renta de cada empresa. Cifras estimadas — confirma con tu contador. SuperPasos cobra solo la tarifa de software/servicio; la donación la recibe y certifica el banco de alimentos.</div>
+    </div>
+
+    <div class="page" id="page-setup">
+      <div class="repHead"><h2>Registro de bancos de comida y patrocinadores</h2></div>
+      <p class="lead">Selecciona un registro de la lista (izquierda) para editarlo, o crea uno nuevo.</p>
+
+      <h3 style="margin:8px 0 6px">Bancos de alimentos</h3>
+      <div class="ph" style="margin-bottom:8px">Aliados operativos que reciben las donaciones y entregan las comidas.</div>
+      <div class="md">
+        <div class="mdlist">
+          <button class="btn" onclick="newFoodBank()">＋ Nuevo banco</button>
+          <div id="fbListM" style="margin-top:10px"><div class="ph">Cargando…</div></div>
+        </div>
+        <div class="panel mdform">
+          <div class="repHead"><h3 id="fbFormTitle">Nuevo banco</h3></div>
+          <div class="row"><div><label>Nombre del banco</label><input id="fbName" placeholder="Ej: Banco de Alimentos de Cali"></div>
+            <div><label>Ciudad</label><input id="fbCity" placeholder="Cali"></div></div>
+          <button class="btn gold" onclick="saveFoodBank()">Guardar banco</button>
+          <button class="btn delBtn" id="fbDelBtn" style="display:none" onclick="deleteCurrentFoodBank()">🗑 Eliminar banco</button>
+        </div>
+      </div>
+
+      <h3 style="margin:20px 0 6px">Patrocinadores</h3>
+      <div class="ph" style="margin-bottom:8px">Empresas que financian comidas y crean campañas/cupones.</div>
+      <div class="md">
+        <div class="mdlist">
+          <button class="btn" onclick="newSponsor()">＋ Nuevo patrocinador</button>
+          <div id="spListM" style="margin-top:10px"><div class="ph">Cargando…</div></div>
+        </div>
+        <div class="panel mdform">
+          <div class="repHead"><h3 id="spFormTitle">Nuevo patrocinador</h3></div>
+          <div class="row"><div><label>Nombre de la empresa</label><input id="spName" placeholder="Ej: Postobón"></div>
+            <div><label>Correo de contacto</label><input id="spEmail" placeholder="mercadeo@postobon.com"></div></div>
+          <button class="btn gold" onclick="saveSponsor()">Guardar patrocinador</button>
+          <button class="btn delBtn" id="spDelBtn" style="display:none" onclick="deleteCurrentSponsor()">🗑 Eliminar patrocinador</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let API=localStorage.getItem('cyaApi')||'https://cya-backend-deploy.vercel.app';
+let token=null, sponsor=null, demo=false, campaignId=null, offerN=0, charts={};
+const $ = id=>document.getElementById(id);
+const fmt = n=>Math.round(n).toLocaleString('es-CO');
+$('apiUrl').value=API;
+function saveApi(){ API=$('apiUrl').value.replace(/\/$/,''); localStorage.setItem('cyaApi',API); alert('API guardada: '+(API||'(vacía)')); }
+async function api(path,opts){ const r=await fetch(API+path,Object.assign({headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})}},opts||{}));
+  const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||('HTTP '+r.status)); return j; }
+
+async function login(){
+  if(!API){ alert('Pon la URL de tu API abajo, o usa el modo demo.'); return; }
+  try{ const r=await api('/admin/login',{method:'POST',body:JSON.stringify({email:$('liEmail').value,password:$('liPass').value})});
+    token=r.token; sponsor=r.sponsor; demo=false; enterApp(); loadCampaigns();
+  }catch(e){ alert('No se pudo entrar: '+e.message); }
+}
+function demoMode(){ demo=true; sponsor={name:'LactiCol (demo)'}; enterApp(); }
+function enterApp(){ $('loginView').classList.add('hidden'); $('appView').classList.remove('hidden'); $('whoName').textContent=sponsor.name; $('repTitle').textContent=sponsor.name+' · Reporte de Impacto y Desempeño'; updateCampSummary(); drawCharts(); }
+function logout(){ token=null;sponsor=null;demo=false; $('appView').classList.add('hidden'); $('loginView').classList.remove('hidden'); }
+function go(p,el){ document.querySelectorAll('.page').forEach(x=>x.classList.remove('on')); document.querySelectorAll('.switch button').forEach(x=>x.classList.remove('on'));
+  $('page-'+p).classList.add('on'); el.classList.add('on');
+  if(p==='dash') drawCharts(); if(p==='gob') drawGob(); if(p==='banco') drawBanco();
+  if(p==='camp'){ renderLists(); newCampaign(); }
+  if(p==='prem'){ renderLists(); newOffer(); }
+  if(p==='reto'){ loadReto(); }
+  if(p==='fact'){ initBilling(); }
+  if(p==='setup'){ renderLists(); newFoodBank(); newSponsor(); } }
+
+// ---- FACTURACIÓN Y PAGO (platform fee + how to pay the food bank) ----
+const PAY_METHODS=[
+  ['💳','Tarjeta de crédito/débito','Visa · Mastercard · Amex'],
+  ['🏦','PSE','débito bancario en línea'],
+  ['📱','Nequi','billetera móvil'],
+  ['📲','Daviplata','billetera móvil'],
+  ['🔵','Botón Bancolombia','Bre-B · QR interoperable'],
+  ['🔗','Link de pago','envíalo por WhatsApp'],
+  ['💵','Efectivo','Efecty · Baloto · corresponsales'],
+  ['🌎','PayPal / Stripe','para pagos internacionales']
+];
+function initBilling(){
+  $('payGrid').innerHTML = PAY_METHODS.map(m=>`<div class="pm"><span class="e">${m[0]}</span><div>${m[1]}<small>${m[2]}</small></div></div>`).join('');
+  const link=localStorage.getItem('spPayLink'); const key=localStorage.getItem('spWompiKey');
+  $('wompiBox').innerHTML = (link||key)
+    ? `<div class="summary" style="margin-top:0">✅ Pasarela configurada${link?': link de pago listo':' (Wompi '+(key||'').slice(0,10)+'…)'}.</div>`
+    : `<div class="summary" style="margin-top:0">⚠️ Aún no has conectado una pasarela. Pulsa <b>"Configurar Wompi / link de pago"</b> para activar el cobro real.</div>`;
+  calcBill();
+}
+function calcBill(){
+  const meals=+$('fbMeals').value||0, cost=+$('fbCostMeal').value||0, fee=+$('fbFeeMeal').value||0;
+  const donation=meals*cost, platform=meals*fee, total=donation+platform;
+  // 125% deduction × ~35% corporate rate ≈ 43.75% of the donation back (within 30% renta cap)
+  const tax=Math.round(donation*1.25*0.35);
+  $('fbDonation').textContent='$'+fmt(donation);
+  $('fbFee').textContent='$'+fmt(platform);
+  $('fbFeeSub').textContent='$'+fmt(fee)+' × '+fmt(meals)+' comidas';
+  $('fbTax').textContent='~$'+fmt(tax);
+  $('fbTotal').textContent='$'+fmt(total);
+  $('fbFee2').textContent='$'+fmt(platform); $('fbF3')&&($('fbF3').textContent='$'+fmt(platform));
+}
+function configWompi(){
+  const opt=prompt('Pega tu LINK DE PAGO de Wompi (https://checkout.wompi.co/l/…)\no tu LLAVE PÚBLICA (pub_prod_…).\n\nDéjalo vacío para borrar.');
+  if(opt===null) return;
+  if(opt.startsWith('http')){ localStorage.setItem('spPayLink',opt); localStorage.removeItem('spWompiKey'); }
+  else if(opt.startsWith('pub_')){ localStorage.setItem('spWompiKey',opt); localStorage.removeItem('spPayLink'); }
+  else { localStorage.removeItem('spPayLink'); localStorage.removeItem('spWompiKey'); }
+  initBilling();
+}
+function payPlatform(){
+  const link=localStorage.getItem('spPayLink');
+  if(link){ window.open(link,'_blank'); return; }
+  alert('Conecta tu pasarela primero (Configurar Wompi / link de pago).\n\nUna vez tengas tu cuenta Wompi (requiere empresa + RUT + cuenta bancaria), pega aquí tu link de pago y el botón cobrará de verdad por PSE, tarjeta, Nequi y más.');
+}
+function payByWhatsApp(){
+  const platform=$('fbFee').textContent, meals=fmt(+$('fbMeals').value||0);
+  const link=localStorage.getItem('spPayLink')||'(pega tu link de pago de Wompi)';
+  const msg='Hola 👋 Tu tarifa de plataforma SuperPasos por '+meals+' comidas es '+platform+'. Paga aquí (PSE, tarjeta, Nequi): '+link+' · ¡Gracias por alimentar a Colombia! 💚';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ---- RETO DEL MES: top walkers + reward push ----
+async function loadReto(){
+  const n=Math.max(1,Math.min(100,parseInt($('retoN').value)||10));
+  $('retoNEcho').textContent=n;
+  // campaign dropdown (where the reward coupon is charged)
+  try{
+    if(sponsor&&sponsor.id){ const cs=await api('/admin/sponsors/'+sponsor.id+'/campaigns');
+      $('retoCamp').innerHTML = cs.length? cs.map(c=>'<option value="'+c.id+'">Campaña #'+String(c.id).slice(0,8)+' · '+fmt(c.meals_budget)+' comidas</option>').join('')
+        : '<option value="">(crea una campaña primero)</option>'; }
+  }catch(e){}
+  // top walkers table
+  try{
+    const rows=await api('/admin/top-walkers?limit='+n);
+    $('retoTop').innerHTML = rows.length? rows.map(r=>{
+      const medal=r.rank===1?'🥇':r.rank===2?'🥈':r.rank===3?'🥉':r.rank;
+      return '<tr><td>'+medal+'</td><td><b>'+(r.name||'—')+'</b></td><td>'+(r.city||'—')+'</td><td class="r">'+fmt(r.steps)+'</td><td class="r">'+r.days+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" class="ph">Aún no hay actividad este mes. En cuanto la gente camine, aparecerán aquí.</td></tr>';
+  }catch(e){ $('retoTop').innerHTML='<tr><td colspan="5" class="ph">No se pudo cargar ('+e.message+').</td></tr>'; }
+}
+async function pushReward(){
+  if(demo){ alert('Inicia sesión con tu cuenta de patrocinador para enviar recompensas reales.'); return; }
+  const campaignId=$('retoCamp').value, n=Math.max(1,Math.min(100,parseInt($('retoN').value)||10));
+  const title=$('retoTitle').value.trim(), retailer=$('retoRetailer').value.trim();
+  if(!campaignId){ alert('Elige una campaña (o créala en la pestaña Campañas).'); return; }
+  if(!title||!retailer){ alert('Pon el título del premio y el comercio/regalo.'); return; }
+  if(!confirm('¿Enviar este cupón especial a los '+n+' mejores caminantes del mes?')) return;
+  try{
+    const r=await api('/admin/reward-top',{method:'POST',body:JSON.stringify({
+      campaignId, limit:n, title, retailer, validDays:parseInt($('retoDays').value)||21, message:$('retoMsg').value.trim()||undefined })});
+    const box=$('retoResult'); box.style.display='block';
+    box.innerHTML='✅ <b>Recompensa enviada a '+r.rewarded+' usuario(s).</b> El cupón "<b>'+title+'</b>" ya está en su billetera con tu mensaje de agradecimiento.';
+  }catch(e){ alert('No se pudo enviar: '+e.message); }
+}
+
+// ---- Gobierno + Bancos reports ----
+function heatMap(id, weights){
+  if(maps[id]||!window.L||!L.heatLayer) return;
+  const m=L.map(id,{zoomControl:false,attributionControl:true,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false,boxZoom:false,keyboard:false,tap:false}).setView([4.7,-73.8],5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{maxZoom:11,attribution:'© OSM © CARTO'}).addTo(m);
+  const mx=Math.max(...weights.map(w=>w[1])),pts=[];
+  weights.forEach(([c,v])=>{const k=CITIES[c]; if(!k)return; for(let i=0;i<8;i++) pts.push([k[0]+(Math.random()-.5)*.25,k[1]+(Math.random()-.5)*.25,v/mx]);});
+  L.heatLayer(pts,{radius:34,blur:24,maxZoom:11,gradient:{0.2:'#3D6CA8',0.5:'#B5953F',0.8:'#C2705B',1:'#A32D2D'}}).addTo(m);
+  weights.forEach(([c,v])=>{const k=CITIES[c]; if(k) L.circleMarker(k,{radius:3,color:'#16243A',fillOpacity:.6,weight:1}).addTo(m).bindTooltip(c+': '+fmt(v));});
+  setTimeout(()=>m.invalidateSize(),200); maps[id]=m;
+}
+let maps={};
+function ageStack(id){ if(charts[id]||!window.Chart) return;
+  charts[id]=new Chart($(id),{type:'bar',data:{labels:['18-24','25-34','35-44','45-59','60+'],datasets:[
+    {label:'Mujeres',data:[14,26,21,12,5],backgroundColor:'#C2705B',borderRadius:4,stack:'s'},
+    {label:'Hombres',data:[12,23,18,10,4],backgroundColor:'#3D6CA8',borderRadius:4,stack:'s'}]},
+    options:{plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:11}}}},scales:{x:{grid:{display:false},stacked:true},y:{stacked:true,grid:{color:'#EEF1F6'}}}}}); }
+function drawGob(){ heatMap('gobMap',[['Bogotá',842000],['Medellín',468000],['Cali',331000],['Barranquilla',224000],['Bucaramanga',151000],['Pereira',90000]]); ageStack('gobAge');
+  $('gobRegions').innerHTML=[['Cundinamarca/Bogotá',842000,72],['Antioquia',468000,61],['Valle del Cauca',331000,54],['Atlántico',224000,49],['Bolívar',176000,44],['Nariño',151000,57]].map(([d,m,c],i)=>`<tr><td><span class="rank">${i+1}</span>${d}</td><td class="r"><b>${fmt(m)}</b></td><td><span class="bar"><i style="width:${c}%"></i></span> ${c}%</td></tr>`).join('');
+  // Ciclovías y corredores más caminados (km verificados por GPS)
+  const CICLO=[['Ciclovía Cra. 7ª · Bogotá',418000,'Dom'],['Av. El Dorado / R. Salitre · Bogotá',287000,'Diario'],['Ciclovía Av. El Poblado · Medellín',236000,'Mar/Jue/Dom'],['Malecón del Río · Barranquilla',151000,'Diario'],['Ciclovía Av. Roosevelt · Cali',132000,'Dom'],['Carrera 27 · Bucaramanga',79000,'Dom']];
+  const cmx=CICLO[0][1];
+  $('gobCiclo').innerHTML=CICLO.map(([n,v,d],i)=>`<tr><td><span class="rank">${i+1}</span>${n}<br><span style="font-size:10.5px;color:var(--muted)">${d}</span></td><td class="r"><b>${fmt(v)}</b></td><td><span class="bar"><i style="width:${Math.round(v/cmx*100)}%"></i></span></td></tr>`).join('');
+  // Franja horaria de actividad
+  if(!charts.gobHours&&window.Chart){ charts.gobHours=new Chart($('gobHours'),{type:'bar',
+    data:{labels:['5-7','7-9','9-11','11-14','14-17','17-19','19-21'],datasets:[{data:[9,27,12,7,9,21,15],backgroundColor:['#1E9E77','#1E9E77','#3D6CA8','#3D6CA8','#3D6CA8','#B5953F','#C2705B'],borderRadius:5}]},
+    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+'% de las caminatas'}}},scales:{x:{grid:{display:false},title:{display:true,text:'hora del día',font:{size:10},color:'#8A94A6'}},y:{grid:{color:'#EEF1F6'},ticks:{callback:v=>v+'%'}}}}}); } }
+function drawBanco(){ heatMap('bancoMap',[['Bogotá',204000],['Medellín',95300],['Cali',66000],['Barranquilla',28000],['Bucaramanga',18000],['Pereira',11000]]);
+  $('bancoCities').innerHTML=[['Bogotá',204000],['Medellín',95300],['Cali',66000],['Barranquilla',28000],['Bucaramanga',18000]].map(([c,m],i)=>{const mx=204000;return `<tr><td><span class="rank">${i+1}</span>${c}</td><td class="r"><b>${fmt(m)}</b></td><td><span class="bar"><i style="width:${m/mx*100}%"></i></span></td></tr>`;}).join('');
+  $('bancoRecon').innerHTML=[['Banco de Bogotá','$612 M','ok','Conciliado'],['Saciar (Medellín)','$286 M','ok','Conciliado'],['Arquidiocesano Cali','$198 M','ok','Conciliado'],['ABACO — otras','$122 M','warn','En proceso']].map(([b,g,s,t])=>`<tr><td>${b}</td><td class="r"><b>${g}</b></td><td><span class="tag ${s}">${t}</span></td></tr>`).join('');
+  // Pronóstico de demanda (real + proyección)
+  if(!charts.bancoForecast&&window.Chart){ charts.bancoForecast=new Chart($('bancoForecast'),{
+    data:{labels:['Ene','Feb','Mar','Abr','May','Jun','Jul▸','Ago▸','Sep▸'],datasets:[
+      {type:'bar',label:'Financiadas',data:[312,340,358,402,449,487,null,null,null],backgroundColor:'#1E9E77',borderRadius:5},
+      {type:'line',label:'Proyección',data:[null,null,null,null,null,487,531,572,610],borderColor:'#B5953F',borderDash:[6,4],borderWidth:2,pointRadius:3,tension:.3}]},
+    options:{plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:11}}},tooltip:{callbacks:{label:c=>(c.parsed.y?c.parsed.y+' mil comidas':'')}}},scales:{x:{grid:{display:false}},y:{grid:{color:'#EEF1F6'},ticks:{callback:v=>v+'k'}}}}}); }
+  // Mezcla de categorías donadas
+  if(!charts.bancoMix&&window.Chart){ charts.bancoMix=new Chart($('bancoMix'),{type:'doughnut',
+    data:{labels:['Mercado básico','Proteína','Lácteos','Frutas/verduras','Cereales'],datasets:[{data:[34,22,18,15,11],backgroundColor:['#1E9E77','#3D6CA8','#B5953F','#C2705B','#7F77DD']}]},
+    options:{plugins:{legend:{position:'right',labels:{boxWidth:11,font:{size:11}}}},cutout:'58%'}}); }
+  // Cobertura territorial (cubierto vs brecha)
+  $('bancoCover').innerHTML=[['Región Andina',86,'14%','ok'],['Caribe',61,'39%','warn'],['Pacífico',43,'57%','warn'],['Orinoquía',38,'62%','warn'],['Amazonía',12,'88%','warn']].map(([z,c,b,s])=>`<tr><td>${z}</td><td class="r"><b>${c}%</b></td><td><span class="bar"><i style="width:${c}%;background:${s==='ok'?'#1E9E77':'#C2705B'}"></i></span> <span style="font-size:11px;color:var(--muted)">brecha ${b}</span></td></tr>`).join('');
+  // Alcance a beneficiarios
+  $('bancoReach').innerHTML=[['Niños en colegios (PAE)',124300],['Comedores comunitarios',38600],['Hogares vulnerables',19200],['Adultos mayores',8900]].map(([g,n])=>`<tr><td>${g}</td><td class="r"><b>${fmt(n)}</b></td></tr>`).join(''); }
+
+// ---- Setup: food banks + sponsors ----
+async function loadFoodBanks(){
+  if(demo){ return; }
+  try{ const fbs=await api('/admin/foodbanks'); $('fbList').innerHTML = fbs.length? fbs.map(f=>`<tr><td>${esc(f.name)}</td><td>${esc(f.city)}</td><td class="mAct"><button onclick="editFoodBank('${f.id}','${escq(f.name)}','${escq(f.city)}')">✏️</button><button class="del" onclick="delFoodBank('${f.id}','${escq(f.name)}')">🗑</button></td></tr>`).join('') : '<tr><td colspan="3" style="color:var(--muted)">Aún sin registrar.</td></tr>'; }catch(e){}
+}
+async function createFoodBank(){
+  const name=$('fbName').value.trim(),city=$('fbCity').value.trim();
+  if(!name||!city){ alert('Pon nombre y ciudad.'); return; }
+  if(demo){ alert('(demo) Banco registrado: '+name+' ('+city+').'); $('fbName').value='';$('fbCity').value=''; return; }
+  try{ await api('/admin/foodbanks',{method:'POST',body:JSON.stringify({name,city})}); $('fbName').value='';$('fbCity').value=''; loadFoodBanks(); alert('Banco registrado.'); }catch(e){ alert('Error: '+e.message); }
+}
+async function createSponsor(){
+  const name=$('spName').value.trim(),email=$('spEmail').value.trim();
+  if(!name){ alert('Pon el nombre de la empresa.'); return; }
+  if(demo){ alert('(demo) Patrocinador registrado: '+name+'.'); $('spName').value='';$('spEmail').value=''; return; }
+  try{ await api('/admin/sponsors',{method:'POST',body:JSON.stringify({name,contactEmail:email})}); $('spName').value='';$('spEmail').value=''; alert('Patrocinador registrado.'); renderLists(); }catch(e){ alert('Error: '+e.message); }
+}
+
+// ---- Gestionar: editar / eliminar patrocinadores, promociones, premios ----
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function escq(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/</g,'&lt;'); }
+async function renderLists(){
+  const box=$('manageTree');
+  if(demo){ box.innerHTML='<div class="ph">El modo demo no edita datos reales. Entra con tu cuenta de empresa para gestionar.</div>'; return; }
+  box.innerHTML='Cargando…';
+  try{
+    const tree=await api('/admin/tree');
+    if(!tree.length){ box.innerHTML='<div class="ph">Aún no hay patrocinadores. Créalos en la pestaña "Configurar".</div>'; return; }
+    box.innerHTML=tree.map(s=>`
+      <div class="mCard">
+        <div class="mRow"><div><b>${esc(s.name)}</b> <span class="ph">${esc(s.contact_email||'')}</span></div>
+          <span class="mAct"><button onclick="editSponsor('${s.id}','${escq(s.name)}','${escq(s.contact_email)}')">✏️ Editar</button>
+          <button class="del" onclick="delSponsor('${s.id}','${escq(s.name)}')">🗑 Eliminar</button></span></div>
+        ${(s.campaigns||[]).map(c=>`
+          <div class="mSub">
+            <div class="mRow"><span>📣 Promoción · ${fmt(c.meals_donated)}/${fmt(c.meals_budget)} comidas · ${c.active?'activa':'inactiva'}</span>
+              <span class="mAct"><button onclick="editCampaign('${c.id}',${c.meals_budget||0},${c.cost_per_meal_cop||0})">✏️</button>
+              <button class="del" onclick="delCampaign('${c.id}')">🗑</button></span></div>
+            ${(c.offers||[]).map(o=>`
+              <div class="mOffer"><span>🎟️ <b>${esc(o.title)}</b> · ${esc(o.retailer)} · ${o.coupons} cupones (${o.redeemed} usados)</span>
+                <span class="mAct"><button onclick="editOffer('${o.id}','${escq(o.title)}','${escq(o.retailer)}','${escq(o.retailer_code)}')">✏️</button>
+                <button class="del" onclick="delOffer('${o.id}','${escq(o.title)}')">🗑</button></span></div>`).join('') || '<div class="ph" style="font-size:11px">Sin premios todavía.</div>'}
+          </div>`).join('') || '<div class="ph" style="font-size:11px;margin-left:8px">Sin promociones todavía.</div>'}
+      </div>`).join('');
+  }catch(e){ box.innerHTML='Error al cargar: '+e.message; }
+}
+async function editSponsor(id,name,email){
+  const n=prompt('Nombre del patrocinador:',name); if(n===null) return;
+  const e=prompt('Correo de contacto:',email); if(e===null) return;
+  try{ await api('/admin/sponsors/'+id,{method:'PATCH',body:JSON.stringify({name:n.trim(),contactEmail:e.trim()})}); renderLists(); }catch(err){ alert('Error: '+err.message); }
+}
+async function delSponsor(id,name){
+  if(!confirm('¿Eliminar "'+name+'" y TODAS sus promociones, premios y cupones?\nEsto no se puede deshacer.')) return;
+  try{ await api('/admin/sponsors/'+id,{method:'DELETE'}); renderLists(); }catch(err){ alert('Error: '+err.message); }
+}
+async function editCampaign(id,budget,cost){
+  const b=prompt('Presupuesto de comidas (mes):',budget); if(b===null) return;
+  const c=prompt('Costo por comida (COP):',cost); if(c===null) return;
+  try{ await api('/admin/campaigns/'+id,{method:'PATCH',body:JSON.stringify({mealsBudget:+b,costPerMealCop:+c})}); renderLists(); }catch(err){ alert('Error: '+err.message); }
+}
+async function delCampaign(id){
+  if(!confirm('¿Eliminar esta promoción y sus premios/cupones?')) return;
+  try{ await api('/admin/campaigns/'+id,{method:'DELETE'}); renderLists(); }catch(err){ alert('Error: '+err.message); }
+}
+async function editOffer(id,title,retailer,rcode){
+  const t=prompt('Título del premio:',title); if(t===null) return;
+  const r=prompt('Tienda (retailer):',retailer); if(r===null) return;
+  const rc=prompt('Código del retailer (opcional, vacío = generado):',rcode); if(rc===null) return;
+  try{ await api('/admin/offers/'+id,{method:'PATCH',body:JSON.stringify({title:t.trim(),retailer:r.trim(),retailerCode:rc.trim()||null})}); renderLists(); }catch(err){ alert('Error: '+err.message); }
+}
+async function delOffer(id,title){
+  if(!confirm('¿Eliminar el premio "'+title+'" y sus cupones?')) return;
+  try{ await api('/admin/offers/'+id,{method:'DELETE'}); renderLists(); }catch(err){ alert('Error: '+err.message); }
+}
+async function editFoodBank(id,name,city){
+  const n=prompt('Nombre del banco:',name); if(n===null) return;
+  const c=prompt('Ciudad:',city); if(c===null) return;
+  try{ await api('/admin/foodbanks/'+id,{method:'PATCH',body:JSON.stringify({name:n.trim(),city:c.trim()})}); loadFoodBanks(); }catch(e){ alert('Error: '+e.message); }
+}
+async function delFoodBank(id,name){
+  if(!confirm('¿Eliminar el banco "'+name+'"?')) return;
+  try{ await api('/admin/foodbanks/'+id,{method:'DELETE'}); loadFoodBanks(); }catch(e){ alert('Error: '+e.message); }
+}
+// Populate the per-tab lists (campaigns, cupones, sponsors, food banks) with edit/delete.
+async function renderLists(){
+  if(demo){ ['campList','cuponList'].forEach(id=>{const el=$(id); if(el) el.innerHTML='<div class="ph">Modo demo: entra con tu cuenta de empresa para ver y administrar los registros reales.</div>';}); return; }
+  try{
+    const tree=await api('/admin/tree'); const camps=[], cups=[];
+    tree.forEach(s=>(s.campaigns||[]).forEach(c=>{ camps.push({...c,sponsor:s.name}); (c.offers||[]).forEach(o=>cups.push({...o,sponsor:s.name})); }));
+    const cl=$('campList');
+    if(cl) cl.innerHTML = camps.length
+      ? '<table><thead><tr><th>Patrocinador</th><th>Comidas</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>'+camps.map(c=>`<tr><td>${esc(c.sponsor)}</td><td>${fmt(c.meals_donated)}/${fmt(c.meals_budget)}</td><td>${c.active?'activa':'inactiva'}</td><td class="mAct"><button onclick="editCampaign('${c.id}',${c.meals_budget||0},${c.cost_per_meal_cop||0})">✏️</button><button class="del" onclick="delCampaign('${c.id}')">🗑</button></td></tr>`).join('')+'</tbody></table>'
+      : '<div class="ph">Aún no hay campañas. Crea una arriba.</div>';
+    const ul=$('cuponList');
+    if(ul) ul.innerHTML = cups.length
+      ? '<table><thead><tr><th>Cupón</th><th>Tienda</th><th>Códigos</th><th>Acciones</th></tr></thead><tbody>'+cups.map(o=>`<tr><td>${esc(o.title)}</td><td>${esc(o.retailer)}</td><td>${o.coupons} (${o.redeemed} usados)</td><td class="mAct"><button onclick="editOffer('${o.id}','${escq(o.title)}','${escq(o.retailer)}','${escq(o.retailer_code)}')">✏️</button><button class="del" onclick="delOffer('${o.id}','${escq(o.title)}')">🗑</button></td></tr>`).join('')+'</tbody></table>'
+      : '<div class="ph">Aún no hay cupones. Crea uno arriba.</div>';
+  }catch(e){}
+  try{
+    const sps=await api('/admin/sponsors'); const sl=$('spList');
+    if(sl) sl.innerHTML = sps.length
+      ? sps.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.contact_email||'')}</td><td class="mAct"><button onclick="editSponsor('${s.id}','${escq(s.name)}','${escq(s.contact_email)}')">✏️</button><button class="del" onclick="delSponsor('${s.id}','${escq(s.name)}')">🗑</button></td></tr>`).join('')
+      : '<tr><td colspan="3" style="color:var(--muted)">Aún sin registrar.</td></tr>';
+  }catch(e){}
+  loadFoodBanks();
+}
+
+// campaign
+function updateCampSummary(){ const meals=+$('mealsBudget').value||0,cost=+$('costPerMeal').value||0,total=meals*cost,usd=Math.round(total/4200);
+  $('campSummary').innerHTML=`Patrocinas <b>${fmt(meals)}</b> comidas/mes · Inversión: <b>$${fmt(total)} COP</b> (~USD ${fmt(usd)})<br>
+    Por comida: ~$${fmt(cost-500)} al banco de alimentos · $500 comisión · deducción tributaria del 125% (art. 126‑2).`; }
+['mealsBudget','costPerMeal'].forEach(id=>document.addEventListener('input',e=>{if(e.target.id===id)updateCampSummary();}));
+async function saveCampaign(){
+  const meals=+$('mealsBudget').value,cost=+$('costPerMeal').value,days=+$('campDur').value;
+  if(demo){ alert('(demo) Campaña guardada: '+fmt(meals)+' comidas/mes.\nVe a "Premios y códigos" para crear tus ofertas.'); return; }
+  try{ const fb='11111111-1111-1111-1111-111111111111'; const today=new Date().toISOString().slice(0,10); const end=new Date(Date.now()+days*864e5).toISOString().slice(0,10);
+    const r=await api('/admin/campaigns',{method:'POST',body:JSON.stringify({sponsorId:sponsor.id,foodBankId:fb,mealsBudget:meals,costPerMealCop:cost,startsAt:today,endsAt:end})});
+    campaignId=r.id; alert('Campaña guardada. Ya puedes crear premios.'); }catch(e){ alert('Error: '+e.message); }
+}
+async function loadCampaigns(){ try{ const cs=await api('/admin/sponsors/'+sponsor.id+'/campaigns'); if(cs.length){ campaignId=cs[0].id; loadReport(); } }catch(e){} }
+
+// premios + barcodes
+const EMOJI={comida_saludable:'',deporte:'',conciertos:'',mercado:'',bienestar:''};
+function rndCode(){ return 'CYA-'+Math.random().toString(36).slice(2,10).toUpperCase(); }
+async function addOffer(){
+  const title=$('offTitle').value.trim(),retailer=$('offRetailer').value.trim();
+  if(!title||!retailer){ alert('Pon el título y la tienda.'); return; }
+  const cat=$('offCat').value,days=+$('offDays').value||7,count=Math.min(+$('offCount').value||1,10);
+  const retailerCode=$('offRetailerCode').value.trim()||null;
+  let codes=retailerCode?[retailerCode]:Array.from({length:count},rndCode);
+  if(!demo&&campaignId){ try{ const r=await api('/admin/offers',{method:'POST',body:JSON.stringify({campaignId,title,retailer,categoryId:cat,validDays:days,generateCount:count,retailerCode})}); if(r.generatedCodes&&r.generatedCodes.length&&!retailerCode) codes=r.generatedCodes; }catch(e){ alert('Aviso: no se guardó en el servidor ('+e.message+'). Muestro códigos de demo.'); } }
+  else if(!demo&&!campaignId){ alert('Primero guarda una campaña en la pestaña Campaña.'); }
+  offerN++; const wrapId='offer'+offerN;
+  const div=document.createElement('div'); div.className='offerCard';
+  div.innerHTML=`<div style="display:flex;align-items:center;gap:10px">
+    <div><b style="font-size:14px">${title}</b> <span class="tag new">${count} códigos</span><br><span style="font-size:11.5px;color:#8A94A6">${retailer} · vigencia ${days} días</span></div></div><div id="${wrapId}"></div>`;
+  $('offerList').prepend(div); $('pushNote').style.display='block';
+  codes.forEach(code=>{ const bw=document.createElement('div'); bw.className='barcodeWrap';
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); bw.appendChild(svg);
+    const qd=document.createElement('div'); bw.appendChild(qd);
+    const ct=document.createElement('div'); ct.className='codeTxt'; ct.textContent=code; bw.appendChild(ct);
+    $(wrapId).appendChild(bw);
+    try{ JsBarcode(svg,code,{format:'CODE128',height:46,width:1.5,fontSize:11,margin:5}); }catch(e){}
+    try{ new QRCode(qd,{text:code,width:70,height:70,colorDark:'#16243A'}); }catch(e){}
+  });
+  $('offTitle').value=''; $('offRetailer').value=''; $('offRetailerCode').value='';
+}
+
+// Probar un código — confirma que está activo y redimible (sin consumirlo).
+async function testCode(){
+  const code=$('testCodeInput').value.trim(); const box=$('testResult');
+  if(!code){ box.style.display='block'; box.innerHTML='Escribe un código.'; return; }
+  box.style.display='block'; box.innerHTML='Probando…';
+  if(demo){ box.innerHTML='✅ <b>(demo)</b> Código de muestra: activo y listo para redimir.'; return; }
+  try{ const r=await api('/offers/test',{method:'POST',body:JSON.stringify({code})});
+    box.innerHTML = r.valid
+      ? `<span class="tag ok">VÁLIDO ✓</span> ${r.message}` + (r.offer?` · <b>${r.offer.title}</b> (${r.offer.retailer})`:'')
+      : `<span class="tag" style="background:#FBE2E2;color:#A32D2D">NO VÁLIDO</span> ${r.message}`;
+  }catch(e){ box.innerHTML='Error al probar: '+e.message; }
+}
+
+// reporting (LIVE) — meals, coupons, categories, funnel and unique donors come from
+// the database; demographic tiles switch to live as soon as walkers share that data,
+// otherwise they keep an illustrative sample so the dashboard stays presentable.
+const CATLABEL={comida_saludable:'Saludable',deporte:'Deporte',conciertos:'Conciertos',mercado:'Mercado',bienestar:'Bienestar'};
+async function loadReport(){ if(!campaignId) return;
+  try{
+    const rep=await api('/admin/campaigns/'+campaignId+'/report');
+    $('kMeals').textContent=fmt(rep.meals.donated); $('kMealsSub').textContent='de '+fmt(rep.meals.budget)+' (presupuesto)';
+    $('kRedeem').textContent=fmt(rep.coupons.redeemed); $('kRedeemSub').textContent='de '+fmt(rep.coupons.issued)+' emitidos'; $('kRate').textContent=rep.coupons.redemptionRate+'% de canje';
+    $('rMeals').textContent=fmt(rep.meals.donated); $('rInvest').textContent='$'+fmt(rep.meals.investmentCop)+' COP';
+    // Feature 1 — trazabilidad: a qué banco de alimentos fueron las comidas de esta campaña.
+    if(rep.foodBank){ $('repTitle').textContent = (sponsor.name||'Patrocinador')+' · Reporte de Impacto · entregado por '+rep.foodBank.name+(rep.foodBank.city?(' — '+rep.foodBank.city):'')+(rep.foodBank.abaco?' · ABACO ✓':''); }
+
+    let demoData=null; try{ demoData=await api('/admin/demographics'); }catch(_){}
+    const totalUsers = demoData ? demoData.bySex.reduce((s,x)=>s+(+x.users||0),0) : 0;
+    if(totalUsers){ $('kClients').textContent=fmt(totalUsers); $('kClientsSub').textContent='donantes únicos · en vivo'; }
+
+    // Funnel (live): caminan ≈ usuarios · donan = comidas · canjean = cupones canjeados
+    drawFunnel(totalUsers||rep.meals.donated, rep.meals.donated, rep.coupons.redeemed);
+
+    // Cupones por categoría (live)
+    if(rep.byCategory && rep.byCategory.length){
+      const labels=rep.byCategory.map(c=>CATLABEL[c.category]||c.category);
+      const data=rep.byCategory.map(c=>+c.coupons||0);
+      if(charts.don) charts.don.destroy();
+      charts.don=new Chart($('spDonut'),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:['#1E9E77','#3D6CA8','#B5953F','#C2705B','#7F77DD']}]},options:{plugins:{legend:{position:'right',labels:{boxWidth:11,font:{size:11}}}},cutout:'58%'}});
+    }
+
+    // Demographic tiles: render live ONLY when real (non-unknown) data exists.
+    if(demoData){
+      const realAge=demoData.byAge.filter(a=>a.age_group!=='desconocido' && +a.users>0);
+      if(realAge.length){ if(charts.age) charts.age.destroy();
+        charts.age=new Chart($('spAge'),{type:'bar',data:{labels:realAge.map(a=>a.age_group),datasets:[{label:'Caminantes',data:realAge.map(a=>+a.users),backgroundColor:'#3D6CA8',borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#EEF1F6'}}}}}); }
+      const realJobs=demoData.byOccupation.filter(o=>o.occupation!=='(sin dato)' && +o.users>0);
+      if(realJobs.length){ const mx=Math.max(...realJobs.map(o=>+o.users)); $('spJobs').innerHTML=realJobs.map(o=>`<tr><td>${o.occupation}</td><td class="r"><span class="bar"><i style="width:${Math.round(+o.users/mx*100)}%"></i></span> ${fmt(+o.users)}</td></tr>`).join(''); }
+      const realCity=demoData.byCity.filter(c=>c.city!=='(sin dato)' && +c.users>0);
+      if(realCity.length){ $('spCities').innerHTML=realCity.map(c=>`<tr><td>${c.city}</td><td class="r"><b>${fmt(+c.users)}</b> donantes</td></tr>`).join('');
+        liveHeat(realCity.map(c=>[c.city,+c.users])); }
+    }
+    // Mejores tiendas (live) — por canjes verificados
+    if(rep.byStore && rep.byStore.length){
+      const tot=rep.byStore.reduce((s,x)=>s+(+x.redeemed||0),0)||1;
+      $('spStores').innerHTML=rep.byStore.map((s,i)=>`<tr><td><span class="rank">${i+1}</span>${s.store}</td><td class="r"><b>${fmt(+s.redeemed)}</b></td><td class="r">${Math.round(+s.redeemed/tot*100)}%</td></tr>`).join('');
+    }
+    // Mejores cupones (live) — por oferta
+    if(rep.byOffer && rep.byOffer.length){
+      $('spCoupons').innerHTML=rep.byOffer.map((o,i)=>{const rate=o.issued?Math.round(o.redeemed/o.issued*100):0;return `<tr><td><span class="rank">${i+1}</span>${o.title}<br><span style="font-size:10.5px;color:var(--muted)">${o.retailer||''}</span></td><td class="r">${fmt(+o.issued)}</td><td class="r"><b>${rate}%</b></td></tr>`;}).join('');
+    }
+  }catch(e){}
+}
+function liveHeat(weights){ if(!spMap||!window.L||!L.heatLayer||!weights.length) return;
+  const mx=Math.max(...weights.map(w=>w[1])),pts=[];
+  weights.forEach(([c,v])=>{const k=CITIES[c]; if(!k)return; for(let i=0;i<6;i++) pts.push([k[0]+(Math.random()-.5)*.2,k[1]+(Math.random()-.5)*.2,v/mx]);});
+  if(pts.length) L.heatLayer(pts,{radius:34,blur:24,maxZoom:11,gradient:{0.2:'#3D6CA8',0.5:'#B5953F',0.8:'#C2705B',1:'#A32D2D'}}).addTo(spMap);
+}
+const clean={plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#EEF1F6'},ticks:{callback:x=>fmt(x)}}}};
+function drawFunnel(a=42180,b=31480,c=9612){ const ctx=$('spFunnel'); if(!ctx||!window.Chart) return; if(charts.fun)charts.fun.destroy();
+  charts.fun=new Chart(ctx,{type:'bar',data:{labels:['Caminan','Donan','Canjean'],datasets:[{data:[a,b,c],backgroundColor:['#3D6CA8','#B5953F','#C2705B'],borderRadius:6}]},options:clean}); }
+let spMap=null;
+const CITIES={Bogotá:[4.66,-74.08],Medellín:[6.25,-75.56],Cali:[3.45,-76.53],Barranquilla:[10.96,-74.80],Bucaramanga:[7.12,-73.12],Pereira:[4.81,-75.69],Cartagena:[10.39,-75.51]};
+function drawHeat(){
+  if(spMap||!window.L||!L.heatLayer) return;
+  spMap=L.map('spMap',{zoomControl:false,attributionControl:true,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false,boxZoom:false,keyboard:false,tap:false}).setView([4.7,-73.8],5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{maxZoom:11,attribution:'© OSM © CARTO'}).addTo(spMap);
+  const W=[['Bogotá',5100],['Medellín',2300],['Cali',1600],['Barranquilla',1120],['Bucaramanga',740],['Pereira',430]],mx=5100,pts=[];
+  W.forEach(([c,v])=>{const k=CITIES[c]; if(!k)return; for(let i=0;i<8;i++) pts.push([k[0]+(Math.random()-.5)*.25,k[1]+(Math.random()-.5)*.25,v/mx]);});
+  L.heatLayer(pts,{radius:34,blur:24,maxZoom:11,gradient:{0.2:'#3D6CA8',0.5:'#B5953F',0.8:'#C2705B',1:'#A32D2D'}}).addTo(spMap);
+  W.forEach(([c,v])=>{const k=CITIES[c]; if(k) L.circleMarker(k,{radius:3,color:'#16243A',fillOpacity:.6,weight:1}).addTo(spMap).bindTooltip(c+': '+fmt(v));});
+  setTimeout(()=>spMap.invalidateSize(),200);
+}
+function drawCharts(){ if(!window.Chart) return; drawFunnel(); drawHeat();
+  const d=$('spDonut'); if(d&&!charts.don) charts.don=new Chart(d,{type:'doughnut',data:{labels:['Saludable','Deporte','Conciertos','Mercado','Bienestar'],datasets:[{data:[38,24,18,13,7],backgroundColor:['#1E9E77','#3D6CA8','#B5953F','#C2705B','#7F77DD']}]},options:{plugins:{legend:{position:'right',labels:{boxWidth:11,font:{size:11}}}},cutout:'58%'}});
+  const a=$('spAge'); if(a&&!charts.age) charts.age=new Chart(a,{type:'bar',data:{labels:['18-24','25-34','35-44','45-59','60+'],datasets:[
+    {label:'Mujeres',data:[14,26,21,12,5],backgroundColor:'#C2705B',borderRadius:4,stack:'s'},
+    {label:'Hombres',data:[12,23,18,10,4],backgroundColor:'#3D6CA8',borderRadius:4,stack:'s'}]},
+    options:{plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:11}}}},scales:{x:{grid:{display:false},stacked:true},y:{stacked:true,grid:{color:'#EEF1F6'}}}}});
+  // Atribución por canal (qué canal trajo cada canje)
+  const ch=$('spChannel'); if(ch&&!charts.ch) charts.ch=new Chart(ch,{type:'bar',data:{labels:['App / orgánico','QR en tienda','Influencers','Email','Vallas','Radio'],datasets:[{data:[3120,2740,1980,920,540,312],backgroundColor:['#1E9E77','#3D6CA8','#7F77DD','#B5953F','#C2705B','#8A94A6'],borderRadius:5}]},options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.x)+' canjes'}}},scales:{x:{grid:{color:'#EEF1F6'},ticks:{callback:v=>fmt(v)}},y:{grid:{display:false}}}}});
+  // Recurrencia de compra (cuántas veces canjea un mismo usuario)
+  const rp=$('spRepeat'); if(rp&&!charts.rp) charts.rp=new Chart(rp,{type:'doughnut',data:{labels:['1 vez','2 veces','3 veces','4+ veces'],datasets:[{data:[54,26,13,7],backgroundColor:['#C2705B','#B5953F','#3D6CA8','#1E9E77']}]},options:{plugins:{legend:{position:'right',labels:{boxWidth:11,font:{size:11}}},tooltip:{callbacks:{label:c=>c.label+': '+c.parsed+'% de quienes canjean'}}},cutout:'58%'}});
+}
+$('spStores').innerHTML=[['Éxito Country',1412,'34%'],['D1 (varios)',3210,'29%'],['Olímpica',2890,'31%'],['Carulla Cedritos',986,'27%'],['Éxito Chapinero',704,'25%']].sort((a,b)=>b[1]-a[1]).map(([s,n,r],i)=>`<tr><td><span class="rank">${i+1}</span>${s}</td><td class="r"><b>${fmt(n)}</b></td><td class="r">${r}</td></tr>`).join('');
+$('spCoupons').innerHTML=[['LactiCol 30% leche',12000,'34%'],['Alpina 2x1',7600,'28%'],['BebiFit 25%',5700,'22%'],['Éxito $10.000',4180,'19%']].map(([t,n,r],i)=>`<tr><td><span class="rank">${i+1}</span>${t}</td><td class="r">${fmt(n)}</td><td class="r"><b>${r}</b></td></tr>`).join('');
+$('spJobs').innerHTML=[['Empleado',38],['Estudiante',27],['Independiente',19],['Hogar',9],['Pensionado',7]].map(([j,p])=>`<tr><td>${j}</td><td class="r"><span class="bar"><i style="width:${p/38*100}%"></i></span> ${p}%</td></tr>`).join('');
+$('spCities').innerHTML=[['Éxito Country',1412],['D1 (varios)',3210],['Olímpica',2890],['Carulla Cedritos',986],['Éxito Chapinero',704]].sort((a,b)=>b[1]-a[1]).map(([s,n])=>`<tr><td>${s}</td><td class="r"><b>${fmt(n)}</b> canjes</td></tr>`).join('');
+// Lo que la audiencia QUIERE (zero-party demand: productos que pidieron en la app)
+$('spWish').innerHTML=[['Leche deslactosada 1L',8420],['Yogur griego sin azúcar',6110],['Queso bajo en sal',4730],['Bebida vegetal (avena)',3980],['Snack proteico',3240]].map(([p,n],i)=>{const mx=8420;return `<tr><td><span class="rank">${i+1}</span>${p}</td><td class="r"><b>${fmt(n)}</b></td><td><span class="bar"><i style="width:${Math.round(n/mx*100)}%;background:#1E9E77"></i></span></td></tr>`;}).join('');
+// Economía por unidad
+$('spUnit').innerHTML=[['Costo por comida donada','$3.000 COP'],['Costo por cupón canjeado','$15.040 COP'],['Costo por cliente nuevo','$58.300 COP'],['Ticket promedio del canje','$22.300 COP'],['Retorno por $1 invertido','$1,48 en venta'],['Recuperación vía deducción 126‑2','~44%']].map(([k,v])=>`<tr><td style="color:var(--slate)">${k}</td><td class="r"><b>${v}</b></td></tr>`).join('');
+updateCampSummary();
+
+/* ============ Master-detail management (list left · form right) ============
+   These definitions OVERRIDE the earlier helpers (last function declaration wins). */
+let _camps=[], _cups=[], _fbs=[], _sps=[];
+let editCamp=null, editOff=null, editFb=null, editSp=null;
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function selMark(container,id){ document.querySelectorAll('#'+container+' .mdItem').forEach(x=>x.classList.toggle('sel', x.dataset.id===id)); }
+
+async function renderLists(){
+  if(demo){ ['campListM','cuponListM','fbListM','spListM'].forEach(id=>{const el=$(id); if(el) el.innerHTML='<div class="ph">Modo demo: entra con tu cuenta de empresa para administrar registros reales.</div>';}); return; }
+  try{
+    const tree=await api('/admin/tree'); _camps=[]; _cups=[];
+    tree.forEach(s=>(s.campaigns||[]).forEach(c=>{ _camps.push({...c,sponsor:s.name}); (c.offers||[]).forEach(o=>_cups.push({...o,sponsor:s.name})); }));
+    const cl=$('campListM'); if(cl) cl.innerHTML = _camps.length ? _camps.map(c=>`<div class="mdItem" data-id="${c.id}" onclick="selectCampaign('${c.id}')"><b>${esc(c.sponsor)}</b><div class="sub">${fmt(c.meals_donated)}/${fmt(c.meals_budget)} comidas · ${c.active?'activa':'inactiva'}</div></div>`).join('') : '<div class="ph">Aún no hay campañas.</div>';
+    const ul=$('cuponListM'); if(ul) ul.innerHTML = _cups.length ? _cups.map(o=>`<div class="mdItem" data-id="${o.id}" onclick="selectOffer('${o.id}')"><b>${esc(o.title)}</b><div class="sub">${esc(o.retailer)} · ${o.coupons} códigos (${o.redeemed} usados)</div></div>`).join('') : '<div class="ph">Aún no hay cupones.</div>';
+  }catch(e){}
+  try{ _fbs=await api('/admin/foodbanks'); const el=$('fbListM'); if(el) el.innerHTML=_fbs.length? _fbs.map(f=>`<div class="mdItem" data-id="${f.id}" onclick="selectFoodBank('${f.id}')"><b>${esc(f.name)}</b><div class="sub">${esc(f.city)}</div></div>`).join('') : '<div class="ph">Aún sin bancos.</div>'; }catch(e){}
+  try{ _sps=await api('/admin/sponsors'); const el=$('spListM'); if(el) el.innerHTML=_sps.length? _sps.map(s=>`<div class="mdItem" data-id="${s.id}" onclick="selectSponsor('${s.id}')"><b>${esc(s.name)}</b><div class="sub">${esc(s.contact_email||'')}</div></div>`).join('') : '<div class="ph">Aún sin patrocinadores.</div>'; }catch(e){}
+}
+
+// Campaigns
+function newCampaign(){ editCamp=null; $('campFormTitle').textContent='Nueva campaña'; $('mealsBudget').value=50000; $('costPerMeal').value=3000; $('campDur').value='30'; $('campDelBtn').style.display='none'; selMark('campListM',''); updateCampSummary(); }
+function selectCampaign(id){ const c=_camps.find(x=>x.id===id); if(!c)return; editCamp=id; $('campFormTitle').textContent='Editar campaña · '+c.sponsor; $('mealsBudget').value=c.meals_budget; $('costPerMeal').value=c.cost_per_meal_cop; $('campDelBtn').style.display='inline-block'; selMark('campListM',id); updateCampSummary(); }
+async function saveCampaign(){ const meals=+$('mealsBudget').value,cost=+$('costPerMeal').value,days=+$('campDur').value;
+  if(demo){ alert('(demo) Campaña guardada.'); return; }
+  try{ if(editCamp){ await api('/admin/campaigns/'+editCamp,{method:'PATCH',body:JSON.stringify({mealsBudget:meals,costPerMealCop:cost})}); alert('Campaña actualizada.'); }
+    else{ const fb='11111111-1111-1111-1111-111111111111',today=new Date().toISOString().slice(0,10),end=new Date(Date.now()+days*864e5).toISOString().slice(0,10);
+      const r=await api('/admin/campaigns',{method:'POST',body:JSON.stringify({sponsorId:sponsor.id,foodBankId:fb,mealsBudget:meals,costPerMealCop:cost,startsAt:today,endsAt:end})}); campaignId=r.id; alert('Campaña creada. Ya puedes crear cupones.'); }
+    await renderLists(); newCampaign();
+  }catch(e){ alert('Error: '+e.message); } }
+async function deleteCurrentCampaign(){ if(!editCamp)return; if(!confirm('¿Eliminar esta campaña y sus cupones?'))return; try{ await api('/admin/campaigns/'+editCamp,{method:'DELETE'}); await renderLists(); newCampaign(); }catch(e){ alert('Error: '+e.message); } }
+
+// Cupones (offers)
+function newOffer(){ editOff=null; $('offFormTitle').textContent='Nuevo cupón'; $('offTitle').value=''; $('offRetailer').value=''; $('offRetailerCode').value=''; if($('offCount'))$('offCount').value=3; $('offDelBtn').style.display='none'; const co=$('offCreateOnly'); if(co)co.style.display='flex'; selMark('cuponListM',''); $('offerList').innerHTML=''; }
+function selectOffer(id){ const o=_cups.find(x=>x.id===id); if(!o)return; editOff=id; $('offFormTitle').textContent='Editar cupón'; $('offTitle').value=o.title; $('offRetailer').value=o.retailer; $('offCat').value=o.category_id||'comida_saludable'; $('offRetailerCode').value=o.retailer_code||''; $('offDelBtn').style.display='inline-block'; const co=$('offCreateOnly'); if(co)co.style.display='none'; selMark('cuponListM',id); $('offerList').innerHTML=''; }
+async function saveOffer(){ const title=$('offTitle').value.trim(),retailer=$('offRetailer').value.trim(); if(!title||!retailer){ alert('Pon el título y la tienda.'); return; }
+  const cat=$('offCat').value, retailerCode=$('offRetailerCode').value.trim()||null;
+  if(demo){ alert('(demo) Cupón guardado.'); return; }
+  try{ if(editOff){ await api('/admin/offers/'+editOff,{method:'PATCH',body:JSON.stringify({title,retailer,categoryId:cat,retailerCode})}); alert('Cupón actualizado.'); await renderLists(); newOffer(); }
+    else{ if(!campaignId){ alert('Primero crea o selecciona una campaña en la pestaña Campañas.'); return; }
+      const days=+$('offDays').value||7,count=Math.min(+$('offCount').value||1,1000);
+      const r=await api('/admin/offers',{method:'POST',body:JSON.stringify({campaignId,title,retailer,categoryId:cat,validDays:days,generateCount:count,retailerCode})});
+      renderCodes(retailerCode?[retailerCode]:(r.generatedCodes||[]),title,retailer,days); $('pushNote').style.display='block'; await renderLists(); }
+  }catch(e){ alert('Error: '+e.message); } }
+async function deleteCurrentOffer(){ if(!editOff)return; if(!confirm('¿Eliminar este cupón y sus códigos?'))return; try{ await api('/admin/offers/'+editOff,{method:'DELETE'}); await renderLists(); newOffer(); }catch(e){ alert('Error: '+e.message); } }
+function renderCodes(codes,title,retailer,days){ const wrap=$('offerList'); if(!wrap)return; wrap.innerHTML=''; codes.forEach(code=>{ const bw=document.createElement('div'); bw.className='barcodeWrap'; const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); bw.appendChild(svg); const qd=document.createElement('div'); bw.appendChild(qd); const ct=document.createElement('div'); ct.className='codeTxt'; ct.textContent=code; bw.appendChild(ct); wrap.appendChild(bw); try{ JsBarcode(svg,code,{format:'CODE128',height:46,width:1.5,fontSize:11,margin:5}); }catch(e){} try{ new QRCode(qd,{text:code,width:70,height:70,colorDark:'#16243A'}); }catch(e){} }); }
+
+// Food banks
+function newFoodBank(){ editFb=null; $('fbFormTitle').textContent='Nuevo banco'; $('fbName').value=''; $('fbCity').value=''; $('fbDelBtn').style.display='none'; selMark('fbListM',''); }
+function selectFoodBank(id){ const f=_fbs.find(x=>x.id===id); if(!f)return; editFb=id; $('fbFormTitle').textContent='Editar banco'; $('fbName').value=f.name; $('fbCity').value=f.city; $('fbDelBtn').style.display='inline-block'; selMark('fbListM',id); }
+async function saveFoodBank(){ const name=$('fbName').value.trim(),city=$('fbCity').value.trim(); if(!name||!city){ alert('Pon nombre y ciudad.'); return; }
+  if(demo){ alert('(demo) Banco guardado.'); return; }
+  try{ if(editFb){ await api('/admin/foodbanks/'+editFb,{method:'PATCH',body:JSON.stringify({name,city})}); } else { await api('/admin/foodbanks',{method:'POST',body:JSON.stringify({name,city})}); } await renderLists(); newFoodBank(); alert('Banco guardado.'); }catch(e){ alert('Error: '+e.message); } }
+async function deleteCurrentFoodBank(){ if(!editFb)return; if(!confirm('¿Eliminar este banco?'))return; try{ await api('/admin/foodbanks/'+editFb,{method:'DELETE'}); await renderLists(); newFoodBank(); }catch(e){ alert('Error: '+e.message); } }
+
+// Sponsors
+function newSponsor(){ editSp=null; $('spFormTitle').textContent='Nuevo patrocinador'; $('spName').value=''; $('spEmail').value=''; $('spDelBtn').style.display='none'; selMark('spListM',''); }
+function selectSponsor(id){ const s=_sps.find(x=>x.id===id); if(!s)return; editSp=id; $('spFormTitle').textContent='Editar patrocinador'; $('spName').value=s.name; $('spEmail').value=s.contact_email||''; $('spDelBtn').style.display='inline-block'; selMark('spListM',id); }
+async function saveSponsor(){ const name=$('spName').value.trim(),email=$('spEmail').value.trim(); if(!name){ alert('Pon el nombre de la empresa.'); return; }
+  if(demo){ alert('(demo) Patrocinador guardado.'); return; }
+  try{ if(editSp){ await api('/admin/sponsors/'+editSp,{method:'PATCH',body:JSON.stringify({name,contactEmail:email})}); } else { await api('/admin/sponsors',{method:'POST',body:JSON.stringify({name,contactEmail:email})}); } await renderLists(); newSponsor(); alert('Patrocinador guardado.'); }catch(e){ alert('Error: '+e.message); } }
+async function deleteCurrentSponsor(){ if(!editSp)return; if(!confirm('¿Eliminar este patrocinador y TODO lo suyo (campañas, cupones)?'))return; try{ await api('/admin/sponsors/'+editSp,{method:'DELETE'}); await renderLists(); newSponsor(); }catch(e){ alert('Error: '+e.message); } }
+
+// Public showcase: open straight into the demo dashboards (for embedding on the site).
+// ?demo=1 enters demo mode; &tab=gob|banco|dash|reto selects which view to show.
+(function(){
+  try{
+    const q=new URLSearchParams(location.search);
+    if(q.get('demo')==='1'){
+      demoMode();
+      const t=q.get('tab');
+      if(t){ const b=document.querySelector('.switch button[data-p="'+t+'"]'); if(b){ go(t,b); } }
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

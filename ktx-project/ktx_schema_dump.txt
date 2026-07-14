@@ -1,0 +1,1176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ktx.dev/schemas/ktx-project-config.json",
+  "title": "ktx.yaml",
+  "type": "object",
+  "properties": {
+    "setup": {
+      "description": "Setup-wizard state. Written by `ktx setup`; may be omitted.",
+      "type": "object",
+      "properties": {
+        "database_connection_ids": {
+          "default": [],
+          "description": "Connection IDs (keys of the top-level `connections` map) that the setup wizard treats as the project's primary databases.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "connections": {
+      "default": {},
+      "description": "Map of connection ID to connector configuration. Keys are user-chosen names referenced elsewhere in the config.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "postgres"
+              },
+              "url": {
+                "description": "Warehouse connection URL or DSN; may contain environment-variable references like env:DATABASE_URL.",
+                "type": "string",
+                "minLength": 1
+              },
+              "enabled_tables": {
+                "description": "Optional allowlist of fully-qualified table names (\"schema.table\") to ingest. When set, live-database ingest discards any table whose schema-qualified name is not in this list. Useful for smoke-testing deep ingest on a single table.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "driver"
+            ],
+            "additionalProperties": {},
+            "description": "postgres warehouse connection. Additional driver-tunable fields (e.g. context.queryHistory) are accepted and passed through."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "mysql"
+              },
+              "url": {
+                "description": "Warehouse connection URL or DSN; may contain environment-variable references like env:DATABASE_URL.",
+                "type": "string",
+                "minLength": 1
+              },
+              "enabled_tables": {
+                "description": "Optional allowlist of fully-qualified table names (\"schema.table\") to ingest. When set, live-database ingest discards any table whose schema-qualified name is not in this list. Useful for smoke-testing deep ingest on a single table.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "driver"
+            ],
+            "additionalProperties": {},
+            "description": "mysql warehouse connection. Additional driver-tunable fields (e.g. context.queryHistory) are accepted and passed through."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "snowflake"
+              },
+              "url": {
+                "description": "Warehouse connection URL or DSN; may contain environment-variable references like env:DATABASE_URL.",
+                "type": "string",
+                "minLength": 1
+              },
+              "enabled_tables": {
+                "description": "Optional allowlist of fully-qualified table names (\"schema.table\") to ingest. When set, live-database ingest discards any table whose schema-qualified name is not in this list. Useful for smoke-testing deep ingest on a single table.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "driver"
+            ],
+            "additionalProperties": {},
+            "description": "snowflake warehouse connection. Additional driver-tunable fields (e.g. context.queryHistory) are accepted and passed through."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "bigquery"
+              },
+              "url": {
+                "description": "Warehouse connection URL or DSN; may contain environment-variable references like env:DATABASE_URL.",
+                "type": "string",
+                "minLength": 1
+              },
+              "enabled_tables": {
+                "description": "Optional allowlist of fully-qualified table names (\"schema.table\") to ingest. When set, live-database ingest discards any table whose schema-qualified name is not in this list. Useful for smoke-testing deep ingest on a single table.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "driver"
+            ],
+            "additionalProperties": {},
+            "description": "bigquery warehouse connection. Additional driver-tunable fields (e.g. context.queryHistory) are accepted and passed through."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "sqlite"
+              },
+              "url": {
+                "description": "Warehouse connection URL or DSN; may contain environment-variable references like env:DATABASE_URL.",
+                "type": "string",
+                "minLength": 1
+              },
+              "enabled_tables": {
+                "description": "Optional allowlist of fully-qualified table names (\"schema.table\") to ingest. When set, live-database ingest discards any table whose schema-qualified name is not in this list. Useful for smoke-testing deep ingest on a single table.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "driver"
+            ],
+            "additionalProperties": {},
+            "description": "sqlite warehouse connection. Additional driver-tunable fields (e.g. context.queryHistory) are accepted and passed through."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "clickhouse"
+              },
+              "url": {
+                "description": "Warehouse connection URL or DSN; may contain environment-variable references like env:DATABASE_URL.",
+                "type": "string",
+                "minLength": 1
+              },
+              "enabled_tables": {
+                "description": "Optional allowlist of fully-qualified table names (\"schema.table\") to ingest. When set, live-database ingest discards any table whose schema-qualified name is not in this list. Useful for smoke-testing deep ingest on a single table.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "driver"
+            ],
+            "additionalProperties": {},
+            "description": "clickhouse warehouse connection. Additional driver-tunable fields (e.g. context.queryHistory) are accepted and passed through."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "sqlserver"
+              },
+              "url": {
+                "description": "Warehouse connection URL or DSN; may contain environment-variable references like env:DATABASE_URL.",
+                "type": "string",
+                "minLength": 1
+              },
+              "enabled_tables": {
+                "description": "Optional allowlist of fully-qualified table names (\"schema.table\") to ingest. When set, live-database ingest discards any table whose schema-qualified name is not in this list. Useful for smoke-testing deep ingest on a single table.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "driver"
+            ],
+            "additionalProperties": {},
+            "description": "sqlserver warehouse connection. Additional driver-tunable fields (e.g. context.queryHistory) are accepted and passed through."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "metabase"
+              },
+              "api_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Metabase instance API URL (e.g. https://metabase.example.com)."
+              },
+              "api_key": {
+                "description": "Literal Metabase API key. Prefer api_key_ref for safety.",
+                "type": "string",
+                "minLength": 1
+              },
+              "api_key_ref": {
+                "description": "Reference to Metabase API key (e.g. env:METABASE_API_KEY or file:/path).",
+                "type": "string",
+                "minLength": 1
+              },
+              "network_proxy": {
+                "description": "Optional network proxy configuration (snake_case form).",
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {}
+              },
+              "networkProxy": {
+                "description": "Optional network proxy configuration (camelCase form).",
+                "type": "object",
+                "properties": {},
+                "additionalProperties": {}
+              },
+              "mappings": {
+                "description": "Metabase database-to-warehouse mappings and sync configuration.",
+                "type": "object",
+                "properties": {
+                  "databaseMappings": {
+                    "default": {},
+                    "description": "Map of Metabase database ID (positive integer string) to KTX connection ID. Use null to explicitly unmap.",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "syncEnabled": {
+                    "default": {},
+                    "description": "Per-Metabase-database sync toggle, keyed by Metabase database ID string.",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "type": "boolean"
+                    }
+                  },
+                  "syncMode": {
+                    "default": "ALL",
+                    "description": "Sync scope: ALL ingests every mapped DB; ONLY restricts to syncEnabled=true; EXCEPT excludes syncEnabled=true.",
+                    "type": "string",
+                    "enum": [
+                      "ALL",
+                      "ONLY",
+                      "EXCEPT"
+                    ]
+                  },
+                  "selections": {
+                    "default": {
+                      "collections": [],
+                      "items": []
+                    },
+                    "description": "Optional Metabase collection and item IDs to scope ingest.",
+                    "type": "object",
+                    "properties": {
+                      "collections": {
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "items": {
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      }
+                    }
+                  },
+                  "defaultTagNames": {
+                    "default": [],
+                    "description": "Default tag names applied to ingested Metabase artifacts.",
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            },
+            "required": [
+              "driver",
+              "api_url"
+            ],
+            "additionalProperties": {},
+            "description": "Metabase context-source connection."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "looker"
+              },
+              "base_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Looker instance base URL (e.g. https://looker.example.com)."
+              },
+              "client_id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Looker OAuth client ID."
+              },
+              "client_secret": {
+                "description": "Literal Looker OAuth client secret. Prefer client_secret_ref.",
+                "type": "string",
+                "minLength": 1
+              },
+              "client_secret_ref": {
+                "description": "Reference to Looker OAuth client secret (e.g. env:LOOKER_CLIENT_SECRET).",
+                "type": "string",
+                "minLength": 1
+              },
+              "mappings": {
+                "description": "Looker connection-name to KTX warehouse mappings.",
+                "type": "object",
+                "properties": {
+                  "connectionMappings": {
+                    "default": {},
+                    "description": "Map of Looker connection name to KTX connection ID. Use null to explicitly unmap.",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "required": [
+              "driver",
+              "base_url",
+              "client_id"
+            ],
+            "additionalProperties": {},
+            "description": "Looker context-source connection."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "lookml"
+              },
+              "repoUrl": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Git URL of the LookML project (https, ssh, or file:). Field is camelCase by convention."
+              },
+              "branch": {
+                "description": "Git branch (default \"main\" downstream).",
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "description": "Subdirectory within the repo when the LookML project lives in a monorepo.",
+                "type": "string"
+              },
+              "auth_token_ref": {
+                "description": "Reference to Git auth token for private repos (e.g. env:GITHUB_TOKEN).",
+                "type": "string",
+                "minLength": 1
+              },
+              "mappings": {
+                "description": "LookML expected-connection mapping for ingest gating.",
+                "type": "object",
+                "properties": {
+                  "expectedLookerConnectionName": {
+                    "default": null,
+                    "description": "Looker connection name that LookML models must declare; mismatches block sl_write_source at ingest time.",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "required": [
+              "driver",
+              "repoUrl"
+            ],
+            "additionalProperties": {},
+            "description": "LookML context-source connection."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "notion"
+              },
+              "auth_token": {
+                "description": "Literal Notion integration token. Prefer auth_token_ref.",
+                "type": "string",
+                "minLength": 1
+              },
+              "auth_token_ref": {
+                "description": "Reference to Notion integration token (e.g. env:NOTION_TOKEN).",
+                "type": "string",
+                "minLength": 1
+              },
+              "crawl_mode": {
+                "description": "Crawl scope. \"selected_roots\" requires at least one of root_page_ids, root_database_ids, root_data_source_ids.",
+                "type": "string",
+                "enum": [
+                  "selected_roots",
+                  "all_accessible"
+                ]
+              },
+              "root_page_ids": {
+                "description": "Notion page IDs to crawl when crawl_mode is selected_roots.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "root_database_ids": {
+                "description": "Notion database IDs to crawl when crawl_mode is selected_roots.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "root_data_source_ids": {
+                "description": "Notion data source IDs to crawl when crawl_mode is selected_roots.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "max_pages_per_run": {
+                "description": "Maximum Notion pages fetched in a single ingest run.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000
+              },
+              "max_knowledge_creates_per_run": {
+                "description": "Maximum new wiki pages created per run.",
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 25
+              },
+              "max_knowledge_updates_per_run": {
+                "description": "Maximum existing wiki pages updated per run.",
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "driver"
+            ],
+            "additionalProperties": {},
+            "description": "Notion context-source connection."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "dbt"
+              },
+              "source_dir": {
+                "description": "Absolute or project-relative path to a local dbt project.",
+                "type": "string",
+                "minLength": 1
+              },
+              "repo_url": {
+                "description": "Git URL of the dbt project (https, ssh, or file:).",
+                "type": "string",
+                "minLength": 1
+              },
+              "branch": {
+                "description": "Git branch when using repo_url.",
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "description": "Subdirectory within the repo when the dbt project lives in a monorepo.",
+                "type": "string"
+              },
+              "auth_token_ref": {
+                "description": "Reference to Git auth token for private repos.",
+                "type": "string",
+                "minLength": 1
+              },
+              "profiles_path": {
+                "description": "Override path to dbt profiles.yml.",
+                "type": "string"
+              },
+              "target": {
+                "description": "dbt target name (e.g. dev, prod).",
+                "type": "string",
+                "minLength": 1
+              },
+              "project_name": {
+                "description": "Override auto-detected dbt project name.",
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "driver"
+            ],
+            "additionalProperties": {},
+            "description": "dbt context-source connection."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "driver": {
+                "type": "string",
+                "const": "metricflow"
+              },
+              "metricflow": {
+                "type": "object",
+                "properties": {
+                  "repoUrl": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Git URL of the MetricFlow / SL project."
+                  },
+                  "branch": {
+                    "description": "Git branch (default \"main\").",
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "path": {
+                    "description": "Subdirectory within the repo when the SL config lives in a monorepo.",
+                    "type": "string"
+                  },
+                  "auth_token_ref": {
+                    "description": "Reference to Git auth token for private repos.",
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "repoUrl"
+                ],
+                "additionalProperties": {},
+                "description": "Nested MetricFlow configuration block."
+              }
+            },
+            "required": [
+              "driver",
+              "metricflow"
+            ],
+            "additionalProperties": {},
+            "description": "MetricFlow / SL context-source connection."
+          }
+        ]
+      }
+    },
+    "storage": {
+      "description": "Storage backends and commit policy for KTX state and search indexes.",
+      "default": {},
+      "type": "object",
+      "properties": {
+        "state": {
+          "default": "sqlite",
+          "description": "Backend for KTX state storage. \"sqlite\" uses .ktx/db.sqlite; \"postgres\" expects a configured Postgres connection.",
+          "type": "string",
+          "enum": [
+            "sqlite",
+            "postgres"
+          ]
+        },
+        "search": {
+          "default": "sqlite-fts5",
+          "description": "Backend for search indexes. \"sqlite-fts5\" uses SQLite FTS5; \"postgres-hybrid\" uses Postgres lexical + vector hybrid search.",
+          "type": "string",
+          "enum": [
+            "sqlite-fts5",
+            "postgres-hybrid"
+          ]
+        },
+        "git": {
+          "description": "Git-backed storage commit policy.",
+          "default": {},
+          "type": "object",
+          "properties": {
+            "auto_commit": {
+              "default": true,
+              "description": "When true, KTX automatically commits state changes to the local Git-backed store.",
+              "type": "boolean"
+            },
+            "author": {
+              "default": "ktx <ktx@example.com>",
+              "description": "Git author identity used for auto-commits, in standard \"Name <email>\" form.",
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "llm": {
+      "description": "LLM provider, per-role model overrides, and prompt-caching tunables.",
+      "default": {},
+      "type": "object",
+      "properties": {
+        "provider": {
+          "description": "LLM provider backend and credentials.",
+          "default": {},
+          "type": "object",
+          "properties": {
+            "backend": {
+              "default": "none",
+              "description": "LLM provider backend. \"none\" disables LLM features; \"anthropic\" / \"vertex\" / \"gateway\" require the matching nested credentials block; \"claude-code\" uses the local Claude Code session.",
+              "type": "string",
+              "enum": [
+                "none",
+                "anthropic",
+                "vertex",
+                "gateway",
+                "claude-code"
+              ]
+            },
+            "vertex": {
+              "description": "Vertex AI credentials, used when backend is \"vertex\".",
+              "type": "object",
+              "properties": {
+                "project": {
+                  "description": "Google Cloud project ID hosting the Vertex AI endpoint.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "location": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Vertex AI region (e.g. \"us-east5\"). Required whenever the vertex provider block is present."
+                }
+              },
+              "required": [
+                "location"
+              ],
+              "additionalProperties": false
+            },
+            "anthropic": {
+              "description": "Anthropic API credentials, used when backend is \"anthropic\".",
+              "type": "object",
+              "properties": {
+                "api_key": {
+                  "description": "API key for the provider. Read from this value or the provider-specific environment variable.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "base_url": {
+                  "description": "Override the provider's default API base URL (e.g. a proxy or self-hosted gateway).",
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            },
+            "gateway": {
+              "description": "AI Gateway credentials, used when backend is \"gateway\".",
+              "type": "object",
+              "properties": {
+                "api_key": {
+                  "description": "API key for the provider. Read from this value or the provider-specific environment variable.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "base_url": {
+                  "description": "Override the provider's default API base URL (e.g. a proxy or self-hosted gateway).",
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "models": {
+          "default": {},
+          "description": "Per-role model overrides keyed by KTX model role (e.g. \"default\", \"triage\"). Values are provider-specific model identifiers.",
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "enum": [
+              "default",
+              "triage",
+              "candidateExtraction",
+              "curator",
+              "reconcile",
+              "repair"
+            ]
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "promptCaching": {
+          "description": "Optional prompt-caching tunables.",
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "description": "Master switch for Anthropic-style prompt caching. When omitted, the backend's default applies.",
+              "type": "boolean"
+            },
+            "systemTtl": {
+              "description": "Cache TTL for the system prompt segment (\"5m\" or \"1h\").",
+              "type": "string",
+              "enum": [
+                "5m",
+                "1h"
+              ]
+            },
+            "toolsTtl": {
+              "description": "Cache TTL for the tools/schema segment (\"5m\" or \"1h\").",
+              "type": "string",
+              "enum": [
+                "5m",
+                "1h"
+              ]
+            },
+            "historyTtl": {
+              "description": "Cache TTL for conversation-history cache breakpoints (\"5m\" or \"1h\").",
+              "type": "string",
+              "enum": [
+                "5m",
+                "1h"
+              ]
+            },
+            "vertexFallbackTo5m": {
+              "description": "When true, transparently downgrade 1h TTLs to 5m on Vertex, which does not support 1h caching.",
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "ingest": {
+      "description": "Ingest pipeline configuration.",
+      "default": {},
+      "type": "object",
+      "properties": {
+        "adapters": {
+          "default": [],
+          "description": "Ingest adapter identifiers to run (e.g. \"metabase\", \"looker\", \"historic-sql\"). Empty array means no adapters are run.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "embeddings": {
+          "description": "Embedding configuration used when ingest adapters need to embed documents.",
+          "default": {
+            "backend": "none"
+          },
+          "type": "object",
+          "properties": {
+            "backend": {
+              "default": "none",
+              "description": "Embedding backend. \"openai\" and \"sentence-transformers\" call out to those providers; \"none\" disables embeddings.",
+              "type": "string",
+              "enum": [
+                "none",
+                "openai",
+                "sentence-transformers"
+              ]
+            },
+            "model": {
+              "description": "Provider-specific embedding model identifier (e.g. \"text-embedding-3-small\").",
+              "type": "string",
+              "minLength": 1
+            },
+            "dimensions": {
+              "default": 8,
+              "description": "Embedding vector dimensionality. The default value 8 is a placeholder that is only valid alongside backend: none; before switching backend to openai/sentence-transformers, set this explicitly to match the chosen model (e.g. 384 for all-MiniLM-L6-v2, 1536 for text-embedding-3-small).",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "openai": {
+              "description": "OpenAI credentials, used when backend is \"openai\".",
+              "type": "object",
+              "properties": {
+                "api_key": {
+                  "description": "API key for the provider. Read from this value or the provider-specific environment variable.",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "base_url": {
+                  "description": "Override the provider's default API base URL (e.g. a proxy or self-hosted gateway).",
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            },
+            "sentenceTransformers": {
+              "description": "Sentence-transformers server config, used when backend is \"sentence-transformers\".",
+              "type": "object",
+              "properties": {
+                "base_url": {
+                  "default": "",
+                  "description": "Base URL of the sentence-transformers HTTP server. Leave empty (or omit) when the `ktx` CLI is expected to start and manage a local daemon for this project; programmatic consumers must populate it explicitly.",
+                  "type": "string"
+                },
+                "pathPrefix": {
+                  "description": "Optional URL path prefix prepended to embedding requests.",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "batchSize": {
+              "description": "Number of texts per embedding API call. Omit to use the backend default.",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "additionalProperties": false
+        },
+        "workUnits": {
+          "description": "Concurrency and failure handling for ingest work units.",
+          "default": {},
+          "type": "object",
+          "properties": {
+            "stepBudget": {
+              "default": 40,
+              "description": "Maximum number of agent steps allowed per work unit before it is force-terminated.",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "maxConcurrency": {
+              "default": 1,
+              "description": "Maximum number of work units run concurrently during ingest.",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "failureMode": {
+              "default": "continue",
+              "description": "Behavior when a work unit fails: \"abort\" stops the whole ingest run; \"continue\" records the failure and keeps going.",
+              "type": "string",
+              "enum": [
+                "abort",
+                "continue"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "agent": {
+      "description": "Agent feature configuration.",
+      "default": {},
+      "type": "object",
+      "properties": {
+        "run_research": {
+          "description": "Research-agent configuration.",
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Master switch for the research agent.",
+              "type": "boolean"
+            },
+            "max_iterations": {
+              "default": 20,
+              "description": "Maximum number of tool-call iterations the research agent may take per run.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "default_toolset": {
+              "default": [
+                "sl_query",
+                "wiki_search",
+                "sl_read_source"
+              ],
+              "description": "Default list of tool identifiers exposed to the research agent.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "memory": {
+      "description": "Memory subsystem configuration.",
+      "default": {},
+      "type": "object",
+      "properties": {
+        "auto_commit": {
+          "default": true,
+          "description": "When true, KTX automatically commits memory updates to the Git-backed store.",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "scan": {
+      "description": "Schema-scan configuration: enrichment and relationship discovery.",
+      "default": {},
+      "type": "object",
+      "properties": {
+        "enrichment": {
+          "description": "Column/table enrichment configuration.",
+          "default": {},
+          "type": "object",
+          "properties": {
+            "mode": {
+              "default": "none",
+              "description": "Column/table enrichment mode. \"none\" disables enrichment; \"deterministic\" uses local heuristics; \"llm\" calls the configured LLM provider.",
+              "type": "string",
+              "enum": [
+                "none",
+                "deterministic",
+                "llm"
+              ]
+            },
+            "embeddings": {
+              "description": "Optional embedding override for enrichment-time vectorization. Falls back to ingest.embeddings when omitted.",
+              "type": "object",
+              "properties": {
+                "backend": {
+                  "default": "none",
+                  "description": "Embedding backend. \"openai\" and \"sentence-transformers\" call out to those providers; \"none\" disables embeddings.",
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "openai",
+                    "sentence-transformers"
+                  ]
+                },
+                "model": {
+                  "description": "Provider-specific embedding model identifier (e.g. \"text-embedding-3-small\").",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dimensions": {
+                  "default": 8,
+                  "description": "Embedding vector dimensionality. The default value 8 is a placeholder that is only valid alongside backend: none; before switching backend to openai/sentence-transformers, set this explicitly to match the chosen model (e.g. 384 for all-MiniLM-L6-v2, 1536 for text-embedding-3-small).",
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "openai": {
+                  "description": "OpenAI credentials, used when backend is \"openai\".",
+                  "type": "object",
+                  "properties": {
+                    "api_key": {
+                      "description": "API key for the provider. Read from this value or the provider-specific environment variable.",
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "base_url": {
+                      "description": "Override the provider's default API base URL (e.g. a proxy or self-hosted gateway).",
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "sentenceTransformers": {
+                  "description": "Sentence-transformers server config, used when backend is \"sentence-transformers\".",
+                  "type": "object",
+                  "properties": {
+                    "base_url": {
+                      "default": "",
+                      "description": "Base URL of the sentence-transformers HTTP server. Leave empty (or omit) when the `ktx` CLI is expected to start and manage a local daemon for this project; programmatic consumers must populate it explicitly.",
+                      "type": "string"
+                    },
+                    "pathPrefix": {
+                      "description": "Optional URL path prefix prepended to embedding requests.",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "batchSize": {
+                  "description": "Number of texts per embedding API call. Omit to use the backend default.",
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "relationships": {
+          "description": "Relationship discovery and validation configuration.",
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Master switch for relationship discovery during scan.",
+              "type": "boolean"
+            },
+            "llmProposals": {
+              "default": true,
+              "description": "When true, propose relationships using the configured LLM in addition to deterministic candidates.",
+              "type": "boolean"
+            },
+            "validationRequiredForManifest": {
+              "default": true,
+              "description": "When true, only relationships that pass database-side validation are written to the manifest.",
+              "type": "boolean"
+            },
+            "acceptThreshold": {
+              "default": 0.85,
+              "description": "Confidence score (0–1) at or above which an LLM-proposed relationship is auto-accepted into the manifest.",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "reviewThreshold": {
+              "default": 0.55,
+              "description": "Confidence score (0–1) at or above which a proposal is surfaced for human review (but not auto-accepted).",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "maxLlmTablesPerBatch": {
+              "default": 40,
+              "description": "Maximum number of tables included in a single LLM relationship-proposal batch.",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "maxCandidatesPerColumn": {
+              "default": 25,
+              "description": "Maximum number of candidate join partners considered per column during relationship discovery.",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "profileSampleRows": {
+              "default": 10000,
+              "description": "Number of rows sampled per table when profiling values for relationship inference.",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "profileConcurrency": {
+              "default": 4,
+              "description": "Parallel relationship-profile queries run against the database during scan.",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "validationConcurrency": {
+              "default": 4,
+              "description": "Number of relationship validation queries run in parallel against the database.",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "validationBudget": {
+              "description": "Cap on validation queries per scan run. Use \"all\" for unlimited, an integer for a hard cap, or omit for the runtime default.",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "all"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "description": "Configuration schema for KTX project files (ktx.yaml)."
+}

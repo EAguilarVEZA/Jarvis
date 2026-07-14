@@ -1,0 +1,115 @@
+name: ga4_dim_sessions
+descriptions:
+  user: GA4 session-level dimension table capturing traffic source, engagement quality, and UTM attribution for each website session.
+table: oh-data-warehouse.gold.ga4_dim_sessions
+grain:
+- session_key
+columns:
+- name: session_key
+  type: number
+  descriptions:
+    db: generated primary key based on unique session attributes
+    ai: Surrogate primary key uniquely identifying each session record.
+- name: ga_session_id
+  type: number
+  descriptions:
+    db: GA4 external session ID. NOT UNIQUE until paired with device ID and session number.
+    ai: GA4-assigned session identifier; requires device ID and session number for uniqueness.
+- name: is_engaged_session
+  type: boolean
+  descriptions:
+    db: Session that lasted longer than 30s or visited more than 1 page.
+    ai: True if session exceeded 30 seconds or included multiple pageviews.
+- name: is_bounce_session
+  type: boolean
+  descriptions:
+    db: Inverse of an engaged session.
+    ai: True if session was not engaged; single short-duration visit.
+- name: ga_session_number
+  type: number
+  descriptions:
+    db: A soft LTV number of sessions.
+    ai: Cumulative count of sessions for a user; proxy lifetime visit number.
+- name: session_duration_micros
+  type: number
+  descriptions:
+    db: Length of session in microseconds
+    ai: Total session length in microseconds.
+- name: is_there_a_session_start_event
+  type: boolean
+  descriptions:
+    db: Helper field for determining UTM nuance.
+    ai: Indicates presence of session_start event; used for UTM attribution logic.
+- name: source
+  type: string
+  descriptions:
+    db: utm_source value
+    ai: Traffic origin from utm_source parameter (e.g., google, pandora).
+- name: medium
+  type: string
+  descriptions:
+    db: utm_medium value
+    ai: Marketing channel from utm_medium parameter (e.g., organic, display).
+- name: source_medium
+  type: string
+  descriptions:
+    db: utm_source_medium value
+    ai: Combined source and medium for traffic channel reporting.
+- name: campaign_id
+  type: string
+  descriptions:
+    db: utm_id value
+    ai: Paid campaign identifier from utm_id parameter.
+- name: campaign_name
+  type: string
+  descriptions:
+    db: utm_campaign value
+    ai: Descriptive campaign name from utm_campaign parameter.
+- name: term
+  type: string
+  descriptions:
+    db: utm_term value
+    ai: Paid keyword or targeting term from utm_term parameter.
+- name: content
+  type: string
+  descriptions:
+    db: utm_content value
+    ai: Ad creative variant identifier from utm_content parameter.
+- name: source_platform
+  type: string
+  descriptions:
+    ai: Platform that managed the campaign delivery.
+- name: creative_format
+  type: string
+  descriptions:
+    ai: Format type of the ad creative served.
+- name: marketing_tactic
+  type: string
+  descriptions:
+    ai: Targeting strategy or tactic applied to the campaign.
+- name: gclid
+  type: string
+  descriptions:
+    db: External Google Click ID
+    ai: Google Click ID for linking Google Ads clicks to sessions.
+- name: dclid
+  type: string
+  descriptions:
+    ai: Display Click ID from Google Display and Video 360.
+- name: srsltid
+  type: string
+  descriptions:
+    ai: Google Shopping result click identifier.
+measures:
+- name: sessions
+  expr: COUNT(DISTINCT session_key)
+  description: Sessions (count_distinct of session_key).
+- name: engaged_sessions
+  expr: COUNTIF(is_engaged_session)
+  description: Engaged Sessions (sum_bool of is_engaged_session).
+- name: avg_session_duration_seconds
+  expr: AVG(session_duration_micros) / 1000000
+  description: Avg Session Duration (sec) (avg of session_duration_micros).
+- name: engagement_rate
+  expr: (COUNTIF(is_engaged_session)) / NULLIF((COUNT(DISTINCT session_key)), 0)
+  description: Engagement Rate = {engaged_sessions} / NULLIF({sessions}, 0)

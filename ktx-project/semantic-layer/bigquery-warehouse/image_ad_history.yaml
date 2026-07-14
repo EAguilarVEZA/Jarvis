@@ -1,0 +1,95 @@
+name: image_ad_history
+descriptions:
+  user: Historical snapshots of Google Ads image ad creatives with metadata, dimensions, and serving URLs.
+table: oh-data-warehouse.adwords_orlando_health.image_ad_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier for the ad group containing this image ad.
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the specific image ad.
+- name: sequence_id
+  type: number
+  descriptions:
+    ai: Version sequence number tracking historical changes to the ad record.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the ad record was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+- name: image_creation_time
+  type: string
+  descriptions:
+    ai: When the image asset was originally created.
+- name: image_dimensions_height
+  type: number
+  descriptions:
+    ai: Height in pixels for the specified image dimension type.
+- name: image_dimensions_key
+  type: string
+  descriptions:
+    ai: Label for the dimension variant, such as FULL or PREVIEW.
+- name: image_dimensions_width
+  type: number
+  descriptions:
+    ai: Width in pixels for the specified image dimension type.
+- name: image_file_size
+  type: number
+  descriptions:
+    ai: File size of the image asset in bytes.
+- name: image_media_id
+  type: number
+  descriptions:
+    ai: Platform media library identifier for the image asset.
+- name: image_mime_type
+  type: string
+  descriptions:
+    ai: Image format type, such as IMAGE_PNG or IMAGE_JPEG.
+- name: image_name
+  type: string
+  descriptions:
+    ai: Human-readable name assigned to the image asset.
+- name: image_reference_id
+  type: number
+  descriptions:
+    ai: External reference identifier linking to the image asset.
+- name: image_source_url
+  type: string
+  descriptions:
+    ai: Original URL from which the image was sourced.
+- name: image_type
+  type: string
+  descriptions:
+    ai: Category of the media asset, typically IMAGE.
+- name: image_urls_key
+  type: string
+  descriptions:
+    ai: Label for the URL variant, such as FULL or PREVIEW.
+- name: image_urls_value
+  type: string
+  descriptions:
+    ai: Serving URL used to deliver the image to users.
+- name: name
+  type: string
+  descriptions:
+    ai: Display name of the image ad creative.
+measures:
+- name: total_image_dimensions_height
+  expr: SUM(image_dimensions_height)
+  description: Image Dimensions Height (sum of image_dimensions_height).
+- name: total_image_dimensions_width
+  expr: SUM(image_dimensions_width)
+  description: Image Dimensions Width (sum of image_dimensions_width).
+- name: total_image_file_size
+  expr: SUM(image_file_size)
+  description: Image File Size (sum of image_file_size).

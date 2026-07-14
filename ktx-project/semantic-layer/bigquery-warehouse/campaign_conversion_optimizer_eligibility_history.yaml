@@ -1,0 +1,34 @@
+name: campaign_conversion_optimizer_eligibility_history
+descriptions:
+  user: Tracks historical eligibility status of campaigns for Google Ads conversion optimizer feature over time.
+table: oh-data-warehouse.adwords_orlando_health.campaign_conversion_optimizer_eligibility_history
+grain:
+- campaign_id
+columns:
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the advertising campaign.
+- name: sequence_id
+  type: number
+  descriptions:
+    ai: Order of eligibility status change events for a campaign.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the eligibility status was last changed.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record.
+  role: time
+- name: is_eligible
+  type: boolean
+  descriptions:
+    ai: Whether the campaign qualifies for conversion optimizer.
+- name: rejection_reason
+  type: string
+  descriptions:
+    ai: Reason the campaign was denied conversion optimizer eligibility.
+measures: []

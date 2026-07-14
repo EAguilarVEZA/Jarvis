@@ -1,0 +1,70 @@
+{
+  "presets": [
+    {
+      "type": "tree-select",
+      "name": "Maria",
+      "dashboard_id": "9c602e95-8f86-4a45-875e-b93025d91a92",
+      "hierarchy_id": "8fd91a09-7797-4ef9-8247-c6f0964515ca",
+      "selected_node_ids": [
+        "d329f2ff-1c90-436c-bcd7-f89613402b5a",
+        "3293ba5a-2f0b-4e91-b2db-9d732d478e5e",
+        "a1e3db9d-126f-4da8-872f-4510dc49abbc",
+        "35f41170-622a-4a1a-a119-e12df9cc261c",
+        "cea6c2e3-8ad1-495f-8845-bccd8d44860e",
+        "6735cde7-7652-4ccc-8e51-905d3ce02adc",
+        "29855d97-32d6-4729-b7b5-b9bf91c1f46a",
+        "74a925a5-42ce-469b-aacc-10c8dd1fbedf",
+        "abd14072-b3ec-44e9-bb39-537a0e490094",
+        "2b648ded-7ae8-466f-8771-4fd64b5ebe35",
+        "c5e010ab-6e87-465e-bbe0-689a58ca2853",
+        "cdb8f2f7-83be-4d0d-b774-de9c5d59945d",
+        "0908c493-fb91-424f-b17a-29a2a8f0eb03",
+        "be14b72b-a42d-469f-878a-50a83d328710",
+        "a1574daf-752d-479e-af34-9751a8190b62",
+        "e505bbdf-2c24-425b-84dd-fe38c3fc8cf4",
+        "a8c4436c-74e5-4da8-9341-34d742dd5c3d",
+        "eac0d4ea-e30f-4a47-886d-d91f9eec90e4",
+        "04e9610b-e5bb-4c81-8ad2-5f1261c3b36a",
+        "d313a309-fc42-490c-bd52-63d8081d9e2c"
+      ],
+      "start_date": null,
+      "end_date": null,
+      "compare_start": null,
+      "compare_end": null,
+      "description": "",
+      "id": "4455ff01-f761-4364-a3e2-9b48ca931979",
+      "created_at": 1780606994.438776,
+      "updated_at": 1780606994.438781
+    },
+    {
+      "type": "tree-select",
+      "name": "MAria 2",
+      "dashboard_id": "9c602e95-8f86-4a45-875e-b93025d91a92",
+      "hierarchy_id": "8fd91a09-7797-4ef9-8247-c6f0964515ca",
+      "selected_node_ids": [
+        "cea6c2e3-8ad1-495f-8845-bccd8d44860e",
+        "6735cde7-7652-4ccc-8e51-905d3ce02adc",
+        "74a925a5-42ce-469b-aacc-10c8dd1fbedf",
+        "abd14072-b3ec-44e9-bb39-537a0e490094",
+        "2b648ded-7ae8-466f-8771-4fd64b5ebe35",
+        "c5e010ab-6e87-465e-bbe0-689a58ca2853",
+        "0908c493-fb91-424f-b17a-29a2a8f0eb03",
+        "be14b72b-a42d-469f-878a-50a83d328710",
+        "a1574daf-752d-479e-af34-9751a8190b62",
+        "e505bbdf-2c24-425b-84dd-fe38c3fc8cf4",
+        "a8c4436c-74e5-4da8-9341-34d742dd5c3d",
+        "eac0d4ea-e30f-4a47-886d-d91f9eec90e4",
+        "04e9610b-e5bb-4c81-8ad2-5f1261c3b36a",
+        "d313a309-fc42-490c-bd52-63d8081d9e2c"
+      ],
+      "start_date": null,
+      "end_date": null,
+      "compare_start": null,
+      "compare_end": null,
+      "description": "",
+      "id": "c732bd38-9ece-4a2b-a9a4-246aca2d23e2",
+      "created_at": 1780608265.360214,
+      "updated_at": 1780608265.360215
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+name: dynamic_search_ad_history
+descriptions:
+  user: Historical record of dynamic search ad copy changes over time, synced via Fivetran.
+table: oh-data-warehouse.adwords_orlando_health.dynamic_search_ad_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier for the ad group containing this dynamic search ad.
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the specific dynamic search ad.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the ad copy or configuration was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+- name: description_1
+  type: string
+  descriptions:
+    ai: First line of ad copy text shown to users in search results.
+- name: description_2
+  type: string
+  descriptions:
+    ai: Second line of ad copy text shown to users in search results.
+measures: []

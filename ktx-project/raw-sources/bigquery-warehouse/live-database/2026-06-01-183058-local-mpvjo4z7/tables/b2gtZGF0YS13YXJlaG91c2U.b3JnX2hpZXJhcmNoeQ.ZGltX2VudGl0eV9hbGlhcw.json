@@ -1,0 +1,38 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "org_hierarchy",
+  "name": "dim_entity_alias",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 15,
+  "columns": [
+    {
+      "name": "alias_key",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": false,
+      "primaryKey": true,
+      "comment": null
+    },
+    {
+      "name": "entity_key",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "entity_alias",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": "Alternate name for the entity"
+    }
+  ],
+  "foreignKeys": []
+}

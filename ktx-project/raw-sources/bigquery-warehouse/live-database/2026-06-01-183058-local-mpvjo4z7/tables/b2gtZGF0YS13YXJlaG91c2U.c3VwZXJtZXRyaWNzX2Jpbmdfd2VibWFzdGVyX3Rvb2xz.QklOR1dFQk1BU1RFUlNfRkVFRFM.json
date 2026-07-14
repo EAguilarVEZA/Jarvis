@@ -1,0 +1,101 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "supermetrics_bing_webmaster_tools",
+  "name": "BINGWEBMASTERS_FEEDS",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 2,
+  "columns": [
+    {
+      "name": "data_source_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The name of the source for this data, as listed on supermetrics.com/docs"
+    },
+    {
+      "name": "feed_compressed",
+      "nativeType": "BOOLEAN",
+      "normalizedType": "BOOLEAN",
+      "dimensionType": "boolean",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Is the feed compressed or not"
+    },
+    {
+      "name": "feed_crawled_date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "feed_status",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Current feed status"
+    },
+    {
+      "name": "feed_submitted_date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "feed_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Unknown, Empty, Xml, XmlIndex, Txt, Atom, Rss, Html, XmlBaidu, Shop"
+    },
+    {
+      "name": "feed_url",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Today's date, e.g. 2017-01-31"
+    },
+    {
+      "name": "feed_filesize",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "File size in bytes"
+    },
+    {
+      "name": "feed_url_count",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of valid, extracted URLs or number of sitemaps in an index file"
+    }
+  ],
+  "foreignKeys": []
+}

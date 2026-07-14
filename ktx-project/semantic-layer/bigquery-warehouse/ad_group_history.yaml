@@ -1,0 +1,205 @@
+name: ad_group_history
+descriptions:
+  user: Historical snapshot of Google Ads ad group configurations, bidding strategies, and settings synced via Fivetran.
+table: oh-data-warehouse.adwords_orlando_health.ad_group_history
+grain:
+- id
+columns:
+- name: id
+  type: number
+  descriptions:
+    ai: Unique identifier for the ad group.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the ad group record was last updated.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record.
+  role: time
+- name: ad_group_rotation_mode
+  type: string
+  descriptions:
+    ai: How ads within the group are rotated for serving.
+- name: ad_group_type
+  type: string
+  descriptions:
+    ai: Classification of the ad group, e.g., SEARCH_STANDARD.
+- name: base_ad_group_id
+  type: number
+  descriptions:
+    ai: Original ad group ID for draft or experiment groups.
+- name: base_campaign_id
+  type: number
+  descriptions:
+    ai: Original campaign ID for draft or experiment groups.
+- name: bidding_strategy_bid_ceiling
+  type: number
+  descriptions:
+    ai: Maximum bid cap allowed by the bidding strategy.
+- name: bidding_strategy_bid_changes_for_raises_only
+  type: boolean
+  descriptions:
+    ai: Restricts automated bid changes to increases only.
+- name: bidding_strategy_bid_floor
+  type: number
+  descriptions:
+    ai: Minimum bid floor set by the bidding strategy.
+- name: bidding_strategy_bid_modifier
+  type: number
+  descriptions:
+    ai: Multiplier applied to adjust bids automatically.
+- name: bidding_strategy_competitor_domain
+  type: string
+  descriptions:
+    ai: Competitor domain targeted for outranking strategies.
+- name: bidding_strategy_cpa_bid_amount
+  type: number
+  descriptions:
+    ai: Target cost-per-acquisition bid in micros.
+- name: bidding_strategy_cpc_bid_amount
+  type: number
+  descriptions:
+    ai: Manual cost-per-click bid amount in micros.
+- name: bidding_strategy_cpm_bid_amount
+  type: number
+  descriptions:
+    ai: Cost-per-thousand-impressions bid amount in micros.
+- name: bidding_strategy_enhanced_cpc_enabled
+  type: boolean
+  descriptions:
+    ai: Whether enhanced CPC bid adjustments are active.
+- name: bidding_strategy_id
+  type: number
+  descriptions:
+    ai: Identifier of the portfolio bidding strategy applied.
+- name: bidding_strategy_max_cpc_bid_ceiling
+  type: number
+  descriptions:
+    ai: Upper CPC limit for automated bidding strategies.
+- name: bidding_strategy_max_cpc_bid_floor
+  type: number
+  descriptions:
+    ai: Lower CPC limit for automated bidding strategies.
+- name: bidding_strategy_name
+  type: string
+  descriptions:
+    ai: Name of the portfolio bidding strategy used.
+- name: bidding_strategy_raise_bid_when_budget_constrained
+  type: boolean
+  descriptions:
+    ai: Allows bid increases when campaign budget is limiting delivery.
+- name: bidding_strategy_raise_bid_when_low_quality_score
+  type: boolean
+  descriptions:
+    ai: Allows bid increases for low quality score keywords.
+- name: bidding_strategy_scheme_type
+  type: string
+  descriptions:
+    ai: Class name of the bidding scheme, e.g., ManualCpcBiddingScheme.
+- name: bidding_strategy_source
+  type: string
+  descriptions:
+    ai: Indicates if strategy is set at ad group or campaign level.
+- name: bidding_strategy_spend_target
+  type: number
+  descriptions:
+    ai: Target spend amount for budget-based bidding strategies.
+- name: bidding_strategy_strategy_goal
+  type: string
+  descriptions:
+    ai: Optimization goal of the bidding strategy.
+- name: bidding_strategy_target_cpa
+  type: number
+  descriptions:
+    ai: Target CPA value used in automated CPA bidding.
+- name: bidding_strategy_target_outrank_share
+  type: number
+  descriptions:
+    ai: Target share of auctions to outrank a competitor.
+- name: bidding_strategy_target_roas
+  type: number
+  descriptions:
+    ai: Target return on ad spend ratio for automated bidding.
+- name: bidding_strategy_target_roas_override
+  type: number
+  descriptions:
+    ai: Ad group level override for target ROAS value.
+- name: bidding_strategy_type
+  type: string
+  descriptions:
+    ai: Type of bidding strategy, e.g., MANUAL_CPC, TARGET_CPA.
+- name: bidding_strategy_viewable_cpm_enabled
+  type: boolean
+  descriptions:
+    ai: Whether viewable CPM bidding is enabled.
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Identifier of the parent campaign.
+- name: campaign_name
+  type: string
+  descriptions:
+    ai: Display name of the parent campaign.
+- name: content_bid_criterion_type_group
+  type: string
+  descriptions:
+    ai: Criterion type group used for content network bids.
+- name: final_url_suffix
+  type: string
+  descriptions:
+    ai: Parameters appended to final URLs for tracking.
+- name: name
+  type: string
+  descriptions:
+    ai: Display name of the ad group.
+- name: status
+  type: string
+  descriptions:
+    ai: Current serving status, e.g., ENABLED or PAUSED.
+- name: tracking_url_template
+  type: string
+  descriptions:
+    ai: URL template with ValueTrack parameters for click tracking.
+measures:
+- name: total_bidding_strategy_bid_ceiling
+  expr: SUM(bidding_strategy_bid_ceiling)
+  description: Bidding Strategy Bid Ceiling (sum of bidding_strategy_bid_ceiling).
+- name: total_bidding_strategy_bid_floor
+  expr: SUM(bidding_strategy_bid_floor)
+  description: Bidding Strategy Bid Floor (sum of bidding_strategy_bid_floor).
+- name: total_bidding_strategy_bid_modifier
+  expr: SUM(bidding_strategy_bid_modifier)
+  description: Bidding Strategy Bid Modifier (sum of bidding_strategy_bid_modifier).
+- name: total_bidding_strategy_cpa_bid_amount
+  expr: SUM(bidding_strategy_cpa_bid_amount)
+  description: Bidding Strategy Cpa Bid Amount (sum of bidding_strategy_cpa_bid_amount).
+- name: total_bidding_strategy_cpc_bid_amount
+  expr: SUM(bidding_strategy_cpc_bid_amount)
+  description: Bidding Strategy Cpc Bid Amount (sum of bidding_strategy_cpc_bid_amount).
+- name: total_bidding_strategy_cpm_bid_amount
+  expr: SUM(bidding_strategy_cpm_bid_amount)
+  description: Bidding Strategy Cpm Bid Amount (sum of bidding_strategy_cpm_bid_amount).
+- name: total_bidding_strategy_max_cpc_bid_ceiling
+  expr: SUM(bidding_strategy_max_cpc_bid_ceiling)
+  description: Bidding Strategy Max Cpc Bid Ceiling (sum of bidding_strategy_max_cpc_bid_ceiling).
+- name: total_bidding_strategy_max_cpc_bid_floor
+  expr: SUM(bidding_strategy_max_cpc_bid_floor)
+  description: Bidding Strategy Max Cpc Bid Floor (sum of bidding_strategy_max_cpc_bid_floor).
+- name: total_bidding_strategy_spend_target
+  expr: SUM(bidding_strategy_spend_target)
+  description: Bidding Strategy Spend Target (sum of bidding_strategy_spend_target).
+- name: total_bidding_strategy_target_cpa
+  expr: SUM(bidding_strategy_target_cpa)
+  description: Bidding Strategy Target Cpa (sum of bidding_strategy_target_cpa).
+- name: total_bidding_strategy_target_outrank_share
+  expr: SUM(bidding_strategy_target_outrank_share)
+  description: Bidding Strategy Target Outrank Share (sum of bidding_strategy_target_outrank_share).
+- name: total_bidding_strategy_target_roas
+  expr: SUM(bidding_strategy_target_roas)
+  description: Bidding Strategy Target Roas (sum of bidding_strategy_target_roas).
+- name: total_bidding_strategy_target_roas_override
+  expr: SUM(bidding_strategy_target_roas_override)
+  description: Bidding Strategy Target Roas Override (sum of bidding_strategy_target_roas_override).

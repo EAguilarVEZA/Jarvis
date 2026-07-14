@@ -1,0 +1,30 @@
+name: campaign_geo_target_type_setting_history
+descriptions:
+  user: Historical record of geographic targeting type settings for advertising campaigns over time.
+table: oh-data-warehouse.adwords_orlando_health.campaign_geo_target_type_setting_history
+grain:
+- campaign_id
+columns:
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Unique identifier linking the record to a specific advertising campaign.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the geo targeting setting was last modified in the source system.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record to the data warehouse.
+  role: time
+- name: negative_geo_target_type
+  type: string
+  descriptions:
+    ai: Criteria for excluding users based on location presence or interest.
+- name: positive_geo_target_type
+  type: string
+  descriptions:
+    ai: Criteria for including users based on location presence, interest, or no preference.
+measures: []

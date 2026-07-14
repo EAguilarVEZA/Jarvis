@@ -1,0 +1,31 @@
+# Fly.io config for the Jarvis reporting backend.
+# Edit `app` to your Fly app name, then: fly deploy
+# Secrets (fly secrets set …) — see DEPLOY.md: ANTHROPIC_API_KEY, BIGQUERY_PROJECT_ID,
+# JARVIS_AUTH_SECRET, SMTP_*, and BigQuery creds on a secret mount.
+
+app = "jarvis-reporting"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8000"
+  JARVIS_REQUIRE_AUTH = "1"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = false     # keep on for the 24/7 brain scheduler
+  auto_start_machines = true
+  min_machines_running = 1
+
+# Persistent state: users.json, api keys, auth secret, semantic/*.json.
+[[mounts]]
+  source = "jarvis_data"
+  destination = "/root/.config"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory = "1gb"

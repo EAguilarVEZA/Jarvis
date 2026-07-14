@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuperPasos · Tus pasos, su superpoder</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#070B16; --bg2:#0B1124; --ink:#EAF0FA; --mut:#9CA9C2;
+    --green:#19E37D; --cyan:#2DD4FF; --violet:#8B6CFF; --coral:#FF5C7A; --gold:#FFD23F;
+    --glass:rgba(255,255,255,.055); --gline:rgba(255,255,255,.12);
+    --rad:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px;position:relative;z-index:2;}
+  h1,h2,h3{line-height:1.08;letter-spacing:-.8px;}
+  a{color:inherit;text-decoration:none;}
+  /* animated ambient background */
+  .bgfx{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+  .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5;animation:float 18s ease-in-out infinite;}
+  .b1{width:520px;height:520px;background:radial-gradient(circle,#1b9c63,transparent 70%);top:-120px;left:-80px;}
+  .b2{width:560px;height:560px;background:radial-gradient(circle,#2a6bff,transparent 70%);top:30%;right:-160px;animation-delay:-5s;}
+  .b3{width:480px;height:480px;background:radial-gradient(circle,#7c3cff,transparent 70%);bottom:-140px;left:25%;animation-delay:-9s;}
+  .b4{width:380px;height:380px;background:radial-gradient(circle,#ff3d6e,transparent 70%);top:60%;left:-100px;animation-delay:-13s;}
+  @keyframes float{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(40px,-30px) scale(1.12);}}
+  .grain{position:fixed;inset:0;z-index:1;opacity:.04;pointer-events:none;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:3px 3px;}
+  /* nav */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:60;transition:.3s;}
+  .nav.scrolled{background:rgba(7,11,22,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--gline);}
+  .nav .wrap{display:flex;align-items:center;gap:20px;height:68px;}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:900;font-size:20px;letter-spacing:-.5px;}
+  .blogo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--cyan));display:grid;place-items:center;font-size:20px;box-shadow:0 6px 20px rgba(25,227,125,.45);}
+  .brand b{background:linear-gradient(90deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .nav nav{margin-left:auto;display:flex;gap:24px;font-size:14px;font-weight:600;color:var(--mut);}
+  .nav nav a:hover{color:#fff;}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:999px;padding:14px 26px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .14s,box-shadow .14s,filter .14s;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.grad{background:linear-gradient(135deg,var(--green),var(--cyan));color:#04210f;box-shadow:0 10px 30px rgba(25,227,125,.4);}
+  .btn.grad:hover{filter:brightness(1.08);box-shadow:0 14px 38px rgba(25,227,125,.55);}
+  .btn.coral{background:linear-gradient(135deg,var(--coral),#ff8a5c);color:#fff;box-shadow:0 10px 30px rgba(255,92,122,.4);}
+  .btn.glass{background:var(--glass);border:1px solid var(--gline);color:#fff;backdrop-filter:blur(8px);}
+  .btn.sm{padding:10px 18px;font-size:14px;}
+  @media(max-width:860px){.nav nav{display:none;}}
+  /* reveal */
+  .rv{opacity:0;transform:translateY(34px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);}
+  .rv.in{opacity:1;transform:none;}
+  .rv.d1{transition-delay:.1s;}.rv.d2{transition-delay:.2s;}.rv.d3{transition-delay:.3s;}.rv.d4{transition-delay:.4s;}
+  /* hero */
+  .hero{padding:150px 0 90px;position:relative;}
+  .pill{display:inline-flex;align-items:center;gap:9px;background:var(--glass);border:1px solid var(--gline);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--green);backdrop-filter:blur(8px);}
+  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(25,227,125,.6);animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(25,227,125,.6);}70%{box-shadow:0 0 0 12px rgba(25,227,125,0);}100%{box-shadow:0 0 0 0 rgba(25,227,125,0);}}
+  .hero h1{font-size:clamp(40px,7.4vw,82px);font-weight:900;margin:26px 0 0;max-width:15ch;}
+  .hero h1 .sweep{background:linear-gradient(90deg,var(--green),var(--cyan) 40%,var(--violet) 75%,var(--coral));background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sweep 6s linear infinite;}
+  @keyframes sweep{to{background-position:220% center;}}
+  .hero .lead{font-size:clamp(17px,2.3vw,22px);color:var(--mut);max-width:50ch;margin:26px 0 34px;}
+  .hero .cta{display:flex;gap:14px;flex-wrap:wrap;}
+  .ticker{display:flex;gap:34px;flex-wrap:wrap;margin-top:48px;padding-top:30px;border-top:1px solid var(--gline);}
+  .ticker .t .n{font-size:34px;font-weight:900;letter-spacing:-1.5px;}
+  .ticker .t .l{font-size:13px;color:var(--mut);margin-top:2px;}
+  .green{color:var(--green);}.ccyan{color:var(--cyan);}.cviolet{color:var(--violet);}.ccoral{color:var(--coral);}.cgold{color:var(--gold);}
+  /* section shell */
+  section.s{padding:96px 0;position:relative;}
+  .kick{display:inline-block;font-size:12.5px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:14px;}
+  h2.big{font-size:clamp(30px,5vw,52px);font-weight:900;max-width:18ch;}
+  .sub{font-size:18px;color:var(--mut);max-width:62ch;margin-top:18px;}
+  .glass{background:var(--glass);border:1px solid var(--gline);border-radius:var(--rad);backdrop-filter:blur(10px);}
+  /* problem stats */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:46px;}
+  @media(max-width:860px){.stats{grid-template-columns:repeat(2,1fr);}}
+  .stat{padding:26px;}
+  .stat .n{font-size:clamp(32px,4vw,44px);font-weight:900;letter-spacing:-1.5px;}
+  .stat .l{font-size:13.5px;color:var(--mut);margin-top:8px;line-height:1.45;}
+  /* process */
+  .proc{margin-top:54px;}
+  .ptrack{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  @media(max-width:860px){.ptrack{grid-template-columns:1fr;}}
+  .pnode{padding:26px 22px;position:relative;transition:.5s;}
+  .pnode .pe{font-size:40px;display:block;margin-bottom:14px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.4));}
+  .pnode h3{font-size:19px;font-weight:850;margin-bottom:8px;}
+  .pnode p{font-size:14.5px;color:var(--mut);}
+  .pnode .pnum{position:absolute;top:-13px;left:22px;width:30px;height:30px;border-radius:9px;font-weight:900;font-size:14px;display:grid;place-items:center;color:#04210f;background:linear-gradient(135deg,var(--green),var(--cyan));}
+  .pnode.lit{box-shadow:0 0 0 1px var(--green),0 18px 50px rgba(25,227,125,.25);transform:translateY(-6px);}
+  /* app demo */
+  .demo{display:grid;grid-template-columns:.95fr 1.05fr;gap:54px;align-items:center;}
+  @media(max-width:860px){.demo{grid-template-columns:1fr;}}
+  .phone{width:290px;height:592px;margin:0 auto;border-radius:42px;background:linear-gradient(160deg,#141d36,#070d1c);border:1px solid var(--gline);box-shadow:0 40px 90px rgba(0,0,0,.6),inset 0 0 0 8px #0d1426;position:relative;overflow:hidden;}
+  .phone .scr{position:absolute;inset:8px;border-radius:34px;overflow:hidden;background:#070d1c;}
+  .pshot{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;opacity:0;transform:scale(1.04);transition:opacity .6s,transform .6s;}
+  .pshot.on{opacity:1;transform:none;}
+  .pshot .em{font-size:64px;margin-bottom:18px;}
+  .pshot h4{font-size:21px;font-weight:850;margin-bottom:8px;}
+  .pshot p{font-size:14px;color:var(--mut);}
+  .pshot .ring{width:120px;height:120px;border-radius:50%;border:8px solid rgba(255,255,255,.08);border-top-color:var(--green);animation:spin 1.4s linear infinite;margin-bottom:18px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  /* live app iframe inside the phone */
+  .phonewrap{position:relative;width:300px;margin:0 auto;}
+  .phone{position:relative;z-index:2;}
+  .phoneglow{position:absolute;inset:-30px;z-index:0;background:radial-gradient(circle,rgba(25,227,125,.35),transparent 65%);filter:blur(30px);animation:glowbreath 4s ease-in-out infinite;}
+  @keyframes glowbreath{0%,100%{opacity:.5;}50%{opacity:.95;}}
+  .appFrame{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:34px;background:#070d1c;}
+  .iframeskel{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--mut);font-size:13px;background:#070d1c;}
+  .iframeskel .ring{width:64px;height:64px;border:6px solid rgba(255,255,255,.08);border-top-color:var(--green);border-radius:50%;animation:spin 1.2s linear infinite;}
+  .liveBadge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);z-index:5;background:linear-gradient(135deg,var(--green),var(--cyan));color:#04210f;font-size:11px;font-weight:900;letter-spacing:.5px;padding:7px 14px;border-radius:999px;white-space:nowrap;box-shadow:0 8px 24px rgba(25,227,125,.5);display:flex;align-items:center;gap:7px;}
+  .liveBadge .ld{width:7px;height:7px;border-radius:50%;background:#04210f;animation:pulse2 1.3s infinite;}
+  @keyframes pulse2{0%,100%{opacity:1;}50%{opacity:.25;}}
+  .demolist .ditem{display:flex;gap:14px;padding:16px;border-radius:14px;cursor:pointer;transition:.25s;border:1px solid transparent;}
+  .demolist .ditem.act{background:var(--glass);border-color:var(--gline);}
+  .demolist .ditem .di{flex:0 0 44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--cyan));display:grid;place-items:center;font-size:22px;}
+  .demolist .ditem b{font-size:16.5px;} .demolist .ditem span{font-size:14px;color:var(--mut);}
+  /* audiences */
+  .aud{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px;}
+  @media(max-width:860px){.aud{grid-template-columns:1fr;}}
+  .acard{padding:30px;border-radius:var(--rad);position:relative;overflow:hidden;transition:.3s;}
+  .acard:hover{transform:translateY(-8px);}
+  .acard .ah{font-size:38px;margin-bottom:14px;}
+  .acard h3{font-size:23px;font-weight:900;margin-bottom:6px;}
+  .acard .tag{font-size:12.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;display:block;}
+  .acard ul{list-style:none;}
+  .acard li{display:flex;gap:10px;font-size:14.5px;color:#D4DEF0;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+  .acard li .ck{color:var(--green);font-weight:900;}
+  .acard .big-n{font-size:30px;font-weight:900;margin:16px 0 4px;}
+  .ae{border-top:3px solid var(--green);} .au{border-top:3px solid var(--cyan);} .ag{border-top:3px solid var(--violet);}
+  /* forecast */
+  .fcgrid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;margin-top:46px;}
+  @media(max-width:860px){.fcgrid{grid-template-columns:1fr;}}
+  .chartbox{padding:26px;border-radius:var(--rad);height:380px;}
+  .benefit{display:flex;gap:14px;margin-bottom:18px;}
+  .benefit .bi{flex:0 0 46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:23px;}
+  .benefit b{font-size:16.5px;display:block;} .benefit span{font-size:14.5px;color:var(--mut);}
+  /* AI section */
+  .aigrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px;}
+  @media(max-width:860px){.aigrid{grid-template-columns:1fr;}}
+  .aicard{padding:26px;border-radius:var(--rad);transition:.3s;}
+  .aicard:hover{transform:translateY(-6px);box-shadow:0 18px 50px rgba(139,108,255,.25);}
+  .aicard .ai-ic{width:50px;height:50px;border-radius:13px;background:linear-gradient(135deg,var(--violet),var(--cyan));display:grid;place-items:center;font-size:24px;margin-bottom:14px;}
+  .aicard h3{font-size:18px;font-weight:850;margin-bottom:7px;} .aicard p{font-size:14px;color:var(--mut);}
+  .aicard .soon{font-size:11px;font-weight:800;color:var(--gold);letter-spacing:1px;text-transform:uppercase;}
+  /* UN mission */
+  .un{text-align:center;}
+  .progressbar{max-width:680px;margin:36px auto 0;}
+  .pbtrack{height:18px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;position:relative;}
+  .pbfill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--cyan),var(--violet));transition:width 2s cubic-bezier(.2,.7,.2,1);}
+  .pblabels{display:flex;justify-content:space-between;font-size:12.5px;color:var(--mut);margin-top:10px;}
+  /* CTA final */
+  .final{text-align:center;padding:110px 0;}
+  .final h2{font-size:clamp(32px,6vw,64px);font-weight:900;max-width:16ch;margin:0 auto;}
+  .final .lead{font-size:19px;color:var(--mut);max-width:54ch;margin:24px auto 36px;}
+  .final .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  /* mascot */
+  #pasi{position:fixed;left:22px;bottom:22px;z-index:80;display:flex;align-items:flex-end;gap:12px;max-width:360px;}
+  #pasi .bubble{background:#fff;color:#0b1020;border-radius:18px 18px 18px 4px;padding:14px 16px;font-size:14px;font-weight:600;box-shadow:0 16px 40px rgba(0,0,0,.5);opacity:0;transform:translateY(10px) scale(.96);transition:.35s;pointer-events:none;max-width:280px;}
+  #pasi .bubble.show{opacity:1;transform:none;}
+  #pasi .bubble .nm{font-size:11px;font-weight:900;color:var(--green);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px;}
+  #pasi .bubble .nm b{color:#0b1020;}
+  .pasiAvatar{flex:0 0 64px;width:64px;height:64px;cursor:pointer;animation:bob 2.4s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-8px) rotate(2deg);}}
+  .pasiAvatar .leg{transform-origin:center top;animation:legwalk .5s ease-in-out infinite alternate;}
+  .pasiAvatar .leg2{animation-delay:.25s;}
+  @keyframes legwalk{from{transform:rotate(-16deg);}to{transform:rotate(16deg);}}
+  .pasiAvatar .cape{transform-origin:top center;animation:capeflap 1.1s ease-in-out infinite;}
+  @keyframes capeflap{0%,100%{transform:skewX(0deg);}50%{transform:skewX(-12deg);}}
+  .tourbar{position:fixed;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.08);z-index:79;}
+  .tourbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--cyan));}
+  #pasiChat{position:fixed;left:22px;bottom:104px;z-index:85;width:344px;max-width:calc(100vw - 44px);background:#0c1326;border:1px solid var(--gline);border-radius:22px;box-shadow:0 28px 80px rgba(0,0,0,.65);display:none;flex-direction:column;overflow:hidden;}
+  #pasiChat.open{display:flex;animation:popin .25s ease;}
+  @keyframes popin{from{opacity:0;transform:translateY(14px) scale(.97);}to{opacity:1;transform:none;}}
+  #pasiChat .ph{display:flex;align-items:center;gap:11px;padding:14px 16px;background:linear-gradient(135deg,#0f1a31,#0c1326);border-bottom:1px solid var(--gline);}
+  #pasiChat .ph .av{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--green),var(--cyan));display:grid;place-items:center;font-size:19px;}
+  #pasiChat .ph b{font-size:15px;line-height:1.1;} #pasiChat .ph .st{font-size:11px;color:var(--green);}
+  #pasiChat .ph .cx{margin-left:auto;cursor:pointer;color:var(--mut);font-size:19px;line-height:1;}
+  #pasiMsgs{padding:14px;height:312px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+  #pasiMsgs::-webkit-scrollbar{width:6px;}#pasiMsgs::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px;}
+  .msg{max-width:86%;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.45;white-space:pre-wrap;}
+  .msg.u{align-self:flex-end;background:linear-gradient(135deg,var(--green),var(--cyan));color:#04210f;border-bottom-right-radius:5px;font-weight:600;}
+  .msg.a{align-self:flex-start;background:var(--glass);border:1px solid var(--gline);border-bottom-left-radius:5px;color:#EAF0FA;}
+  .msg.typing{color:var(--mut);font-style:italic;}
+  .chips2{display:flex;gap:7px;flex-wrap:wrap;padding:0 14px 12px;}
+  .chips2 button{background:var(--glass);border:1px solid var(--gline);color:#C7D2E6;border-radius:999px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit;}
+  .chips2 button:hover{color:#fff;border-color:var(--green);}
+  #pasiForm{display:flex;gap:8px;padding:12px;border-top:1px solid var(--gline);}
+  #pasiInput{flex:1;padding:12px 13px;border-radius:12px;border:1px solid var(--gline);background:#070d1c;color:#fff;font-family:inherit;font-size:14px;}
+  #pasiForm button{border:none;border-radius:12px;padding:0 18px;font-size:18px;background:linear-gradient(135deg,var(--green),var(--cyan));color:#04210f;font-weight:800;cursor:pointer;}
+  /* footer */
+  footer{border-top:1px solid var(--gline);padding:54px 0 34px;position:relative;z-index:2;}
+  .ft{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;margin-bottom:28px;}
+  footer h4{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:12px;}
+  footer a.fl{display:block;color:#C7D2E6;margin-bottom:7px;font-size:14px;} footer a.fl:hover{color:#fff;}
+  .src{border-top:1px solid var(--gline);padding-top:18px;font-size:11.5px;color:#6F7E97;line-height:1.7;}
+  .src a{color:#9CA9C2;text-decoration:underline;}
+  /* inquiry modal */
+  .modal{position:fixed;inset:0;z-index:100;background:rgba(4,7,14,.78);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:22px;}
+  .modal.open{display:flex;}
+  .modalc{max-width:440px;width:100%;background:#0d1426;border:1px solid var(--gline);border-radius:24px;padding:34px;position:relative;}
+  .modalc h3{font-size:24px;font-weight:900;margin-bottom:6px;}
+  .modalc p{color:var(--mut);font-size:14.5px;margin-bottom:20px;}
+  .modalc label{font-size:12.5px;font-weight:700;color:var(--mut);display:block;margin:12px 0 5px;}
+  .modalc select,.modalc input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--gline);background:#070d1c;color:#fff;font-family:inherit;font-size:14.5px;}
+  .modalc .x{position:absolute;top:16px;right:18px;cursor:pointer;font-size:22px;color:var(--mut);}
+  /* scroll progress bar */
+  .scrollprog{position:fixed;top:0;left:0;height:3px;z-index:70;background:linear-gradient(90deg,var(--green),var(--cyan),var(--violet));width:0;box-shadow:0 0 12px rgba(45,212,255,.6);}
+  /* partner marquee */
+  .marquee{overflow:hidden;border-top:1px solid var(--gline);border-bottom:1px solid var(--gline);padding:22px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);}
+  .mlabel{text-align:center;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:18px;}
+  .mtrack{display:flex;gap:18px;width:max-content;animation:scrollx 28s linear infinite;}
+  .marquee:hover .mtrack{animation-play-state:paused;}
+  @keyframes scrollx{to{transform:translateX(-50%);}}
+  .mchip{flex:0 0 auto;display:flex;align-items:center;gap:9px;background:var(--glass);border:1px solid var(--gline);border-radius:14px;padding:13px 20px;font-size:16px;font-weight:800;color:#D4DEF0;white-space:nowrap;}
+  .mchip span{font-size:20px;}
+  /* impact calculator */
+  .calc{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-top:46px;}
+  @media(max-width:860px){.calc{grid-template-columns:1fr;}}
+  .calcpanel{padding:30px;border-radius:var(--rad);}
+  .calcbig{font-size:clamp(44px,7vw,74px);font-weight:900;letter-spacing:-2px;line-height:1;background:linear-gradient(90deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .calcbig small{display:block;font-size:15px;font-weight:700;color:var(--mut);-webkit-text-fill-color:var(--mut);margin-top:8px;letter-spacing:0;}
+  .sliderrow{margin-top:24px;}
+  .sliderrow label{font-size:13px;font-weight:700;color:var(--mut);display:flex;justify-content:space-between;margin-bottom:10px;}
+  .sliderrow label b{color:#fff;font-size:16px;}
+  input[type=range]{-webkit-appearance:none;width:100%;height:8px;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--cyan));outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 0 4px rgba(25,227,125,.35);}
+  input[type=range]::-moz-range-thumb{width:26px;height:26px;border:none;border-radius:50%;background:#fff;cursor:pointer;}
+  .calcnote{font-size:13px;color:var(--mut);margin-top:18px;}
+  .calcchart{padding:24px;border-radius:var(--rad);height:320px;}
+  /* interactive map embed */
+  .mapframe{margin-top:36px;border-radius:var(--rad);overflow:hidden;padding:6px;}
+  .mapframe iframe{width:100%;height:860px;border:0;border-radius:16px;background:transparent;display:block;}
+  @media(max-width:860px){.mapframe iframe{height:1280px;}}
+  /* platform-inside dashboard embed */
+  .dtabs{display:flex;gap:10px;flex-wrap:wrap;margin-top:34px;}
+  .dtab{background:var(--glass);border:1px solid var(--gline);color:var(--mut);border-radius:999px;padding:11px 20px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s;}
+  .dtab.on{background:linear-gradient(135deg,var(--green),var(--cyan));color:#04210f;border-color:transparent;}
+  .dtab:hover{color:#fff;}
+  .dashframe{margin-top:20px;border-radius:var(--rad);overflow:hidden;padding:6px;}
+  .dashframe iframe{width:100%;height:780px;border:0;border-radius:16px;background:#0b1020;display:block;}
+  /* full-screen viewer (mobile tap-to-open for heavy embeds) */
+  .mobLaunch{display:none;}
+  .viewer{position:fixed;inset:0;z-index:120;background:#070B16;flex-direction:column;display:none;}
+  .viewer.open{display:flex;}
+  .viewerBar{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--gline);font-weight:800;font-size:14px;}
+  .viewerBar .vClose{color:var(--green);cursor:pointer;font-weight:800;}
+  .viewer iframe{flex:1;width:100%;border:0;background:#070d1c;}
+  /* sticky mobile CTA bar */
+  .mbar{display:none;}
+  /* ============ MOBILE TUNING ============ */
+  @media(max-width:760px){
+    body{font-size:16px;}
+    .wrap{padding:0 18px;}
+    section.s{padding:60px 0;}
+    .hero{padding:120px 0 60px;}
+    h2.big{font-size:clamp(26px,8vw,34px);}
+    .sub,.lede{font-size:16px;}
+    /* hide heavy inline embeds; show launch buttons instead */
+    .phonewrap,.mapframe,.dashframe{display:none!important;}
+    .mobLaunch{display:flex;width:100%;justify-content:center;margin-top:24px;}
+    .demo{gap:24px;} .demolist .ditem{padding:13px;}
+    /* full-screen chat */
+    #pasiChat{left:0;right:0;bottom:0;width:100%;max-width:100%;border-radius:18px 18px 0 0;}
+    #pasiMsgs{height:46vh;}
+    #pasi{left:14px;bottom:74px;max-width:78vw;}
+    /* room for sticky bar */
+    footer{padding-bottom:90px;}
+    .final{padding:70px 0 90px;}
+    /* sticky bottom CTA bar */
+    .mbar{display:flex;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:75;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(7,11,22,.92);backdrop-filter:blur(12px);border-top:1px solid var(--gline);}
+    .mbar .btn{flex:1;justify-content:center;padding:14px 10px;font-size:15px;}
+    .nav .btn.sm{padding:8px 12px;font-size:12.5px;}
+    .ticker{gap:20px;} .ticker .t .n{font-size:28px;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollprog" id="scrollprog"></div>
+<div class="bgfx"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
+<div class="grain"></div>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="wrap">
+    <div class="brand"><span class="blogo">👟</span> <b>SuperPasos</b></div>
+    <nav>
+      <a href="#problema">La causa</a>
+      <a href="#proceso">Cómo funciona</a>
+      <a href="#mapa">Mapa</a>
+      <a href="#aliados">Beneficios</a>
+      <a href="#dentro">Por dentro</a>
+      <a href="#ia">IA</a>
+      <a href="#mision">Misión 2030</a>
+    </nav>
+    <button class="btn grad sm" onclick="openInq('empresa')">Quiero ser patrocinador</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <span class="pill rv in"><span class="dot"></span> Plataforma de impacto · IA-first · 🇨🇴 Colombia</span>
+    <h1 class="rv">Tus pasos son el <span class="sweep">superpoder</span> que alimenta a un niño.</h1>
+    <p class="lead rv d1">SuperPasos convierte el movimiento de millones de personas en comidas reales para la niñez de Colombia — financiadas por marcas, entregadas por bancos de alimentos y medidas con inteligencia artificial. <b style="color:#fff">Tus pasos, su superpoder.</b></p>
+    <div class="cta rv d2">
+      <button class="btn grad" onclick="openInq('empresa')">🏢 Soy una marca</button>
+      <button class="btn coral" onclick="document.getElementById('app').scrollIntoView()">🚶 Quiero caminar</button>
+      <button class="btn glass" onclick="startTour()">▶ Recorrido con Pasi</button>
+    </div>
+    <div class="ticker rv d3">
+      <div class="t"><div class="n green" data-count="2840000">0</div><div class="l">comidas que podemos movilizar</div></div>
+      <div class="t"><div class="n ccyan" data-count="26">0</div><div class="l">bancos de alimentos aliados (red ABACO)</div></div>
+      <div class="t"><div class="n cviolet" data-count="100">0</div><div class="l">% de trazabilidad de cada comida</div></div>
+      <div class="t"><div class="n cgold" data-count="2030">0</div><div class="l">meta mundial: Hambre Cero (ONU)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNER MARQUEE -->
+<section style="padding:40px 0">
+  <div class="wrap"><div class="mlabel">Marcas y comercios que pueden multiplicar su impacto</div></div>
+  <div class="marquee"><div class="mtrack" id="mtrack"></div></div>
+</section>
+
+<!-- PROBLEM -->
+<section class="s" id="problema">
+  <div class="wrap">
+    <span class="kick rv">La causa</span>
+    <h2 class="big rv">El hambre infantil en Colombia <span style="color:var(--coral)">no puede esperar.</span></h2>
+    <p class="sub rv d1">La desnutrición en la primera infancia deja huellas irreversibles. Pero hoy existe la tecnología, las marcas y la red para cambiarlo — solo falta conectarlas. Eso es SuperPasos.</p>
+    <div class="stats">
+      <div class="stat glass rv"><div class="n ccoral" data-count="10" data-suffix="">0</div><div class="l"><b>1 de cada 10</b> niños menores de 5 años en Colombia sufre desnutrición crónica (UNICEF).</div></div>
+      <div class="stat glass rv d1"><div class="n cgold" data-count="12.7" data-suffix="%">0</div><div class="l">de talla baja para la edad — por encima del promedio de América Latina (11,3%).</div></div>
+      <div class="stat glass rv d2"><div class="n cviolet">∞</div><div class="l">La desnutrición crónica afecta de forma <b>irreversible</b> el desarrollo cognitivo del niño.</div></div>
+      <div class="stat glass rv d3"><div class="n green" data-count="2030">0</div><div class="l">El año en que el mundo se comprometió a lograr el <b>Hambre Cero</b> (ODS 2 · ONU).</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="s" id="proceso">
+  <div class="wrap">
+    <span class="kick rv">Cómo funciona</span>
+    <h2 class="big rv">Un circuito vivo: <span style="color:var(--green)">paso → comida → cupón.</span></h2>
+    <p class="sub rv d1">Cuatro movimientos. Cero fricción. Todo verificado y medido en tiempo real.</p>
+    <div class="proc">
+      <div class="ptrack" id="ptrack">
+        <div class="pnode glass"><span class="pnum">1</span><span class="pe">🚶‍♀️</span><h3>Caminas</h3><p>La app lee el sensor de movimiento de tu teléfono y verifica por GPS. Tu actividad real es el motor.</p></div>
+        <div class="pnode glass"><span class="pnum">2</span><span class="pe">🏢</span><h3>La marca patrocina</h3><p>Empresas financian las comidas. El dinero va directo al banco de alimentos — la plataforma nunca lo toca.</p></div>
+        <div class="pnode glass"><span class="pnum">3</span><span class="pe">🍲</span><h3>El niño come</h3><p>Un banco de alimentos certificado entrega la comida a un colegio o comedor, con trazabilidad total.</p></div>
+        <div class="pnode glass"><span class="pnum">4</span><span class="pe">🎁</span><h3>Ganas un cupón</h3><p>Recibes un cupón para canjear en comercios aliados. Ganas tú, gana el niño, gana la marca.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE PLATFORM MAP -->
+<section class="s" id="mapa">
+  <div class="wrap">
+    <span class="kick rv">Explóralo tú mismo</span>
+    <h2 class="big rv">¿Cómo funciona <span style="color:var(--cyan)">para ti?</span></h2>
+    <p class="sub rv d1">Elige tu rol — caminante, marca, banco de alimentos, comercio — y recorre tu viaje paso a paso. Toca cualquier nodo del mapa para descubrir todo lo que hace. ▶ Reproduce el viaje y míralo cobrar vida.</p>
+    <div class="mapframe glass rv d1"><iframe src="mapa.html" title="Mapa interactivo de la plataforma SuperPasos" loading="lazy"></iframe></div>
+    <button class="btn grad mobLaunch" onclick="openViewer('mapa.html','Mapa · ¿Cómo funciona para ti?')">🗺️ Abrir el mapa interactivo</button>
+  </div>
+</section>
+
+<!-- APP DEMO -->
+<section class="s" id="app">
+  <div class="wrap">
+    <span class="kick rv">La app</span>
+    <h2 class="big rv">Camina como siempre. <span style="color:var(--cyan)">Cambia vidas sin darte cuenta.</span></h2>
+    <div class="demo" style="margin-top:46px">
+      <div class="rv">
+        <div class="phonewrap">
+          <div class="liveBadge"><span class="ld"></span> APP EN VIVO · interactúa 👆</div>
+          <div class="phone"><div class="scr">
+            <div class="iframeskel" id="ifSkel"><div class="ring"></div><p>Cargando la app real…</p></div>
+            <iframe id="appFrame" class="appFrame" src="https://superpodercamina.vercel.app/" title="App SuperPasos en vivo" loading="lazy" onload="document.getElementById('ifSkel').style.display='none'"></iframe>
+          </div></div>
+          <div class="phoneglow"></div>
+        </div>
+        <button class="btn grad mobLaunch" onclick="openViewer('https://superpodercamina.vercel.app/','La app SuperPasos · en vivo')">📲 Abrir la app en pantalla completa</button>
+      </div>
+      <div class="demolist rv d1" id="demolist">
+        <div class="ditem act" data-i="0"><div class="di">🚶</div><div><b>Pasos verificados</b><br><span>Lee el chip de movimiento + GPS. Imposible de hacer trampa.</span></div></div>
+        <div class="ditem" data-i="1"><div class="di">🍲</div><div><b>Impacto en tiempo real</b><br><span>Cada caminata se convierte en una comida que puedes ver.</span></div></div>
+        <div class="ditem" data-i="2"><div class="di">🎟️</div><div><b>Billetera de cupones</b><br><span>Canjea en comercios aliados con código y mapa de tiendas cercanas.</span></div></div>
+        <div class="ditem" data-i="3"><div class="di">🏆</div><div><b>Parche y Reto del Mes</b><br><span>Comunidad, ranking y premios — caminar se vuelve adictivo.</span></div></div>
+        <div style="margin-top:22px"><button class="btn grad" onclick="openInq('caminante')">Descargar la app</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT CALCULATOR -->
+<section class="s" id="calc">
+  <div class="wrap">
+    <span class="kick rv">Calcula tu impacto</span>
+    <h2 class="big rv">¿Cuántos niños alimentarías <span style="color:var(--green)">solo por caminar?</span></h2>
+    <p class="sub rv d1">Mueve el control y mira en tiempo real cómo tus pasos — y los de tu parche — se convierten en comidas cada mes.</p>
+    <div class="calc">
+      <div class="calcpanel glass rv">
+        <div class="calcbig"><span id="calcMeals">11</span><small>comidas al mes que ayudas a donar</small></div>
+        <div class="sliderrow">
+          <label>Pasos al día <b><span id="calcSteps">9.000</span> 👣</b></label>
+          <input type="range" id="stepSlider" min="2000" max="20000" step="500" value="9000" oninput="updateCalc()">
+        </div>
+        <div class="calcnote" id="calcNote">Equivale a unos <b id="calcKm">6,3 km</b> diarios. Con tu parche (5 personas) serían <b id="calcParche">57</b> comidas al mes. 🍲</div>
+        <div style="margin-top:22px"><button class="btn grad" onclick="openInq('caminante')">Empieza a sumar comidas</button></div>
+      </div>
+      <div class="calcchart glass rv d1"><canvas id="calcChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIENCES / BENEFITS -->
+<section class="s" id="aliados">
+  <div class="wrap">
+    <span class="kick rv">Por qué sumarte</span>
+    <h2 class="big rv">Todos ganan. <span style="color:var(--green)">Literalmente todos.</span></h2>
+    <p class="sub rv d1">SuperPasos no es caridad: es un motor donde la marca, la persona, el banco de alimentos y el país ganan al mismo tiempo.</p>
+    <div class="aud">
+      <div class="acard glass ae rv"><div class="ah">🏢</div><span class="tag green">Para las marcas</span><h3>Marketing que sí deja huella</h3>
+        <ul>
+          <li><span class="ck">✓</span> Cada peso es impacto medible y trazable, no un comercial que se olvida.</li>
+          <li><span class="ck">✓</span> Deducción tributaria del <b>125%</b> de lo donado (art. 126‑2 E.T.) — y nosotros gestionamos que el banco de alimentos te emita el certificado.</li>
+          <li><span class="ck">✓</span> Tu marca aparece en cada cupón y en cada "gracias" al usuario.</li>
+          <li><span class="ck">✓</span> Reporte y certificado de impacto listo para tu junta y tu informe ESG.</li>
+        </ul>
+        <div class="big-n green">+38%</div><span style="font-size:13px;color:var(--mut)">recordación de marca proyectada vs. publicidad tradicional*</span>
+      </div>
+      <div class="acard glass au rv d1"><div class="ah">🚶</div><span class="tag ccyan">Para las personas</span><h3>Tu salud, con propósito</h3>
+        <ul>
+          <li><span class="ck">✓</span> Caminas más y te mantienes saludable — con una razón real para hacerlo.</li>
+          <li><span class="ck">✓</span> Cada paso alimenta a un niño: motivación que ningún podómetro te da.</li>
+          <li><span class="ck">✓</span> Ganas cupones y premios de marcas que amas.</li>
+          <li><span class="ck">✓</span> Compites con tu parche y vives el impacto en comunidad.</li>
+        </ul>
+        <div class="big-n ccyan">+13 pts</div><span style="font-size:13px;color:var(--mut)">de cumplimiento de la meta de actividad física de la OMS*</span>
+      </div>
+      <div class="acard glass ag rv d2"><div class="ah">🏛️</div><span class="tag cviolet">Para el país</span><h3>Política pública, costo fiscal cero</h3>
+        <ul>
+          <li><span class="ck">✓</span> Nutrición infantil financiada 100% por el sector privado.</li>
+          <li><span class="ck">✓</span> El primer dato vivo de actividad física de los colombianos.</li>
+          <li><span class="ck">✓</span> Niños mejor alimentados que rinden más en clase.</li>
+          <li><span class="ck">✓</span> Menos sedentarismo = ahorro real en el sistema de salud.</li>
+        </ul>
+        <div class="big-n cviolet">$0</div><span style="font-size:13px;color:var(--mut)">de costo fiscal — el Estado solo gana datos e impacto</span>
+      </div>
+    </div>
+    <p style="font-size:11.5px;color:#6F7E97;margin-top:20px">*Proyecciones ilustrativas del modelo SuperPasos, basadas en benchmarks de marketing con causa y de programas de actividad física. Se afinan con datos reales de cada campaña.</p>
+  </div>
+</section>
+
+<!-- FORECAST (retailer business case) -->
+<section class="s">
+  <div class="wrap">
+    <span class="kick rv">El caso de negocio</span>
+    <h2 class="big rv">Para los comercios: <span style="color:var(--gold)">cada paso es un cliente que vuelve.</span></h2>
+    <p class="sub rv d1">Mover parte de tu presupuesto de marketing a SuperPasos no es donar y ya — es atraer tráfico a tienda, fidelizar y construir marca, mientras alimentas a Colombia.</p>
+    <div class="fcgrid">
+      <div class="chartbox glass rv"><canvas id="fcChart"></canvas></div>
+      <div class="rv d1">
+        <div class="benefit"><span class="bi" style="background:rgba(25,227,125,.15);color:var(--green)">🛒</span><div><b>Tráfico a tienda</b><span>El cupón se redime en tu punto de venta. Cada caminante motivado es una visita y una compra adicional.</span></div></div>
+        <div class="benefit"><span class="bi" style="background:rgba(255,210,63,.15);color:var(--gold)">🧾</span><div><b>Beneficio tributario (art. 126‑2)</b><span>Las donaciones a bancos de alimentos deducen el 125% de su valor. Como socio, te conseguimos el certificado de donación que lo respalda.</span></div></div>
+        <div class="benefit"><span class="bi" style="background:rgba(45,212,255,.15);color:var(--cyan)">💚</span><div><b>Marca con propósito</b><span>El 70% de los consumidores prefiere marcas con causa. Apareces en cada comida y cada cupón.</span></div></div>
+        <div class="benefit"><span class="bi" style="background:rgba(139,108,255,.15);color:var(--violet)">📊</span><div><b>Datos e informe ESG</b><span>Dashboard en vivo + certificado de impacto, listos para tu reporte de sostenibilidad.</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORM INSIDE (live dashboards) -->
+<section class="s" id="dentro">
+  <div class="wrap">
+    <span class="kick rv">La plataforma por dentro</span>
+    <h2 class="big rv">Transparencia total: <span style="color:var(--cyan)">mira el tablero real.</span></h2>
+    <p class="sub rv d1">Esto es exactamente lo que ven nuestros aliados por dentro. Cambia de vista y explora el panel en vivo — métricas, mapas e impacto (con datos de demostración).</p>
+    <div class="dtabs rv d1">
+      <button class="dtab on" data-t="dash" onclick="showDash('dash',this)">🏢 Patrocinadores</button>
+      <button class="dtab" data-t="gob" onclick="showDash('gob',this)">🏛️ Gobierno</button>
+      <button class="dtab" data-t="banco" onclick="showDash('banco',this)">🍲 Bancos de alimentos</button>
+    </div>
+    <div class="dashframe glass rv d1"><iframe id="dashFrame" src="https://empresas-deploy.vercel.app/?demo=1&tab=dash" title="Tablero SuperPasos por dentro" loading="lazy"></iframe></div>
+    <p class="mobLaunch" style="color:var(--mut);font-size:13.5px;display:none;text-align:center;margin-top:18px">👆 Toca una vista arriba para abrir el tablero en pantalla completa.</p>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:14px">Tablero de demostración. Cada patrocinador, banco de alimentos y entidad de gobierno tiene su propio acceso con datos reales y en vivo.</p>
+  </div>
+</section>
+
+<!-- AI FIRST -->
+<section class="s" id="ia">
+  <div class="wrap">
+    <span class="kick rv">IA en el corazón</span>
+    <h2 class="big rv">Una plataforma <span style="color:var(--violet)">AI-first</span>, no un podómetro con causa.</h2>
+    <p class="sub rv d1">La inteligencia artificial hace a SuperPasos más justa, más eficiente y más humana — desde verificar cada paso hasta contar la historia de cada comida.</p>
+    <div class="aigrid">
+      <div class="aicard glass rv"><div class="ai-ic">🛡️</div><h3>Anti-fraude de pasos</h3><p>Modelos que detectan patrones imposibles (carro, agitar el teléfono) y garantizan que cada comida nace de actividad real.</p></div>
+      <div class="aicard glass rv d1"><div class="ai-ic">🎯</div><h3>Coach personal</h3><p>Metas y mensajes personalizados que mantienen a cada persona caminando, según su ritmo y hábitos.</p></div>
+      <div class="aicard glass rv d2"><div class="ai-ic">📦</div><h3>Pronóstico de demanda</h3><p>Predice cuántas comidas y dónde, para que los bancos de alimentos planeen compras y logística sin desperdicio.</p></div>
+      <div class="aicard glass rv"><div class="ai-ic">🤝</div><h3>Matching marca–causa</h3><p>Conecta a cada patrocinador con las regiones y públicos donde su aporte genera más impacto y afinidad.</p></div>
+      <div class="aicard glass rv d1"><div class="ai-ic">📖</div><h3>Historias de impacto</h3><p>Genera automáticamente el relato y el reporte de cada campaña: a quién llegó, dónde y qué cambió.</p></div>
+      <div class="aicard glass rv d2"><div class="ai-ic">🗣️</div><h3>Pasi, tu guía con IA</h3><p class="soon">En camino</p><p>Un asistente conversacional que responde a usuarios, marcas y bancos en lenguaje natural, 24/7.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- UN MISSION 2030 -->
+<section class="s un" id="mision">
+  <div class="wrap">
+    <span class="kick rv">Misión global</span>
+    <h2 class="big rv" style="margin:0 auto">Le ayudamos a Colombia a llegar al <span style="color:var(--green)">Hambre Cero 2030.</span></h2>
+    <p class="sub rv d1" style="margin:18px auto 0">El mundo se comprometió a terminar con el hambre para 2030 (ODS 2 de la ONU). El <b style="color:#fff">WFP Innovation Accelerator</b>, desde Múnich, escala innovaciones en más de 120 países para lograrlo. SuperPasos nace de esa misma convicción: <b style="color:#fff">la innovación y la gente pueden vencer el hambre.</b></p>
+    <div class="progressbar rv d2">
+      <div class="pbtrack"><i class="pbfill" id="pbfill"></i></div>
+      <div class="pblabels"><span>2015 · nace el movimiento global</span><span><b style="color:#fff">Hoy</b></span><span>2030 · Hambre Cero</span></div>
+    </div>
+    <p style="font-size:13px;color:var(--mut);margin-top:26px">Caminar también es innovar contra el hambre.</p>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="wrap">
+    <h2 class="rv">¿Por qué <span class="sweep">SuperPasos</span> y por qué ahora?</h2>
+    <p class="lead rv d1">Porque la salud de tu gente, el futuro de un niño y el propósito de tu marca pueden vivir en el mismo paso. La pregunta no es si deberías sumarte — es por qué no lo has hecho aún.</p>
+    <div class="cta rv d2">
+      <button class="btn grad" onclick="openInq('empresa')">🏢 Quiero patrocinar</button>
+      <button class="btn coral" onclick="openInq('caminante')">🚶 Quiero caminar</button>
+      <button class="btn glass" onclick="openInq('banco')">🍲 Soy banco de alimentos</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="ft">
+      <div style="max-width:30ch">
+        <div class="brand"><span class="blogo">👟</span> <b>SuperPasos</b></div>
+        <p style="margin-top:12px;color:var(--mut);font-size:14px">Tus pasos, su superpoder. Plataforma colombiana, IA-first, que transforma actividad física en nutrición infantil.</p>
+      </div>
+      <div><h4>Plataforma</h4><a class="fl" href="#proceso">Cómo funciona</a><a class="fl" href="#app">La app</a><a class="fl" href="#ia">Inteligencia artificial</a><a class="fl" href="#mision">Misión 2030</a></div>
+      <div><h4>Súmate</h4><a class="fl" href="#" onclick="openInq('empresa');return false">Soy una marca</a><a class="fl" href="#" onclick="openInq('caminante');return false">Soy caminante</a><a class="fl" href="#" onclick="openInq('banco');return false">Soy banco de alimentos</a></div>
+      <div><h4>Contacto</h4><a class="fl" href="mailto:edgarbluegroup@gmail.com">edgarbluegroup@gmail.com</a><a class="fl" href="/privacidad.html">Política de privacidad</a></div>
+    </div>
+    <div class="src">
+      <b>Fuentes:</b> UNICEF / Colombia Reports (<a href="https://colombiareports.com/one-ten-colombias-children-suffer-chronic-malnutrition-unicef/">enlace</a>) · Global Nutrition Report — Colombia (<a href="https://globalnutritionreport.org/resources/nutrition-profiles/latin-america-and-caribbean/south-america/colombia/">enlace</a>) · WFP Innovation Accelerator, Múnich (<a href="https://innovation.wfp.org/about">enlace</a>) · ABACO (<a href="https://abaco.org.co/">enlace</a>).
+      <br>Cifras con fines informativos; pueden variar según fuente y año. Las proyecciones de marca y actividad son ilustrativas del modelo SuperPasos. SuperPasos no está afiliada a ABACO, UNICEF ni al WFP; las referencias son contextuales.
+    </div>
+  </div>
+</footer>
+
+<!-- MASCOT PASI -->
+<div id="pasi">
+  <svg class="pasiAvatar" id="pasiAv" viewBox="0 0 100 100" onclick="toggleChat()">
+    <ellipse cx="50" cy="92" rx="20" ry="4" fill="rgba(0,0,0,.35)"/>
+    <path class="cape" d="M35 38 Q20 60 28 80 L50 70 Z" fill="#7C5CFF"/>
+    <rect class="leg leg2" x="46" y="60" width="8" height="22" rx="4" fill="#0e7a4a"/>
+    <rect class="leg" x="42" y="60" width="8" height="22" rx="4" fill="#19E37D"/>
+    <rect x="34" y="34" width="32" height="34" rx="14" fill="url(#pg)"/>
+    <circle cx="50" cy="26" r="16" fill="#ffd9b8"/>
+    <path d="M34 24 a16 16 0 0 1 32 0 q-16 -10 -32 0" fill="#2b2b3a"/>
+    <circle cx="44" cy="26" r="2.4" fill="#1b2030"/><circle cx="56" cy="26" r="2.4" fill="#1b2030"/>
+    <path d="M45 32 q5 4 10 0" stroke="#1b2030" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M62 40 l12 -4 -3 8 Z" fill="#FFD23F"/>
+    <defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19E37D"/><stop offset="1" stop-color="#2DD4FF"/></linearGradient></defs>
+  </svg>
+  <div class="bubble" id="pasiBubble" onclick="toggleChat(true)"><span class="nm">Pasi · tu guía <b>IA</b></span><span id="pasiTxt">¡Hola! Soy Pasi 👟 Tócame para preguntarme lo que quieras — en español o English.</span></div>
+</div>
+
+<!-- PASI CHAT (AI assistant) -->
+<div id="pasiChat">
+  <div class="ph"><span class="av">👟</span><div><b>Pasi</b><div class="st">● Asistente IA · EN / ES</div></div><span class="cx" onclick="toggleChat(false)">✕</span></div>
+  <div id="pasiMsgs"></div>
+  <div class="chips2" id="pasiChips">
+    <button onclick="quickAsk('¿Cómo funciona SuperPasos?')">¿Cómo funciona?</button>
+    <button onclick="quickAsk('How can my company sponsor?')">Sponsor a brand</button>
+    <button onclick="quickAsk('¿Cómo gano cupones?')">¿Y los cupones?</button>
+  </div>
+  <form id="pasiForm" onsubmit="return askPasi(event)">
+    <input id="pasiInput" placeholder="Pregúntame en español o English…" autocomplete="off">
+    <button type="submit">→</button>
+  </form>
+</div>
+<div class="tourbar"><i id="tourbar"></i></div>
+
+<!-- INQUIRY MODAL -->
+<!-- MOBILE: sticky CTA bar -->
+<div class="mbar">
+  <button class="btn grad" onclick="openInq('empresa')">🏢 Soy marca</button>
+  <button class="btn coral" onclick="openInq('caminante')">🚶 Caminar</button>
+</div>
+
+<!-- Full-screen viewer for heavy embeds on mobile -->
+<div class="viewer" id="viewer">
+  <div class="viewerBar"><span id="viewerTitle">SuperPasos</span><span class="vClose" onclick="closeViewer()">✕ Cerrar</span></div>
+  <iframe id="viewerFrame" src="about:blank" title="SuperPasos"></iframe>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modalc">
+    <span class="x" onclick="closeInq()">✕</span>
+    <h3 id="mTitle">Súmate a SuperPasos</h3>
+    <p id="mSub">Déjanos tus datos y te contactamos en menos de 24 horas.</p>
+    <label>Soy…</label>
+    <select id="mRole" onchange="renderInq()">
+      <option value="empresa">Una marca / patrocinador</option>
+      <option value="caminante">Caminante</option>
+      <option value="banco">Banco de alimentos</option>
+    </select>
+    <div id="mFields"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- nav scroll state ---------- */
+const nav=document.getElementById('nav');
+addEventListener('scroll',()=>{ nav.classList.toggle('scrolled', scrollY>30); });
+
+/* ---------- reveal on scroll ---------- */
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });},{threshold:.16});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+/* ---------- count-up numbers ---------- */
+function animCount(el){
+  const target=parseFloat(el.dataset.count), suffix=el.dataset.suffix||'';
+  const isFloat=String(target).includes('.'); const dur=1500, t0=performance.now();
+  function tick(now){ const p=Math.min(1,(now-t0)/dur); const e=1-Math.pow(1-p,3); let v=target*e;
+    el.textContent=(isFloat?v.toFixed(1):Math.round(v).toLocaleString('es-CO'))+suffix;
+    if(p<1) requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+}
+const cio=new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ animCount(e.target); cio.unobserve(e.target);} });},{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+/* ---------- process nodes light up sequentially ---------- */
+const ptrack=document.getElementById('ptrack');
+const pio=new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){
+  const nodes=ptrack.querySelectorAll('.pnode');
+  nodes.forEach((n,i)=>setTimeout(()=>{ nodes.forEach(x=>x.classList.remove('lit')); n.classList.add('lit'); if(i===nodes.length-1) setTimeout(()=>n.classList.remove('lit'),700); }, i*650));
+  pio.unobserve(e.target);} });},{threshold:.4});
+pio.observe(ptrack);
+
+/* ---------- app demo cycler ---------- */
+const items=document.querySelectorAll('#demolist .ditem');
+let demoI=0;
+function highlight(i){ demoI=i; items.forEach((t,k)=>t.classList.toggle('act',k===i)); }
+items.forEach(t=>{ t.addEventListener('mouseenter',()=>highlight(+t.dataset.i)); t.addEventListener('click',()=>highlight(+t.dataset.i)); });
+// gently rotate the highlight so the list feels alive
+let demoTimer=setInterval(()=>highlight((demoI+1)%items.length),2600);
+document.getElementById('demolist').addEventListener('mouseleave',()=>{ /* keep last */ });
+
+/* ---------- forecast chart ---------- */
+function buildChart(){
+  const ctx=document.getElementById('fcChart'); if(!ctx||!window.Chart) return;
+  const g1=ctx.getContext('2d').createLinearGradient(0,0,0,340); g1.addColorStop(0,'rgba(25,227,125,.6)'); g1.addColorStop(1,'rgba(25,227,125,0)');
+  new Chart(ctx,{type:'line',data:{labels:['Mes 1','Mes 2','Mes 3','Mes 4','Mes 5','Mes 6'],
+    datasets:[
+      {label:'Comidas donadas',data:[8,19,34,52,76,108],borderColor:'#19E37D',backgroundColor:g1,fill:true,tension:.4,borderWidth:3,pointRadius:0},
+      {label:'Visitas a tienda (cupones)',data:[5,14,27,44,67,96],borderColor:'#2DD4FF',backgroundColor:'transparent',tension:.4,borderWidth:3,pointRadius:0,borderDash:[6,5]},
+      {label:'Recordación de marca (índice)',data:[10,22,38,55,72,90],borderColor:'#FFD23F',backgroundColor:'transparent',tension:.4,borderWidth:3,pointRadius:0}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#C7D2E6',font:{size:12},usePointStyle:true,pointStyle:'line'}}},
+      scales:{x:{ticks:{color:'#8392ad'},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#8392ad'},grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'Crecimiento (índice)',color:'#8392ad'}}}}
+  });
+}
+const fio=new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ buildChart(); fio.unobserve(e.target);} });},{threshold:.3});
+fio.observe(document.getElementById('fcChart'));
+
+/* ---------- scroll progress bar ---------- */
+addEventListener('scroll',()=>{ const h=document.documentElement; const p=h.scrollTop/(h.scrollHeight-h.clientHeight)*100; document.getElementById('scrollprog').style.width=p+'%'; });
+
+/* ---------- mouse parallax on background blobs ---------- */
+const blobs=document.querySelectorAll('.blob');
+addEventListener('mousemove',(e)=>{ const x=(e.clientX/innerWidth-.5), y=(e.clientY/innerHeight-.5);
+  blobs.forEach((b,i)=>{ const f=(i+1)*14; b.style.transform='translate('+(x*f)+'px,'+(y*f)+'px)'; }); });
+
+/* ---------- partner marquee ---------- */
+const brands=[['🛒','Éxito'],['🛍️','Carulla'],['🏪','Olímpica'],['🟢','Ara'],['🔴','D1'],['🥤','Postobón'],['🍫','Nutresa'],['🥛','Alquería'],['☕','Juan Valdez'],['🏬','Jumbo'],['💊','Cruz Verde'],['⛽','Terpel']];
+const mtrack=document.getElementById('mtrack');
+if(mtrack){ const set=brands.map(b=>'<div class="mchip"><span>'+b[0]+'</span>'+b[1]+'</div>').join(''); mtrack.innerHTML=set+set; }
+
+/* ---------- impact calculator + live chart ---------- */
+let calcChart=null;
+function buildCalcChart(){
+  const ctx=document.getElementById('calcChart'); if(!ctx||!window.Chart||calcChart) return;
+  calcChart=new Chart(ctx,{type:'bar',data:{labels:['Tú','Tu parche (×5)','Tu cuadra (×20)','Tu barrio (×100)'],
+    datasets:[{label:'Comidas / mes',data:[11,57,228,1140],
+      backgroundColor:['#19E37D','#2DD4FF','#8B6CFF','#FFD23F'],borderRadius:10,maxBarThickness:60}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:900,easing:'easeOutQuart'},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y.toLocaleString('es-CO')+' comidas/mes'}}},
+      scales:{x:{ticks:{color:'#C7D2E6',font:{size:12}},grid:{display:false}},
+              y:{ticks:{color:'#8392ad'},grid:{color:'rgba(255,255,255,.05)'}}}}});
+}
+function updateCalc(){
+  const steps=parseInt(document.getElementById('stepSlider').value);
+  const mealsMo=Math.round(steps*30/8000); // 8.000 pasos = 1 comida
+  document.getElementById('calcSteps').textContent=steps.toLocaleString('es-CO');
+  document.getElementById('calcMeals').textContent=mealsMo;
+  document.getElementById('calcKm').textContent=(steps*0.0007).toFixed(1).replace('.',',')+' km';
+  document.getElementById('calcParche').textContent=(mealsMo*5).toLocaleString('es-CO');
+  if(calcChart){ calcChart.data.datasets[0].data=[mealsMo,mealsMo*5,mealsMo*20,mealsMo*100]; calcChart.update(); }
+}
+const calcio=new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){ buildCalcChart(); updateCalc(); calcio.unobserve(e.target);} });},{threshold:.3});
+calcio.observe(document.getElementById('calcChart'));
+
+/* ---------- platform-inside dashboard switcher ---------- */
+function showDash(t,el){
+  document.querySelectorAll('.dtab').forEach(b=>b.classList.toggle('on',b===el));
+  const url='https://empresas-deploy.vercel.app/?demo=1&tab='+t;
+  if(innerWidth<=760){ openViewer(url, 'Tablero · '+(el?el.textContent.trim():'')); return; }
+  document.getElementById('dashFrame').src=url;
+}
+/* full-screen viewer (mobile tap-to-open) */
+function openViewer(url,title){ document.getElementById('viewerTitle').textContent=title||'SuperPasos'; document.getElementById('viewerFrame').src=url; document.getElementById('viewer').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeViewer(){ document.getElementById('viewer').classList.remove('open'); document.getElementById('viewerFrame').src='about:blank'; document.body.style.overflow=''; }
+
+/* ---------- 2030 progress bar ---------- */
+const mio=new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting){
+  const yr=new Date().getFullYear(); const pct=Math.min(100,Math.max(0,(yr-2015)/(2030-2015)*100));
+  document.getElementById('pbfill').style.width=pct+'%'; mio.unobserve(e.target);} });},{threshold:.5});
+mio.observe(document.getElementById('mision'));
+
+/* ---------- Pasi guide + tour ---------- */
+const bubble=document.getElementById('pasiBubble'), pasiTxt=document.getElementById('pasiTxt');
+let bubbleTimer;
+function pasiSay(txt){ if(txt) pasiTxt.textContent=txt; bubble.classList.add('show'); clearTimeout(bubbleTimer); bubbleTimer=setTimeout(()=>bubble.classList.remove('show'),5200); }
+setTimeout(()=>pasiSay(null),1400);
+const tourSteps=[
+  {id:'problema',txt:'Mira esto: 1 de cada 10 niños en Colombia sufre desnutrición crónica. Aquí empieza nuestra misión. 💚'},
+  {id:'proceso',txt:'Así funciona: caminas, una marca patrocina, el niño come y tú ganas un cupón. ¡Cuatro pasos!'},
+  {id:'app',txt:'Esta es la app. Cuenta tus pasos aunque apagues la pantalla, y conviertes salud en comida.'},
+  {id:'aliados',txt:'Aquí ganan todos: las marcas, las personas, los bancos y el país entero. Te muestro por qué.'},
+  {id:'ia',txt:'Somos AI-first: usamos inteligencia artificial para verificar pasos, predecir demanda y contar el impacto.'},
+  {id:'mision',txt:'Y todo apunta a una meta mundial: Hambre Cero para 2030. ¿Te sumas? 🚀'}
+];
+let tIdx=0, touring=false;
+function startTour(){ touring=true; tIdx=0; runTour(); }
+function runTour(){ if(tIdx>=tourSteps.length){ touring=false; document.getElementById('tourbar').style.width='0%'; pasiSay('¡Eso es SuperPasos! Toca un botón y súmate. 👟'); return; }
+  const st=tourSteps[tIdx]; document.getElementById(st.id).scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('tourbar').style.width=((tIdx+1)/tourSteps.length*100)+'%';
+  setTimeout(()=>{ pasiSay(st.txt); tIdx++; setTimeout(runTour,4200); },700);
+}
+/* contextual bubble while scrolling (when not touring) */
+const secMsgs={problema:'El problema que resolvemos 💔',proceso:'Cuatro pasos, cero fricción ✨',app:'Camina como siempre 🚶',aliados:'Aquí ganan todos 🤝',ia:'Inteligencia artificial en el corazón 🧠',mision:'Rumbo a Hambre Cero 2030 🌍'};
+const sio=new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting && !touring && secMsgs[e.target.id]) pasiSay(secMsgs[e.target.id]); });},{threshold:.55});
+Object.keys(secMsgs).forEach(id=>{ const el=document.getElementById(id); if(el) sio.observe(el); });
+
+/* ---------- inquiry modal (role-specific lead capture) ---------- */
+const APP_URL='https://superpodercamina.vercel.app/';
+const roleTitles={
+  empresa:['Conviértete en patrocinador','Lleva tu marketing al siguiente nivel con impacto medible. Te contactamos en menos de 24 horas.'],
+  caminante:['Empieza a caminar','Abre la app y convierte tus pasos en comidas. No necesitas descargar nada.'],
+  banco:['Únete como banco de alimentos','Suma un nuevo flujo de donaciones predecible y trazable. Te contactamos en menos de 24 horas.']
+};
+// field sets per role; caminante has no form (just launch the app)
+const fieldDefs={
+  empresa:[
+    ['coName','Nombre de la empresa','text','Ej: Postobón'],
+    ['name','Tu nombre','text','Tu nombre y cargo'],
+    ['email','Correo corporativo','email','nombre@empresa.com'],
+    ['phone','Teléfono','tel','+57 ...'],
+    ['wa','WhatsApp','tel','+57 ... (en Colombia todo va por WhatsApp 💚)']
+  ],
+  banco:[
+    ['orgName','Nombre de la institución u organización','text','Ej: Banco de Alimentos de Cali'],
+    ['name','Tu nombre','text','Tu nombre y cargo'],
+    ['email','Correo institucional','email','nombre@organizacion.org'],
+    ['phone','Teléfono','tel','+57 ...'],
+    ['wa','WhatsApp','tel','+57 ... (en Colombia todo va por WhatsApp 💚)']
+  ]
+};
+function renderInq(){
+  const role=document.getElementById('mRole').value;
+  const t=roleTitles[role]; document.getElementById('mTitle').textContent=t[0]; document.getElementById('mSub').textContent=t[1];
+  const box=document.getElementById('mFields');
+  if(role==='caminante'){
+    box.innerHTML=`
+      <div style="text-align:center;padding:8px 0 4px">
+        <div style="font-size:46px;margin-bottom:8px">📲</div>
+        <p style="color:var(--mut);font-size:14.5px;margin-bottom:18px">SuperPasos funciona directo en tu navegador — sin App Store, sin instalar. Ábrela y empieza a caminar.</p>
+        <a class="btn grad" style="width:100%;justify-content:center;margin-bottom:10px" href="${APP_URL}" target="_blank" rel="noopener">🚶 Abrir la app ahora</a>
+        <button class="btn glass" style="width:100%;justify-content:center" onclick="copyAppLink(this)">🔗 Copiar el enlace para mi celular</button>
+      </div>`;
+    return;
+  }
+  const fields=fieldDefs[role];
+  box.innerHTML = fields.map(f=>`<label>${f[1]}</label><input id="inq_${f[0]}" type="${f[2]}" placeholder="${f[3]}">`).join('')
+    + `<button class="btn grad" style="width:100%;margin-top:22px;justify-content:center" onclick="sendInq()">Enviar y contactar →</button>`;
+}
+function openInq(role){ document.getElementById('mRole').value=role||'empresa'; renderInq(); document.getElementById('modal').classList.add('open'); }
+function closeInq(){ document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeInq(); });
+function copyAppLink(btn){ navigator.clipboard?.writeText(APP_URL).then(()=>{ btn.textContent='✅ ¡Enlace copiado!'; setTimeout(()=>btn.textContent='🔗 Copiar el enlace para mi celular',2200); }); }
+function sendInq(){
+  const role=document.getElementById('mRole').value, fields=fieldDefs[role];
+  const vals={}; fields.forEach(f=>vals[f[0]]=(document.getElementById('inq_'+f[0])||{}).value||'');
+  const reqName = role==='empresa' ? vals.coName : vals.orgName;
+  if(!reqName || !vals.email){ alert('Por favor completa al menos el nombre de la '+(role==='empresa'?'empresa':'organización')+' y el correo.'); return; }
+  const lines = fields.map(f=>f[1]+': '+vals[f[0]]).join('\n');
+  const subj=encodeURIComponent('SuperPasos · '+(role==='empresa'?'Patrocinador':'Banco de alimentos')+' · '+reqName);
+  const body=encodeURIComponent('Quiero sumarme a SuperPasos como '+(role==='empresa'?'patrocinador':'banco de alimentos')+'.\n\n'+lines);
+  window.location.href='mailto:edgarbluegroup@gmail.com?subject='+subj+'&body='+body;
+}
+
+/* ---------- Pasi AI chat (bilingual, via backend → Claude) ---------- */
+const PASI_API='https://cya-backend-deploy.vercel.app';
+let pasiHistory=[], pasiBusy=false, pasiGreeted=false;
+function toggleChat(open){
+  const c=document.getElementById('pasiChat');
+  const show = (open===undefined) ? !c.classList.contains('open') : open;
+  c.classList.toggle('open',show);
+  if(show){
+    bubble.classList.remove('show');
+    if(!pasiGreeted){ addMsg('a','¡Hola! Soy Pasi 👟 Pregúntame lo que quieras sobre SuperPasos — en español o in English.'); pasiGreeted=true; }
+    setTimeout(()=>document.getElementById('pasiInput').focus(),60);
+  }
+}
+function addMsg(role,text){
+  const m=document.getElementById('pasiMsgs');
+  const d=document.createElement('div'); d.className='msg '+(role==='u'?'u':'a'); d.textContent=text;
+  m.appendChild(d); m.scrollTop=m.scrollHeight; return d;
+}
+function quickAsk(q){ document.getElementById('pasiInput').value=q; askPasi(new Event('x')); }
+async function askPasi(e){
+  if(e&&e.preventDefault) e.preventDefault();
+  if(pasiBusy) return false;
+  const inp=document.getElementById('pasiInput'); const q=(inp.value||'').trim(); if(!q) return false;
+  const chips=document.getElementById('pasiChips'); if(chips) chips.style.display='none';
+  inp.value=''; addMsg('u',q); pasiBusy=true;
+  const typing=addMsg('a','Pasi está escribiendo…'); typing.classList.add('typing');
+  try{
+    const r=await fetch(PASI_API+'/pasi/ask',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({question:q, history:pasiHistory.slice(-6)})});
+    const j=await r.json(); typing.remove();
+    const a=j.answer||'Lo siento, no pude responder ahora. 🙏';
+    addMsg('a',a);
+    pasiHistory.push({role:'user',content:q},{role:'assistant',content:a});
+  }catch(err){
+    typing.remove();
+    addMsg('a','Ups, no me pude conectar 🙈. Intenta de nuevo o escribe a edgarbluegroup@gmail.com');
+  }finally{ pasiBusy=false; }
+  return false;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+name: label
+descriptions:
+  user: Stores classification labels used to tag or categorize items, with display styling and status metadata.
+table: oh-data-warehouse.adwords_orlando_health.label
+grain:
+- id
+columns:
+- name: id
+  type: number
+  descriptions:
+    ai: Unique numeric identifier for each label record.
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+- name: attribute_background_color
+  type: string
+  descriptions:
+    ai: Hex color code used to visually display the label background.
+- name: attribute_description
+  type: string
+  descriptions:
+    ai: Optional text describing the label's purpose or usage.
+- name: attribute_type
+  type: string
+  descriptions:
+    ai: Defines how the label attribute is rendered, e.g., DisplayAttribute.
+- name: label_type
+  type: string
+  descriptions:
+    ai: Categorizes the label format, such as TextLabel.
+- name: name
+  type: string
+  descriptions:
+    ai: Human-readable label name shown to users for categorization.
+- name: status
+  type: string
+  descriptions:
+    ai: Indicates whether the label is active; e.g., ENABLED or DISABLED.
+measures: []

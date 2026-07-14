@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "SuperPasos",
+    "slug": "superpasos",
+    "scheme": "superpasos",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "backgroundColor": "#070B16",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.superpasos.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSMotionUsageDescription": "SuperPasos cuenta tus pasos para convertir tu actividad física en comidas donadas a niños en Colombia.",
+        "NSLocationWhenInUseUsageDescription": "SuperPasos usa tu ubicación para verificar tu caminata y mostrarte tiendas cercanas donde redimir tus cupones.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.superpasos.app",
+      "permissions": ["ACTIVITY_RECOGNITION", "ACCESS_FINE_LOCATION"],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#070B16"
+      }
+    },
+    "plugins": ["expo-notifications"],
+    "privacy": "public"
+  }
+}

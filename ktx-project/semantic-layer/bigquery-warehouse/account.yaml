@@ -1,0 +1,53 @@
+name: account
+descriptions:
+  user: Google Ads accounts synced via Fivetran, representing advertiser or manager account configurations.
+table: oh-data-warehouse.adwords_orlando_health.account
+grain:
+- id
+columns:
+- name: id
+  type: number
+  descriptions:
+    ai: Unique Google Ads customer account identifier.
+- name: sequence_id
+  type: number
+  descriptions:
+    ai: Ordering sequence for record versioning or deduplication.
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp of the last Fivetran sync for this record.
+  role: time
+- name: account_label_id
+  type: number
+  descriptions:
+    ai: Numeric identifier of the label assigned to this account.
+- name: account_label_name
+  type: string
+  descriptions:
+    ai: Display name of the label assigned to this account.
+- name: can_manage_clients
+  type: boolean
+  descriptions:
+    ai: Indicates whether this account has manager-level client access.
+- name: currency_code
+  type: string
+  descriptions:
+    ai: ISO currency code used for billing and reporting.
+- name: date_timezone
+  type: string
+  descriptions:
+    ai: Timezone used for date-based reporting and scheduling.
+- name: manager_customer_id
+  type: number
+  descriptions:
+    ai: Parent manager account ID if this is a sub-account.
+- name: name
+  type: string
+  descriptions:
+    ai: Business or brand name of the advertising account.
+- name: test_account
+  type: boolean
+  descriptions:
+    ai: Flags whether this is a test account, not real spend.
+measures: []

@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SuperPasos — Tus pasos, su superpoder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<style>
+  :root{
+    --yellow:#FFD23F; --coral:#FF5D73; --teal:#06D6A0; --blue:#1B9AAA; --purple:#9B5DE5;
+    --ink:#3A2E4A; --cream:#FFF9F0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+    font-family:'Fredoka',system-ui,-apple-system,'Segoe UI',sans-serif;}
+  html,body{height:100%;}
+  body{
+    background:linear-gradient(160deg,#FFE066 0%,#FF8C42 38%,#FF5D73 70%,#9B5DE5 100%);
+    background-size:200% 200%; animation:bgshift 14s ease infinite;
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px; overflow-x:hidden;
+  }
+  @keyframes bgshift{0%,100%{background-position:0% 0%}50%{background-position:100% 100%}}
+  .card{
+    background:var(--cream); width:100%; max-width:430px; border-radius:34px; padding:26px 22px 30px;
+    box-shadow:0 24px 70px rgba(58,46,74,.45); text-align:center; position:relative; overflow:hidden;
+  }
+  .card::before{content:"";position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;
+    background:var(--teal);opacity:.18;}
+  .card::after{content:"";position:absolute;bottom:-50px;left:-30px;width:120px;height:120px;border-radius:50%;
+    background:var(--purple);opacity:.16;}
+  .brand{font-size:16px;font-weight:700;color:var(--coral);letter-spacing:.3px;line-height:1.2;position:relative;margin-bottom:8px;}
+  /* BYLINE — the star */
+  .byline{font-size:34px;font-weight:700;line-height:1.05;margin:6px 0 4px;position:relative;}
+  .byline .l1{color:var(--blue);} .byline .l2{color:var(--coral);}
+  .byline span{display:inline-block;animation:pop 2.6s ease-in-out infinite;}
+  @keyframes pop{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.05) rotate(-1.5deg)}}
+  .tag{display:inline-block;background:#fff;color:var(--blue);font-size:12px;font-weight:600;
+       padding:5px 14px;border-radius:20px;margin:8px 0 4px;box-shadow:0 4px 12px rgba(0,0,0,.08);}
+  .cta{font-size:15px;color:var(--ink);font-weight:500;line-height:1.45;margin:12px 6px 6px;position:relative;}
+  .cta b{color:var(--coral);}
+  /* mascots row on landing */
+  .mascots{font-size:34px;margin:6px 0 0;position:relative;height:44px;opacity:.95;}
+  .mascots span{display:inline-block;margin:0 3px;animation:hop 1.3s ease-in-out infinite;}
+  .mascots span:nth-child(2){animation-delay:.15s} .mascots span:nth-child(3){animation-delay:.3s}
+  .mascots span:nth-child(4){animation-delay:.45s} .mascots span:nth-child(5){animation-delay:.6s}
+  @keyframes hop{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-12px) rotate(-8deg)}60%{transform:translateY(0) rotate(6deg)}}
+  /* ring */
+  .ringwrap{position:relative;width:216px;height:216px;margin:14px auto 12px;display:none;}
+  .ringwrap svg{transform:rotate(-90deg);}
+  .bg{stroke:#F0E6D6;} .fg{stroke:url(#grad);stroke-linecap:round;transition:stroke-dashoffset .3s;}
+  .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .steps{font-size:52px;font-weight:700;color:var(--ink);line-height:1;}
+  .of{font-size:14px;color:#9B8AA5;font-weight:500;margin-top:4px;}
+  .status{font-size:13px;color:#9B8AA5;font-weight:500;min-height:18px;margin:6px 0 14px;position:relative;}
+  .status b{color:var(--teal);}
+  /* 3D tactile buttons: a darker "edge" underneath; the button presses down on tap */
+  button{width:100%;padding:16px;border:none;border-radius:16px;font-size:17px;font-weight:700;
+         cursor:pointer;margin-bottom:13px;color:#fff;font-family:'Fredoka',sans-serif;position:relative;
+         box-shadow:0 6px 0 rgba(0,0,0,.22), 0 10px 18px rgba(0,0,0,.18);
+         transition:transform .06s ease, box-shadow .06s ease;}
+  button:active{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.22), 0 3px 8px rgba(0,0,0,.2);}
+  .start{background:linear-gradient(135deg,var(--teal),var(--blue));font-size:19px;}
+  .donate{background:linear-gradient(135deg,var(--coral),#FF8C42);display:none;animation:wiggle 1.1s ease-in-out infinite;}
+  @keyframes wiggle{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+  .sim{background:#fff;color:var(--blue);border:2px solid #E5D9F0;font-size:13px;padding:12px;box-shadow:none;display:none;}
+  .note{font-size:11.5px;color:#9B8AA5;line-height:1.55;margin-top:8px;text-align:left;
+        background:#fff;border-radius:14px;padding:12px 14px;position:relative;}
+  .note b{color:var(--ink);}
+  /* CELEBRATION overlay — scrollable so every button is reachable */
+  .overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:flex-start;
+    padding:28px 22px 40px;text-align:center;z-index:30;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    background:linear-gradient(160deg,#FFE066,#FF5D73 60%,#9B5DE5);background-size:200% 200%;animation:bgshift 8s ease infinite;}
+  .overlay.show{display:flex;}
+  .overlay .party{margin-top:6px;}
+  .party{font-size:30px;margin-bottom:6px;}
+  .party span{display:inline-block;margin:0 4px;}
+  .party span:nth-child(odd){animation:dance 0.9s ease-in-out infinite;}
+  .party span:nth-child(even){animation:dance2 0.9s ease-in-out infinite;}
+  @keyframes dance{0%,100%{transform:translateY(0) rotate(-10deg)}50%{transform:translateY(-22px) rotate(10deg)}}
+  @keyframes dance2{0%,100%{transform:translateY(-22px) rotate(10deg)}50%{transform:translateY(0) rotate(-10deg)}}
+  .thanks{font-size:54px;font-weight:700;color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.12);line-height:1;margin:4px 0;
+    animation:pop2 .8s ease-in-out infinite;}
+  @keyframes pop2{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  .fed{font-size:22px;font-weight:700;color:#fff;margin:8px 0 4px;}
+  .ovmsg{font-size:15px;color:#fff;font-weight:500;line-height:1.5;max-width:300px;margin:6px auto 0;opacity:.96;}
+  .redeem{background:#fff;color:var(--coral);max-width:300px;margin-top:20px;font-size:16px;}
+  .share{background:#06D6A0;color:#06402F;max-width:300px;font-size:15px;}
+  .share.invite{background:#FFD23F;color:#5A4500;}
+  .appNudge{background:#1B9AAA;color:#fff;max-width:300px;font-size:14px;}
+  .again{background:rgba(255,255,255,.22);color:#fff;max-width:300px;box-shadow:none;font-size:14px;padding:13px;}
+  .ovHint{font-size:12px;color:#fff;opacity:.85;margin-top:8px;max-width:300px;}
+  /* celebration hamburger (fixed to viewport so it stays while scrolling) */
+  .ovHamb{position:fixed;top:16px;right:16px;width:44px;height:44px;border-radius:12px;border:none;
+    background:#fff;color:var(--purple);font-size:21px;z-index:33;cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.18),0 6px 14px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;}
+  .ovHamb:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.18);}
+  .ovMenuBackdrop{display:none;position:fixed;inset:0;background:rgba(44,46,74,.4);z-index:34;}
+  .ovMenuBackdrop.show{display:block;}
+  .ovMenuDrop{display:none;position:fixed;top:66px;right:16px;background:#fff;border-radius:16px;
+    box-shadow:0 14px 40px rgba(0,0,0,.3);overflow:hidden;z-index:35;min-width:220px;}
+  .ovMenuDrop.show{display:block;animation:fadein .18s;}
+  .overlay{ position:fixed; } /* ensure stacking context */
+  .confetti{position:fixed;width:12px;height:12px;top:-14px;z-index:31;border-radius:2px;}
+  .gpsline{font-size:12px;font-weight:600;color:var(--blue);min-height:16px;margin:-4px 0 8px;}
+  .gpsline b{color:var(--teal);}
+  #liveMap{display:none;width:100%;height:150px;border-radius:16px;margin:2px 0 10px;overflow:hidden;border:2px solid #EBE2D2;}
+  .routeWrap{width:100%;max-width:360px;margin:8px auto 4px;}
+  .routeBadge{background:#06D6A0;color:#06402F;font-weight:700;font-size:12.5px;padding:6px 12px;border-radius:14px;display:inline-block;margin-bottom:8px;}
+  #routeMap{width:100%;height:150px;border-radius:16px;overflow:hidden;border:3px solid #fff;background:#EEF3F1;}
+  .routeStats{color:#fff;font-size:12.5px;font-weight:600;margin-top:8px;}
+  .leaflet-control-attribution{font-size:8px;}
+  .streakBadge{display:none;background:#FFF1D6;color:#9A5B13;font-size:13px;font-weight:700;padding:7px 15px;border-radius:18px;margin:0 auto 4px;box-shadow:0 3px 10px rgba(0,0,0,.08);}
+  .streakWin{font-size:17px;font-weight:700;color:#fff;background:rgba(255,255,255,.16);border-radius:16px;padding:9px 16px;margin:4px auto 2px;max-width:300px;}
+  .badgeShelf{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:2px 0 4px;}
+  .badgeShelf .med{font-size:22px;filter:saturate(1.1);} .badgeShelf .locked{opacity:.28;filter:grayscale(1);}
+  .milestone{display:none;background:#FFD23F;color:#5A4500;font-weight:800;border-radius:18px;padding:12px 16px;margin:6px auto;max-width:320px;animation:pop2 .8s ease-in-out infinite;}
+  .milestone .big2{font-size:34px;display:block;}
+  /* hamburger menu */
+  .hamb{position:absolute;top:14px;right:14px;width:42px;height:42px;border-radius:12px;border:none;
+    background:#fff;color:var(--purple);font-size:20px;cursor:pointer;z-index:6;
+    box-shadow:0 4px 0 rgba(0,0,0,.12),0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;}
+  .hamb:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.12);}
+  .menuBackdrop{display:none;position:fixed;inset:0;background:rgba(44,46,74,.35);z-index:7;}
+  .menuBackdrop.show{display:block;}
+  .menuDrop{display:none;position:absolute;top:60px;right:14px;background:#fff;border-radius:16px;
+    box-shadow:0 12px 36px rgba(0,0,0,.22);overflow:hidden;z-index:8;min-width:210px;}
+  .menuDrop.show{display:block;animation:fadein .18s;}
+  @keyframes fadein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  .menuItem{padding:14px 18px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;border-bottom:1px solid #F2ECF8;}
+  .menuItem:last-child{border-bottom:none;}
+  .menuItem:active{background:#F6F0FC;}
+  .mascotBox{display:none;background:#fff;border-radius:16px;padding:8px 14px;margin:2px auto 4px;font-size:13px;font-weight:600;color:var(--ink);box-shadow:0 3px 10px rgba(0,0,0,.07);}
+  .mascotBox .mface{font-size:22px;vertical-align:middle;margin-right:4px;}
+  .mascotBox .mbar{height:6px;border-radius:4px;background:#EDE6F5;margin-top:5px;overflow:hidden;}
+  .mascotBox .mbar div{height:100%;background:linear-gradient(90deg,#FFD23F,#FF8C42);border-radius:4px;}
+  .helped{font-size:14px;font-weight:600;color:#fff;background:rgba(255,255,255,.14);border-radius:14px;padding:10px 14px;margin:4px auto;max-width:320px;line-height:1.4;}
+  .bonusBar{background:#FFD23F;color:#5A4500;font-weight:800;font-size:13px;border-radius:12px;padding:8px 12px;margin-bottom:10px;text-align:center;}
+  .catHdr{font-size:12px;font-weight:800;color:var(--purple);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px;}
+  .coupon{display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid #F0E6F5;}
+  .coupon .ci{font-size:26px;} .coupon .cinfo{flex:1;} .coupon .cinfo b{font-size:14px;display:block;} .coupon .cinfo span{font-size:11.5px;color:#9B8AA5;}
+  .coupon .cbtn{padding:8px 14px;border:none;border-radius:10px;background:var(--teal);color:#06402F;font-weight:800;font-size:12.5px;cursor:pointer;box-shadow:none;width:auto;margin:0;}
+  .coupon .cbtn.claimed{background:#EDE6F5;color:#9B8AA5;}
+  .coupon .cbtn:disabled{opacity:.5;}
+  .myCoupon{background:#F6FBF8;border:2px dashed var(--teal);border-radius:12px;padding:12px;text-align:center;margin-top:10px;}
+  .myCoupon .code{font-family:monospace;font-size:15px;letter-spacing:2px;color:var(--blue);font-weight:700;margin:4px 0;}
+  .qrFake{width:96px;height:96px;margin:6px auto;background:repeating-linear-gradient(0deg,#2E3440 0 5px,transparent 5px 10px),repeating-linear-gradient(90deg,#2E3440 0 5px,transparent 5px 10px);}
+  .pInput{width:100%;padding:12px 14px;border:2px solid #E5D9F0;border-radius:12px;font-size:15px;font-family:'Fredoka',sans-serif;margin:8px 0;}
+  .pBtn{width:100%;padding:14px;border:none;border-radius:14px;font-weight:800;font-size:15px;cursor:pointer;color:#fff;margin-top:6px;font-family:'Fredoka',sans-serif;}
+  .pBtn.create{background:linear-gradient(135deg,#06D6A0,#1B9AAA);}
+  .pBtn.invite{background:#25D366;}
+  .member{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #F0E6D6;font-size:14px;}
+  .member:last-child{border:none;} .member .mav{font-size:22px;} .member .mm{margin-left:auto;font-weight:800;color:var(--blue);}
+  .member.you{background:#FFF7E6;border-radius:10px;padding:8px 10px;}
+  .pTotal{text-align:center;margin:10px 0 4px;} .pTotal .n{font-size:34px;font-weight:800;color:var(--purple);}
+  .pTotal .l{font-size:12px;color:var(--ink);}
+  .leave{display:block;text-align:center;margin-top:10px;font-size:12px;color:#9B8AA5;cursor:pointer;text-decoration:underline;}
+  .goalbar{height:14px;border-radius:8px;background:#EDE6F5;overflow:hidden;margin:2px 0;}
+  .goalbar div{height:100%;border-radius:8px;background:linear-gradient(90deg,#06D6A0,#9B5DE5);transition:width .5s;}
+  .member .walking{font-size:10.5px;font-weight:800;color:#0F6E56;background:#D9F7EC;border-radius:10px;padding:1px 7px;margin-left:6px;animation:pulseG 1.3s infinite;}
+  @keyframes pulseG{50%{opacity:.55}}
+  /* story link + overlay */
+  .storylink{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--purple);
+    font-size:13px;font-weight:700;padding:8px 16px;border-radius:22px;margin-bottom:6px;cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.12);border:2px solid #EDE2FA;}
+  .storylink:active{transform:scale(.97);}
+  .story{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:flex-start;
+    padding:30px 22px 28px;text-align:left;z-index:40;overflow-y:auto;
+    background:linear-gradient(160deg,#1B9AAA,#9B5DE5 75%);}
+  .story.show{display:flex;}
+  .story h2{color:#fff;font-size:30px;font-weight:700;margin:8px 0 4px;text-align:center;width:100%;}
+  .story .sub{color:#fff;opacity:.9;font-size:14px;text-align:center;margin-bottom:16px;}
+  .storycard{background:#fff;border-radius:22px;padding:20px 20px 22px;max-width:420px;width:100%;}
+  .storycard p{font-size:16px;line-height:1.6;color:var(--ink);margin-bottom:14px;}
+  .storycard p b{color:var(--coral);}
+  .storycard .big{font-size:19px;font-weight:700;color:var(--blue);text-align:center;margin-top:4px;}
+  .listen{background:linear-gradient(135deg,var(--purple),var(--blue));max-width:420px;width:100%;margin-top:16px;}
+  .closeStory{background:rgba(255,255,255,.22);color:#fff;max-width:420px;width:100%;box-shadow:none;font-size:14px;padding:13px;margin-top:2px;}
+  /* ---- In-store coupon activation overlay ---- */
+  .actOv{position:fixed;inset:0;z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#1E9E77,#16A4C2,#3D6CA8);background-size:300% 300%;animation:actBg 6s ease infinite;color:#fff;text-align:center;padding:24px;}
+  .actOv.on{display:flex;}
+  @keyframes actBg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  .actBadge{font-size:13px;font-weight:800;letter-spacing:2px;background:rgba(255,255,255,.18);padding:7px 16px;border-radius:30px;}
+  .actOffer{font-size:34px;font-weight:900;margin-top:18px;line-height:1.1;text-shadow:0 2px 10px rgba(0,0,0,.2);}
+  .actStore{font-size:18px;font-weight:700;opacity:.92;margin-top:4px;}
+  .actPulse{position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center;margin:30px 0;overflow:visible;}
+  .actRing{position:absolute;inset:0;border-radius:50%;border:5px solid rgba(255,255,255,.85);animation:actPulse 1.4s ease-out infinite;}
+  .actRing.r2{animation-delay:.7s;}
+  @keyframes actPulse{0%{transform:scale(.7);opacity:1}100%{transform:scale(1.3);opacity:0}}
+  .actBarCard{position:relative;z-index:2;background:#fff;border-radius:16px;padding:14px 16px 10px;box-shadow:0 10px 30px rgba(0,0,0,.3);display:flex;flex-direction:column;align-items:center;gap:4px;min-width:250px;}
+  .actBarCard svg{width:230px;height:72px;display:block;}
+  .actCode{font-family:'SF Mono',Menlo,monospace;font-size:14px;font-weight:800;color:#16243A;letter-spacing:2px;}
+  .actCount{font-size:60px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:1px;text-shadow:0 3px 14px rgba(0,0,0,.25);}
+  .actClock{font-size:15px;font-weight:700;opacity:.9;font-variant-numeric:tabular-nums;}
+  .actMsg{font-size:15px;font-weight:600;opacity:.95;max-width:320px;margin:14px auto 0;line-height:1.45;}
+  .actOv.expired{background:linear-gradient(135deg,#5B6B82,#3A4555);animation:none;}
+  .actOv.expired .actRing{display:none;} .actOv.expired .actCode{opacity:.4;text-decoration:line-through;}
+  .actOv .closeStory{margin-top:22px;background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.5);}
+  /* chooser items + wallet cards */
+  .couponItem{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;text-align:left;background:#fff;border:none;border-radius:12px;padding:13px 15px;margin-bottom:9px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.08);}
+  .couponItem b{font-size:14.5px;color:#2A1B3D;} .couponItem span{font-size:12px;color:#8A6FA0;}
+  .couponItem:disabled{opacity:.55;cursor:default;}
+  .wCoupon{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:9px;box-shadow:0 3px 10px rgba(0,0,0,.08);}
+  .wCoupon.used{opacity:.6;}
+  .wInfo{display:flex;flex-direction:column;gap:1px;} .wInfo b{font-size:14px;color:#16243A;} .wInfo span{font-size:11.5px;color:#5B6B82;}
+  .wExpire{font-size:11px;font-weight:800;color:#C2410C;margin-top:2px;}
+  .wAct{background:linear-gradient(135deg,#1E9E77,#13795A);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:13.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit;}
+  .wUsed{font-size:11px;font-weight:800;color:#8A94A6;text-transform:uppercase;letter-spacing:.5px;}
+  /* nearby stores on activation screen */
+  .actStores{width:100%;max-width:340px;margin:8px auto 0;}
+  .actStores .ttl{font-size:12px;font-weight:800;opacity:.9;text-align:left;margin:4px 2px;}
+  .actStore{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,255,255,.16);border-radius:11px;padding:9px 12px;margin-bottom:6px;}
+  .actStore .nm{font-size:12.5px;font-weight:700;text-align:left;line-height:1.2;} .actStore .ds{font-size:11px;opacity:.85;}
+  .actStore a{font-size:11.5px;font-weight:800;color:#fff;background:rgba(0,0,0,.22);padding:6px 10px;border-radius:9px;text-decoration:none;white-space:nowrap;}
+  /* wallet card with "where to redeem" stores (shown BEFORE activation) */
+  .wCard{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:10px;box-shadow:0 3px 10px rgba(0,0,0,.08);}
+  .wCard.used{opacity:.6;}
+  .wRow{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .wStores{margin-top:10px;border-top:1px dashed #E2E8F0;padding-top:9px;}
+  .wStTtl{font-size:11.5px;font-weight:800;color:#13795A;margin-bottom:6px;}
+  .wSt{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#F4FBF8;border-radius:9px;padding:8px 10px;margin-bottom:5px;}
+  .wStNm{font-size:11.5px;font-weight:700;color:#16243A;line-height:1.2;}
+  .wSt a{font-size:11px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1E9E77,#13795A);padding:6px 10px;border-radius:8px;text-decoration:none;white-space:nowrap;}
+  .wRedeem{display:block;margin-top:9px;font-size:12px;font-weight:700;color:#3A2E4A;border-top:1px dashed #E2E8F0;padding-top:9px;}
+  .wRedeem a{color:#13795A;font-weight:800;cursor:pointer;text-decoration:underline;white-space:nowrap;}
+  .glow{display:inline-block;animation:glowpulse 1.15s ease-in-out infinite;}
+  @keyframes glowpulse{0%,100%{opacity:1;filter:drop-shadow(0 0 0 rgba(30,158,119,0));transform:scale(1);}50%{opacity:.65;filter:drop-shadow(0 0 6px rgba(30,158,119,.95));transform:scale(1.18);}}
+  .rewardCard{border:2px solid #E8B23A!important;box-shadow:0 4px 18px rgba(232,178,58,.45)!important;}
+  .wReward{background:linear-gradient(135deg,#E8B23A,#C98A1E);color:#3a2a00;border-radius:11px;padding:9px 12px;margin-bottom:8px;font-size:12.5px;line-height:1.35;}
+  .wReward b{color:#3a2a00;} .wReward span{display:block;margin-top:3px;font-weight:600;opacity:.92;}
+</style>
+</head>
+<body>
+<div class="card">
+  <!-- hamburger menu -->
+  <button class="hamb" id="hambBtn" onclick="toggleMenu()" aria-label="Menú">☰</button>
+  <div class="menuDrop" id="menuDrop">
+    <div class="menuItem" onclick="openProfile(false);toggleMenu()">👤 Mi perfil</div>
+    <div class="menuItem" onclick="openStory();toggleMenu()">📖 Nuestra historia</div>
+    <div class="menuItem" onclick="openParche();toggleMenu()">👨‍👩‍👧 Mi parche</div>
+    <div class="menuItem" onclick="openImpact();toggleMenu()">🇨🇴 Impacto nacional y mis recibos 🧾</div>
+    <div class="menuItem" onclick="testResetAccount();toggleMenu()">🧪 Reiniciar prueba (empezar de cero)</div>
+  </div>
+  <div class="menuBackdrop" id="menuBackdrop" onclick="toggleMenu()"></div>
+
+  <div class="brand">SUPERPASOS · ¡ALIMENTA A UN NIÑO COLOMBIANO!</div>
+  <div class="mascotBox" id="mascotBox"></div>
+  <div class="byline"><span class="l1">Tus Pasos,</span><br><span class="l2">Su Superpoder</span></div>
+  <div class="streakBadge" id="streakBadge"></div>
+  <div class="badgeShelf" id="badgeShelf"></div>
+  <div id="bdayBanner" style="display:none;background:#FFF3D6;border:1px solid #FFD23F;border-radius:12px;padding:9px 12px;margin:6px 0;font-size:12.5px;font-weight:800;color:#8A5B00"></div>
+  <!-- Parche al vuelo: muestra tu parche y quién está caminando ahora -->
+  <div id="parcheStrip" style="display:none"></div>
+
+  <!-- landing mascots -->
+  <div class="mascots" id="mascots"><span>🐶</span><span>🐰</span><span>🦊</span><span>🐻</span><span>🐼</span></div>
+
+  <div class="cta" id="cta">
+    Toca el botón y <b>camina sin parar</b> hasta tu meta.<br>¡Así alimentas a un niño! 💚
+  </div>
+
+  <!-- ring (hidden until start) -->
+  <div class="ringwrap" id="ringwrap">
+    <svg width="216" height="216">
+      <defs><linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#06D6A0"/><stop offset="100%" stop-color="#1B9AAA"/>
+      </linearGradient></defs>
+      <circle class="bg" cx="108" cy="108" r="94" stroke-width="17" fill="none"/>
+      <circle class="fg" id="ring" cx="108" cy="108" r="94" stroke-width="17" fill="none"
+              stroke-dasharray="590" stroke-dashoffset="590"/>
+    </svg>
+    <div class="center"><div class="steps" id="count">0</div><div class="of">de 200 pasos</div></div>
+  </div>
+
+  <div class="gpsline" id="gpsline"></div>
+  <div id="liveMap"></div>
+
+  <div class="status" id="status"></div>
+
+  <button class="start" id="startBtn" onclick="startSession()">▶ ¡Empezar el reto!</button>
+  <button class="donate" id="donateBtn" onclick="donate()">🍲 ¡Dale de comer a un niño!</button>
+  <button class="sim" id="simBtn" onclick="toggleSim()">¿Sin sensor? Tocar para simular</button>
+
+  <div class="note">
+    <b>El reto:</b> sal a la calle y camina hasta tu meta <b>en una sola caminata, sin parar</b>. El GPS confirma que de verdad te mueves — y al final ves el mapa de tu recorrido. 🌳<br>
+    <span style="opacity:.8">Acepta los permisos de movimiento y ubicación. (Meta de prueba: 200 pasos.)</span>
+  </div>
+</div>
+
+<!-- ELEGIR CUPÓN -->
+<div class="story" id="coupons" style="background:linear-gradient(160deg,#9B5DE5,#FF5D73 85%);">
+  <h2>🎟️ Elige tu cupón</h2>
+  <div class="sub" id="couponSub">Te ganaste un cupón. Elige el de la marca que más te guste.</div>
+  <div class="storycard" id="couponBody" style="padding:14px;"></div>
+  <button class="closeStory" onclick="closeCoupons()">← Volver</button>
+</div>
+
+<!-- MI BILLETERA (virtual wallet) -->
+<div class="story" id="wallet" style="background:linear-gradient(160deg,#1E9E77,#16A4C2 90%);">
+  <h2>👛 Mi billetera</h2>
+  <div class="sub" id="walletSub">Tus cupones. Actívalos cuando estés en la caja.</div>
+  <div class="storycard" id="walletBody" style="padding:14px;"></div>
+  <button class="closeStory" onclick="closeWallet()">← Volver</button>
+</div>
+
+<!-- IMPACTO NACIONAL -->
+<div class="story" id="impact" style="background:linear-gradient(160deg,#1B9AAA,#06D6A0 90%);">
+  <h2>🇨🇴 Impacto en Colombia</h2>
+  <div class="sub">Cada caminata enciende el mapa. Tú agregaste tu granito. 💚</div>
+  <div class="storycard" style="padding:14px;">
+    <div id="impactMap" style="width:100%;height:280px;border-radius:14px;overflow:hidden;"></div>
+    <div id="impactStats" style="margin-top:12px;text-align:center;"></div>
+    <div id="impactReceipts" style="margin-top:14px;text-align:left;"></div>
+  </div>
+  <button class="closeStory" onclick="closeImpact()">← Volver al reto</button>
+</div>
+
+<!-- MI PARCHE (grupo) -->
+<div class="story" id="parche" style="background:linear-gradient(160deg,#FF8C42,#9B5DE5 80%);">
+  <h2>👨‍👩‍👧 Mi Parche</h2>
+  <div class="sub">Camina con tu familia y amigos — juntos alimentan más niños</div>
+  <div class="storycard" id="parcheBody"></div>
+  <button class="closeStory" onclick="closeParche()">← Volver al reto</button>
+</div>
+
+<!-- NUESTRA HISTORIA -->
+<div class="story" id="story">
+  <h2>📖 Nuestra Historia</h2>
+  <div class="sub">Tan simple que un niño lo entiende</div>
+  <div class="storycard">
+    <p>En Colombia, muchos niños van a la escuela <b>con hambre</b>. Y cuando un niño tiene hambre, le cuesta mucho aprender.</p>
+    <p>Pero aquí está la magia: <b>tú ya caminas todos los días</b>. Esos pasos pueden convertirse en comida. ✨</p>
+    <p>Cada vez que cumples tu reto de pasos, <b>una empresa paga una comida</b> para un niño. Tú pones los pasos, la empresa pone el plato, y un niño recibe su comida. 💚</p>
+    <p style="background:#FFF3D6;border-radius:14px;padding:12px 14px;"><b style="color:var(--purple);">¿Por qué un superpoder? 🦸</b><br>Porque la comida es el <b>combustible del cerebro</b>. Un niño bien alimentado puede concentrarse, recordar lo que aprende, jugar con energía y soñar en grande. El hambre apaga ese poder; una buena comida lo enciende. Por eso cada plato no es solo comida: es la chispa que despierta el superpoder de un niño para <b>aprender y crecer</b>.</p>
+    <p>No te cuesta nada. Solo camina, corre, muévete… y ayuda a alimentar a un niño.</p>
+    <div class="big">Tus pasos, su superpoder. 🦸</div>
+  </div>
+  <button class="listen" id="listenBtn" onclick="narrate()">🔊 Cuéntame la historia (escuchar)</button>
+  <button class="closeStory" onclick="closeStory()">← Volver al reto</button>
+</div>
+
+<!-- CELEBRATION -->
+<div class="overlay" id="overlay">
+  <!-- hamburger for all the extra options -->
+  <button class="ovHamb" id="ovHamb" onclick="toggleOvMenu()" aria-label="Más opciones">☰</button>
+  <div class="ovMenuBackdrop" id="ovMenuBackdrop" onclick="toggleOvMenu()"></div>
+  <div class="ovMenuDrop" id="ovMenuDrop">
+    <div class="menuItem" onclick="shareWin();toggleOvMenu()">🎉 Compartir mi logro</div>
+    <div class="menuItem" onclick="inviteFriend();toggleOvMenu()">👨‍👩‍👧 Retar a un amigo</div>
+    <div class="menuItem" onclick="toggleOvMenu();openParche()">👪 Mi parche</div>
+    <div class="menuItem" onclick="toggleOvMenu();openImpact()">🇨🇴 Impacto nacional</div>
+    <div class="menuItem" onclick="installApp();toggleOvMenu()">📲 Instala la app</div>
+    <div class="menuItem" onclick="testResetAccount();toggleOvMenu()">🧪 Reiniciar prueba (empezar de cero)</div>
+  </div>
+
+  <div class="party"><span>🐶</span><span>🐰</span><span>🦊</span><span>🐻</span><span>🐼</span><span>🐵</span></div>
+  <div class="thanks">¡GRACIAS!</div>
+  <div class="fed">🍲 ¡Alimentaste a un niño hoy! 🍲</div>
+  <div class="streakWin" id="streakWin"></div>
+  <div class="helped" id="helped"></div>
+  <div class="milestone" id="milestone"></div>
+  <div class="routeWrap"><div class="routeBadge">✅ Caminata verificada por GPS</div><div class="routeStats" id="routeStats"></div></div>
+  <div class="ovmsg">
+    Una empresa donó una comida gracias a tus pasos. 🎁
+  </div>
+  <button class="redeem" onclick="openChooser()">🎟️ Elegir mi cupón</button>
+  <button class="redeem" style="background:linear-gradient(135deg,#7F77DD,#5B54C9)" onclick="openWallet()">👛 Mi billetera</button>
+  <button class="again" onclick="resetAll()">Caminar otra vez</button>
+  <div class="ovHint">☰ Toca el menú (arriba) para compartir, retar amigos y más</div>
+</div>
+
+<!-- In-store coupon activation (5-min live window) -->
+<div class="story" id="profile" style="background:linear-gradient(160deg,#1B9AAA,#9B5DE5 92%);">
+  <button class="closeStory" id="profileClose" onclick="closeProfile()">✕</button>
+  <div class="big" id="profileTitle">👋 Crea tu perfil</div>
+  <div class="sub" id="profileSub">Cuéntanos un poco de ti para personalizar tu experiencia.</div>
+  <div class="storycard">
+    <div style="text-align:center;margin-bottom:6px">
+      <div id="avatarPreview" style="font-size:52px;line-height:1">🦸</div>
+      <div style="font-size:11px;color:#8A94A6;margin-top:2px">Elige tu avatar</div>
+    </div>
+    <div id="avatarGrid" style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:8px"></div>
+    <div style="text-align:center;margin-bottom:10px">
+      <label style="font-size:12px;font-weight:800;color:#1B9AAA;cursor:pointer">📷 Tomar o elegir una foto
+        <input type="file" accept="image/*" style="display:none" onchange="onAvatarPhoto(event)"></label>
+    </div>
+    <input class="pInput" id="pfName" placeholder="Tu nombre" maxlength="24">
+    <label style="font-size:11px;color:#8A94A6;display:block;margin-top:4px">Fecha de nacimiento (para felicitarte 🎂)</label>
+    <input class="pInput" id="pfDob" type="date">
+    <label style="font-size:11px;color:#8A94A6;display:block;margin-top:4px">Ocupación</label>
+    <select class="pInput" id="pfOcc">
+      <option value="">Selecciona…</option><option>Estudiante</option><option>Empleado/a</option>
+      <option>Independiente</option><option>Profesional de la salud</option><option>Docente</option>
+      <option>Hogar</option><option>Pensionado/a</option><option>Otro</option>
+    </select>
+    <label style="font-size:11px;color:#8A94A6;display:block;margin-top:4px">Ciudad <span id="pfCityHint" style="color:#1B9AAA;font-weight:700"></span></label>
+    <input class="pInput" id="pfCity" placeholder="Tu ciudad">
+    <button class="pBtn create" onclick="saveProfile()">Guardar perfil</button>
+  </div>
+</div>
+
+<div class="actOv" id="activateOverlay">
+  <div class="actBadge" id="actBadge">CUPÓN ACTIVO</div>
+  <div class="actOffer" id="actOffer">Tu cupón</div>
+  <div class="actStore" id="actStore"></div>
+  <div class="actPulse"><div class="actRing"></div><div class="actRing r2"></div>
+    <div class="actBarCard"><svg id="actBarcode"></svg><div class="actCode" id="actCode">CYA-····</div></div>
+  </div>
+  <div class="actCount" id="actCount">5:00</div>
+  <div class="actClock" id="actClock">--:--:--</div>
+  <div class="actMsg" id="actMsg">Muéstrale esta pantalla al cajero.</div>
+  <div class="actStores" id="actStores"></div>
+  <button class="closeStory" onclick="closeActivate()">Cerrar</button>
+</div>
+
+<script>
+const GOAL = 200;                 // demo goal (real app: 8000, in ONE session)
+const STRIDE = 0.7;               // meters per step → GPS must back up the steps
+const MAX_ACC = 45;               // GPS accuracy worse than this = indoors / weak signal
+let rawSteps = 0, steps = 0, running = false, simTimer = null, donated = false;
+let lastMag = 0, lastPeak = 0, goingUp = false;
+// --- single-session + GPS anti-gaming state ---
+let sessionActive = false, sessionStart = 0, gpsWatch = null;
+let gpsMeters = 0, lastPos = null, hiddenSince = 0, moving = false, usingSim = false, nativeSteps = false;
+let path = [], liveMap = null, liveLine = null, liveDot = null;
+const ABANDON_GRACE_MS = 25000;
+const $ = id => document.getElementById(id);
+
+// --- Live backend integration (SuperPasos API) ---------------------
+// The walking app records a REAL meal donation on the server when a walk is
+// completed legitimately. A device-bound anonymous account is created the first
+// time. In normal use the donation only counts if the real goal (8.000 steps)
+// is reached; ?test=1 forces a qualifying total so the pipeline can be verified
+// from a desk. The GPS route gate in donate() still applies.
+const CYA_API = localStorage.getItem('cyaApi') || 'https://cya-backend-deploy.vercel.app';
+// Test mode forces a qualifying donation so the live pipeline can be verified
+// without an 8.000-step walk. Gated behind ?test=1 (obscure, pre-launch only).
+// TODO before public launch: remove test mode entirely.
+const CYA_TEST = new URLSearchParams(location.search).has('test');
+let cyaToken = null;
+async function cyaPost(path, body, auth){
+  try{
+    const r = await fetch(CYA_API + path, { method:'POST',
+      headers:{ 'Content-Type':'application/json', ...(auth && cyaToken ? { Authorization:'Bearer '+cyaToken } : {}) },
+      body: JSON.stringify(body || {}) });
+    return await r.json().catch(()=>({}));
+  }catch(_){ return { error:'network' }; }
+}
+async function cyaEnsureUser(){
+  if (cyaToken) return cyaToken;
+  let a=null; try{ a=JSON.parse(localStorage.getItem('cya_auth')||'null'); }catch(_){}
+  if (a && a.token){ cyaToken = a.token; return cyaToken; }
+  const email = 'walker-' + Math.random().toString(36).slice(2,10) + '@cya.app';
+  const password = 'w' + Math.random().toString(36).slice(2,12);
+  const r = await cyaPost('/auth/register', { email, password, displayName:'Caminante', consentHealthData:true });
+  if (r.token){ cyaToken = r.token; localStorage.setItem('cya_auth', JSON.stringify({ email, token:r.token })); }
+  return cyaToken;
+}
+// Records a real donation. Returns { ok, coupon }.
+async function cyaRecordDonation(realSteps, realMeters){
+  try{
+    await cyaEnsureUser();
+    if (!cyaToken) return { ok:false };
+    // Completing the challenge (client goal met) must register the meal donation.
+    // The server's qualifying goal is 8.000 steps; the demo goal is smaller, so send
+    // at least the server goal once the challenge is done. (When the real goal is
+    // 8.000, the user's actual steps already satisfy this and Math.max is a no-op.)
+    const stepsToSend = Math.max(Math.round(realSteps || 0), 8000);
+    await cyaPost('/activity/sync', { steps: stepsToSend, windowMinutes:0, distanceM: Math.round(realMeters||0) }, true);
+    const d = await cyaPost('/donations/claim', {}, true);
+    if (d && d.coupon) cyaCoupon = d.coupon;   // keep the issued coupon for in-store activation
+    return { ok: !!d.donated, coupon: d.coupon };
+  }catch(_){ return { ok:false }; }
+}
+// ---- In-store coupon activation (5-min window) -------------------------------
+// User taps "Usar mi cupón en caja". With POS integration the cashier scans the
+// item for the exact amount; without it, we assume the coupon was used, mark it
+// consumed (single-use), and the dashboard counts it as redeemed in real time.
+let cyaCoupon = null, actTimer = null;
+async function cyaGet(path, auth){
+  try{ const r = await fetch(CYA_API + path, { headers: auth && cyaToken ? { Authorization:'Bearer '+cyaToken } : {} });
+    return await r.json().catch(()=>null);
+  }catch(_){ return null; }
+}
+// Activate a specific wallet coupon (or the just-earned one). 5-min in-store window.
+async function openActivate(codeArg, offerArg){
+  clickFeedback();
+  let offer = offerArg || { title:'Tu cupón', retailer:'' };
+  let code = codeArg || (cyaCoupon && cyaCoupon.code) || ('CYA-'+Math.random().toString(36).slice(2,7).toUpperCase());
+  let windowSec = 300, live = false, barcodeValue = code, expired = false;
+  if (cyaToken && code){
+    const r = await cyaPost('/offers/activate', { code }, true);
+    if (r && r.activated){
+      // windowSec is the REMAINING time from the server — it resumes, never resets to 5:00.
+      offer = r.offer || offer; windowSec = r.windowSec || 300; live = true;
+      barcodeValue = r.barcodeValue || code; if(cyaCoupon && cyaCoupon.code===code) cyaCoupon=null;
+    } else if (r && (r.expired || r.error)){
+      expired = true; offer = r.offer || { title:'Cupón ya usado', retailer:'' };
+    }
+  }
+  $('actOffer').textContent = offer.title || 'Tu cupón';
+  $('actStore').textContent = offer.retailer || '';
+  $('activateOverlay').classList.add('on');
+  if($('actStores')) $('actStores').innerHTML='';  // stores live in the wallet, not here
+  if (expired){
+    clearInterval(actTimer);
+    $('actBadge').textContent = 'CUPÓN USADO';
+    $('actCode').textContent = '';
+    try{ document.querySelector('#actBarcode').innerHTML=''; }catch(_){}
+    $('actCount').textContent = 'VENCIDO';
+    $('actMsg').textContent = 'Este cupón ya se usó o su ventana de 5 minutos terminó.';
+    $('activateOverlay').classList.add('expired');
+    return;
+  }
+  $('actCode').textContent = barcodeValue;   // the value the cashier scans (retailer code if set)
+  try{ JsBarcode('#actBarcode', barcodeValue, { format:'CODE128', height:60, width:1.7, displayValue:false, margin:0 }); }catch(_){}
+  $('actBadge').textContent = live ? 'CUPÓN ACTIVO · EN VIVO' : 'CUPÓN ACTIVO';
+  $('activateOverlay').classList.remove('expired');
+  $('actMsg').textContent = 'Muéstrale esta pantalla al cajero. La animación confirma que está activo ahora.';
+  startActCountdown(windowSec);
+  speak('Tu cupón está activo. Muéstralo en la caja para que te apliquen el descuento.');
+  if (navigator.vibrate) navigator.vibrate([0,40,40,40]);
+}
+function startActCountdown(sec){
+  clearInterval(actTimer); const end = Date.now() + sec*1000;
+  const tick = ()=>{
+    $('actClock').textContent = new Date().toLocaleTimeString('es-CO');
+    const left = Math.max(0, Math.round((end - Date.now())/1000));
+    $('actCount').textContent = Math.floor(left/60) + ':' + String(left%60).padStart(2,'0');
+    if (left <= 0){ clearInterval(actTimer); $('actCount').textContent='VENCIDO';
+      $('actBadge').textContent='CUPÓN USADO'; $('actMsg').textContent='Listo: contamos este cupón como usado. ¡Gracias!';
+      $('activateOverlay').classList.add('expired'); }
+  };
+  tick(); actTimer = setInterval(tick, 1000);
+}
+function closeActivate(){ clearInterval(actTimer); $('activateOverlay').classList.remove('on','expired'); }
+
+// ---- Nearby stores of the coupon's retailer ----
+const STORE_LOCATIONS = {
+  'éxito':[['Éxito Country (Bogotá)',4.6857,-74.0566],['Éxito Colina (Bogotá)',4.7100,-74.0720],['Éxito El Poblado (Medellín)',6.2086,-75.5700],['Éxito Cali Norte',3.4720,-76.5240],['Éxito Buenavista (Barranquilla)',11.0030,-74.8090]],
+  'carulla':[['Carulla Cedritos (Bogotá)',4.7220,-74.0330],['Carulla Pepe Sierra (Bogotá)',4.7150,-74.0470],['Carulla Laureles (Medellín)',6.2450,-75.5950],['Carulla Granada (Cali)',3.4520,-76.5340]],
+  'd1':[['D1 Chapinero (Bogotá)',4.6450,-74.0630],['D1 Suba (Bogotá)',4.7400,-74.0830],['D1 Centro (Medellín)',6.2510,-75.5680],['D1 Sur (Cali)',3.4100,-76.5400],['D1 (Barranquilla)',10.9960,-74.7900]],
+  'olímpica':[['Olímpica Calle 100 (Bogotá)',4.6850,-74.0540],['Olímpica (Barranquilla)',10.9960,-74.7980],['Olímpica (Cali)',3.4300,-76.5300],['Olímpica (Medellín)',6.2400,-75.5800]],
+};
+function normRetailer(r){ return (r||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,''); }
+function showNearbyStores(retailer){
+  const box=$('actStores'); if(!box) return; box.innerHTML='';
+  const key=Object.keys(STORE_LOCATIONS).find(k=>normRetailer(k)===normRetailer(retailer) || normRetailer(retailer).includes(normRetailer(k)));
+  const list=key?STORE_LOCATIONS[key]:null; if(!list){ return; }
+  const render=(pos)=>{
+    let rows=list.map(s=>({name:s[0],lat:s[1],lon:s[2], d: pos? haversine({lat:pos.lat,lon:pos.lon},{lat:s[1],lon:s[2]}) : null}));
+    if(pos) rows.sort((a,b)=>a.d-b.d);
+    rows=rows.slice(0,3);
+    box.innerHTML='<div class="ttl">📍 Tiendas cerca para usarlo</div>'+rows.map(s=>{
+      const dist=s.d!=null ? (s.d<1000? Math.round(s.d)+' m' : (s.d/1000).toFixed(1)+' km') : '';
+      const maps='https://www.google.com/maps/dir/?api=1&destination='+s.lat+','+s.lon;
+      return `<div class="actStore"><div><div class="nm">${s.name}</div><div class="ds">${dist}</div></div><a href="${maps}" target="_blank" rel="noopener">Cómo llegar</a></div>`;
+    }).join('');
+  };
+  render(null); // show immediately (no distance) ...
+  if('geolocation' in navigator){ navigator.geolocation.getCurrentPosition(p=>render({lat:p.coords.latitude,lon:p.coords.longitude}), ()=>{}, {timeout:6000, maximumAge:60000}); }
+}
+
+// ---- Choose a vendor coupon (spend one walk "credit") ----
+async function openChooser(){
+  clickFeedback();
+  if (!cyaToken){ openCoupons(); return; }   // demo fallback when no backend
+  $('couponSub').textContent = 'Cargando cupones de las marcas…';
+  $('couponBody').innerHTML = '';
+  $('coupons').classList.add('show');
+  const [catalog, credits] = await Promise.all([ cyaGet('/offers/catalog'), cyaGet('/offers/credits', true) ]);
+  const cr = (credits && credits.credits) || 0;
+  if (!catalog || !catalog.length){ closeCoupons(); openCoupons(); return; }
+  $('couponSub').textContent = cr>0
+    ? `Tienes ${cr} cupón(es) por elegir. Toca la marca que quieras.`
+    : 'Ya elegiste tus cupones. Camina otra vez para ganar más.';
+  $('couponBody').innerHTML = catalog.map(o=>`<button class="couponItem" onclick="chooseCoupon('${o.id}', this)" ${cr>0?'':'disabled'}>
+    <b>${o.title}</b><span>${o.retailer||''}</span></button>`).join('');
+}
+async function chooseCoupon(offerId, btn){
+  clickFeedback(); if (btn) btn.disabled = true;
+  const r = await cyaPost('/offers/choose', { offerId }, true);
+  if (r && r.chosen){
+    if (btn) btn.innerHTML = '✅ Agregado a tu billetera';
+    // Tell the native shell (if running inside the phone app) to schedule daily expiry reminders.
+    try{ const t=(r.coupon&&r.coupon.title)||(btn&&btn.querySelector('b')&&btn.querySelector('b').textContent)||'tu cupón'; if(window.cyaNotify) window.cyaNotify({type:'coupon_chosen', title:t}); }catch(_){}
+    speak('Listo. Tu cupón quedó guardado en tu billetera.');
+    setTimeout(()=>{ closeCoupons(); openWallet(); }, 750);
+  } else if (r && r.error === 'no_credit'){
+    $('couponSub').textContent = 'Ya usaste tus cupones de hoy. Camina otra vez para ganar más.';
+  } else { if (btn) btn.disabled = false; }
+}
+// ---- Mi billetera (wallet) ----
+async function openWallet(){
+  clickFeedback();
+  $('walletBody').innerHTML = ''; $('walletSub').textContent = 'Cargando tu billetera…';
+  $('wallet').classList.add('show');
+  if (!cyaToken){ $('walletSub').textContent = 'Aún no tienes cupones. Completa una caminata para ganar uno.'; return; }
+  renderWallet(await cyaGet('/offers', true) || []);
+}
+let cyaWalletCoupons = [], cyaGeoPos = null;
+// Up to 3 nearest stores of a retailer (sorted by distance if we have the user's position)
+function nearbyStores(retailer, pos){
+  const key=Object.keys(STORE_LOCATIONS).find(k=>normRetailer(k)===normRetailer(retailer) || normRetailer(retailer).includes(normRetailer(k)));
+  const list=key?STORE_LOCATIONS[key]:null; if(!list) return [];
+  let rows=list.map(s=>({name:s[0],lat:s[1],lon:s[2], d: pos? haversine({lat:pos.lat,lon:pos.lon},{lat:s[1],lon:s[2]}) : null}));
+  if(pos) rows.sort((a,b)=>a.d-b.d);
+  return rows.slice(0,3);
+}
+function storesBlockHTML(retailer, pos){
+  const rows=nearbyStores(retailer,pos); if(!rows.length) return '';
+  return '<div class="wStores"><div class="wStTtl">📍 Dónde usar tu cupón (ve a la tienda y actívalo ahí)</div>'+rows.map(s=>{
+    const dist=s.d!=null ? (s.d<1000? Math.round(s.d)+' m' : (s.d/1000).toFixed(1)+' km') : '';
+    const maps='https://www.google.com/maps/dir/?api=1&destination='+s.lat+','+s.lon;
+    return `<div class="wSt"><div class="wStNm">${s.name}${dist?' · '+dist:''}</div><a href="${maps}" target="_blank" rel="noopener">Cómo llegar</a></div>`;
+  }).join('')+'</div>';
+}
+function renderWallet(coupons){
+  const usable = coupons.filter(c=>c.status==='activo'||c.status==='en_uso');
+  $('walletSub').textContent = usable.length
+    ? `Tienes ${usable.length} cupón(es). Actívalo cuando estés en la caja de la tienda.`
+    : 'Aún no tienes cupones activos. Completa una caminata y elige uno.';
+  if (!coupons.length){ $('walletBody').innerHTML = '<div style="text-align:center;color:#fff;opacity:.92;padding:16px">Tu billetera está vacía.<br>Camina y elige tu primer cupón. 👛</div>'; return; }
+  $('walletBody').innerHTML = coupons.map(c=>{
+    const used = (c.status!=='activo' && c.status!=='en_uso');
+    const warn = (c.days_left!=null && c.days_left<=1 && !used) ? '<span class="wExpire">¡Vence pronto — úsalo hoy!</span>' : '';
+    const sub = used ? c.status : (c.status==='en_uso' ? 'activo — muéstralo en la caja' : ('vence en '+c.days_left+' día(s)'));
+    const off = `{title:'${(c.title||'').replace(/'/g,"\\'")}',retailer:'${(c.retailer||'').replace(/'/g,"\\'")}'}`;
+    const ret = (c.retailer||'').replace(/'/g,"\\'");
+    let action;
+    if (c.status==='activo') action = `<button class="wAct" onclick="openActivate('${c.code}', ${off})">Activar</button>`;
+    else if (c.status==='en_uso') action = `<button class="wAct" onclick="openActivate('${c.code}', ${off})">Ver código</button>`;
+    else action = '<span class="wUsed">'+c.status+'</span>';
+    // Per-coupon: open a maps SEARCH for this coupon's retailer near you (all nearby stores), in the app you choose.
+    const redeem = used ? '' : `<div class="wRedeem">📍 Tiendas <b>${c.retailer||''}</b> cerca de ti: <a onclick="redeemNearby('${ret}','google')">Google Maps</a> · <a onclick="redeemNearby('${ret}','apple')">Apple Maps</a></div>`;
+    // Reward coupon (Usuario del Mes): special golden badge + the sponsor's thank-you note.
+    const reward = c.reward_message ? `<div class="wReward">🏆 <b>Usuario del Mes</b> · ${c.sponsor||''}<br><span>${c.reward_message}</span></div>` : '';
+    return `<div class="wCard ${used?'used':''} ${c.reward_message?'rewardCard':''}">
+      ${reward}
+      <div class="wRow">
+        <div class="wInfo"><b>${c.title}</b><span>${c.retailer||c.sponsor||''} · ${sub}</span>${warn}</div>
+        ${action}
+      </div>
+      ${redeem}
+    </div>`;
+  }).join('');
+}
+// Open a maps SEARCH for the coupon's retailer near the user (shows ALL nearby stores
+// of that brand), in the app the user chooses. Works for any retailer, anywhere.
+function redeemNearby(retailer, provider){
+  clickFeedback();
+  const q = (retailer||'').trim() || 'supermercado';
+  const open = (lat,lon)=>{
+    let url;
+    if (provider==='apple'){
+      url = 'https://maps.apple.com/?q='+encodeURIComponent(q) + (lat!=null ? ('&sll='+lat+','+lon) : '');
+    } else {
+      url = (lat!=null)
+        ? 'https://www.google.com/maps/search/'+encodeURIComponent(q)+'/@'+lat+','+lon+',13z'
+        : 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+    }
+    if (window.CYA_NATIVE){ try{ window.ReactNativeWebView.postMessage(JSON.stringify({ type:'open_maps', url })); return; }catch(_){} }
+    window.open(url,'_blank');
+  };
+  if ('geolocation' in navigator){
+    navigator.geolocation.getCurrentPosition(p=>open(p.coords.latitude,p.coords.longitude), ()=>open(null,null), {timeout:6000, maximumAge:60000});
+  } else { open(null,null); }
+}
+
+// Home strip: show my parche and who is walking right now (status only).
+async function renderParcheStrip(){
+  const el=$('parcheStrip'); if(!el) return;
+  const p=getParche();
+  if(!p){ el.style.display='none'; return; }
+  await cyaEnsureUser();
+  const d=await cyaGet('/parches/'+p.parcheId, true);
+  if(!d || d.error || !d.members){ el.style.display='none'; return; }
+  const mine=getMyName();
+  const walking=(d.walkingNow||[]).length;
+  const rows=(d.members||[]).slice(0,5).map(m=>`<div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#3A2E4A;margin-top:3px">
+    <span>${m.walking_now?'<span class="glow">🟢</span>':'⚪️'} <b>${m.rank}.</b> ${m.name===mine?'Tú':m.name}${m.city?` · ${m.city}`:''}${(m.walking_now&&m.walking_steps)?` · ${Number(m.walking_steps).toLocaleString('es-CO')} ahora`:''}</span>
+    <span style="font-weight:800;color:#1B9AAA;white-space:nowrap">${Number(m.total_steps||0).toLocaleString('es-CO')} 👣</span></div>`).join('');
+  el.style.display='block';
+  el.innerHTML=`<div onclick="openParche()" style="cursor:pointer;background:#F4F0FB;border:1px solid #E2D9F3;border-radius:13px;padding:9px 12px;margin:6px 0 2px;text-align:left">
+    <div style="font-size:12.5px;font-weight:800;color:#9B5DE5">👨‍👩‍👧 ${d.name}${walking?` · ${walking} caminando 🟢`:' · nadie caminando ahora'}</div>
+    ${rows}</div>`;
+}
+function closeWallet(){ $('wallet').classList.remove('show'); }
+// In local test mode only, show a one-tap button to complete a qualifying walk
+// (no physical walking needed) so the live pipeline can be verified from a desk.
+if (CYA_TEST){
+  window.addEventListener('load', ()=>{
+    const b = document.createElement('button');
+    b.textContent = '🧪 Modo prueba: completar y donar';
+    b.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:99999;background:#16243A;color:#fff;border:none;border-radius:14px;padding:15px 20px;font-size:15px;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.3);cursor:pointer;';
+    b.onclick = ()=>{ usingSim = true; steps = GOAL; gpsMeters = Math.max(gpsMeters, GOAL*STRIDE); donated = false; donate(); };
+    document.body.appendChild(b);
+  });
+}
+
+function haversine(a, b){
+  const R = 6371000, toR = d => d*Math.PI/180;
+  const dLat = toR(b.lat-a.lat), dLon = toR(b.lon-a.lon);
+  const s = Math.sin(dLat/2)**2 + Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+if ('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = ()=>{}; speechSynthesis.getVoices(); }
+
+// --- Tactile feedback: a soft click sound + vibration on every button press ---
+let audioCtx = null;
+function clickFeedback(){
+  // vibration (Android; iOS Safari ignores it silently)
+  if (navigator.vibrate) navigator.vibrate(12);
+  // short click via Web Audio (works on iOS after a user gesture)
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = 'triangle'; o.frequency.value = 480;
+    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.09);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + 0.1);
+  }catch(_){}
+}
+document.addEventListener('pointerdown', e=>{ if (e.target.closest('button')) clickFeedback(); }, true);
+
+// MODEL: GPS first (confirms real displacement), THEN accelerometer credits
+// steps responsively WHILE you are recently moving. Shaking in place never
+// updates lastMoveTime (GPS doesn't displace), so steps freeze. The full GPS
+// route length is the hard anti-fraud gate at the end.
+const MOVE_WINDOW = 14000;        // ms: keep crediting steps if GPS moved within this window
+let lastMoveTime = 0;
+function recentlyMoving(){ return usingSim || (Date.now() - lastMoveTime) < MOVE_WINDOW; }
+
+function render(){
+  $('count').textContent = steps;
+  const pct = Math.min(steps/GOAL,1);
+  $('ring').style.strokeDashoffset = 590*(1-pct);
+  if (nativeSteps){
+    $('gpsline').innerHTML = `📲 <b>Pasos reales</b> · sensor del teléfono${steps>=GOAL?'' : ' · pantalla puede estar bloqueada'}`;
+  } else if (!usingSim){
+    $('gpsline').innerHTML = recentlyMoving()
+      ? `🛰️ <b>Caminata verificada</b> · ${Math.round(gpsMeters)} m recorridos`
+      : `🛰️ ${Math.round(gpsMeters)} m · <span style="color:#FF5D73">camina al aire libre para que cuenten tus pasos</span>`;
+  }
+  if (pct >= 1 && !donated){
+    $('donateBtn').style.display='block'; $('startBtn').style.display='none'; $('simBtn').style.display='none';
+    $('status').innerHTML = '<b>¡Meta cumplida! 🎉 Toca el botón.</b>';
+  }
+}
+
+function onMotion(e){
+  const a = e.accelerationIncludingGravity || e.acceleration; if(!a) return;
+  const mag = Math.sqrt((a.x||0)**2+(a.y||0)**2+(a.z||0)**2);
+  const now = Date.now(); const TH = 11.5;
+  if (mag > TH && mag > lastMag) goingUp = true;
+  if (goingUp && mag < lastMag && (now-lastPeak) > 280){
+    rawSteps++; lastPeak=now; goingUp=false;
+    // credit the step ONLY if GPS recently confirmed real movement
+    if (recentlyMoving() && steps < 99999){ steps++; render(); }
+  }
+  lastMag = mag;
+}
+
+// GPS stream: confirm real WALKING/RUNNING displacement; refresh the "moving" clock.
+function onPos(pos){
+  const acc = pos.coords.accuracy || 99;
+  const p = { lat: pos.coords.latitude, lon: pos.coords.longitude, t: Date.now() };
+  if (acc > MAX_ACC){ $('gpsline').innerHTML='🛰️ <span style="color:#FF5D73">Buscando señal… sal a cielo abierto 🌳</span>'; return; }
+  if (lastPos){
+    const d = haversine(lastPos, p);
+    const dt = Math.max((p.t-lastPos.t)/1000, 0.1);
+    const speed = d/dt;                        // m/s
+    if (d >= 2 && d < 60 && speed < 6){        // real move: ignore jitter(<2m), jumps(>60m), car speed(>~21 km/h)
+      gpsMeters += d; lastMoveTime = p.t; moving = true; path.push([p.lat, p.lon]); updateLiveMap(p);
+    }
+  } else { path.push([p.lat, p.lon]); lastMoveTime = p.t; initLiveMap(p); }
+  lastPos = p; render();
+}
+
+// --- Screen Wake Lock: keep the screen awake during the walk so tracking never stops ---
+let wakeLock = null;
+async function keepAwake(){
+  try{ if ('wakeLock' in navigator){ wakeLock = await navigator.wakeLock.request('screen'); } }catch(_){}
+}
+async function releaseAwake(){ try{ if (wakeLock){ await wakeLock.release(); wakeLock = null; } }catch(_){} }
+
+function initLiveMap(p){
+  if (!window.L) return;
+  $('liveMap').style.display='block';
+  liveMap = L.map('liveMap',{zoomControl:false,attributionControl:true}).setView([p.lat,p.lon],17);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OSM'}).addTo(liveMap);
+  liveLine = L.polyline([[p.lat,p.lon]],{color:'#06D6A0',weight:5}).addTo(liveMap);
+  liveDot = L.circleMarker([p.lat,p.lon],{radius:7,color:'#fff',weight:2,fillColor:'#FF5D73',fillOpacity:1}).addTo(liveMap);
+  setTimeout(()=>liveMap && liveMap.invalidateSize(), 150);
+}
+function updateLiveMap(p){
+  if (!liveMap) return;
+  liveLine.addLatLng([p.lat,p.lon]); liveDot.setLatLng([p.lat,p.lon]); liveMap.panTo([p.lat,p.lon]);
+}
+
+// ===== NATIVE STEP MODE =====
+// Inside the phone app, the native shell reads the hardware step chip (the same
+// source as Apple Health / Google Fit) and feeds counts here via window.cyaSetSteps.
+// No GPS gate, no accelerometer, and the screen can be locked while walking.
+window.cyaSetSteps = function(n){
+  if (n < 0){ // pedometer unavailable on this device → fall back to the web flow
+    nativeSteps = false; $('status').innerHTML='Tu teléfono no expone el sensor de pasos. Usa el simulador 👇'; $('simBtn').style.display='block'; return;
+  }
+  nativeSteps = true;
+  const v = Math.max(steps, Math.round(n));   // monotonic: never go backwards
+  steps = v; rawSteps = v; lastMoveTime = Date.now();
+  render();
+};
+function beginNative(){
+  nativeSteps = true; running = true; sessionActive = true; usingSim = false; donated = false;
+  sessionStart = Date.now(); lastMoveTime = Date.now();
+  $('startBtn').style.display='none'; $('simBtn').style.display='none';
+  $('gpsline').textContent='';
+  $('status').innerHTML='✅ Contando tus pasos reales con el sensor del teléfono. <b>Puedes bloquear la pantalla y seguir caminando.</b>';
+  keepAwake();
+  try{ window.ReactNativeWebView.postMessage(JSON.stringify({ type:'start_walk' })); }catch(_){}
+  setParchePresence(true);   // tell my parche I'm walking now (status only)
+  render();
+}
+async function startSession(){
+  $('mascots').style.display='none'; $('cta').style.display='none'; $('ringwrap').style.display='block';
+  if (window.CYA_NATIVE){ beginNative(); return; }   // phone app → hardware pedometer
+  $('status').textContent='Pidiendo permisos de movimiento y ubicación…';
+  // motion permission (iOS)
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function'){
+    try{ const r = await DeviceMotionEvent.requestPermission(); if(r!=='granted'){ noSensor('Permiso de movimiento denegado.'); return; } }
+    catch(err){ noSensor('Abre la página por https para usar los sensores.'); return; }
+  }
+  if (!('geolocation' in navigator)){ noSensor('Este navegador no da ubicación.'); return; }
+  // OUTDOOR GATE: take one fix; if accuracy is poor, you're likely indoors → ask to go outside.
+  $('status').innerHTML='📍 Buscando señal GPS… <b>ponte al aire libre.</b>';
+  navigator.geolocation.getCurrentPosition(first=>{
+    if ((first.coords.accuracy||99) > MAX_ACC){
+      $('status').innerHTML='🏠 <b>Parece que estás bajo techo.</b> El reto cuenta solo al aire libre — sal a la calle, el parque o la ciclovía y vuelve a empezar. 🌳';
+      $('startBtn').textContent='▶ Ya estoy afuera — empezar';
+      $('simBtn').style.display='block';
+      return;
+    }
+    beginVerified();
+  }, err=>{
+    $('status').innerHTML='📍 No pudimos leer tu ubicación. Acepta el permiso y abre por https. Puedes simular para probar 👇';
+    $('simBtn').style.display='block';
+  }, { enableHighAccuracy:true, timeout:12000, maximumAge:0 });
+}
+
+function beginVerified(){
+  window.addEventListener('devicemotion', onMotion);
+  gpsWatch = navigator.geolocation.watchPosition(onPos, ()=>{}, { enableHighAccuracy:true, maximumAge:1000, timeout:10000 });
+  keepAwake();                       // keep the screen on so tracking never stops
+  running = true; sessionActive = true; usingSim = false; sessionStart = Date.now(); lastMoveTime = Date.now();
+  setParchePresence(true);   // tell my parche I'm walking now (status only)
+  $('startBtn').textContent='🚶 ¡Camina sin parar!';
+  $('startBtn').style.display='none';
+  $('status').innerHTML='✅ Al aire libre — <b>pantalla encendida durante la caminata. Camina sin parar.</b>';
+}
+
+document.addEventListener('visibilitychange', ()=>{
+  if (document.visibilityState === 'visible' && sessionActive && !donated) keepAwake(); // wake lock drops when hidden
+  // Native mode: the hardware chip keeps counting with the screen locked, so locking
+  // the phone is allowed and must NOT abandon the walk. Steps backfill on return.
+  if (nativeSteps || window.CYA_NATIVE) return;
+  if (!sessionActive || donated) return;
+  if (document.hidden){ hiddenSince = Date.now(); }
+  else if (hiddenSince){
+    const away = Date.now()-hiddenSince; hiddenSince = 0;
+    if (away > ABANDON_GRACE_MS) abandonSession();
+    else $('status').innerHTML='👀 ¡Volviste a tiempo! <b>Sigue caminando sin parar.</b>';
+  }
+});
+
+function abandonSession(){
+  stopTracking(); clearSession();
+  $('ringwrap').style.display='none'; $('mascots').style.display='block'; $('cta').style.display='block';
+  $('startBtn').style.display='block'; $('startBtn').textContent='▶ ¡Empezar el reto otra vez!';
+  $('liveMap').style.display='none'; $('gpsline').textContent='';
+  $('status').innerHTML='💛 <b>¡Casi!</b> El reto se hace de una sola vez. Tus pasos no se guardan entre caminatas — pero tu próximo intento puede alimentar a un niño. ¡Tú puedes! 🦸';
+  sayClip('casi_meta', '¡Casi lo logras! El reto se completa en una sola caminata. Tus pasos no se acumulan, pero tu próximo intento puede alimentar a un niño. ¡Tú puedes!');
+}
+function clearSession(){
+  rawSteps=0; steps=0; gpsMeters=0; lastPos=null; sessionActive=false; moving=false; path=[];
+  if (liveMap){ liveMap.remove(); liveMap=null; liveLine=null; liveDot=null; }
+  render();
+}
+function stopTracking(){
+  running = false;
+  window.removeEventListener('devicemotion', onMotion);
+  if (gpsWatch !== null && 'geolocation' in navigator){ navigator.geolocation.clearWatch(gpsWatch); gpsWatch = null; }
+  if (simTimer){ clearInterval(simTimer); simTimer = null; }
+  releaseAwake();
+  try{ if (window.CYA_NATIVE) window.ReactNativeWebView.postMessage(JSON.stringify({ type:'stop_walk' })); }catch(_){}
+  setParchePresence(false);  // walk ended → clear my "caminando ahora" status
+}
+function noSensor(m){ $('status').textContent=m+' Usa el simulador 👇'; $('startBtn').style.display='none'; $('simBtn').style.display='block'; }
+
+// SIM: for testing on a laptop / without sensors. Generates a fake little route so the map demo works.
+function toggleSim(){
+  if(simTimer){ clearInterval(simTimer); simTimer=null; $('simBtn').textContent='¿Sin sensor? Tocar para simular'; return; }
+  $('ringwrap').style.display='block'; $('mascots').style.display='none'; $('cta').style.display='none';
+  $('startBtn').style.display='none'; $('simBtn').textContent='⏸ Pausar';
+  usingSim = true; sessionActive = true;
+  let lat=4.667, lon=-74.055;                  // Bogotá-ish demo path
+  if (!liveMap && window.L){ path=[[lat,lon]]; initLiveMap({lat,lon}); }
+  simTimer = setInterval(()=>{
+    if(steps>=GOAL){ clearInterval(simTimer); simTimer=null; return; }
+    steps += 4; rawSteps += 4; gpsMeters += 4*STRIDE; lastMoveTime = Date.now();
+    lat += 0.00004; lon += 0.00003; path.push([lat,lon]); updateLiveMap({lat,lon});
+    render();
+  }, 85);
+}
+
+// Pre-recorded studio voice (Fish Audio "voz de locutor K"), generated ONCE and
+// served as static audio — no runtime API cost. sayClip plays the recorded file;
+// if a clip is missing it falls back to the browser voice. Dynamic lines (no clip)
+// just use the browser voice via speak().
+let _clipAudio = null;
+function sayClip(id, fallbackText){
+  try{ if(_clipAudio){ _clipAudio.pause(); } }catch(_){}
+  try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(_){}
+  const a = new Audio('audio/' + id + '.mp3');
+  _clipAudio = a;
+  a.onerror = ()=>{ if(fallbackText) speakBrowser(fallbackText); };
+  a.play().catch(()=>{ if(fallbackText) speakBrowser(fallbackText); });
+}
+function stopClip(){ try{ if(_clipAudio){ _clipAudio.pause(); _clipAudio.currentTime=0; } }catch(_){} }
+function speak(text){ speakBrowser(text); }   // dynamic lines → browser voice (no API cost)
+function speakBrowser(text){
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const v = speechSynthesis.getVoices();
+  // Latin American Spanish, NEVER Spain (es-ES)
+  const voice = v.find(x=>/es[-_](US|MX|419|CO|AR|CL|PE)/i.test(x.lang))
+             || v.find(x=>/^es/i.test(x.lang) && !/es[-_]ES/i.test(x.lang))
+             || v.find(x=>/^es/i.test(x.lang)) || null;
+  const u = new SpeechSynthesisUtterance(text);
+  if(voice){ u.voice = voice; u.lang = voice.lang; } else { u.lang='es-419'; }
+  u.rate = 0.82;   // slower, clearer
+  u.pitch = 1.05;
+  speechSynthesis.speak(u);
+}
+
+function donate(){
+  // Hard anti-fraud gate: the GPS route must be long enough for a real walk to
+  // the goal (steps were already gated by recent movement; this checks the route).
+  const minRoute = GOAL * STRIDE * 0.45;     // ~63 m for the 200-step demo; ~2,5 km for 8.000
+  // Native mode trusts the hardware step chip, so the GPS-route gate doesn't apply.
+  if (!usingSim && !nativeSteps && gpsMeters < minRoute){
+    $('status').innerHTML='🤔 <b>Casi…</b> tu recorrido por GPS es muy corto. El reto se gana caminando de verdad al aire libre. ¡Vamos! 🚶';
+    sayClip('casi_corto', 'Mmm, tu recorrido por GPS es muy corto. El reto se gana caminando de verdad al aire libre. ¡Vamos!');
+    donated=false; return;
+  }
+  donated = true;
+  stopTracking();
+  // Hide and tear down the live route map the instant you donate — no map on the
+  // celebration/result screen, and none left behind when you return to the reto.
+  $('liveMap').style.display='none';
+  if (liveMap){ try{ liveMap.remove(); }catch(_){} liveMap=null; liveLine=null; liveDot=null; }
+  // Record the REAL donation on the live backend (non-blocking; UX unchanged).
+  const stepsForServer = rawSteps, metersForServer = gpsMeters;
+  cyaRecordDonation(stepsForServer, metersForServer).then(r=>{
+    const h = $('ovHint');
+    if (r && r.ok && h) h.innerHTML = '✅ <b>Donación registrada en el servidor</b> — ya aparece en el panel de patrocinadores';
+  });
+  const s = bumpStreak();
+  resetCoupons(s.count);            // fresh single premio for THIS completed walk
+  $('streakWin').innerHTML = s.count > 1
+    ? `🔥 ¡Racha de ${s.count} días seguidos! · ${s.meals} comidas en total`
+    : `🌱 ¡Empezaste tu racha! Vuelve mañana para mantener el fuego 🔥`;
+  // milestone?
+  const ms = milestoneFor(s.meals); const mEl = $('milestone');
+  if (ms){ mEl.innerHTML = `<span class="big2">${ms.e}</span> ¡Logro desbloqueado!<br>${ms.t} donadas`; mEl.style.display='block'; }
+  else { mEl.style.display='none'; }
+  if (navigator.vibrate) navigator.vibrate([0,45,50,45,50,160]);  // celebratory buzz
+  showHelped();
+  $('overlay').classList.add('show');
+  confetti();
+  showRouteMap();
+  sayClip('celebracion', '¡Felicitaciones! Caminaste tu reto al aire libre, en una sola caminata, y le diste de comer a un niño. Tus pasos son su superpoder. Abre tu aplicación para elegir y redimir tu premio.');
+}
+
+// Draw the verified route as a lightweight SVG (no map tiles) so it ALWAYS stays
+// in its frame — Leaflet tiles float/detach inside iOS scrolling overlays.
+// The celebration screen no longer shows a route map — just a clean verified line.
+function showRouteMap(){
+  $('routeStats').innerHTML = nativeSteps
+    ? `📲 ${steps} pasos verificados por el sensor del teléfono`
+    : `📏 ${(gpsMeters/1000).toFixed(2).replace('.',',')} km recorridos · ${steps} pasos verificados`;
+}
+
+function confetti(){
+  const colors=['#FFD23F','#FF5D73','#06D6A0','#1B9AAA','#9B5DE5','#fff'];
+  for(let i=0;i<80;i++){
+    const c=document.createElement('div'); c.className='confetti';
+    c.style.left=Math.random()*100+'%';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.borderRadius=Math.random()>.5?'50%':'2px';
+    const dur=1.8+Math.random()*2;
+    c.animate([{transform:'translateY(0) rotate(0)',opacity:1},{transform:`translateY(110vh) rotate(${720*Math.random()}deg)`,opacity:.9}],
+      {duration:dur*1000,delay:Math.random()*600,easing:'cubic-bezier(.3,.6,.5,1)'});
+    document.body.appendChild(c); setTimeout(()=>c.remove(),(dur+1)*1000);
+  }
+}
+
+// --- Racha (streak): consecutive days you fed a child. Personal motivator only,
+//     NOT banked meals — missing a day just restarts the flame, kindly. ---
+function todayKey(){ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function dayNumber(s){ const [y,m,d]=s.split('-').map(Number); return Math.floor(Date.UTC(y,m-1,d)/86400000); }
+function getStreak(){
+  try{ return JSON.parse(localStorage.getItem('cya_streak')||'{"count":0,"last":null,"meals":0}'); }
+  catch(_){ return {count:0,last:null,meals:0}; }
+}
+function bumpStreak(){
+  const s = getStreak(); const t = todayKey();
+  if (s.last === t){ /* already counted today */ }
+  else if (s.last && dayNumber(t)-dayNumber(s.last) === 1){ s.count += 1; }   // consecutive day
+  else { s.count = 1; }                                                       // first day or gap → restart
+  s.last = t; s.meals = (s.meals||0) + 1;
+  localStorage.setItem('cya_streak', JSON.stringify(s));
+  return s;
+}
+// --- Experiencia de cupones: elige tu premio (con bono por racha) ---
+const COUPON_CATALOG = [
+  { cat:'🥗 Comida saludable', items:[
+    {id:'lacticol', icon:'🥛', t:'LactiCol — 30% dcto.', d:'Leche deslactosada 1L · Éxito, Carulla'},
+    {id:'alpina',   icon:'🥣', t:'Alpina — 2x1', d:'Yogurt griego · D1'},
+    {id:'bebifit',  icon:'⚡', t:'BebiFit — 25% dcto.', d:'Avena bebible · Olímpica'},
+  ]},
+  { cat:'👟 Deporte', items:[
+    {id:'carrera', icon:'🏃', t:'Carrera Verde 10K — 15%', d:'Inscripción a la carrera'},
+    {id:'runner',  icon:'👟', t:'Tienda Runner — 20%', d:'Tenis y ropa deportiva'},
+  ]},
+  { cat:'🎟️ Conciertos y eventos', items:[
+    {id:'festi', icon:'🎟️', t:'FestiSound — 20% dcto.', d:'Boletas de concierto'},
+    {id:'cine',  icon:'🍿', t:'Cine — 2x1', d:'Entradas de cine entre semana'},
+  ]},
+  { cat:'🛒 Mercado', items:[
+    {id:'exito', icon:'🛒', t:'Éxito — $10.000 dcto.', d:'En compras desde $80.000'},
+    {id:'d1',    icon:'🏪', t:'D1 — 15% dcto.', d:'En tu próxima compra'},
+  ]},
+  { cat:'💆 Bienestar', items:[
+    {id:'spa', icon:'💆', t:'Spa Relax — 25% dcto.', d:'Masaje de relajación'},
+    {id:'gym', icon:'🏋️', t:'Gimnasio — mes de prueba', d:'1 mes gratis para empezar'},
+  ]},
+];
+let couponsAllowed = 1, couponsClaimed = 0;
+
+// Allowance is set ONCE when the walk completes (in donate) — reopening the
+// picker does NOT refill it, so you can only pick your premio(s) for this walk.
+function openCoupons(){ renderCoupons(); $('coupons').classList.add('show'); }
+function resetCoupons(streakCount){
+  // REGLA: 1 cupón por caminata. BONO: racha de 7 días (semana) da 1 extra.
+  couponsAllowed = (streakCount >= 7) ? 2 : 1;
+  couponsClaimed = 0;
+  COUPON_CATALOG.forEach(g => g.items.forEach(it => { delete it._code; }));
+}
+function closeCoupons(){ $('coupons').classList.remove('show'); }
+// Web → app conversion nudge (placeholder until the app is published)
+function installApp(){
+  alert('¡Pronto en App Store y Google Play! 📲\n\nLa app cuenta SOLO tu caminata (de Inicio a Fin), pero te deja guardar el teléfono en el bolsillo: sigue midiendo con la pantalla apagada y te avisa cuando cumples tu meta.\n\nAdemás: recordatorios para salir a caminar, tu racha y premios guardados, y tu parche en vivo.\n\nTe avisaremos cuando esté lista.');
+}
+function renderCoupons(){
+  const done = couponsClaimed >= couponsAllowed;
+  const bonus = couponsAllowed > 1
+    ? `<div class="bonusBar">🔥 ¡Racha de una semana! Cupón extra: elige ${couponsAllowed}</div>` : '';
+  $('couponSub').textContent = done
+    ? 'Ya elegiste tu premio de esta caminata 🎉'
+    : (couponsAllowed>1 ? `¡Semana completa! Elige ${couponsAllowed} premios.` : 'Te ganaste 1 cupón. Elige el que más te guste.');
+  const counter = done
+    ? `<div style="font-size:12.5px;color:#0F6E56;font-weight:700;text-align:center;background:#E1F5EE;border-radius:10px;padding:8px;margin-bottom:8px">✅ Premio elegido. Camina otra vez para ganar otro.</div>`
+    : `<div style="font-size:12px;color:#9B8AA5;text-align:center;margin-bottom:6px">Elegidos: ${couponsClaimed}/${couponsAllowed}</div>`;
+  let html = bonus + counter;
+  COUPON_CATALOG.forEach(group=>{
+    html += `<div class="catHdr">${group.cat}</div>`;
+    group.items.forEach(it=>{
+      const claimed = it._code;
+      html += `<div class="coupon">
+        <span class="ci">${it.icon}</span>
+        <span class="cinfo"><b>${it.t}</b><span>${it.d}</span></span>
+        ${claimed
+          ? `<button class="cbtn claimed" disabled>Elegido ✓</button>`
+          : `<button class="cbtn" ${couponsClaimed>=couponsAllowed?'disabled':''} onclick="claimCoupon('${it.id}')">Elegir</button>`}
+      </div>`;
+      if (claimed){
+        html += `<div class="myCoupon"><div>📲 Muéstralo en caja · único uso · 7 días</div>
+          <div class="code">${it._code}</div><div class="qrFake"></div></div>`;
+      }
+    });
+  });
+  $('couponBody').innerHTML = html;
+}
+function claimCoupon(id){
+  if (couponsClaimed >= couponsAllowed) return;
+  for (const g of COUPON_CATALOG){ const it = g.items.find(x=>x.id===id); if(it && !it._code){
+    it._code = 'CYA-' + Math.random().toString(36).slice(2,8).toUpperCase();
+    couponsClaimed++; if(navigator.vibrate) navigator.vibrate(20);
+  }}
+  renderCoupons();
+}
+
+// --- G7a: Mascota que crece con tus comidas donadas ---
+const MASCOT = [
+  {min:0,  face:'🥚', name:'Huevo'},
+  {min:1,  face:'🐣', name:'Pollito'},
+  {min:5,  face:'🐥', name:'Polluelo'},
+  {min:10, face:'🐦', name:'Pajarito'},
+  {min:25, face:'🦅', name:'Águila'},
+  {min:50, face:'🦸', name:'Súper Héroe'},
+];
+function mascotStage(meals){ let s=MASCOT[0]; for(const m of MASCOT) if(meals>=m.min) s=m; return s; }
+function showMascot(){
+  const meals = myMeals(); const s = mascotStage(meals);
+  const next = MASCOT.find(m=>m.min>meals);
+  const box = $('mascotBox');
+  const prog = next ? Math.min((meals - s.min)/(next.min - s.min)*100, 100) : 100;
+  box.innerHTML = `<span class="mface">${s.face}</span> Tu mascota: <b>${s.name}</b>` +
+    (next ? ` · faltan ${next.min-meals} comidas para crecer` : ' · ¡nivel máximo! 🏆') +
+    `<div class="mbar"><div style="width:${prog}%"></div></div>`;
+  box.style.display='block';
+}
+
+// --- G7b: Conoce a quién ayudaste (agregado, respetando la privacidad) ---
+const PLACES = [
+  ['Soacha','Cundinamarca'],['Ciudad Bolívar','Bogotá'],['Comuna 13','Medellín'],
+  ['Aguablanca','Cali'],['Sur','Barranquilla'],['Riohacha','La Guajira'],
+  ['Quibdó','Chocó'],['Tumaco','Nariño'],['Maicao','La Guajira'],['Buenaventura','Valle']
+];
+function showHelped(){
+  const [zona,depto] = PLACES[Math.floor(Math.random()*PLACES.length)];
+  $('helped').innerHTML = `🏫 Tu comida de hoy llega a un colegio en <b>${zona}, ${depto}</b>.<br>Un niño aprenderá mejor gracias a ti. 💚`;
+}
+
+// --- G7c: Mapa de impacto nacional ---
+const CITY_IMPACT = [
+  ['Bogotá',4.66,-74.08,5820],['Medellín',6.25,-75.56,2310],['Cali',3.45,-76.53,1640],
+  ['Barranquilla',10.96,-74.80,1120],['Cartagena',10.39,-75.51,860],['Bucaramanga',7.12,-73.12,740],
+  ['Pereira',4.81,-75.69,520],['Santa Marta',11.24,-74.20,470],['Cúcuta',7.89,-72.50,430],
+  ['Soacha',4.58,-74.21,690],['Ibagué',4.44,-75.24,360],['Pasto',1.21,-77.28,310]
+];
+// City coordinates so real donations (grouped by city in the backend) can be plotted.
+const CITY_COORDS = {
+  'bogota':[4.66,-74.08],'medellin':[6.25,-75.56],'cali':[3.45,-76.53],'barranquilla':[10.96,-74.80],
+  'cartagena':[10.39,-75.51],'bucaramanga':[7.12,-73.12],'pereira':[4.81,-75.69],'santa marta':[11.24,-74.20],
+  'cucuta':[7.89,-72.50],'soacha':[4.58,-74.21],'ibague':[4.44,-75.24],'pasto':[1.21,-77.28],
+  'manizales':[5.07,-75.52],'villavicencio':[4.14,-73.63],'monteria':[8.75,-75.88],'neiva':[2.93,-75.28],
+  'armenia':[4.53,-75.68],'valledupar':[10.46,-73.25],'tunja':[5.54,-73.36]
+};
+const cityKey = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+
+async function openImpact(){
+  $('impact').classList.add('show');
+  $('impactStats').innerHTML = `<div style="font-size:13px;color:var(--ink);opacity:.7">Cargando impacto…</div>`;
+  // Pull REAL meals donated per city from the backend; fall back to demo if too little data.
+  let real = [];
+  try{ const d = await cyaGet('/impact/by-city'); if (Array.isArray(d)) real = d; }catch(_){}
+  let pts = [];
+  real.forEach(r => { const c = CITY_COORDS[cityKey(r.city)]; if (c && r.meals>0) pts.push([r.city, c[0], c[1], Number(r.meals)]); });
+  const realTotal = pts.reduce((a,p)=>a+p[3],0);
+  if (pts.length < 2) pts = CITY_IMPACT.map(c=>[c[0],c[1],c[2],c[3]]);   // demo fallback so it's never empty
+  const total = Math.max(realTotal, pts.reduce((a,p)=>a+p[3],0)) + myMeals();
+  $('impactStats').innerHTML = `<div style="font-size:30px;font-weight:800;color:var(--purple)">${total.toLocaleString('es-CO')}</div>
+    <div style="font-size:12px;color:var(--ink)">comidas donadas en Colombia · tú aportaste <b>${myMeals()}</b> 🦸</div>`;
+  $('impactMap').innerHTML = impactSVG(pts);   // SVG renders reliably inside the phone app (no map tiles)
+  loadReceipts();
+}
+// Feature 1 — Recibos de impacto: each meal you triggered, traced to sponsor + food bank.
+async function loadReceipts(){
+  const box=$('impactReceipts'); if(!box) return;
+  if(!cyaToken){ box.innerHTML=''; return; }
+  const rec = await cyaGet('/impact/receipts', true);
+  if(!rec || !rec.length){ box.innerHTML='<div style="text-align:center;font-size:12px;color:#fff;opacity:.85">Aún no tienes recibos. Completa una caminata para generar tu primer recibo de impacto. 🧾</div>'; return; }
+  box.innerHTML = `<div style="font-weight:800;color:#fff;margin-bottom:6px">🧾 Tus recibos de impacto (${rec.length})</div>` +
+    rec.slice(0,8).map(r=>`
+    <div style="background:rgba(255,255,255,.16);border-radius:11px;padding:10px 12px;margin-bottom:7px;color:#fff">
+      <div style="font-weight:800;font-size:12.5px">Comida #${r.meal} · ${r.receiptId}</div>
+      <div style="font-size:11.5px;opacity:.95">Financiada por <b>${r.sponsor||'—'}</b><br>Entregada por <b>${r.foodBank||'—'}</b>${r.city?(' · '+r.city):''}${r.abaco?' · ABACO ✓':''}</div>
+      <div style="font-size:10.5px;opacity:.8">${r.date? new Date(r.date).toLocaleDateString('es-CO'):''}${r.valueCop?(' · valor ~$'+Number(r.valueCop).toLocaleString('es-CO')):''}</div>
+      <a onclick="shareReceipt('${r.receiptId}','${(r.foodBank||'').replace(/'/g,'')}','${(r.city||'').replace(/'/g,'')}')" style="display:inline-block;margin-top:5px;font-size:11px;font-weight:800;color:#fff;text-decoration:underline;cursor:pointer">Compartir</a>
+    </div>`).join('');
+}
+function shareReceipt(id, bank, city){
+  const text = `🧾 Recibo de impacto ${id} — Mi caminata alimentó a un niño en Colombia. Comida entregada por ${bank}${city?(' ('+city+')'):''} vía SuperPasos. 💚`;
+  doShare('Mi recibo de impacto', text, SHARE_URL);
+}
+function impactSVG(pts){
+  const W=320, H=280, latN=12.8, latS=-4.4, lonW=-79.4, lonE=-66.6;
+  const X = lon => ((lon - lonW)/(lonE - lonW))*W;
+  const Y = lat => ((latN - lat)/(latN - latS))*H;
+  const mx = Math.max.apply(null, pts.map(p=>p[3]).concat([1]));
+  const sorted = [...pts].sort((a,b)=>b[3]-a[3]);
+  const bubbles = sorted.map(p=>{
+    const r = Math.max(5, Math.sqrt(p[3]/mx)*30);
+    const cx = X(p[2]).toFixed(1), cy = Y(p[1]).toFixed(1);
+    return `<circle cx="${cx}" cy="${cy}" r="${r.toFixed(1)}" fill="#9B5DE5" fill-opacity="0.72" stroke="#fff" stroke-width="1.5"/>`+
+           `<text x="${cx}" y="${(Y(p[1])-r-2).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">${p[0]}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="280" preserveAspectRatio="xMidYMid meet" style="display:block;background:linear-gradient(160deg,#1B9AAA,#06D6A0);border-radius:14px">
+    <text x="${W/2}" y="16" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff" opacity="0.9">🇨🇴 Comidas donadas por ciudad</text>
+    ${bubbles}</svg>`;
+}
+function closeImpact(){ $('impact').classList.remove('show'); }
+
+// --- Mi Parche (grupo): REAL, sincronizado con el servidor ---
+// Cada integrante ve las comidas de todos (tabla), el total del parche, y quién está
+// "caminando ahora" (solo ESTADO, nunca ubicación). La ubicación en vivo es opcional,
+// con consentimiento y por tiempo limitado (se activa en la app instalada).
+function getParche(){ try{ return JSON.parse(localStorage.getItem('cya_parche')||'null'); }catch(_){ return null; } }
+function saveParche(p){ if(p) localStorage.setItem('cya_parche', JSON.stringify(p)); else localStorage.removeItem('cya_parche'); }
+function getMyName(){ return localStorage.getItem('cya_myname') || ''; }
+function setMyName(n){ localStorage.setItem('cya_myname', n); }
+function getShareConsent(){ try{ return JSON.parse(localStorage.getItem('cya_share')||'null'); }catch(_){ return null; } }
+function setShareConsent(c){ localStorage.setItem('cya_share', JSON.stringify(c)); }
+
+function openParche(){ renderParche(); $('parche').classList.add('show'); }
+function closeParche(){ $('parche').classList.remove('show'); renderParcheStrip(); }
+
+async function renderParche(){
+  const body = $('parcheBody');
+  const p = getParche();
+  if (!p){
+    body.innerHTML = `
+      <p style="font-size:15px;">Crea un parche e invita a tu familia y amigos. Cada uno escribe su nombre y camina; juntos ven cuántos niños alimentan — y quién está caminando ahora. 💚</p>
+      <input class="pInput" id="myName" placeholder="Escribe tu nombre" maxlength="20" value="${getMyName()}">
+      <input class="pInput" id="parcheName" placeholder="Nombre del parche (ej: Familia Pérez)" maxlength="28">
+      <button class="pBtn create" onclick="createParche()">✨ Crear mi parche</button>
+      <div style="font-size:12px;color:#9B8AA5;text-align:center;margin:12px 0 4px">¿Te invitaron? Escribe el código:</div>
+      <input class="pInput" id="joinCode" placeholder="Código (ej: AB3K9)" maxlength="6" style="text-transform:uppercase">
+      <button class="pBtn invite" onclick="joinParcheByCode()">➡️ Unirme a un parche</button>`;
+    return;
+  }
+  body.innerHTML = '<div style="text-align:center;color:var(--ink);opacity:.7;padding:16px">Cargando tu parche…</div>';
+  const d = await cyaGet('/parches/'+p.parcheId, true);
+  if (!d || d.error){ body.innerHTML = '<div style="text-align:center;padding:14px">No pudimos cargar el parche.<br><span class="leave" onclick="leaveParche()">Salir del parche</span></div>'; return; }
+  const total = d.totalMeals||0, goal = d.goal||(d.members.length*7), pct = Math.min(total/goal*100, 100);
+  const mine = getMyName();
+  const medals = {1:'🥇',2:'🥈',3:'🥉'};
+  const rows = (d.members||[]).map(m=>`
+    <div class="member ${m.name===mine?'you':''}">
+      <span style="width:24px;display:inline-block;font-weight:800;text-align:center">${medals[m.rank]||(m.rank+'.')}</span>
+      <span class="mav">${m.walking_now?'<span class="glow">🟢</span>':'🚶'}</span> ${m.name===mine?'Tú':m.name}${m.city?` · <span style="color:#8A6FA0">${m.city}</span>`:''}
+      ${m.walking_now?`<span class="walking">caminando${m.walking_steps?(' · '+Number(m.walking_steps).toLocaleString('es-CO')+' pasos'):''}</span>`:''}
+      <span class="mm">${Number(m.total_steps||0).toLocaleString('es-CO')} 👣 · ${m.meals} 🍲</span>
+    </div>`).join('');
+  const walkers = (d.walkingNow||[]).filter(n=>n!==mine);
+  const liveLine = walkers.length ? `<div style="text-align:center;font-size:13px;font-weight:800;color:#1E9E77;margin:6px 0">🟢 ${walkers.join(', ')} ${walkers.length>1?'están caminando':'está caminando'} ahora</div>` : '';
+  body.innerHTML = `
+    <div style="text-align:center;font-weight:800;font-size:18px;color:var(--purple);">${d.name}</div>
+    ${liveLine}
+    <div class="pTotal"><div class="n">${total}</div><div class="l">de ${goal} comidas · meta del parche 🍲</div></div>
+    <div class="goalbar"><div style="width:${pct}%"></div></div>
+    <div style="font-size:11px;color:#9B8AA5;text-align:center;margin:4px 0 10px">${pct>=100?'🎉 ¡Meta cumplida! Suban la meta caminando más.':'¡Juntos llenamos la barra!'}</div>
+    <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px">🏆 Tabla del parche</div>
+    ${rows}
+    <div style="background:#F4F0FB;border-radius:12px;padding:10px;text-align:center;font-size:13px;font-weight:700;color:var(--ink);margin-top:10px">Código para invitar: <b style="letter-spacing:2px;color:var(--purple)">${d.joinCode}</b></div>
+    <button class="pBtn invite" onclick="inviteParche()">📲 Invitar por WhatsApp</button>
+    <button class="pBtn" onclick="renderParche()" style="background:#ECE7F5;color:var(--ink)">🔄 Actualizar</button>
+    <span class="leave" onclick="leaveParche()">Salir del parche</span>`;
+}
+
+async function createParche(){
+  const me = (($('myName')&&$('myName').value)||'').trim();
+  if (!me){ alert('Primero escribe tu nombre.'); return; }
+  if (!(await cyaEnsureUser())){ alert('Conéctate a internet para crear tu parche.'); return; }
+  const name = (($('parcheName')&&$('parcheName').value)||'').trim() || 'Mi Parche';
+  setMyName(me);
+  const r = await cyaPost('/parches', { name, myName: me }, true);
+  if (r && r.parcheId){
+    saveParche({ parcheId:r.parcheId, joinCode:r.joinCode, name });
+    askShareConsent();
+    renderParche();
+    speak('¡Creaste tu parche! Comparte el código por WhatsApp para que tu familia se una.');
+  } else { alert('No pudimos crear el parche. Intenta de nuevo.'); }
+}
+async function joinParcheByCode(){
+  const me = (($('myName')&&$('myName').value)||'').trim();
+  if (!me){ alert('Primero escribe tu nombre.'); return; }
+  setMyName(me);
+  const code = (($('joinCode')&&$('joinCode').value)||'').trim().toUpperCase();
+  if (!code){ alert('Escribe el código del parche.'); return; }
+  await joinParche(code);
+}
+async function joinParche(joinCode){
+  if (!(await cyaEnsureUser())){ alert('Conéctate a internet para unirte.'); return; }
+  let me = getMyName();
+  if (!me){ me = (prompt('¿Cómo te llamas?')||'').trim(); if(!me){ alert('Necesitamos tu nombre para unirte al parche.'); return; } setMyName(me); }
+  const r = await cyaPost('/parches/join', { joinCode, myName: me }, true);
+  if (r && r.parcheId){
+    saveParche({ parcheId:r.parcheId, joinCode:(r.joinCode||joinCode), name:'Mi parche' });
+    askShareConsent();
+    openParche();
+  } else { alert('No encontramos ese parche. Revisa el código.'); }
+}
+function inviteParche(){
+  const p = getParche(); if(!p) return;
+  const link = SHARE_URL + '?parche=' + p.joinCode;
+  const text = `¡Únete a mi parche en SuperPasos! 👨‍👩‍👧 Toca el enlace, escribe tu nombre y toca "Unirme" — tu código (${p.joinCode}) ya queda puesto. Caminamos juntos y alimentamos niños colombianos:`;
+  doShare('Únete a mi parche', text, link);
+}
+function leaveParche(){ saveParche(null); renderParche(); renderParcheStrip(); }
+
+// TEST ONLY: start over with a brand-new account (0 comidas, sin cupones) so you can
+// re-test the full walk → cupón → billetera → mapa flow. (Removed before launch.)
+function testResetAccount(){
+  if (!confirm('¿Reiniciar tu cuenta de PRUEBA?\n\nEmpezarás de cero: 0 comidas, sin cupones, fuera del parche. Solo para probar.')) return;
+  ['cya_auth','cya_parche','cya_myname','cya_share','cya_streak','cya_milestones','cya_profile'].forEach(k=>{ try{ localStorage.removeItem(k); }catch(_){} });
+  cyaToken = null; cyaCoupon = null;
+  alert('Listo ✅ Cuenta de prueba nueva. Ya puedes caminar y ganar un cupón otra vez.');
+  try{ location.reload(); }catch(_){}
+}
+
+// Privacy-first consent: default = solo estado. Optional, time-limited live location.
+function askShareConsent(){
+  const yes = confirm('¿Compartir tu UBICACIÓN EN VIVO con tu parche mientras caminas?\n\n• Cancelar → compartir solo tu estado (activo / caminando), NUNCA tu ubicación.\n• Aceptar → compartir tu ubicación SÓLO hasta que termines tu caminata (se apaga sola).');
+  setShareConsent({ location: !!yes, until: 'walk' });
+}
+
+// Tell the parche I'm walking now + my live step count (no location shared — city comes from profile).
+let parchePresenceTimer = null;
+function setParchePresence(walking){
+  const p = getParche(); if (!p || !cyaToken) return;
+  cyaPost('/parches/'+p.parcheId+'/presence', { walking: !!walking, steps: (typeof steps==='number'?steps:0) }, true);
+  if (walking){
+    clearInterval(parchePresenceTimer);
+    parchePresenceTimer = setInterval(()=>{ if (sessionActive && !donated) setParchePresence(true); else clearInterval(parchePresenceTimer); }, 15000);
+  } else { clearInterval(parchePresenceTimer); }
+}
+
+// if opened from an invite link, offer to join
+// ===== Perfil / onboarding (registro al abrir, edición desde el menú) =====
+const ANIMAL_AVATARS=['🦸','🐶','🐱','🦊','🐼','🐯','🦁','🐵','🐨','🐰','🐻','🐸','🦄','🐧','🦉','🐢','🐝','🐙'];
+let _avatarSel='🦸';
+function getProfile(){ try{ return JSON.parse(localStorage.getItem('cya_profile')||'null'); }catch(_){ return null; } }
+function openProfile(first){
+  const p=getProfile()||{}; _avatarSel=p.avatar||'🦸';
+  $('profileTitle').textContent=first?'👋 Crea tu perfil':'👤 Mi perfil';
+  $('profileSub').textContent=first?'Cuéntanos un poco de ti para personalizar tu experiencia.':'Edita tu información cuando quieras.';
+  $('profileClose').style.display=first?'none':'block';
+  $('pfName').value=p.name||getMyName()||''; $('pfDob').value=p.dob||''; $('pfOcc').value=p.occupation||''; $('pfCity').value=p.city||'';
+  $('pfCityHint').textContent=''; renderAvatarGrid(); renderAvatarPreview();
+  if(!p.city) suggestCity();
+  $('profile').classList.add('show');
+}
+function closeProfile(){ $('profile').classList.remove('show'); }
+function renderAvatarGrid(){ $('avatarGrid').innerHTML=ANIMAL_AVATARS.map(a=>`<span onclick="pickAvatar('${a}')" style="font-size:25px;cursor:pointer;padding:4px;border-radius:8px;${a===_avatarSel?'background:#E9F8F0;outline:2px solid #1E9E77':''}">${a}</span>`).join(''); }
+function renderAvatarPreview(){ const el=$('avatarPreview'); if(_avatarSel&&String(_avatarSel).startsWith('data:')){ el.innerHTML='<img src="'+_avatarSel+'" style="width:60px;height:60px;border-radius:50%;object-fit:cover">'; } else { el.textContent=_avatarSel||'🦸'; } }
+function pickAvatar(a){ _avatarSel=a; renderAvatarGrid(); renderAvatarPreview(); }
+function onAvatarPhoto(e){ const f=e.target.files&&e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ const img=new Image(); img.onload=()=>{ const c=document.createElement('canvas'); const S=200,sc=Math.min(S/img.width,S/img.height,1); c.width=Math.round(img.width*sc); c.height=Math.round(img.height*sc); c.getContext('2d').drawImage(img,0,0,c.width,c.height); _avatarSel=c.toDataURL('image/jpeg',0.8); renderAvatarPreview(); renderAvatarGrid(); }; img.src=r.result; }; r.readAsDataURL(f); }
+function suggestCity(){ if(!('geolocation' in navigator)) return;
+  navigator.geolocation.getCurrentPosition(async p=>{ try{ const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&zoom=10&lat='+p.coords.latitude+'&lon='+p.coords.longitude).then(x=>x.json()); const a=r.address||{}; const city=a.city||a.town||a.municipality||a.state||''; if(city && !$('pfCity').value){ $('pfCity').value=city; $('pfCityHint').textContent='· sugerida por GPS'; } }catch(_){ } }, ()=>{}, {timeout:7000}); }
+async function saveProfile(){
+  const name=$('pfName').value.trim(); if(!name){ alert('Por favor escribe tu nombre.'); return; }
+  const dob=$('pfDob').value||'', occ=$('pfOcc').value||'', city=$('pfCity').value.trim()||'';
+  const birthYear=dob?parseInt(dob.slice(0,4),10):null;
+  localStorage.setItem('cya_profile', JSON.stringify({ name, dob, occupation:occ, city, avatar:_avatarSel }));
+  setMyName(name);
+  await cyaEnsureUser();
+  if(cyaToken){ cyaPost('/auth/profile',{ displayName:name, birthYear, city, occupation:occ }, true); }
+  closeProfile(); birthdayCheck(); renderParcheStrip();
+  try{ speak('¡Listo! Tu perfil quedó guardado.'); }catch(_){}
+}
+function birthdayCheck(){ const p=getProfile(); const b=$('bdayBanner'); if(!b) return;
+  if(!p||!p.dob){ b.style.display='none'; return; }
+  const t=new Date(), d=new Date(p.dob+'T00:00:00');
+  if(t.getMonth()===d.getMonth() && t.getDate()===d.getDate()){ b.style.display='block'; b.textContent='🎉 ¡Feliz cumpleaños, '+(p.name||'')+'! Gracias por alimentar a Colombia. 🎂'; }
+  else { b.style.display='none'; }
+}
+
+// Opened from an invite link (?parche=CODE): open the parche screen, pre-fill the
+// code, and let them just type their name and tap Unirme.
+function checkParcheInvite(){
+  const u = new URLSearchParams(location.search);
+  const code = (u.get('parche')||'').toUpperCase();
+  if (code && !getParche()){
+    setTimeout(()=>{
+      openParche();                                   // shows the create/join form
+      const jc = $('joinCode'); if (jc){ jc.value = code; }
+      const nm = $('myName'); if (nm){ try{ nm.focus(); }catch(_){} }
+      // Friendly banner so it's clear they were invited.
+      const body = $('parcheBody');
+      if (body && !$('inviteBanner')){
+        const b = document.createElement('div');
+        b.id = 'inviteBanner';
+        b.style.cssText = 'background:#E9F8F0;border:1px solid #1E9E77;border-radius:12px;padding:11px;margin-bottom:10px;font-size:13px;font-weight:700;color:#13795A;text-align:center';
+        b.innerHTML = '🎉 ¡Te invitaron a un parche!<br><span style="font-weight:600;color:#3A2E4A">Escribe tu nombre y toca <b>Unirme a un parche</b>.</span>';
+        body.insertBefore(b, body.firstChild);
+      }
+    }, 600);
+  }
+}
+
+// --- Logros (milestones): celebrate lifetime meals donated ---
+const MILESTONES = [
+  {n:1,   e:'🌱', t:'Primera comida'},
+  {n:5,   e:'⭐', t:'5 comidas'},
+  {n:10,  e:'🏅', t:'10 comidas'},
+  {n:25,  e:'🥈', t:'25 comidas'},
+  {n:50,  e:'🥇', t:'50 comidas'},
+  {n:100, e:'🏆', t:'100 comidas'},
+  {n:250, e:'👑', t:'250 comidas'},
+];
+function milestoneFor(meals){ return MILESTONES.find(m => m.n === meals) || null; }  // exact crossing
+function showBadgeShelf(){
+  const meals = getStreak().meals || 0;
+  $('badgeShelf').innerHTML = MILESTONES.map(m =>
+    `<span class="med ${meals>=m.n?'':'locked'}" title="${m.t}">${m.e}</span>`).join('');
+}
+
+function showLandingStreak(){
+  const s = getStreak();
+  if (s.count > 0 && s.last){
+    const gap = dayNumber(todayKey()) - dayNumber(s.last);
+    const b = $('streakBadge');
+    if (gap === 0)      b.innerHTML = `🔥 Racha de ${s.count} día${s.count>1?'s':''} · ¡ya alimentaste hoy!`;
+    else if (gap === 1) b.innerHTML = `🔥 Racha de ${s.count} día${s.count>1?'s':''} · ¡camina hoy para no perderla!`;
+    else                b.innerHTML = `💛 Vuelve a empezar tu racha hoy · ${s.meals||0} comidas en total`;
+    b.style.display='inline-block';
+  }
+}
+
+// --- Social: share win + invite (uses the native share sheet → WhatsApp, IG, FB, etc.) ---
+const SHARE_URL = location.origin + location.pathname;  // clean base (no query/hash) for invite links
+async function shareWin(){
+  const km = (gpsMeters/1000).toFixed(2).replace('.',',');
+  const text = `¡Acabo de alimentar a un niño caminando ${km} km! 🦸🍲 Tus pasos, su superpoder. Hazlo tú también, no descargas nada:`;
+  await doShare('¡Alimenté a un niño caminando!', text);
+}
+async function inviteFriend(){
+  const text = `Te reto 💪: camina y alimenta a un niño colombiano conmigo. Es gratis, no descargas nada — solo entra y camina. ¿Aceptas el reto? 🦸`;
+  await doShare('Te reto a alimentar a un niño', text);
+}
+async function doShare(title, text, url){
+  const link = url || SHARE_URL;
+  try{
+    if (navigator.share){ await navigator.share({ title, text, url: link }); return; }
+    const wa = 'https://wa.me/?text=' + encodeURIComponent(text + ' ' + link);
+    window.open(wa, '_blank');
+  }catch(e){
+    try{ await navigator.clipboard.writeText(text + ' ' + link); alert('¡Copiado! Pégalo en WhatsApp, Instagram o Facebook 💚'); }
+    catch(_){ alert(text + '\n\n' + link); }
+  }
+}
+
+function resetAll(){
+  stopTracking(); donated=false; usingSim=false; lastMag=0; goingUp=false; clearSession();
+  resetCoupons(0);   // clear this walk's coupon(s); next walk earns a fresh premio
+  $('overlay').classList.remove('show'); $('liveMap').style.display='none'; $('gpsline').textContent='';
+  $('ringwrap').style.display='none'; $('mascots').style.display='block'; $('cta').style.display='block';
+  $('donateBtn').style.display='none'; $('simBtn').style.display='none';
+  $('startBtn').style.display='block'; $('startBtn').textContent='▶ ¡Empezar el reto!';
+  $('status').textContent='';
+  const rm=$('routeMap'); if(rm) rm.innerHTML='';
+  showLandingStreak();
+  render();
+}
+
+// --- Nuestra historia ---
+const STORY = 'Nuestra historia. En Colombia, muchos niños van a la escuela con hambre, y cuando un niño tiene hambre, le cuesta mucho aprender. Pero aquí está la magia: tú ya caminas todos los días, y esos pasos pueden convertirse en comida. Cada vez que cumples tu reto de pasos, una empresa paga una comida para un niño. ¿Y por qué lo llamamos un superpoder? Porque la comida es el combustible del cerebro. Un niño bien alimentado puede concentrarse, recordar lo que aprende, jugar con energía y soñar en grande. El hambre apaga ese poder; una buena comida lo enciende. Por eso cada plato no es solo comida: es la chispa que despierta el superpoder de un niño para aprender y crecer. Tú pones los pasos, la empresa pone el plato, y un niño recibe su superpoder. No te cuesta nada: solo camina, corre, muévete, y ayuda a alimentar a un niño. Tus pasos, su superpoder.';
+function toggleMenu(){
+  const open = $('menuDrop').classList.toggle('show');
+  $('menuBackdrop').classList.toggle('show', open);
+}
+function toggleOvMenu(){
+  const open = $('ovMenuDrop').classList.toggle('show');
+  $('ovMenuBackdrop').classList.toggle('show', open);
+}
+function openStory(){ $('story').classList.add('show'); }
+function closeStory(){ $('story').classList.remove('show'); narrating=false; $('listenBtn').textContent='🔊 Cuéntame la historia (escuchar)'; stopClip(); if('speechSynthesis' in window) speechSynthesis.cancel(); }
+let narrating = false, _storyAudio = null;
+function narrate(){
+  const reset = ()=>{ narrating=false; $('listenBtn').textContent='🔊 Cuéntame la historia (escuchar)'; };
+  if(narrating){ if(_storyAudio){ try{_storyAudio.pause();}catch(_){} } if('speechSynthesis' in window) speechSynthesis.cancel(); reset(); return; }
+  narrating = true; $('listenBtn').textContent='⏸ Pausar narración';
+  // Pre-recorded studio narration; fall back to the browser voice if the file is missing.
+  _storyAudio = new Audio('audio/historia.mp3');
+  _storyAudio.onended = reset;
+  _storyAudio.onerror = ()=>{ if('speechSynthesis' in window){ speakBrowser(STORY); const check=setInterval(()=>{ if(!speechSynthesis.speaking){ reset(); clearInterval(check); } },600); } else reset(); };
+  _storyAudio.play().catch(()=>{ _storyAudio.onerror(); });
+}
+showLandingStreak();
+showBadgeShelf();
+showMascot();
+checkParcheInvite();
+renderParcheStrip();                         // show my parche + who's walking, on open
+setInterval(renderParcheStrip, 30000);       // refresh the live walking status
+// First open → sign-up profile. Otherwise check for a birthday to celebrate.
+if(!getProfile()){ setTimeout(()=>openProfile(true), 500); } else { birthdayCheck(); }
+render();
+</script>
+</body>
+</html>

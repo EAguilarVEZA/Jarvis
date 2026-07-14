@@ -1,0 +1,65 @@
+name: gsc_fact_site_impression
+descriptions:
+  user: Google Search Console daily search performance metrics by site, query, country, and device.
+table: oh-data-warehouse.gold.gsc_fact_site_impression
+grain:
+- date
+columns:
+- name: date
+  type: time
+  descriptions:
+    ai: Calendar date of the search impression data.
+  role: time
+- name: page_hostname
+  type: string
+  descriptions:
+    ai: Website domain where the search traffic was directed.
+- name: query
+  type: string
+  descriptions:
+    ai: Search term entered by the user in Google Search.
+- name: is_anonymized_query
+  type: boolean
+  descriptions:
+    ai: Indicates if Google anonymized the query for privacy reasons.
+- name: country
+  type: string
+  descriptions:
+    ai: Three-letter country code where the search originated.
+- name: search_type
+  type: string
+  descriptions:
+    ai: Google search surface type, such as WEB, IMAGE, or VIDEO.
+- name: device
+  type: string
+  descriptions:
+    ai: 'Device category used for the search: MOBILE, DESKTOP, or TABLET.'
+- name: impressions
+  type: number
+  descriptions:
+    ai: Number of times the site appeared in search results.
+- name: clicks
+  type: number
+  descriptions:
+    ai: Number of times users clicked through to the site.
+- name: sum_top_results_position
+  type: number
+  descriptions:
+    ai: Summed ranking position across top search result appearances.
+- name: average_results_position
+  type: number
+  descriptions:
+    ai: Mean ranking position in Google search results for the query.
+measures:
+- name: total_impressions
+  expr: SUM(impressions)
+  description: Impressions (sum of impressions).
+- name: total_clicks
+  expr: SUM(clicks)
+  description: Clicks (sum of clicks).
+- name: total_sum_top_results_position
+  expr: SUM(sum_top_results_position)
+  description: Sum Top Results Position (sum of sum_top_results_position).
+- name: total_average_results_position
+  expr: SUM(average_results_position)
+  description: Average Results Position (sum of average_results_position).

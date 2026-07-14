@@ -1,0 +1,29 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "lookup_tables",
+  "name": "salesforce_form_id_lookup",
+  "kind": "external",
+  "comment": null,
+  "estimatedRows": 0,
+  "columns": [
+    {
+      "name": "service",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "form_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

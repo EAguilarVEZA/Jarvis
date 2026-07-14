@@ -1,0 +1,34 @@
+name: ad_group_targeting_setting_history
+descriptions:
+  user: Historical log of ad group targeting settings by criterion type, tracking changes over time.
+table: oh-data-warehouse.adwords_orlando_health.ad_group_targeting_setting_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier linking the targeting setting to a specific ad group.
+- name: sequence_id
+  type: number
+  descriptions:
+    ai: Version number indicating the order of changes for this record.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the targeting setting was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+- name: criterion_type_group
+  type: string
+  descriptions:
+    ai: Category of targeting criterion, such as AGE_RANGE, PARENT, or VERTICAL.
+- name: target_all
+  type: boolean
+  descriptions:
+    ai: Whether all values within the criterion type group are targeted broadly.
+measures: []

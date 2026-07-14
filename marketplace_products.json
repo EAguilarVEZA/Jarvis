@@ -1,0 +1,393 @@
+{
+  "products": [
+    {
+      "id": "inpatient-encounters",
+      "name": "De-identified Inpatient Encounters",
+      "category": "Clinical",
+      "domain": "healthcare",
+      "summary": "Admissions, diagnoses, procedures, LOS and discharge disposition across the inpatient network.",
+      "description": "Longitudinal inpatient stays with ICD-10 diagnoses/procedures, DRG, length of stay, admit/discharge type and de-identified patient keys for cohort linkage.",
+      "compliance": "HIPAA Safe Harbor de-identified; dates shifted, ages 90+ aggregated; expert-determination available.",
+      "refresh": "Monthly",
+      "row_count": 4180000,
+      "fields": [
+        {
+          "name": "patient_token",
+          "type": "string",
+          "desc": "Stable de-identified linkage key"
+        },
+        {
+          "name": "encounter_id",
+          "type": "string",
+          "desc": "Unique stay identifier"
+        },
+        {
+          "name": "admit_date_shifted",
+          "type": "date",
+          "desc": "Date-shifted admit date"
+        },
+        {
+          "name": "los_days",
+          "type": "int",
+          "desc": "Length of stay"
+        },
+        {
+          "name": "drg",
+          "type": "string",
+          "desc": "MS-DRG code"
+        },
+        {
+          "name": "primary_dx",
+          "type": "string",
+          "desc": "Primary ICD-10 diagnosis"
+        },
+        {
+          "name": "discharge_disposition",
+          "type": "string",
+          "desc": "Home / SNF / expired / AMA"
+        }
+      ],
+      "sample": [
+        {
+          "patient_token": "PT_9af3",
+          "encounter_id": "E10231",
+          "los_days": 4,
+          "drg": "291",
+          "primary_dx": "I50.9"
+        },
+        {
+          "patient_token": "PT_1b77",
+          "encounter_id": "E10232",
+          "los_days": 2,
+          "drg": "690",
+          "primary_dx": "N39.0"
+        }
+      ],
+      "pricing": {
+        "model": "per_record",
+        "unit_price": 0.012,
+        "currency": "USD",
+        "floor": 5000,
+        "notes": "Priced per licensed row, $5k engagement floor."
+      },
+      "tags": [
+        "inpatient",
+        "diagnoses",
+        "DRG",
+        "cohort",
+        "clinical outcomes"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "claims-billing",
+      "name": "Claims & Billing (tokenized)",
+      "category": "Financial",
+      "domain": "healthcare",
+      "summary": "Charge, payment and adjustment detail with payer mix \u2014 tokenized for clean-room linkage.",
+      "description": "Institutional and professional claim lines: CPT/HCPCS, charge amount, allowed, paid, payer category and service date. Tokenized patient/provider keys for privacy-safe joins.",
+      "compliance": "Tokenized + Safe Harbor; direct identifiers removed; suitable for clean-room matching.",
+      "refresh": "Monthly",
+      "row_count": 22600000,
+      "fields": [
+        {
+          "name": "claim_token",
+          "type": "string",
+          "desc": "De-identified claim key"
+        },
+        {
+          "name": "cpt",
+          "type": "string",
+          "desc": "CPT/HCPCS procedure code"
+        },
+        {
+          "name": "charge_amt",
+          "type": "float",
+          "desc": "Billed charge"
+        },
+        {
+          "name": "allowed_amt",
+          "type": "float",
+          "desc": "Payer-allowed amount"
+        },
+        {
+          "name": "payer_category",
+          "type": "string",
+          "desc": "Commercial / Medicare / Medicaid / Self-pay"
+        },
+        {
+          "name": "service_date_shifted",
+          "type": "date",
+          "desc": "Date-shifted service date"
+        }
+      ],
+      "sample": [
+        {
+          "claim_token": "CL_44a",
+          "cpt": "99223",
+          "charge_amt": 612.0,
+          "allowed_amt": 214.5,
+          "payer_category": "Medicare"
+        }
+      ],
+      "pricing": {
+        "model": "per_record",
+        "unit_price": 0.004,
+        "currency": "USD",
+        "floor": 7500,
+        "notes": "High volume; per-line pricing."
+      },
+      "tags": [
+        "claims",
+        "reimbursement",
+        "payer mix",
+        "revenue cycle",
+        "CPT"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "ed-throughput",
+      "name": "Emergency Dept Throughput",
+      "category": "Operational",
+      "domain": "healthcare",
+      "summary": "Arrival-to-disposition timestamps, acuity (ESI), and boarding metrics by facility & hour.",
+      "description": "Operational ED flow: door-to-triage, door-to-provider, boarding time, ESI acuity, LWBS flag and disposition \u2014 aggregated to protect small cells.",
+      "compliance": "Aggregated operational metrics; no patient-level PHI released below k-anonymity threshold.",
+      "refresh": "Weekly",
+      "row_count": 1950000,
+      "fields": [
+        {
+          "name": "facility",
+          "type": "string",
+          "desc": "De-identified facility code"
+        },
+        {
+          "name": "arrival_hour",
+          "type": "int",
+          "desc": "Hour of day (0-23)"
+        },
+        {
+          "name": "esi",
+          "type": "int",
+          "desc": "Emergency Severity Index 1-5"
+        },
+        {
+          "name": "door_to_provider_min",
+          "type": "int",
+          "desc": "Minutes to first provider"
+        },
+        {
+          "name": "boarding_min",
+          "type": "int",
+          "desc": "Boarding minutes"
+        },
+        {
+          "name": "lwbs",
+          "type": "bool",
+          "desc": "Left without being seen"
+        }
+      ],
+      "sample": [
+        {
+          "facility": "F02",
+          "arrival_hour": 19,
+          "esi": 3,
+          "door_to_provider_min": 41,
+          "boarding_min": 128
+        }
+      ],
+      "pricing": {
+        "model": "subscription",
+        "unit_price": 4000.0,
+        "currency": "USD",
+        "period": "month",
+        "notes": "Monthly operational feed."
+      },
+      "tags": [
+        "emergency",
+        "throughput",
+        "operations",
+        "capacity",
+        "wait times"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "pharmacy-dispensing",
+      "name": "Pharmacy Dispensing (Safe Harbor)",
+      "category": "Clinical",
+      "domain": "healthcare",
+      "summary": "Inpatient & outpatient medication dispensing by drug class, route and setting.",
+      "description": "Dispensing events with NDC/therapeutic class, dose, route, and care setting for real-world utilization and adherence studies.",
+      "compliance": "HIPAA Safe Harbor; patient tokens only; ready for life-sciences RWE.",
+      "refresh": "Monthly",
+      "row_count": 9300000,
+      "fields": [
+        {
+          "name": "patient_token",
+          "type": "string",
+          "desc": "De-identified patient key"
+        },
+        {
+          "name": "therapeutic_class",
+          "type": "string",
+          "desc": "Drug therapeutic class"
+        },
+        {
+          "name": "route",
+          "type": "string",
+          "desc": "PO / IV / IM ..."
+        },
+        {
+          "name": "setting",
+          "type": "string",
+          "desc": "Inpatient / outpatient / ED"
+        },
+        {
+          "name": "dispense_date_shifted",
+          "type": "date",
+          "desc": "Date-shifted dispense date"
+        }
+      ],
+      "sample": [
+        {
+          "patient_token": "PT_9af3",
+          "therapeutic_class": "Anticoagulant",
+          "route": "PO",
+          "setting": "outpatient"
+        }
+      ],
+      "pricing": {
+        "model": "per_record",
+        "unit_price": 0.006,
+        "currency": "USD",
+        "floor": 6000,
+        "notes": "Popular for pharma RWE."
+      },
+      "tags": [
+        "pharmacy",
+        "medications",
+        "RWE",
+        "adherence",
+        "life sciences"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "imaging-orders",
+      "name": "Imaging Orders & Utilization",
+      "category": "Clinical",
+      "domain": "healthcare",
+      "summary": "Radiology order volumes by modality, body region, indication and turnaround.",
+      "description": "CT/MR/US/XR order and completion events with indication category and report turnaround \u2014 no images, metadata only.",
+      "compliance": "Metadata only; de-identified; no DICOM pixel data.",
+      "refresh": "Monthly",
+      "row_count": 3100000,
+      "fields": [
+        {
+          "name": "modality",
+          "type": "string",
+          "desc": "CT / MR / US / XR"
+        },
+        {
+          "name": "body_region",
+          "type": "string",
+          "desc": "Ordered region"
+        },
+        {
+          "name": "indication",
+          "type": "string",
+          "desc": "Indication category"
+        },
+        {
+          "name": "turnaround_hours",
+          "type": "float",
+          "desc": "Order-to-report hours"
+        }
+      ],
+      "sample": [
+        {
+          "modality": "CT",
+          "body_region": "Abdomen/Pelvis",
+          "indication": "Abdominal pain",
+          "turnaround_hours": 3.2
+        }
+      ],
+      "pricing": {
+        "model": "per_query",
+        "unit_price": 0.25,
+        "currency": "USD",
+        "notes": "Priced per delivered query result."
+      },
+      "tags": [
+        "radiology",
+        "imaging",
+        "utilization",
+        "modality"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "population-cohorts",
+      "name": "Population Health Cohorts",
+      "category": "Research",
+      "domain": "healthcare",
+      "summary": "Pre-built de-identified cohorts (diabetes, CHF, oncology) with outcomes & SDOH markers.",
+      "description": "Curated chronic-disease and oncology cohorts with condition flags, comorbidity index, utilization and area-level social-determinant markers for research and value-based care.",
+      "compliance": "Expert Determination available; SDOH at area (not individual) level; IRB-friendly.",
+      "refresh": "Quarterly",
+      "row_count": 780000,
+      "fields": [
+        {
+          "name": "patient_token",
+          "type": "string",
+          "desc": "De-identified key"
+        },
+        {
+          "name": "cohort",
+          "type": "string",
+          "desc": "Diabetes / CHF / Oncology ..."
+        },
+        {
+          "name": "comorbidity_index",
+          "type": "float",
+          "desc": "Charlson-style index"
+        },
+        {
+          "name": "annual_ed_visits",
+          "type": "int",
+          "desc": "ED visits per year"
+        },
+        {
+          "name": "sdoh_area_score",
+          "type": "float",
+          "desc": "Area deprivation index"
+        }
+      ],
+      "sample": [
+        {
+          "patient_token": "PT_1b77",
+          "cohort": "CHF",
+          "comorbidity_index": 3.4,
+          "annual_ed_visits": 2
+        }
+      ],
+      "pricing": {
+        "model": "rev_share",
+        "unit_price": 0.0,
+        "currency": "USD",
+        "rev_share_pct": 12.0,
+        "notes": "12% revenue share on downstream products."
+      },
+      "tags": [
+        "cohorts",
+        "population health",
+        "SDOH",
+        "value-based care",
+        "research"
+      ],
+      "status": "active"
+    }
+  ]
+}

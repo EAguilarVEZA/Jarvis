@@ -1,0 +1,111 @@
+name: ad_dim_adgroup
+descriptions:
+  user: Dimension table storing ad group configuration and bidding settings across advertising platforms like Google and Meta.
+table: oh-data-warehouse.gold.ad_dim_adgroup
+grain:
+- ad_platform
+columns:
+- name: ad_platform
+  type: string
+  descriptions:
+    ai: Advertising platform where the ad group runs, e.g., Google Ads or Meta Ads.
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the ad group on the platform.
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Parent campaign identifier this ad group belongs to.
+- name: account_id
+  type: number
+  descriptions:
+    ai: Advertiser account identifier owning this ad group.
+- name: ad_group_ad_rotation_mode
+  type: string
+  descriptions:
+    ai: How ads within the group are rotated for delivery.
+- name: ad_group_cpc_bid_micros
+  type: number
+  descriptions:
+    ai: Cost-per-click bid amount in micros (millionths of currency unit).
+- name: ad_group_cpm_bid_micros
+  type: number
+  descriptions:
+    ai: Cost-per-thousand-impressions bid amount in micros.
+- name: ad_group_cpv_bid_micros
+  type: number
+  descriptions:
+    ai: Cost-per-view bid amount in micros for video ads.
+- name: ad_group_display_custom_bid_dimension
+  type: string
+  descriptions:
+    ai: Custom dimension used for display network bid adjustments.
+- name: ad_group_effective_target_cpa_micros
+  type: number
+  descriptions:
+    ai: Resolved target cost-per-acquisition in micros applied to bidding.
+- name: ad_group_effective_target_cpa_source
+  type: string
+  descriptions:
+    ai: Origin of the effective CPA target, e.g., ad group or campaign.
+- name: ad_group_effective_target_roas
+  type: number
+  descriptions:
+    ai: Resolved target return-on-ad-spend ratio applied to bidding.
+- name: ad_group_effective_target_roas_source
+  type: string
+  descriptions:
+    ai: Origin of the effective ROAS target value.
+- name: ad_group_name
+  type: string
+  descriptions:
+    ai: Human-readable label identifying the ad group.
+- name: ad_group_status
+  type: string
+  descriptions:
+    ai: Current serving status such as ENABLED or REMOVED.
+- name: ad_group_tracking_url_template
+  type: string
+  descriptions:
+    ai: URL template used for tracking ad group click traffic.
+- name: ad_group_type
+  type: string
+  descriptions:
+    ai: Ad group type defining eligible ad formats, e.g., SEARCH_STANDARD.
+- name: ad_group_url_custom_parameters
+  type: string
+  descriptions:
+    ai: Key-value pairs appended to URLs for custom tracking.
+- name: campaign_bidding_strategy
+  type: string
+  descriptions:
+    ai: Named shared bidding strategy assigned to the parent campaign.
+- name: campaign_bidding_strategy_type
+  type: string
+  descriptions:
+    ai: Bidding strategy type of the parent campaign, e.g., MANUAL_CPC.
+- name: campaign_manual_cpc_enhanced_cpc_enabled
+  type: boolean
+  descriptions:
+    ai: Whether enhanced CPC is active for manual CPC campaigns.
+- name: campaign_percent_cpc_enhanced_cpc_enabled
+  type: boolean
+  descriptions:
+    ai: Whether enhanced CPC is active for percent CPC campaigns.
+measures:
+- name: total_ad_group_cpc_bid_micros
+  expr: SUM(ad_group_cpc_bid_micros) / 1000000
+  description: Ad Group Cpc Bid Micros (sum of ad_group_cpc_bid_micros).
+- name: total_ad_group_cpm_bid_micros
+  expr: SUM(ad_group_cpm_bid_micros) / 1000000
+  description: Ad Group Cpm Bid Micros (sum of ad_group_cpm_bid_micros).
+- name: total_ad_group_cpv_bid_micros
+  expr: SUM(ad_group_cpv_bid_micros) / 1000000
+  description: Ad Group Cpv Bid Micros (sum of ad_group_cpv_bid_micros).
+- name: total_ad_group_effective_target_cpa_micros
+  expr: SUM(ad_group_effective_target_cpa_micros) / 1000000
+  description: Ad Group Effective Target Cpa Micros (sum of ad_group_effective_target_cpa_micros).
+- name: total_ad_group_effective_target_roas
+  expr: SUM(ad_group_effective_target_roas)
+  description: Ad Group Effective Target Roas (sum of ad_group_effective_target_roas).

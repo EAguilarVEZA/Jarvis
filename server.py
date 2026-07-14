@@ -1711,6 +1711,49 @@ app.include_router(assistant_router)
 app.include_router(agents_router)
 app.include_router(workflows_router)
 
+# Data Marketplace — buyer-facing data-licensing suite (catalog, bundles, orders).
+try:
+    from marketplace_api import router as marketplace_router
+    app.include_router(marketplace_router)
+except Exception as _e:
+    logging.getLogger("server").warning(f"marketplace router not loaded: {_e}")
+
+# Datavant pipeline — tokenize / de-identify / certify / publish + contracted review.
+try:
+    from datavant_api import router as datavant_router
+    app.include_router(datavant_router)
+except Exception as _e:
+    logging.getLogger("server").warning(f"datavant router not loaded: {_e}")
+
+# Ours Privacy source connector — consent-gated ingestion + auto-model of their
+# Standard Healthcare Events into our governed semantic layer.
+try:
+    from ours_api import router as ours_router
+    app.include_router(ours_router)
+except Exception as _e:
+    logging.getLogger("server").warning(f"ours router not loaded: {_e}")
+
+# Embedded analytics + multi-tenant provisioning (P1 of the Ours integration).
+try:
+    from embed_api import router as embed_router
+    app.include_router(embed_router)
+except Exception as _e:
+    logging.getLogger("server").warning(f"embed router not loaded: {_e}")
+
+# Martin CDP — warehouse-native, HIPAA-first customer data platform.
+try:
+    from cdp_api import router as cdp_router
+    app.include_router(cdp_router)
+except Exception as _e:
+    logging.getLogger("server").warning(f"cdp router not loaded: {_e}")
+
+# Martin orchestration brain — supervisor + specialist agents.
+try:
+    from orchestrator_api import router as orchestrator_router
+    app.include_router(orchestrator_router)
+except Exception as _e:
+    logging.getLogger("server").warning(f"orchestrator router not loaded: {_e}")
+
 # Scheduled email delivery of Designer reports (inert until SMTP is configured).
 try:
     from report_email import router as report_email_router
@@ -1867,6 +1910,23 @@ async def tts_test():
     if audio:
         return {"audio": base64.b64encode(audio).decode()}
     return {"audio": None, "error": "TTS failed"}
+
+
+class _TTSBody(BaseModel):
+    text: str = ""
+
+
+@app.post("/api/tts")
+async def api_tts(body: _TTSBody):
+    """Speak arbitrary text in the JARVIS (Fish Audio) voice — used by the
+    assistant's 'voice answers' toggle. Returns base64 MP3, or a clear reason."""
+    text = strip_markdown_for_tts((body.text or "")[:1500]).strip()
+    if not text:
+        return {"audio": None}
+    audio = await synthesize_speech(text)
+    if audio:
+        return {"audio": base64.b64encode(audio).decode()}
+    return {"audio": None, "error": "Voice unavailable — set FISH_API_KEY in Settings."}
 
 
 @app.get("/api/usage")
@@ -3653,6 +3713,13 @@ if _MARTIN_APP.exists():
     @app.get("/app")
     async def serve_martin_app():
         return FileResponse(str(_MARTIN_APP), media_type="text/html")
+
+# Serve the Martin CDP JS SDK (first-party event collection) at /martin-sdk.js
+_MARTIN_SDK = Path(__file__).resolve().parent / "martin-sdk.js"
+if _MARTIN_SDK.exists():
+    @app.get("/martin-sdk.js")
+    async def serve_martin_sdk():
+        return FileResponse(str(_MARTIN_SDK), media_type="application/javascript")
 
 
 # ---------------------------------------------------------------------------

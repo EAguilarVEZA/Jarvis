@@ -1,0 +1,20 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "data_mart_all",
+  "name": "report_max_sync_em_sheet",
+  "kind": "view",
+  "comment": null,
+  "estimatedRows": 1,
+  "columns": [
+    {
+      "name": "max_sync_time",
+      "nativeType": "TIMESTAMP",
+      "normalizedType": "TIMESTAMP",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

@@ -1,0 +1,83 @@
+{
+  "catalog": "oh-data-warehouse",
+  "db": "supermetrics_bing_webmaster_tools",
+  "name": "BINGWEBMASTERS_CRAWL_ISSUES",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 6706,
+  "columns": [
+    {
+      "name": "account_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Please note that this field will be removed on 2021-01-21"
+    },
+    {
+      "name": "account_id",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "data_source_name",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "The name of the source for this data, as listed on supermetrics.com/docs"
+    },
+    {
+      "name": "issue_http_code",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "issue_type",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "issue_url",
+      "nativeType": "STRING",
+      "normalizedType": "VARCHAR",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "date",
+      "nativeType": "DATE",
+      "normalizedType": "DATE",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Today's date, e.g. 2017-01-31"
+    },
+    {
+      "name": "issue_in_links",
+      "nativeType": "INTEGER",
+      "normalizedType": "BIGINT",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": "Number of inbound links"
+    }
+  ],
+  "foreignKeys": []
+}

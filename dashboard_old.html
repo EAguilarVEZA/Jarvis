@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JARVIS — Marketing Analytics</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0b0d14;
+      --surface:     #131620;
+      --surface2:    #1a1f30;
+      --border:      #252a3d;
+      --accent:      #4f8ef7;
+      --accent2:     #7c5cfc;
+      --green:       #22c55e;
+      --amber:       #f59e0b;
+      --red:         #ef4444;
+      --text:        #e2e8f0;
+      --muted:       #64748b;
+      --font:        'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 28px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+    }
+
+    .logo-orb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #7eb8ff, #4f8ef7 60%, #1a3a80);
+      box-shadow: 0 0 12px #4f8ef780;
+    }
+
+    .header-title {
+      flex: 1;
+    }
+
+    .header-title h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .header-title p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .badge-demo { background: #7c5cfc22; color: var(--accent2); border: 1px solid #7c5cfc55; }
+    .badge-live { background: #22c55e22; color: var(--green);   border: 1px solid #22c55e55; }
+
+    .refresh-info {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* ── AI Insight bar ───────────────────────────────────────────────────── */
+    #insight-bar {
+      background: linear-gradient(90deg, #1a2340 0%, #151c30 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 44px;
+    }
+
+    .insight-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    #insight-text {
+      color: #a5b4fc;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .insight-skeleton {
+      height: 14px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      width: 60%;
+    }
+
+    /* ── Main layout ──────────────────────────────────────────────────────── */
+    main {
+      padding: 24px 28px;
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ── KPI cards ────────────────────────────────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width:  700px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color .2s;
+    }
+
+    .kpi-card:hover { border-color: var(--accent); }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .kpi-change {
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .up   { color: var(--green); }
+    .down { color: var(--red);   }
+
+    /* ── Chart grid ───────────────────────────────────────────────────────── */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+    }
+
+    .chart-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 1100px) {
+      .chart-grid, .chart-grid-3 { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    /* ── Campaign table ───────────────────────────────────────────────────── */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #1e2333;
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tr:hover td { background: #ffffff06; }
+
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .rank-1 { background: #f59e0b22; color: #f59e0b; }
+    .rank-2 { background: #94a3b822; color: #94a3b8; }
+    .rank-3 { background: #b45e2222; color: #b45e22; }
+    .rank-n { background: #ffffff0a; color: var(--muted); }
+
+    .status-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-active { background: #22c55e22; color: var(--green); }
+    .status-paused { background: #f59e0b22; color: var(--amber); }
+    .status-ended  { background: #64748b22; color: var(--muted); }
+
+    .roi-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .roi-bar-bg {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .roi-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width .5s ease;
+    }
+
+    /* ── CPA service line colors ──────────────────────────────────────────── */
+    .cpa-good  { color: var(--green); }
+    .cpa-warn  { color: var(--amber); }
+    .cpa-bad   { color: var(--red);   }
+
+    /* ── Loading / skeleton ───────────────────────────────────────────────── */
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position:  200% 0; }
+    }
+
+    .skeleton {
+      height: 100%;
+      border-radius: 8px;
+      background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+
+    /* ── Footer ───────────────────────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 20px 28px 28px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ────────────────────────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-orb"></div>
+    JARVIS
+  </div>
+  <div class="header-title">
+    <h1>Marketing Analytics — Orlando Health</h1>
+    <p>Last 90 days · Campaign Performance Dashboard</p>
+  </div>
+  <span id="mode-badge" class="badge badge-demo">Demo</span>
+  <div class="refresh-info">
+    Auto-refresh in <span id="countdown">5:00</span><br>
+    <span id="last-updated">—</span>
+  </div>
+</header>
+
+<!-- ── AI Insight bar ─────────────────────────────────────────────────────── -->
+<div id="insight-bar">
+  <span class="insight-icon">🤖</span>
+  <span id="insight-text"><span class="insight-skeleton">&nbsp;</span></span>
+</div>
+
+<!-- ── Main ──────────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi-card"><div class="skeleton" style="height:80px"></div></div>
+    <div class="kpi-card"><div class="skeleton" style="height:80px"></div></div>
+    <div class="kpi-card"><div class="skeleton" style="height:80px"></div></div>
+    <div class="kpi-card"><div class="skeleton" style="height:80px"></div></div>
+    <div class="kpi-card"><div class="skeleton" style="height:80px"></div></div>
+  </div>
+
+  <!-- Trend + Donut -->
+  <div class="chart-grid">
+    <div class="card">
+      <div>
+        <div class="card-title">12-Week Trend</div>
+        <div class="card-subtitle">Appointments booked &amp; attributed revenue</div>
+      </div>
+      <div class="chart-wrap" style="height:260px">
+        <canvas id="chart-trend"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div>
+        <div class="card-title">Channel Mix</div>
+        <div class="card-subtitle">Appointments by channel</div>
+      </div>
+      <div class="chart-wrap" style="height:260px">
+        <canvas id="chart-donut"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bar + CPA -->
+  <div class="chart-grid">
+    <div class="card">
+      <div>
+        <div class="card-title">Revenue vs Spend by Channel</div>
+        <div class="card-subtitle">Grouped bar · 90-day window</div>
+      </div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="chart-bar"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div>
+        <div class="card-title">Cost per Acquisition by Service Line</div>
+        <div class="card-subtitle">Green &lt;$40 · Amber $40–$50 · Red &gt;$50</div>
+      </div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="chart-cpa"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Campaign Table -->
+  <div class="card">
+    <div>
+      <div class="card-title">Campaign Performance</div>
+      <div class="card-subtitle">Ranked by ROI · last 90 days</div>
+    </div>
+    <div class="table-wrap">
+      <table id="campaign-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Campaign</th>
+            <th>Channel</th>
+            <th>Status</th>
+            <th>Spend</th>
+            <th>Appointments</th>
+            <th>Revenue</th>
+            <th>ROI</th>
+          </tr>
+        </thead>
+        <tbody id="campaign-tbody">
+          <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:20px">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  JARVIS Marketing Dashboard · Orlando Health · Data via Databricks SQL
+</footer>
+
+<script>
+/* ── Utilities ──────────────────────────────────────────────────────────── */
+const fmt = {
+  num: n => Number(n).toLocaleString('en-US', {maximumFractionDigits: 0}),
+  dollar: n => '$' + Number(n).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}),
+  dollarFull: n => {
+    if (n >= 1_000_000) return '$' + (n / 1_000_000).toFixed(1) + 'M';
+    if (n >= 1_000)     return '$' + (n / 1_000).toFixed(1) + 'K';
+    return '$' + n.toFixed(0);
+  },
+  pct: n => (n >= 0 ? '+' : '') + Number(n).toFixed(1) + '%',
+  roi: n => Number(n).toFixed(2) + 'x',
+  cpa: n => '$' + Number(n).toFixed(2),
+};
+
+const CHART_DEFAULTS = {
+  color: '#e2e8f0',
+  gridColor: '#252a3d',
+  tickColor: '#64748b',
+};
+
+Chart.defaults.color = CHART_DEFAULTS.color;
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.font.size = 12;
+
+const COLORS = [
+  '#4f8ef7', '#7c5cfc', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4',
+];
+
+/* ── Chart instances (so we can destroy/rebuild) ────────────────────────── */
+let charts = {};
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+/* ── KPI Cards ──────────────────────────────────────────────────────────── */
+function renderKpis(kpis) {
+  const keys = ['appointments', 'spend', 'cpa', 'revenue', 'roi'];
+  const formatters = {
+    appointments: v => fmt.num(v),
+    spend:        v => fmt.dollarFull(v),
+    cpa:          v => fmt.cpa(v),
+    revenue:      v => fmt.dollarFull(v),
+    roi:          v => fmt.roi(v),
+  };
+  const grid = document.getElementById('kpi-grid');
+  grid.innerHTML = keys.map(k => {
+    const d = kpis[k];
+    const isUp = d.change_pct >= 0;
+    // For CPA, down is good
+    const isPositive = k === 'cpa' ? !isUp : isUp;
+    return `
+      <div class="kpi-card">
+        <div class="kpi-label">${d.label}</div>
+        <div class="kpi-value">${formatters[k](d.value)}</div>
+        <div class="kpi-change ${isPositive ? 'up' : 'down'}">
+          ${isUp ? '▲' : '▼'} ${fmt.pct(Math.abs(d.change_pct))} vs prior period
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ── Trend chart ────────────────────────────────────────────────────────── */
+function renderTrend(trend) {
+  destroyChart('trend');
+  const labels = trend.map(r => {
+    const d = new Date(r.week_start);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  });
+  const appts = trend.map(r => r.appointments);
+  const revs  = trend.map(r => r.revenue / 1000); // in $K
+
+  charts.trend = new Chart(document.getElementById('chart-trend'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Appointments',
+          data: appts,
+          borderColor: '#4f8ef7',
+          backgroundColor: '#4f8ef712',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3,
+          yAxisID: 'y',
+        },
+        {
+          label: 'Revenue ($K)',
+          data: revs,
+          borderColor: '#7c5cfc',
+          backgroundColor: '#7c5cfc12',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3,
+          yAxisID: 'y2',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { grid: { color: CHART_DEFAULTS.gridColor }, ticks: { color: CHART_DEFAULTS.tickColor, maxTicksLimit: 6 } },
+        y:  { grid: { color: CHART_DEFAULTS.gridColor }, ticks: { color: '#4f8ef7' }, position: 'left' },
+        y2: { grid: { drawOnChartArea: false }, ticks: { color: '#7c5cfc', callback: v => '$' + v + 'K' }, position: 'right' },
+      },
+      plugins: { legend: { labels: { boxWidth: 12, padding: 16 } } },
+    },
+  });
+}
+
+/* ── Donut chart ────────────────────────────────────────────────────────── */
+function renderDonut(byChannel) {
+  destroyChart('donut');
+  charts.donut = new Chart(document.getElementById('chart-donut'), {
+    type: 'doughnut',
+    data: {
+      labels: byChannel.map(r => r.channel),
+      datasets: [{
+        data: byChannel.map(r => r.appointments),
+        backgroundColor: COLORS,
+        borderWidth: 2,
+        borderColor: '#131620',
+        hoverOffset: 6,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 11, padding: 12, font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${fmt.num(ctx.parsed)} appts (${(ctx.parsed / ctx.dataset.data.reduce((a,b)=>a+b,0)*100).toFixed(1)}%)`,
+          },
+        },
+      },
+      cutout: '62%',
+    },
+  });
+}
+
+/* ── Revenue vs Spend bar ───────────────────────────────────────────────── */
+function renderBar(byChannel) {
+  destroyChart('bar');
+  const labels = byChannel.map(r => r.channel);
+  charts.bar = new Chart(document.getElementById('chart-bar'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Revenue',
+          data: byChannel.map(r => r.revenue / 1000),
+          backgroundColor: '#4f8ef7cc',
+          borderRadius: 4,
+        },
+        {
+          label: 'Spend',
+          data: byChannel.map(r => r.spend / 1000),
+          backgroundColor: '#7c5cfccc',
+          borderRadius: 4,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { color: CHART_DEFAULTS.gridColor }, ticks: { color: CHART_DEFAULTS.tickColor, font: { size: 11 } } },
+        y: {
+          grid: { color: CHART_DEFAULTS.gridColor },
+          ticks: { color: CHART_DEFAULTS.tickColor, callback: v => '$' + v + 'K' },
+        },
+      },
+      plugins: {
+        legend: { labels: { boxWidth: 11, padding: 14 } },
+        tooltip: { callbacks: { label: ctx => ` $${fmt.num(ctx.parsed.y)}K` } },
+      },
+    },
+  });
+}
+
+/* ── CPA by service line (horizontal bar) ───────────────────────────────── */
+function renderCpa(byService) {
+  destroyChart('cpa');
+  const sorted = [...byService].sort((a, b) => a.cpa - b.cpa);
+  const colors = sorted.map(r =>
+    r.cpa < 40 ? '#22c55e99' : r.cpa < 50 ? '#f59e0b99' : '#ef444499'
+  );
+  charts.cpa = new Chart(document.getElementById('chart-cpa'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(r => r.service_line),
+      datasets: [{
+        label: 'CPA ($)',
+        data: sorted.map(r => r.cpa),
+        backgroundColor: colors,
+        borderRadius: 4,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: { color: CHART_DEFAULTS.gridColor },
+          ticks: { color: CHART_DEFAULTS.tickColor, callback: v => '$' + v },
+        },
+        y: { grid: { color: CHART_DEFAULTS.gridColor }, ticks: { color: CHART_DEFAULTS.tickColor } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` $${ctx.parsed.x.toFixed(2)} CPA` } },
+      },
+    },
+  });
+}
+
+/* ── Campaign table ─────────────────────────────────────────────────────── */
+function renderCampaigns(campaigns) {
+  const sorted = [...campaigns].sort((a, b) => b.roi - a.roi);
+  const maxRoi = Math.max(...sorted.map(r => r.roi));
+  const tbody = document.getElementById('campaign-tbody');
+  tbody.innerHTML = sorted.map((r, i) => {
+    const rank = i + 1;
+    const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-n';
+    const statusClass = { Active: 'status-active', Paused: 'status-paused', Ended: 'status-ended' }[r.status] || 'status-ended';
+    const roiPct = ((r.roi / maxRoi) * 100).toFixed(0);
+    return `
+      <tr>
+        <td><span class="rank-badge ${rankClass}">${rank}</span></td>
+        <td style="max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.campaign}</td>
+        <td style="color:var(--muted)">${r.channel}</td>
+        <td><span class="status-pill ${statusClass}">${r.status}</span></td>
+        <td>${fmt.dollar(r.spend)}</td>
+        <td>${fmt.num(r.appointments)}</td>
+        <td>${fmt.dollarFull(r.revenue)}</td>
+        <td>
+          <div class="roi-bar-wrap">
+            <span style="min-width:38px">${fmt.roi(r.roi)}</span>
+            <div class="roi-bar-bg"><div class="roi-bar-fill" style="width:${roiPct}%"></div></div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* ── Insight bar ────────────────────────────────────────────────────────── */
+function renderInsight(text) {
+  document.getElementById('insight-text').textContent = text || '—';
+}
+
+/* ── Mode badge ─────────────────────────────────────────────────────────── */
+function renderBadge(demoMode) {
+  const badge = document.getElementById('mode-badge');
+  badge.textContent = demoMode ? 'Demo' : 'Live';
+  badge.className = 'badge ' + (demoMode ? 'badge-demo' : 'badge-live');
+}
+
+/* ── Main render ────────────────────────────────────────────────────────── */
+function renderAll(data) {
+  renderBadge(data.demo_mode);
+  renderKpis(data.kpis);
+  renderTrend(data.trend);
+  renderDonut(data.by_channel);
+  renderBar(data.by_channel);
+  renderCpa(data.by_service_line);
+  renderCampaigns(data.campaigns);
+  if (data.voice_summary) renderInsight(data.voice_summary);
+
+  const now = new Date();
+  document.getElementById('last-updated').textContent =
+    'Updated ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
+
+/* ── Fetch ──────────────────────────────────────────────────────────────── */
+async function fetchData() {
+  try {
+    const res = await fetch('/api/report/dashboard');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    renderAll(data);
+  } catch (err) {
+    console.error('Dashboard fetch error:', err);
+    document.getElementById('insight-text').textContent =
+      '⚠ Could not load data — is the JARVIS server running?';
+  }
+}
+
+/* ── Countdown + auto-refresh ───────────────────────────────────────────── */
+const REFRESH_SECS = 5 * 60;
+let remaining = REFRESH_SECS;
+
+function tickCountdown() {
+  remaining--;
+  if (remaining <= 0) {
+    remaining = REFRESH_SECS;
+    fetchData();
+  }
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+  document.getElementById('countdown').textContent =
+    `${m}:${String(s).padStart(2, '0')}`;
+}
+
+/* ── Boot ───────────────────────────────────────────────────────────────── */
+fetchData();
+setInterval(tickCountdown, 1000);
+</script>
+</body>
+</html>

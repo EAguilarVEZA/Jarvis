@@ -1,0 +1,152 @@
+name: ga4_fact_events
+descriptions:
+  user: GA4 website event-level fact table capturing user interactions across Orlando Health web properties.
+table: oh-data-warehouse.gold.ga4_fact_events
+grain:
+- event_timestamp
+columns:
+- name: event_timestamp
+  type: number
+  descriptions:
+    ai: Microsecond-precision Unix timestamp when the event fired.
+- name: event_date
+  type: time
+  descriptions:
+    ai: Calendar date the event occurred.
+  role: time
+- name: event_datetime
+  type: time
+  descriptions:
+    ai: Combined date and time the event occurred.
+  role: time
+- name: user_pseudo_id
+  type: string
+  descriptions:
+    ai: GA4 anonymous identifier linking events to a single browser/device.
+- name: is_new_user
+  type: boolean
+  descriptions:
+    ai: True if this was the user's first-ever session.
+- name: session_key
+  type: number
+  descriptions:
+    ai: Surrogate key uniquely identifying a user session.
+- name: is_engaged_session
+  type: boolean
+  descriptions:
+    ai: True if the session met GA4 engagement thresholds.
+- name: ga_session_number
+  type: number
+  descriptions:
+    ai: Sequential count of sessions for this user, starting at 1.
+- name: page_hostname
+  type: string
+  descriptions:
+    ai: Domain of the page where the event fired.
+- name: page_url
+  type: string
+  descriptions:
+    ai: Clean page URL without query parameters.
+- name: page_full_url
+  type: string
+  descriptions:
+    ai: Complete URL including query string parameters.
+- name: page_title
+  type: string
+  descriptions:
+    ai: Browser tab title of the page at event time.
+- name: page_referrer
+  type: string
+  descriptions:
+    ai: URL of the page that referred the user here.
+- name: batch_page_id
+  type: number
+  descriptions:
+    ai: Identifier grouping events sent in the same browser batch.
+- name: event_key
+  type: number
+  descriptions:
+    ai: Surrogate key uniquely identifying this individual event row.
+- name: event_name
+  type: string
+  descriptions:
+    ai: Raw GA4 event name such as page_view or click.
+- name: event_display_name
+  type: string
+  descriptions:
+    ai: Human-readable label for the event type.
+- name: event_sequence
+  type: number
+  descriptions:
+    ai: Ordinal position of this event within the session.
+- name: entrances
+  type: number
+  descriptions:
+    ai: Flags the first page_view event of a session.
+- name: engagement_time_msec
+  type: number
+  descriptions:
+    ai: Active engagement duration in milliseconds for this event.
+- name: engagement_time_sec
+  type: number
+  descriptions:
+    ai: Active engagement duration in seconds for this event.
+- name: device
+  type: string
+  descriptions:
+    ai: Nested record with device category, OS, browser, and hardware details.
+- name: geo
+  type: string
+  descriptions:
+    ai: Nested record with city, region, country, and metro location.
+- name: click_event
+  type: string
+  descriptions:
+    ai: Nested record with link URL, domain, classes, text, and ID.
+- name: content_event
+  type: string
+  descriptions:
+    ai: Nested record with content ID, type, group, and hub metadata.
+- name: guided_nav_event
+  type: string
+  descriptions:
+    ai: Nested record capturing guided navigation funnel step selections.
+- name: file_event
+  type: string
+  descriptions:
+    ai: Nested record with downloaded file extension, path, and title.
+- name: search_event
+  type: string
+  descriptions:
+    ai: Nested record with site search term and unique search term.
+- name: form_event
+  type: string
+  descriptions:
+    ai: Nested record with form ID, name, destination, and submit text.
+- name: ua_profile
+  type: string
+  descriptions:
+    ai: User-agent profile string for the visitor's browser.
+- name: ua_metric
+  type: string
+  descriptions:
+    ai: Nested record with additional user-agent derived metrics.
+measures:
+- name: total_event_timestamp
+  expr: SUM(event_timestamp)
+  description: Event Timestamp (sum of event_timestamp).
+- name: total_ga_session_number
+  expr: SUM(ga_session_number)
+  description: Ga Session Number (sum of ga_session_number).
+- name: total_event_sequence
+  expr: SUM(event_sequence)
+  description: Event Sequence (sum of event_sequence).
+- name: total_entrances
+  expr: SUM(entrances)
+  description: Entrances (sum of entrances).
+- name: total_engagement_time_msec
+  expr: SUM(engagement_time_msec)
+  description: Engagement Time Msec (sum of engagement_time_msec).
+- name: total_engagement_time_sec
+  expr: SUM(engagement_time_sec)
+  description: Engagement Time Sec (sum of engagement_time_sec).

@@ -1,0 +1,81 @@
+name: dim_date
+descriptions:
+  user: Date dimension table providing calendar and fiscal date attributes for time-based reporting and analysis.
+table: oh-data-warehouse.gold.dim_date
+grain:
+- date
+columns:
+- name: date
+  type: time
+  descriptions:
+    ai: The full calendar date value serving as the primary key.
+  role: time
+- name: calendar_year
+  type: number
+  descriptions:
+    ai: Four-digit calendar year of the date.
+- name: calendar_quarter
+  type: number
+  descriptions:
+    ai: "Calendar quarter number (1\u20134) within the calendar year."
+- name: calendar_month
+  type: number
+  descriptions:
+    ai: "Numeric month (1\u201312) within the calendar year."
+- name: calendar_day
+  type: number
+  descriptions:
+    ai: "Day of the month (1\u201331)."
+- name: month_name
+  type: string
+  descriptions:
+    ai: Full name of the calendar month, e.g., January.
+- name: day_name
+  type: string
+  descriptions:
+    ai: Full name of the day of the week, e.g., Monday.
+- name: day_of_week
+  type: number
+  descriptions:
+    ai: Numeric day of the week, typically 1=Sunday through 7=Saturday.
+- name: day_of_year
+  type: number
+  descriptions:
+    ai: "Sequential day number within the calendar year (1\u2013366)."
+- name: week_of_year
+  type: number
+  descriptions:
+    ai: ISO or standard week number within the calendar year.
+- name: fiscal_year
+  type: number
+  descriptions:
+    ai: Four-digit fiscal year the date belongs to.
+- name: fiscal_quarter
+  type: number
+  descriptions:
+    ai: "Quarter number (1\u20134) within the fiscal year."
+- name: fiscal_month
+  type: number
+  descriptions:
+    ai: "Month number (1\u201312) within the fiscal year."
+- name: fiscal_day_of_year
+  type: number
+  descriptions:
+    ai: Sequential day number within the fiscal year.
+- name: weekday_weekend
+  type: string
+  descriptions:
+    ai: Indicates whether the date falls on a Weekday or Weekend.
+- name: calendar_year_alt_display
+  type: string
+  descriptions:
+    ai: Short display label for calendar year, e.g., CY23.
+- name: fiscal_year_alt_display
+  type: string
+  descriptions:
+    ai: Short display label for fiscal year, e.g., FY23.
+- name: fiscal_quarter_alt_display
+  type: string
+  descriptions:
+    ai: Short display label for fiscal quarter, e.g., Q1.
+measures: []

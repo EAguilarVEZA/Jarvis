@@ -1,0 +1,36 @@
+name: campaign_dim_customer
+descriptions:
+  user: Dimension table storing Google Ads customer account attributes used for campaign reporting and segmentation.
+table: oh-data-warehouse.gold.campaign_dim_customer
+grain:
+- customer_id
+columns:
+- name: customer_id
+  type: number
+  descriptions:
+    ai: Unique Google Ads account identifier.
+- name: customer_auto_tagging_enabled
+  type: boolean
+  descriptions:
+    ai: Indicates if URL auto-tagging for tracking is active on the account.
+- name: customer_currency_code
+  type: string
+  descriptions:
+    ai: Currency used for billing and reporting within the account.
+- name: customer_descriptive_name
+  type: string
+  descriptions:
+    ai: Human-readable display name identifying the advertiser account.
+- name: customer_manager
+  type: boolean
+  descriptions:
+    ai: Indicates if this account is a manager (MCC) account overseeing others.
+- name: customer_test_account
+  type: boolean
+  descriptions:
+    ai: Flags whether the account is used for testing purposes only.
+- name: customer_time_zone
+  type: string
+  descriptions:
+    ai: Account's local time zone governing ad scheduling and reporting.
+measures: []

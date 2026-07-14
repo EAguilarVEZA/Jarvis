@@ -1,0 +1,46 @@
+name: ad_policy_topic_history
+descriptions:
+  user: Historical log of Google Ads policy topic flags applied to individual ads within ad groups.
+table: oh-data-warehouse.adwords_orlando_health.ad_policy_topic_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier for the ad group containing the flagged ad.
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Identifier for the specific ad that triggered a policy topic.
+- name: sequence_id
+  type: number
+  descriptions:
+    ai: Order index when multiple policy topics apply to one ad.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the policy topic record was last updated.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record.
+  role: time
+- name: policy_topic_entry_type
+  type: string
+  descriptions:
+    ai: 'Severity classification: UNKNOWN, LIMITED, or PROHIBITED policy violation.'
+- name: policy_topic_help_center_url
+  type: string
+  descriptions:
+    ai: Google support URL explaining the specific policy violation.
+- name: policy_topic_id
+  type: string
+  descriptions:
+    ai: Unique numeric identifier for the Google Ads policy topic.
+- name: policy_topic_name
+  type: string
+  descriptions:
+    ai: Human-readable name of the policy category flagged on the ad.
+measures: []

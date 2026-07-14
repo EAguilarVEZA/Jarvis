@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JARVIS</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="orb-canvas"></canvas>
+
+    <!-- Minimal controls — top right -->
+    <div id="controls">
+      <button id="btn-mute" title="Mute/Unmute">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+        </svg>
+      </button>
+      <button id="btn-menu" title="Menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Dropdown menu -->
+    <div id="menu-dropdown" style="display:none">
+      <button id="btn-settings">Settings</button>
+      <button id="btn-restart">Restart Server</button>
+      <button id="btn-fix-self">Fix Yourself</button>
+    </div>
+
+    <div id="status-text"></div>
+    <div id="jarvis-label">JARVIS</div>
+    <div id="error-text"></div>
+    <div id="caption-text"></div>
+    <script type="module" src="/src/main.ts"></script>
+  
+  <!-- Text Input Modal -->
+  <div id="text-modal" style="display:none; position:fixed; inset:0; z-index:10000; 
+       background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); 
+       align-items:center; justify-content:center;">
+    <div style="background:rgba(15,15,20,0.95); border:1px solid rgba(255,255,255,0.15);
+         border-radius:16px; padding:24px; width:90%; max-width:600px; 
+         box-shadow:0 0 60px rgba(0,0,0,0.8);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <span style="color:rgba(255,255,255,0.5); font-size:12px; letter-spacing:0.1em; font-family:monospace;">
+          TEXT INPUT
+        </span>
+        <button id="text-modal-close" style="background:none; border:none; color:rgba(255,255,255,0.4);
+                font-size:20px; cursor:pointer; padding:4px 8px; border-radius:6px;">✕</button>
+      </div>
+      <textarea id="text-input" placeholder="Type your message to Jarvis..." 
+        style="width:100%; height:140px; background:rgba(255,255,255,0.05); 
+               border:1px solid rgba(255,255,255,0.1); border-radius:10px;
+               color:white; font-size:15px; padding:14px; resize:none;
+               font-family:-apple-system,sans-serif; outline:none; box-sizing:border-box;
+               line-height:1.5;">
+      </textarea>
+      <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
+        <label id="attach-btn" style="cursor:pointer; background:rgba(255,255,255,0.08);
+               border:1px solid rgba(255,255,255,0.12); border-radius:8px;
+               padding:8px 14px; color:rgba(255,255,255,0.6); font-size:13px;
+               display:flex; align-items:center; gap:6px; white-space:nowrap;">
+          📎 Attach
+          <input id="file-input" type="file" style="display:none" 
+                 accept="image/*,.pdf,.txt,.md,.py,.js,.ts,.jsx,.tsx,.json,.csv">
+        </label>
+        <div id="attach-label" style="color:rgba(255,255,255,0.35); font-size:12px; 
+             flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
+        <button id="text-send-btn" style="background:rgba(255,255,255,0.9); color:black;
+                border:none; border-radius:8px; padding:10px 24px; font-size:14px;
+                font-weight:600; cursor:pointer; white-space:nowrap;">
+          Send ↵
+        </button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

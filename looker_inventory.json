@@ -1,0 +1,150 @@
+{
+  "captured_at": "2026-06-05",
+  "source": "Orlando Health Looker Studio Content Hub",
+  "common_design_patterns": {
+    "header": "Orlando Health logo (left) + optional Campaign filter + Date range picker (right)",
+    "section_band": "Solid color band (teal #007D78 default, orange for Annual Report) — large title + smaller subtitle",
+    "meta_strip": "Right-aligned: Data refreshes daily | Comparisons are YoY | Last updated <timestamp>",
+    "kpi_card": "Outlined card, header band with metric name, big number + colored delta arrow + delta %",
+    "kpi_grid": "Typically 2 wide × 3 tall = 6 KPIs, sometimes 2x2=4 or 2x4=8",
+    "kpi_zones": "Sometimes KPI grid is zoned by category with subtle background colors (e.g. ER: blue=paid funnel, gray=clicks, green=spend)",
+    "chart_section": "Below KPIs — line/bar/area/donut/map/heatmap charts, often section-titled",
+    "table_section": "Ranked tables with sortable columns + delta arrows",
+    "coming_soon_state": "Empty KPI shows 'Coming Soon...' text + note explaining pending data source",
+    "fonts": "Sans-serif (mix of clean modern + display weight for KPI numbers)",
+    "delta_arrow_colors": "Up = green (#2a7), Down = red/orange (#e44/#f00)"
+  },
+  "hub_root": {
+    "id": "6d8c8c4f-d36f-44bf-bf7e-78625905a2fa",
+    "url": "https://lookerstudio.google.com/reporting/6d8c8c4f-d36f-44bf-bf7e-78625905a2fa",
+    "sidebar_pages": [
+      {"name": "KPI Scorecard", "id": "V2uAC", "widgets": [
+        {"type": "kpi_row", "title": "Content Hub KPIs During The Selected Date Range (Compared to Previous Year)",
+         "kpis": [
+           {"name":"Sessions","value":"213,081","delta":"+9.5%","band_color":"#3F2C7C"},
+           {"name":"New Users","value":"182,711","delta":"+11.3%","band_color":"#3CC1D6"},
+           {"name":"Avg. Pages Per Session","value":"2.35","delta":"+22.8%","band_color":"#4CB050"},
+           {"name":"Avg. Engagement Time per Session","value":"00:01:28","delta":"-0.7%","band_color":"#7B294E"}
+         ]},
+        {"type":"line", "title":"Cumulative Total Site Sessions Since April 2019", "callout":"Total Sessions 16,808,263","x_axis":"month","y_axis":"sessions"},
+        {"type":"table", "title":"Monthly Performance Look Back",
+         "columns":["Month","Sessions","New Users","Pages/Session","Session Engagement","Organic Sessions"]}
+      ]},
+      {"name": "Top Articles", "id": "a2uAC", "widgets": [
+        {"type":"filter_bar", "filters":["Category","Author","Language","Page Title contains"]},
+        {"type":"table", "title":"Top Articles by Daily Views",
+         "columns":["#","Page URL","Avg. Daily Views","%Δ","Unique Pageviews","New Users","Page Engagement"]}
+      ]},
+      {"name": "Detailed Metrics (Traffic Drilldown)", "id": "1sffB", "widgets": [
+        {"type":"line", "title":"Sessions by date (May)"},
+        {"type":"grouped_column", "title":"Sessions by day-of-week × hour-of-day", "series":["1AM-3AM","4AM-6AM","7AM-9AM","10AM-12PM","1PM-3PM","4PM-6PM","7PM-9PM","10PM-12AM"]},
+        {"type":"geo_map", "title":"Traffic by Metro Heatmap"},
+        {"type":"donut", "title":"Traffic by Device","slices":[{"name":"Mobile","pct":77.9},{"name":"Desktop","pct":20.1},{"name":"Others","pct":2}]},
+        {"type":"bar_horizontal", "title":"Traffic by Channel",
+         "rows":[
+           {"name":"Organic Search","value":143220},{"name":"Direct","value":64459},{"name":"Email","value":4929},
+           {"name":"Referral","value":2357},{"name":"Paid Search","value":811},{"name":"AI Referral","value":131},
+           {"name":"Paid Social","value":44},{"name":"Other Marketing","value":43},{"name":"QR Code","value":36},
+           {"name":"Display","value":19}
+         ]}
+      ]},
+      {"name": "Other Dashboards", "id": "p_xzt7glqmld", "widgets": [
+        {"type":"link_directory","sections":["Executive Summary","Facilities","Services"]}
+      ]}
+    ]
+  },
+  "report_samples": {
+    "annual_report": {
+      "name":"Marketing Executive Summary (FY 2020-2024)",
+      "id":"08a2bad9-77c2-4d89-af93-d75bc2e803d1",
+      "sidebar_pages":["Trend (KPI's Only)","FY 2025","FY 2024","FY 2023","FY 2022","FY 2021","FY 2020"],
+      "trend_page":{
+        "title_band":{"text":"Top-line Key Performance Indicators (KPI's) by Fiscal Year","color":"#D77530"},
+        "widgets":[
+          {"type":"bar_compare","metric":"Web Form Leads","by":"Fiscal Year","values":{"FY2020":40816,"FY2021":73067,"FY2022":90033,"FY2023":82804,"FY2024":83311,"FY2025":97767},"color":"#2E5DBE"},
+          {"type":"bar_compare","metric":"Total Leads","values":{"FY2020":142887,"FY2021":218841,"FY2022":173296,"FY2023":196676,"FY2024":222545,"FY2025":236590},"color":"#5DBEC4"},
+          {"type":"bar_compare","metric":"Cost Per Acquisition","values":{"FY2020":147,"FY2021":101,"FY2022":134,"FY2023":129,"FY2024":128},"color":"#D6447F"},
+          {"type":"bar_compare","metric":"ROMI","values":{"FY2020":11.89,"FY2021":10.01,"FY2022":30.01,"FY2023":21.94,"FY2024":19.38},"color":"#E2814A"},
+          {"type":"bar_compare","metric":"Total Impressions","values":{"FY2020":2046740294,"FY2021":2396005110,"FY2022":2197452764},"color":"#7DBC4E"}
+        ]
+      }
+    },
+    "er_report": {
+      "name":"ER Report",
+      "id":"45c7257f-03a7-436e-82c9-240082da2679",
+      "sidebar":[
+        {"section":"Overview","pages":["Marketing Overview"]},
+        {"section":"Summary","pages":["Leads Summary","Channel Summary","Facilities Summary"]},
+        {"section":"Analytics","pages":["ER Landing Pages","Search Impr. Share","Display Impr. Share"]},
+        {"section":"Local Listings","pages":[]},
+        {"section":"Appendix","pages":["Other Dashboards"]}
+      ],
+      "marketing_overview_page":{
+        "subtitle":"ER Campaigns",
+        "kpi_grid_2x3":[
+          {"name":"Total Impressions","value":"Coming Soon...","note":"Pending on data from Google My Business and Search Console","zone":"blue"},
+          {"name":"Total Clicks","value":"Coming Soon...","note":"Pending on data from Google My Business and Search Console","zone":"gray"},
+          {"name":"Total Ad Spend","value":"$201.90K","delta":"-80.8%","note":"Includes only spend on advertising, does not include direct mail or other operating expenses","zone":"green"},
+          {"name":"Paid Impressions","value":"37.0M","delta":"-78.3%","note":"Includes Impressions from Google Ads, Facebook Ads, TV, Radio, Outdoor, etc.","zone":"blue"},
+          {"name":"Paid Clicks","value":"35.7K","delta":"-65.7%","note":"Includes Clicks from Google Ads, Facebook Ads, Spotify, Pandora, etc.","zone":"gray"}
+        ]
+      }
+    },
+    "ohci_report": {
+      "name":"OHCI Report (Cancer Institute)",
+      "id":"6d9083cf-89bc-4efc-b6fd-53fa74057641",
+      "sidebar":[
+        {"section":"Overview","pages":["Marketing Overview","Impressions Overview"]},
+        {"section":"Summary","pages":["..."]},
+        {"section":"Campaign Analytics","pages":["..."]},
+        {"section":"Website Analytics","pages":["..."]},
+        {"section":"Local Listings","pages":["..."]},
+        {"section":"Other Dashboards","pages":[]}
+      ],
+      "marketing_overview_page":{
+        "subtitle":"Cancer Institute",
+        "filters":["Campaign"],
+        "kpi_grid_2x3":[
+          {"name":"Total Impressions","value":"507,230","delta":"-99.2%"},
+          {"name":"Total Web Leads","value":"415","delta":"-2.8%"},
+          {"name":"Total Clicks","value":"15,551","delta":"-35.6%"},
+          {"name":"Total Calls","value":"Coming Soon..."},
+          {"name":"Total Web Sessions","value":"34,959","delta":"+11.5%"},
+          {"name":"Overall Cost Per Lead","value":"$143.00","delta":"-78.1%"}
+        ]
+      }
+    }
+  },
+  "reports": {
+    "executive_summary": [
+      {"name": "Annual Report (FY End of Year)", "id": "08a2bad9-77c2-4d89-af93-d75bc2e803d1", "pages": [], "widgets": []},
+      {"name": "Content Hub Report",              "id": "6d8c8c4f-d36f-44bf-bf7e-78625905a2fa", "pages": [], "widgets": []},
+      {"name": "Executive Summary Report",        "id": "e62861fb-9bf2-4d65-854d-33aa735715fe", "pages": [], "widgets": []},
+      {"name": "Leads by Quarter Report",         "id": "26b501cd-3940-45f8-aff1-ac9e7cfd3057", "pages": [], "widgets": []}
+    ],
+    "facilities": [
+      {"name": "ER Report",          "id": "45c7257f-03a7-436e-82c9-240082da2679", "pages": [], "widgets": []},
+      {"name": "Facilities Report",  "id": "41d15656-c0ad-4512-8bff-bb29ac724bcc", "pages": [], "widgets": []},
+      {"name": "Lake Mary Hospital", "id": "98a6c248-ebc3-487c-aac8-e75cbeeddef6", "pages": [], "widgets": []}
+    ],
+    "services": [
+      {"name": "Aesthetic/Reconstructive Report OHARSI", "id": "4b2f5fd2-71e0-4b34-821f-35465ad7ebb5", "pages": [], "widgets": []},
+      {"name": "Bariatrics Report OHWLBSI",              "id": "66e9e825-b4c0-4b0a-98cc-5c939e40ce47", "pages": [], "widgets": []},
+      {"name": "Brand Report",                           "id": "92e32187-12a6-45d4-b753-c50bd9e71e86", "pages": [], "widgets": []},
+      {"name": "Cancer Report OHCI",                     "id": "6d9083cf-89bc-4efc-b6fd-53fa74057641", "pages": [], "widgets": []},
+      {"name": "Colon and Rectal Report OHCRI",          "id": "f02f9e29-cde2-4888-8189-6a200266f081", "pages": [], "widgets": []},
+      {"name": "Digestive Health Report OHDHI",          "id": "568e1e70-81d4-4ea5-959d-529ac822756c", "pages": [], "widgets": []},
+      {"name": "Executive Health Program",               "id": "e4d355a1-53f5-43ca-b528-585292a5c224", "pages": [], "widgets": []},
+      {"name": "Florida Medical Clinic FMCOH",           "id": "63b181de-8722-4be4-885a-c52820381e79", "pages": [], "widgets": []},
+      {"name": "Heart & Vascular Report OHHVI",          "id": "c4fde3d1-2f3a-4db2-a544-6e354587b5a4", "pages": [], "widgets": []},
+      {"name": "Jewett Orthopedics Report OHJOI",        "id": "162f4616-09e1-484f-a810-3bce2fd320a0", "pages": [], "widgets": []},
+      {"name": "Neurosciences Report OHNI",              "id": "012ee74d-2561-459b-83f1-460497724990", "pages": [], "widgets": []},
+      {"name": "OHMG / OHPA / Primary Care Report",      "id": "beaf3eb2-d636-4d3b-a8f5-93924701867b", "pages": [], "widgets": []},
+      {"name": "Pediatrics Report",                      "id": "f7c3d46c-fb06-497e-8426-8fd543f19908", "pages": [], "widgets": []},
+      {"name": "Surgery Report",                         "id": "60a92e39-f275-4349-a9c4-b5d572c4cc0e", "pages": [], "widgets": []},
+      {"name": "Telehealth",                             "id": "90b1907a-04c7-49cf-8c71-504a846f3005", "pages": [], "widgets": []},
+      {"name": "Urology Report",                         "id": "919bb27e-8368-467e-8ec6-a147bec8b182", "pages": [], "widgets": []},
+      {"name": "Women's Services Report",                "id": "6c14ae43-a6a4-4dc3-822e-11b5daee8d61", "pages": [], "widgets": []}
+    ]
+  }
+}

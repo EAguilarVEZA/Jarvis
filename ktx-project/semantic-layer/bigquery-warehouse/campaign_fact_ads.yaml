@@ -1,0 +1,119 @@
+name: campaign_fact_ads
+descriptions:
+  user: Daily performance metrics for individual ads across campaigns, ad groups, networks, devices, and click types.
+table: oh-data-warehouse.gold.campaign_fact_ads
+grain:
+- ad_id
+columns:
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the individual ad creative.
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier for the ad group containing this ad.
+- name: campaign_id
+  type: number
+  descriptions:
+    ai: Identifier for the parent campaign.
+- name: customer_id
+  type: number
+  descriptions:
+    ai: Identifier for the advertiser account.
+- name: entity_key
+  type: string
+  descriptions:
+    ai: UUID linking to a related entity or configuration record.
+- name: active_view_impressions
+  type: number
+  descriptions:
+    ai: Impressions meeting viewability standards for display ads.
+- name: clicks
+  type: number
+  descriptions:
+    ai: Total number of ad clicks recorded.
+- name: micro_conversions
+  type: number
+  descriptions:
+    ai: Count of lower-funnel conversion actions tracked.
+- name: micro_conversions_value
+  type: number
+  descriptions:
+    ai: Monetary value attributed to micro-conversion events.
+- name: cost
+  type: number
+  descriptions:
+    ai: Total ad spend in account currency.
+- name: gmail_forwards
+  type: number
+  descriptions:
+    ai: Number of times a Gmail ad was forwarded.
+- name: gmail_saves
+  type: number
+  descriptions:
+    ai: Number of times a Gmail ad was saved.
+- name: gmail_secondary_click
+  type: number
+  descriptions:
+    ai: Clicks on links within an expanded Gmail ad.
+- name: impressions
+  type: number
+  descriptions:
+    ai: Total times the ad was shown to users.
+- name: interaction_event_types
+  type: string
+  descriptions:
+    ai: List of interaction types recorded for this row.
+- name: interactions
+  type: number
+  descriptions:
+    ai: Total count of meaningful user interactions with the ad.
+- name: ad_network_type
+  type: string
+  descriptions:
+    ai: Network where ad served, e.g., SEARCH, CONTENT, SEARCH_PARTNERS.
+- name: click_type
+  type: string
+  descriptions:
+    ai: Specific type of click recorded, e.g., URL_CLICKS, UNKNOWN.
+- name: date
+  type: time
+  descriptions:
+    ai: Calendar date of the performance data.
+  role: time
+- name: device
+  type: string
+  descriptions:
+    ai: Device category on which the ad was served, e.g., DESKTOP.
+measures:
+- name: total_active_view_impressions
+  expr: SUM(active_view_impressions)
+  description: Active View Impressions (sum of active_view_impressions).
+- name: total_clicks
+  expr: SUM(clicks)
+  description: Clicks (sum of clicks).
+- name: total_micro_conversions
+  expr: SUM(micro_conversions)
+  description: Micro Conversions (sum of micro_conversions).
+- name: total_micro_conversions_value
+  expr: SUM(micro_conversions_value)
+  description: Micro Conversions Value (sum of micro_conversions_value).
+- name: total_cost
+  expr: SUM(cost)
+  description: Cost (sum of cost).
+- name: total_gmail_forwards
+  expr: SUM(gmail_forwards)
+  description: Gmail Forwards (sum of gmail_forwards).
+- name: total_gmail_saves
+  expr: SUM(gmail_saves)
+  description: Gmail Saves (sum of gmail_saves).
+- name: total_gmail_secondary_click
+  expr: SUM(gmail_secondary_click)
+  description: Gmail Secondary Click (sum of gmail_secondary_click).
+- name: total_impressions
+  expr: SUM(impressions)
+  description: Impressions (sum of impressions).
+- name: total_interactions
+  expr: SUM(interactions)
+  description: Interactions (sum of interactions).

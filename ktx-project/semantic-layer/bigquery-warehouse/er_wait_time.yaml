@@ -1,0 +1,31 @@
+name: er_wait_time
+descriptions:
+  user: Tracks real-time emergency department wait times across Orlando Health hospital locations in Florida.
+table: oh-data-warehouse.gold.er_wait_time
+grain:
+- EmergencyDepartment
+columns:
+- name: EmergencyDepartment
+  type: string
+  descriptions:
+    ai: Full name of the Orlando Health emergency room facility.
+- name: AvgWaitTime
+  type: string
+  descriptions:
+    ai: Average patient wait time displayed as a formatted string with minutes.
+- name: RecentWaitTime
+  type: number
+  descriptions:
+    ai: Most recent wait time in minutes as a numeric value.
+- name: MapLink
+  type: string
+  descriptions:
+    ai: Google Maps directions URL to the emergency department location.
+- name: LastUpdated
+  type: string
+  descriptions:
+    ai: Timestamp indicating when the wait time data was last refreshed.
+measures:
+- name: recentwaittime
+  expr: SUM(RecentWaitTime)
+  description: RecentWaitTime (sum of RecentWaitTime).

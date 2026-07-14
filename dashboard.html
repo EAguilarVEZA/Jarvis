@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>JARVIS Marketing Intelligence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0b0d14;--surface:#111520;--s2:#181e2e;--border:rgba(255,255,255,.07);--accent:#00d4ff;--a2:#7c6cf7;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--text:#e2e8f0;--muted:#64748b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:9}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--a2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff}
+.logo-text{font-size:15px;font-weight:600}.logo-sub{font-size:11px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:14px}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);background:var(--s2);text-transform:uppercase;letter-spacing:.5px}
+.badge.demo{border-color:var(--amber);color:var(--amber)}.badge.live{border-color:var(--green);color:var(--green)}
+.rbtn{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit}
+.rbtn:hover{border-color:var(--accent);color:var(--accent)}
+.orb{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+#ts{font-size:11px;color:var(--muted)}
+main{padding:22px 28px}
+.ibar{background:var(--s2);border:1px solid rgba(124,108,247,.35);border-radius:12px;padding:15px 20px;margin-bottom:20px;display:flex;gap:14px;align-items:flex-start}
+.iicon{width:30px;height:30px;min-width:30px;border-radius:7px;background:var(--a2);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700}
+#itxt{font-size:13px;line-height:1.7}
+#itxt strong{color:var(--accent)}
+.pbar{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.plbl{font-size:12px;color:var(--muted)}
+.pbtn{padding:5px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer}
+.pbtn.active{background:var(--a2);border-color:var(--a2);color:#fff}
+.kgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:1100px){.kgrid{grid-template-columns:repeat(3,1fr)}}
+.kcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+.kcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--accent));opacity:.7}
+.klbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px}
+.kval{font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px}
+.kchg{font-size:12px;display:flex;align-items:center;gap:3px}
+.kchg.up{color:var(--green)}.kchg.down{color:var(--red)}
+.cr2{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
+.cr{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:900px){.cr2,.cr{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.ctit{font-size:13px;font-weight:600;margin-bottom:4px}
+.csub{font-size:11px;color:var(--muted);margin-bottom:14px}
+.cw{position:relative;height:210px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);font-weight:500;white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--s2)}
+.rb{display:flex;align-items:center;gap:8px}
+.rbar{height:5px;border-radius:3px;background:var(--a2);min-width:3px}
+.pill{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;border:1px solid var(--border);color:var(--muted);background:var(--s2)}
+.pill.active{border-color:rgba(34,197,94,.4);color:var(--green)}
+.pill.paused{border-color:rgba(245,158,11,.4);color:var(--amber)}
+.sk{background:linear-gradient(90deg,var(--s2) 25%,var(--surface) 50%,var(--s2) 75%);background-size:200% 100%;animation:sk 1.4s infinite;border-radius:4px;height:26px;margin-bottom:8px}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">J</div>
+    <div><div class="logo-text">JARVIS - Marketing Intelligence</div><div class="logo-sub">Orlando Health Real-time analytics</div></div>
+  </div>
+  <div class="hdr-r">
+    <div class="orb"></div>
+    <span id="mbadge" class="badge demo">Demo</span>
+    <span id="ts">Loading</span>
+    <button class="rbtn" onclick="loadAll()">Refresh</button>
+  </div>
+</header>
+<main>
+  <div class="ibar"><div class="iicon">J</div><div id="itxt">Loading JARVIS insight...</div></div>
+  <div class="pbar">
+    <span class="plbl">Period:</span>
+    <button class="pbtn active" onclick="sp(this)">30 days</button>
+    <button class="pbtn" onclick="sp(this)">60 days</button>
+    <button class="pbtn" onclick="sp(this)">90 days</button>
+  </div>
+  <div class="kgrid" id="kg">
+    <div class="kcard"><div class="sk"></div><div class="sk" style="height:13px;width:55%"></div></div>
+    <div class="kcard"><div class="sk"></div><div class="sk" style="height:13px;width:55%"></div></div>
+    <div class="kcard"><div class="sk"></div><div class="sk" style="height:13px;width:55%"></div></div>
+    <div class="kcard"><div class="sk"></div><div class="sk" style="height:13px;width:55%"></div></div>
+    <div class="kcard"><div class="sk"></div><div class="sk" style="height:13px;width:55%"></div></div>
+  </div>
+  <div class="cr2">
+    <div class="card"><div class="ctit">Appointment and Revenue Trend</div><div class="csub">Weekly - last 12 weeks</div><div class="cw"><canvas id="tC"></canvas></div></div>
+    <div class="card"><div class="ctit">Channel Mix</div><div class="csub">Appointments by channel</div><div class="cw"><canvas id="dC"></canvas></div></div>
+  </div>
+  <div class="cr">
+    <div class="card"><div class="ctit">Revenue vs Spend by Channel</div><div class="csub">&nbsp;</div><div class="cw"><canvas id="cB"></canvas></div></div>
+    <div class="card"><div class="ctit">Cost per Acquisition</div><div class="csub">By service line - green under $35 amber under $50 red $50+</div><div class="cw"><canvas id="cpB"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="ctit">Campaign Performance</div><div class="csub">Ranked by ROI</div>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Campaign</th><th>Channel</th><th>Status</th><th>Spend</th><th>Appts</th><th>Revenue</th><th>ROI</th></tr></thead>
+      <tbody id="cb"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">Loading...</td></tr></tbody>
+    </table></div>
+  </div>
+</main>
+<script>
+var CH=['#7c6cf7','#00d4ff','#22c55e','#f59e0b','#f87171','#a78bfa'];
+var ch={};
+function f$(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+Math.round(v).toLocaleString()}
+function fN(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(1)+'K':Math.round(v).toLocaleString()}
+var TT={backgroundColor:'#1e2530',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10};
+
+function gV(kpis,fk,nk){var n=kpis[nk];if(n&&n.value!==undefined)return n.value;return kpis[fk]||kpis[nk]||0}
+function gC(kpis,fk,nk){var n=kpis[nk];if(n&&n.change_pct!==undefined)return n.change_pct;return kpis[fk+'_change']||0}
+
+function renderKPIs(kpis){
+  var cards=[
+    {l:'Total Appointments',v:fN(gV(kpis,'total_appointments','appointments')),c:gC(kpis,'total_appointments','appointments'),col:'var(--accent)'},
+    {l:'Marketing Spend',v:f$(gV(kpis,'marketing_spend','spend')),c:gC(kpis,'marketing_spend','spend'),col:'var(--amber)',inv:true},
+    {l:'Cost per Acquisition',v:'$'+Number(gV(kpis,'cost_per_acquisition','cpa')).toFixed(2),c:gC(kpis,'cost_per_acquisition','cpa'),col:'var(--red)',inv:true},
+    {l:'Attributed Revenue',v:f$(gV(kpis,'attributed_revenue','revenue')),c:gC(kpis,'attributed_revenue','revenue'),col:'var(--green)'},
+    {l:'Marketing ROI',v:Number(gV(kpis,'roi','roi')).toFixed(1)+'x',c:gC(kpis,'roi','roi'),col:'var(--a2)'}
+  ];
+  document.getElementById('kg').innerHTML=cards.map(function(k){
+    var eff=k.inv?-k.c:k.c;
+    return '<div class="kcard" style="--kc:'+k.col+'"><div class="klbl">'+k.l+'</div><div class="kval">'+k.v+'</div><div class="kchg '+(eff>=0?'up':'down')+'">'+(eff>=0?'+ ':'- ')+Math.abs(k.c).toFixed(1)+'% vs prev</div></div>';
+  }).join('');
+}
+
+function renderTrend(rows){
+  var ctx=document.getElementById('tC').getContext('2d');
+  if(ch.t)ch.t.destroy();
+  var lbl=rows.map(function(r){var d=new Date(r.week_start||r.week);return isNaN(d.getTime())?(r.week_start||r.week):d.toLocaleDateString('en-US',{month:'short',day:'numeric'})});
+  ch.t=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[
+    {label:'Appointments',data:rows.map(function(r){return r.appointments}),borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:3,yAxisID:'y'},
+    {label:'Revenue',data:rows.map(function(r){return r.revenue}),borderColor:'#7c6cf7',tension:.4,borderWidth:2,borderDash:[4,3],pointRadius:3,yAxisID:'y2'}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'bottom',labels:{color:'#64748b',font:{size:11},usePointStyle:true,padding:14}},tooltip:TT},
+    scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{size:10},maxRotation:40}},
+            y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{size:10}},position:'left'},
+            y2:{grid:{display:false},ticks:{color:'#64748b',font:{size:10},callback:function(v){return f$(v)}},position:'right'}}}});
+}
+
+function renderDonut(rows){
+  var ctx=document.getElementById('dC').getContext('2d');
+  if(ch.d)ch.d.destroy();
+  ch.d=new Chart(ctx,{type:'doughnut',
+    data:{labels:rows.map(function(r){return r.channel}),datasets:[{data:rows.map(function(r){return r.appointments}),backgroundColor:CH,borderColor:'#111520',borderWidth:3,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'64%',
+      plugins:{legend:{display:true,position:'bottom',labels:{color:'#94a3b8',font:{size:11},usePointStyle:true,padding:12}},
+               tooltip:{callbacks:{label:function(c){return ' '+c.label+': '+fN(c.raw)+' appts'}},backgroundColor:'#1e2530',bodyColor:'#94a3b8',borderColor:'rgba(255,255,255,.1)',borderWidth:1,padding:10}}}});
+}
+
+function renderChanBar(rows){
+  var ctx=document.getElementById('cB').getContext('2d');
+  if(ch.cb)ch.cb.destroy();
+  ch.cb=new Chart(ctx,{type:'bar',
+    data:{labels:rows.map(function(r){return r.channel}),datasets:[
+      {label:'Revenue',data:rows.map(function(r){return r.revenue}),backgroundColor:CH.map(function(c){return c+'cc'}),borderRadius:4},
+      {label:'Spend',data:rows.map(function(r){return r.spend}),backgroundColor:'rgba(255,255,255,.08)',borderRadius:4}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{color:'#64748b',font:{size:11},usePointStyle:true}},
+               tooltip:{callbacks:{label:function(c){return ' '+c.dataset.label+': '+f$(c.raw)}},backgroundColor:'#1e2530',bodyColor:'#94a3b8',borderColor:'rgba(255,255,255,.1)',borderWidth:1,padding:10}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{size:11}}},
+              y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{size:11},callback:function(v){return f$(v)}}}}}});
+}
+
+function renderCPA(rows){
+  var ctx=document.getElementById('cpB').getContext('2d');
+  if(ch.cp)ch.cp.destroy();
+  var colors=rows.map(function(r){return +r.cpa>=50?'#f87171cc':+r.cpa>=35?'#f59e0bcc':'#22c55ecc'});
+  ch.cp=new Chart(ctx,{type:'bar',
+    data:{labels:rows.map(function(r){return r.service_line}),datasets:[{label:'CPA ($)',data:rows.map(function(r){return +r.cpa}),backgroundColor:colors,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' $'+Number(c.raw).toFixed(2)+' per acquisition'}},backgroundColor:'#1e2530',bodyColor:'#94a3b8',borderColor:'rgba(255,255,255,.1)',borderWidth:1,padding:10}},
+      scales:{y:{grid:{display:false},ticks:{color:'#64748b',font:{size:11}}},
+              x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{size:11},callback:function(v){return '$'+v}}}}}});
+}
+
+function renderCamps(rows){
+  var s=rows.slice().sort(function(a,b){return +b.roi- +a.roi});
+  var mx=Math.max.apply(null,s.map(function(r){return +r.roi}));
+  document.getElementById('cb').innerHTML=s.map(function(r,i){
+    var st=(r.status||'').toLowerCase();
+    return '<tr><td style="color:var(--muted);font-weight:600">'+(i+1)+'</td><td style="font-weight:500">'+r.campaign+'</td><td><span class="pill">'+r.channel+'</span></td><td><span class="pill '+st+'">'+(r.status||'-')+'</span></td><td>'+f$(r.spend)+'</td><td>'+fN(r.appointments)+'</td><td style="color:var(--green)">'+f$(r.revenue)+'</td><td><div class="rb"><div class="rbar" style="width:'+Math.round((+r.roi/mx)*70)+'px"></div><span style="color:var(--a2);font-weight:700">'+Number(r.roi).toFixed(1)+'x</span></div></td></tr>';
+  }).join('');
+}
+
+function renderInsight(d){
+  var kpis=d.kpis||{};
+  var ch2=d.by_channel||d.channels||[];
+  var sl=d.by_service_line||d.service_lines||[];
+  var appts=kpis.appointments?kpis.appointments.value:(kpis.total_appointments||0);
+  var roi=kpis.roi?kpis.roi.value:(kpis.roi||0);
+  var top=ch2[0]||{};
+  var worst=sl.length?sl.reduce(function(a,b){return +a.cpa>+b.cpa?a:b}):{};
+  var best=sl.length?sl.reduce(function(a,b){return +a.cpa<+b.cpa?a:b}):{};
+  var demo=d.demo_mode?' <em style="color:var(--muted);font-size:12px">(demo data)</em>':'';
+  var t='<strong>JARVIS insight:</strong> Marketing is driving <strong>'+fN(appts)+'</strong> appointments at <strong>'+Number(roi).toFixed(1)+'x</strong> ROAS.'+demo+' ';
+  if(top.channel)t+='<strong>'+top.channel+'</strong> leads with '+fN(top.appointments)+' appointments. ';
+  if(worst.service_line&&best.service_line&&worst.service_line!==best.service_line)
+    t+='<strong>'+worst.service_line+'</strong> has the highest CPA at <strong>$'+Number(worst.cpa).toFixed(2)+'</strong> vs <strong>'+best.service_line+'</strong> at $'+Number(best.cpa).toFixed(2)+' - rebalancing could improve efficiency.';
+  document.getElementById('itxt').innerHTML=t;
+}
+
+function loadAll(){
+  document.getElementById('ts').textContent='Refreshing...';
+  fetch('https://localhost:8340/api/report/all').then(function(r){return r.json()}).then(function(d){
+    var b=document.getElementById('mbadge');
+    b.textContent=d.demo_mode?'Demo':'Live';
+    b.className='badge '+(d.demo_mode?'demo':'live');
+    if(d.kpis)renderKPIs(d.kpis);
+    var trend=d.trend||[];if(trend.length)renderTrend(trend);
+    var chs=d.by_channel||d.channels||[];if(chs.length){renderDonut(chs);renderChanBar(chs);}
+    var sl=d.by_service_line||d.service_lines||[];if(sl.length)renderCPA(sl);
+    var camps=d.campaigns||[];if(camps.length)renderCamps(camps);
+    renderInsight(d);
+    document.getElementById('ts').textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  }).catch(function(){
+    document.getElementById('ts').textContent='Error - is Jarvis running?';
+    document.getElementById('itxt').textContent='Could not load data. Start Jarvis: cd ~/jarvis && python server.py';
+  });
+}
+function sp(btn){document.querySelectorAll('.pbtn').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');loadAll();}
+loadAll();
+setInterval(loadAll,300000);
+</script>
+</body>
+</html>

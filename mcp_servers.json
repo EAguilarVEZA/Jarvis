@@ -1,0 +1,26 @@
+{
+  "servers": [
+    {
+      "id": "marketplace-mcp",
+      "name": "Orlando Health Data Marketplace",
+      "transport": "stdio",
+      "command": "python3",
+      "args": ["/Users/developer/Jarvis/marketplace_mcp.py"],
+      "env": {},
+      "url": "",
+      "headers": {},
+      "tools": []
+    },
+    {
+      "id": "metrics-mcp",
+      "name": "Governed Metrics (Semantic Layer)",
+      "transport": "stdio",
+      "command": "python3",
+      "args": ["/Users/developer/Jarvis/semantic_mcp.py"],
+      "env": {},
+      "url": "",
+      "headers": {},
+      "tools": []
+    }
+  ]
+}

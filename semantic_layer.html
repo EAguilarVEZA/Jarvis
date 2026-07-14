@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Semantic Layer · Orlando Health</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c232c; --line:#2a313c;
+    --txt:#e6edf3; --muted:#9aa7b4; --accent:#3fb6ff; --good:#3fb950; --warn:#e3b341; --bad:#f85149;
+    --chip:#21303f; --radius:12px; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.22);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14px}
+  .wrap{max-width:1400px;margin:0 auto;padding:18px 20px 60px}
+  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  header h1{font-size:18px;margin:0;font-weight:650}
+  .sub{color:var(--muted);font-size:12px}
+  .spacer{flex:1}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:12px;color:var(--muted)}
+  .pill.ok{color:var(--good);border-color:#1f3b29}
+  button,select,input,textarea{font-family:inherit;font-size:13px;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+  button{cursor:pointer} button:hover{border-color:var(--accent)}
+  .btn-primary{background:var(--accent);color:#04121f;border-color:var(--accent);font-weight:600}
+  .btn-good{background:var(--good);color:#04140a;border-color:var(--good);font-weight:600}
+  .layout{display:grid;grid-template-columns:240px 1fr;gap:16px}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+  .tablelist{max-height:80vh;overflow:auto}
+  .tbtn{display:block;width:100%;text-align:left;background:none;border:none;color:var(--muted);padding:7px 9px;border-radius:7px;font-size:13px}
+  .tbtn:hover{background:var(--panel2);color:var(--txt)}
+  .tbtn.sel{background:#0f2230;color:var(--accent);border:1px solid var(--line)}
+  .tbtn small{display:block;color:#6e7b8a;font-size:11px}
+  h2{font-size:15px;margin:0 0 4px} h3{font-size:12px;color:var(--muted);margin:16px 0 7px;text-transform:uppercase;letter-spacing:.04em}
+  .fieldrow{display:flex;align-items:center;gap:8px;padding:5px 8px;border-bottom:1px solid #20262f;font-size:13px}
+  .fieldrow:hover{background:var(--panel2)}
+  .fieldrow .k{color:var(--muted);font-family:var(--mono);font-size:11px}
+  .tag{font-size:10px;padding:1px 6px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+  .tag.metric{color:#7c5cff;border-color:#2c2350} .tag.calc{color:var(--good);border-color:#1f3b29}
+  .tag.dim{color:var(--accent);border-color:#13354a}
+  .mini{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:2px 7px;font-size:11px}
+  label.fld{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}
+  input,textarea,select{width:100%}
+  .tabs{display:flex;gap:4px;margin:2px 0 12px;border-bottom:1px solid var(--line)}
+  .tab{padding:8px 14px;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;font-weight:550}
+  .tab.active{color:var(--txt);border-bottom-color:var(--accent)}
+  .calc{display:grid;grid-template-columns:200px 1fr 230px;gap:12px}
+  @media(max-width:1000px){.calc{grid-template-columns:1fr}}
+  .pane{border:1px solid var(--line);border-radius:9px;background:var(--panel2);overflow:hidden;display:flex;flex-direction:column}
+  .pane .ph{padding:7px 10px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.04em;background:#141a22}
+  .pane .body{overflow:auto;max-height:300px}
+  .pane .srch{margin:7px;width:calc(100% - 14px)}
+  .item{display:block;width:100%;text-align:left;background:none;border:none;color:var(--txt);padding:5px 10px;font-size:12.5px;border-radius:0}
+  .item:hover{background:#22303f;color:var(--accent)} .item .d{color:#6e7b8a;font-size:11px;display:block;font-family:var(--mono)}
+  .item code{font-family:var(--mono);font-size:11.5px;color:var(--accent)}
+  .ops{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+  .op{background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:4px 9px;font-size:13px;font-family:var(--mono);cursor:pointer;color:var(--txt)}
+  .op:hover{border-color:var(--accent);color:var(--accent)}
+  .fwrap{position:relative}
+  .fwrap pre,#mFormula{margin:0;font-family:var(--mono);font-size:13px;line-height:1.5;padding:9px 10px;border-radius:8px;min-height:120px;white-space:pre-wrap;word-break:break-word;border:1px solid var(--line);box-sizing:border-box}
+  #mHighlight{position:absolute;inset:0;color:var(--txt);background:var(--panel2);pointer-events:none;overflow:auto}
+  #mFormula{position:relative;background:transparent;color:transparent;caret-color:var(--txt);resize:vertical;width:100%}
+  #mFormula.drop{border-color:var(--accent);box-shadow:0 0 0 2px rgba(63,182,255,.2)}
+  .hl-field{color:var(--accent)} .hl-fn{color:#7c5cff;font-weight:600} .hl-num{color:var(--good)}
+  .chklist{max-height:190px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel2);margin-top:6px}
+  .chkrow{display:flex;align-items:center;gap:8px;padding:5px 9px;font-size:12.5px;border-bottom:1px solid #20262f;cursor:pointer}
+  .chkrow:hover{background:#22303f} .chkrow input{width:auto}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg button{border:none;border-radius:0;background:var(--panel2);padding:5px 11px;font-size:12px;color:var(--muted)}
+  .seg button.on{background:#0f2230;color:var(--accent)}
+  .usedby{color:#6e7b8a;font-size:10.5px;margin-left:6px}
+  .status{font-family:var(--mono);font-size:12px;padding:8px 10px;border-radius:8px;margin-top:8px;white-space:pre-wrap;min-height:18px}
+  .status.ok{background:#102016;border:1px solid #1f3b29;color:#9be7a8}
+  .status.err{background:#1f1010;border:1px solid #4a1d1d;color:#f0a0a0}
+  .status.idle{background:#141a22;border:1px solid var(--line);color:var(--muted)}
+  .ac{position:absolute;background:#0a0e14;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);z-index:40;max-height:200px;overflow:auto;display:none;min-width:180px}
+  .ac button{display:block;width:100%;text-align:left;background:none;border:none;color:var(--txt);padding:6px 10px;font-size:12.5px;font-family:var(--mono)}
+  .ac button:hover,.ac button.hl{background:#22303f;color:var(--accent)}
+  .toast{position:fixed;bottom:18px;right:18px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 14px;box-shadow:var(--shadow);font-size:13px;max-width:440px;display:none;z-index:60}
+  .toast.show{display:block}
+  .ruleRow{display:flex;gap:6px;margin-bottom:6px}
+  .muted{color:var(--muted)} .small{font-size:12px}
+  .vbox{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .banner{background:#1f1c10;border:1px solid #3b3520;color:var(--warn);border-radius:9px;padding:8px 12px;margin-bottom:12px;font-size:12.5px;display:none}
+  .banner.show{display:block}
+  .valchip{background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:2px 7px;font-size:11.5px;cursor:pointer}
+  .valchip:hover{border-color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>Semantic Layer</h1><div class="sub">Raw tables → curated layer. Auto-curate names, build metrics &amp; filters; ktx serves them everywhere.</div></div>
+    <div class="spacer"></div>
+    <span id="conn" class="pill">connecting…</span>
+    <span id="draftPill" class="pill"></span>
+    <button id="curateAllBtn" class="mini">✨ Auto-curate uncurated</button>
+    <button id="publishBtn" class="btn-good">⤴ Publish + Sync to ktx</button>
+  </header>
+  <div id="banner" class="banner"></div>
+
+  <div class="layout">
+    <div class="card tablelist">
+      <div class="small muted" style="margin-bottom:8px">Tables</div>
+      <div id="tableList"><div class="muted small">Loading…</div></div>
+    </div>
+
+    <div>
+      <div class="card" id="tableDetail"><div class="muted">Select a table.</div></div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="tabs">
+          <button class="tab active" data-b="metric">＋ New metric</button>
+          <button class="tab" data-b="filter">＋ New filter</button>
+          <button class="tab" data-b="group">＋ New group</button>
+          <button class="tab" data-b="alias">＋ Aliases</button>
+          <button class="tab" data-b="bins">＋ Bins</button>
+          <button class="tab" data-b="hier">＋ Hierarchy</button>
+        </div>
+
+        <!-- METRIC: Tableau-style calculation editor -->
+        <div id="b-metric" class="builder">
+          <div class="vbox" style="margin-bottom:8px">
+            <input id="mName" placeholder="Metric name — e.g. Cost per Lead" style="flex:1;min-width:180px"/>
+            <select id="mFormat" style="width:auto"><option value="number">number</option><option value="currency">currency</option><option value="percent">percent</option><option value="ratio">ratio</option></select>
+            <input id="mPrefix" placeholder="prefix $" title="unit before value" style="max-width:90px"/>
+            <input id="mSuffix" placeholder="suffix %" title="unit after value" style="max-width:90px"/>
+          </div>
+          <div class="calc">
+            <div class="pane">
+              <div class="ph">Fields</div>
+              <input class="srch" id="fieldSrch" placeholder="search fields"/>
+              <div class="body" id="fieldList"></div>
+            </div>
+            <div>
+              <div class="vbox" style="margin-bottom:6px;font-size:12px">
+                <span class="muted">LOD / window:</span>
+                <select id="lodPat" style="width:auto">
+                  <option value="pct_total">% of total</option>
+                  <option value="fixed_total">FIXED grand total</option>
+                  <option value="fixed_dim">FIXED by dimension</option>
+                  <option value="running">running total (by)</option>
+                  <option value="movavg">3-pt moving avg (by)</option>
+                  <option value="rank">rank (desc)</option>
+                </select>
+                <span class="muted">of</span><select id="lodMetric" style="width:auto"></select>
+                <span class="muted">by</span><select id="lodDim" style="width:auto"></select>
+                <button id="lodInsert" class="mini" type="button">insert</button>
+              </div>
+              <div class="ops" id="opBar"></div>
+              <div class="fwrap">
+                <pre id="mHighlight" aria-hidden="true"></pre>
+                <textarea id="mFormula" spellcheck="false" placeholder="SAFE_DIVIDE({spend}, {conversions})  — type { or drag a field in"></textarea>
+              </div>
+              <div id="mStatus" class="status idle">Start typing — the formula is validated live against your data (free dry-run).</div>
+              <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+                <button id="mPreview" class="mini">▶ Preview value</button>
+                <span id="mPreviewVal" class="muted small"></span>
+                <div class="spacer"></div>
+                <button id="mValidate" class="mini">Validate now</button>
+                <button id="mCreate" class="btn-primary">Create metric</button>
+              </div>
+            </div>
+            <div class="pane">
+              <div class="ph">Functions</div>
+              <input class="srch" id="fnSrch" placeholder="search functions"/>
+              <div class="body" id="fnList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILTER: field + type-aware operator + value -->
+        <div id="b-filter" class="builder" style="display:none">
+          <div class="muted small" style="margin-bottom:8px">A reusable named filter (field + operator + value). Values autocomplete from your data.</div>
+          <div class="vbox">
+            <input id="flName" placeholder="Filter name — e.g. Paid campaigns only" style="flex:1;min-width:180px"/>
+          </div>
+          <div class="vbox" style="margin-top:8px">
+            <select id="flField" style="flex:1"></select>
+            <select id="flOp" style="width:auto"></select>
+          </div>
+          <!-- single value (metric/date ops) -->
+          <div id="flSingle">
+            <label class="fld">Value</label>
+            <div class="vbox"><input id="flValue" placeholder="value" style="flex:1"/><input id="flValue2" placeholder="and (for between)" style="flex:1;display:none"/></div>
+            <div id="flSuggest" class="vbox" style="margin-top:6px"></div>
+          </div>
+          <!-- multi-select (dimension is-any-of) -->
+          <div id="flMulti" style="display:none">
+            <div class="vbox" style="margin-top:8px">
+              <span class="seg"><button id="flInc" class="on" type="button">include</button><button id="flExc" type="button">exclude</button></span>
+              <input id="flMSearch" placeholder="search values" style="flex:1"/>
+              <button id="flAll" class="mini" type="button">all</button><button id="flNone" class="mini" type="button">none</button>
+            </div>
+            <div id="flChk" class="chklist"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
+            <button id="flCreate" class="btn-primary">Create filter</button>
+          </div>
+          <div id="flStatus" class="status idle" style="margin-top:8px;display:none"></div>
+        </div>
+
+        <!-- GROUP: combined dimension -->
+        <div id="b-group" class="builder" style="display:none">
+          <div class="muted small" style="margin-bottom:8px">Bucket a field's values into labelled groups (a reusable dimension), e.g. campaigns → service lines.</div>
+          <div class="vbox"><input id="gName" placeholder="Group name — e.g. Service Line Group" style="flex:1;min-width:180px"/>
+            <select id="gBase" style="width:auto"></select>
+            <button id="gLoad" class="mini" type="button">load members</button></div>
+          <div id="gMembersWrap" style="display:none;margin-top:8px">
+            <div class="vbox"><input id="gMSearch" placeholder="search members" style="flex:1"/>
+              <button id="gGroupSel" class="mini" type="button">＋ group selected</button></div>
+            <div id="gMembers" class="chklist"></div>
+          </div>
+          <label class="fld">Rules — values → label</label>
+          <div id="gRules"></div>
+          <button id="gAddRule" class="mini" style="margin-top:6px">＋ add rule manually</button>
+          <label class="muted small" style="display:block;margin-top:8px"><input type="checkbox" id="gDefault" style="width:auto;display:inline-block" checked> bucket the rest as "Other"</label>
+          <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end"><button id="gCreate" class="btn-primary">Create group</button></div>
+          <div id="gStatus" class="status idle" style="margin-top:8px;display:none"></div>
+        </div>
+
+        <!-- ALIASES: relabel individual member values -->
+        <div id="b-alias" class="builder" style="display:none">
+          <div class="muted small" style="margin-bottom:8px">Relabel individual values of a field (e.g. CARD → Cardiology). Creates an aliased version of the field; unchanged values pass through as-is.</div>
+          <div class="vbox"><select id="aField" style="flex:1"></select><button id="aLoad" class="mini" type="button">load values</button></div>
+          <input id="aSearch" placeholder="search values" style="margin-top:8px;display:none"/>
+          <div id="aList" class="chklist" style="margin-top:8px"></div>
+          <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end"><button id="aCreate" class="btn-primary">Save aliases</button></div>
+          <div id="aStatus" class="status idle" style="margin-top:8px;display:none"></div>
+        </div>
+
+        <!-- BINS: bucket a numeric field into ranges -->
+        <div id="b-bins" class="builder" style="display:none">
+          <div class="muted small" style="margin-bottom:8px">Bucket a numeric field into ranges (e.g. spend $0–1k / 1–5k / 5k+) as a reusable dimension. Ranges are min ≤ value &lt; max.</div>
+          <div class="vbox"><input id="bName" placeholder="Bin name — e.g. Spend band" style="flex:1;min-width:160px"/>
+            <select id="bBase" style="width:auto"></select></div>
+          <div class="vbox" style="margin-top:8px"><span class="muted small">Auto-generate:</span>
+            <input id="bSize" placeholder="bin size (e.g. 1000)" style="max-width:140px"/>
+            <input id="bCount" placeholder="# bins (e.g. 5)" style="max-width:120px"/>
+            <button id="bAuto" class="mini" type="button">generate</button></div>
+          <label class="fld">Ranges — min, max, label (leave min or max blank for open-ended)</label>
+          <div id="bRanges"></div>
+          <button id="bAddRange" class="mini" style="margin-top:6px">＋ add range</button>
+          <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end"><button id="bCreate" class="btn-primary">Create bins</button></div>
+          <div id="bStatus" class="status idle" style="margin-top:8px;display:none"></div>
+        </div>
+
+        <!-- HIERARCHY: ordered drill path -->
+        <div id="b-hier" class="builder" style="display:none">
+          <div class="muted small" style="margin-bottom:8px">Define a drill path (e.g. Service line → Campaign → Ad group → Keyword). The Dashboard Builder drills down through these levels.</div>
+          <div class="vbox"><input id="hName" placeholder="Hierarchy name — e.g. Campaign drilldown" style="flex:1;min-width:170px"/></div>
+          <div class="vbox" style="margin-top:8px"><span class="muted small">Add level:</span><select id="hPick" style="flex:1"></select><button id="hAdd" class="mini" type="button">＋ add</button></div>
+          <label class="fld">Levels (top → bottom)</label>
+          <div id="hLevels"><div class="muted small">No levels yet — add at least two.</div></div>
+          <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end"><button id="hCreate" class="btn-primary">Create hierarchy</button></div>
+          <div id="hStatus" class="status idle" style="margin-top:8px;display:none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="ac" class="ac"></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const API=(localStorage.getItem('jarvisApi')||'https://localhost:8340').replace(/\/$/,'');
+let TABLES=[], cur=null, tok={metrics:[],dimensions:[]}, fieldTypes={}, usage={};
+let calcByKey={}, combinedByKey={}, rulesByKey={};
+let editCalc=null, editGroup=null, editFilter=null, editHier=null;
+let flPendingOp=null, flPendingVal=undefined, aValues=[];
+let hierLevels=[], hiersByKey={};
+function slug(s){return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');}
+async function api(path,opts){const r=await fetch(API+path,Object.assign({headers:{'Content-Type':'application/json'}},opts||{}));const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.detail||j.error||('HTTP '+r.status));return j;}
+function toast(m,ok=true){const t=document.getElementById('toast');t.textContent=m;t.style.borderColor=ok?'#1f3b29':'#4a1d1d';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4600);}
+function setConn(live,msg){const c=document.getElementById('conn'),b=document.getElementById('banner');if(live){c.className='pill ok';c.textContent='connected';b.classList.remove('show');}else{c.className='pill';c.textContent='offline';b.classList.add('show');b.innerHTML=`Can't reach Jarvis at <code>${API}</code>. Start the server and accept the cert at <a href="${API}/api/briefs" target="_blank">${API}</a>. <span class="muted">${msg||''}</span>`;}}
+
+// ── Rich function reference (validated server-side, so we can offer the full palette) ──
+const FUNCTIONS=[
+ ['Aggregate','SUM','SUM({1})','Sum of a numeric field'],
+ ['Aggregate','AVG','AVG({1})','Average'],
+ ['Aggregate','COUNT','COUNT({1})','Count of rows'],
+ ['Aggregate','COUNT DISTINCT','COUNT(DISTINCT {1})','Distinct count'],
+ ['Aggregate','MIN','MIN({1})','Minimum'],
+ ['Aggregate','MAX','MAX({1})','Maximum'],
+ ['Aggregate','COUNTIF','COUNTIF({1})','Count rows where condition is true'],
+ ['Math','SAFE_DIVIDE','SAFE_DIVIDE({1}, {2})','Divide, NULL on /0 (preferred)'],
+ ['Math','NULLIF','NULLIF({1}, 0)','NULL when equal — divide-by-zero guard'],
+ ['Math','ROUND','ROUND({1}, 2)','Round to N decimals'],
+ ['Math','ABS','ABS({1})','Absolute value'],
+ ['Math','CEIL','CEIL({1})','Round up'],
+ ['Math','FLOOR','FLOOR({1})','Round down'],
+ ['Math','POWER','POWER({1}, 2)','Raise to a power'],
+ ['Math','SQRT','SQRT({1})','Square root'],
+ ['Math','GREATEST','GREATEST({1}, {2})','Largest of the arguments'],
+ ['Math','LEAST','LEAST({1}, {2})','Smallest of the arguments'],
+ ['Conditional','CASE WHEN','CASE WHEN {1} THEN {2} ELSE {3} END','Multi-branch conditional'],
+ ['Conditional','IF','IF({1}, {2}, {3})','If condition then A else B'],
+ ['Conditional','IFNULL','IFNULL({1}, {2})','Replace NULL with a value'],
+ ['Conditional','COALESCE','COALESCE({1}, {2})','First non-null value'],
+ ['String','CONCAT','CONCAT({1}, {2})','Join strings'],
+ ['String','UPPER','UPPER({1})','Uppercase'],
+ ['String','LOWER','LOWER({1})','Lowercase'],
+ ['String','CONTAINS','CONTAINS_SUBSTR({1}, \'text\')','Does text contain substring'],
+ ['Date','DATE_DIFF','DATE_DIFF({1}, {2}, DAY)','Difference between dates'],
+ ['Date','DATE_TRUNC','DATE_TRUNC({1}, MONTH)','Truncate date to month/week/year'],
+ ['Date','EXTRACT','EXTRACT(YEAR FROM {1})','Extract part of a date'],
+];
+const OPERATORS=['+','-','*','/','( )',',','=','!=','>','<','>=','<=','AND','OR','NOT','IN','BETWEEN'];
+const OPS_DIM=[['=','equals'],['!=','not equals'],['in','is any of'],['not in','is none of'],['like','contains'],['is_null','is empty'],['not_null','is not empty']];
+const OPS_NUM=[['gt','greater than'],['lt','less than'],['gte','≥'],['lte','≤'],['between','between'],['eq','equals']];
+const OPS_DATE=[['between','between'],['gte','on or after'],['lte','on or before']];
+
+function insertAtCursor(el, text){
+  const s=el.selectionStart, e=el.selectionEnd, v=el.value;
+  // turn {1}{2}{3} placeholders into nothing, leaving cursor at first slot
+  let firstSlot=text.indexOf('{1}'); let clean=text.replace(/\{\d\}/g,'');
+  el.value=v.slice(0,s)+clean+v.slice(e);
+  const caret = s + (firstSlot>=0?firstSlot:clean.length);
+  el.focus(); el.setSelectionRange(caret,caret);
+  if(el.id==='mFormula' && typeof highlight==='function') highlight();
+  validateSoon();
+}
+
+async function loadTables(){
+  try{ const r=await api('/api/semantic/tables'); TABLES=r.tables||[]; setConn(true); }
+  catch(e){ setConn(false,e.message); document.getElementById('tableList').innerHTML='<div class="muted small">offline</div>'; return; }
+  document.getElementById('tableList').innerHTML=TABLES.map(t=>`<button class="tbtn" data-k="${t.key}">${t.display_name||t.key}<small>${(t.field_count&&(t.field_count.metrics+'m · '+t.field_count.dimensions+'d'))||''}</small></button>`).join('');
+  document.querySelectorAll('.tbtn').forEach(b=>b.onclick=()=>selectTable(b.dataset.k));
+  refreshDraft();
+  if(TABLES.length) selectTable((TABLES.find(t=>t.key==='ad_performance')||TABLES[0]).key);
+}
+async function refreshDraft(){ try{const s=await api('/api/semantic/publish_status');document.getElementById('draftPill').textContent=s.has_draft?(s.differs?'● unpublished changes':'draft'):'published';}catch(e){} }
+
+async function selectTable(key){
+  cur=key;
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('sel',b.dataset.k===key));
+  let t, tk;
+  try{ t=await api('/api/semantic/tables/'+key); tk=await api('/api/semantic/formula_tokens?table='+key); }
+  catch(e){ setConn(false,e.message); return; }
+  tok=tk; fieldTypes={};
+  (t.metrics||[]).concat(t.calculated_metrics||[]).forEach(f=>fieldTypes[f.key]='metric');
+  (t.dimensions||[]).forEach(f=>fieldTypes[f.key]='dim');
+  (t.dates||[]).forEach(f=>fieldTypes[f.key]='date');
+  try{ const cm=await api('/api/semantic/calculated'); usage={}; calcByKey={};
+    (cm.calculated_metrics||[]).forEach(m=>{ calcByKey[m.key]=m; ((m.formula||'').match(/\{[a-zA-Z0-9_]+\}/g)||[]).forEach(r=>{const k=r.slice(1,-1);usage[k]=(usage[k]||0)+1;}); });
+  }catch(e){ usage={}; calcByKey={}; }
+  let rules=[];
+  try{ const rr=await api('/api/semantic/rules'); rules=(rr.business_rules||[]).filter(r=>r.table===key); }catch(e){}
+  rulesByKey={}; rules.forEach(r=>rulesByKey[r.key]=r);
+  combinedByKey={}; (t.combined_dimensions||[]).forEach(c=>combinedByKey[c.key]=c);
+  let hiers=[];
+  try{ const hr=await api('/api/semantic/hierarchies'); hiers=(hr.hierarchies||[]).filter(h=>(h.available_in||[]).includes(key)); }catch(e){}
+  hiersByKey={}; hiers.forEach(h=>hiersByKey[h.key]=h);
+  const fhtml=(arr,tag)=>(arr||[]).map(f=>`<div class="fieldrow"><span class="tag ${tag}">${tag}</span>
+      <span style="flex:1">${f.display_name||f.key} <span class="k">{${f.key}}</span>${usage[f.key]?`<span class="usedby">used by ${usage[f.key]} metric${usage[f.key]>1?'s':''}</span>`:''}</span>
+      <button class="mini" onclick="renameField('${key}','${f.key}')">rename</button></div>`).join('');
+  const calcHtml=(arr)=>(arr||[]).map(f=>`<div class="fieldrow"><span class="tag calc">calc</span>
+      <span style="flex:1">${f.display_name||f.key} <span class="k">{${f.key}}</span>${usage[f.key]?`<span class="usedby">used by ${usage[f.key]}</span>`:''}</span>
+      <button class="mini" onclick="editCalcFn('${f.key}')">edit</button><button class="mini" onclick="delCalc('${f.key}')">✕</button></div>`).join('');
+  document.getElementById('tableDetail').innerHTML=`
+    <div class="vbox"><h2 style="margin:0">${t.display_name||t.key}</h2><span class="pill">${t.raw_table||''}</span>
+      <button class="mini" onclick="renameTable('${key}')">rename table</button>
+      <button class="mini" onclick="autocurate('${t.raw_table||''}')">✨ auto-curate names</button>
+      <div class="spacer"></div><span class="muted small">${t.kind||''}</span></div>
+    <div class="muted small" style="margin:5px 0 4px">${t.description||''}</div>
+    <h3>Metrics</h3>${fhtml(t.metrics,'metric')||'<div class="muted small">none</div>'}
+    ${(t.calculated_metrics&&t.calculated_metrics.length)?'<h3>Calculated</h3>'+calcHtml(t.calculated_metrics):''}
+    <h3>Dimensions</h3>${fhtml(t.dimensions,'dim')||'<div class="muted small">none</div>'}
+    ${(t.dates&&t.dates.length)?'<h3>Dates</h3>'+fhtml(t.dates,'dim'):''}
+    ${(t.combined_dimensions&&t.combined_dimensions.length)?'<h3>Groups</h3>'+t.combined_dimensions.map(c=>`<div class="fieldrow"><span class="tag dim">group</span><span style="flex:1">${c.display_name||c.key} <span class="k">{${c.key}}</span> <span class="usedby">on ${c.base_field} · ${(c.rules||[]).length} rules</span></span><button class="mini" onclick="editGroupFn('${c.key}')">edit</button><button class="mini" onclick="delGroup('${c.key}')">✕</button></div>`).join(''):''}
+    ${rules.length?'<h3>Filters</h3>'+rules.map(r=>`<div class="fieldrow"><span class="tag" style="color:var(--warn);border-color:#3b3520">filter</span><span style="flex:1">${r.display_name||r.key} <span class="k">${r.field} ${r.op} ${Array.isArray(r.value)?r.value.join(' … '):(r.value==null?'':r.value)}</span></span><button class="mini" onclick="editFilterFn('${r.key}')">edit</button><button class="mini" onclick="delFilter('${r.key}')">✕</button></div>`).join(''):''}
+    ${hiers.length?'<h3>Hierarchies</h3>'+hiers.map(h=>`<div class="fieldrow"><span class="tag dim">drill</span><span style="flex:1">${h.display_name||h.key} <span class="k">${(h.levels||[]).join(' → ')}</span></span><button class="mini" onclick="editHierFn('${h.key}')">edit</button><button class="mini" onclick="delHier('${h.key}')">✕</button></div>`).join(''):''}`;
+  renderFieldList(); renderFnList();
+  // filter + group field pickers
+  const dimOpts=(tok.dimensions||[]).map(d=>`<option value="${d.key}">${d.display_name||d.key}</option>`).join('');
+  const allOpts=(tok.metrics||[]).map(m=>`<option value="${m.key}">${m.display_name||m.key} (metric)</option>`).join('')+dimOpts;
+  document.getElementById('flField').innerHTML=allOpts; document.getElementById('gBase').innerHTML=dimOpts;
+  document.getElementById('aField').innerHTML=dimOpts;
+  document.getElementById('bBase').innerHTML=allOpts;
+  document.getElementById('lodMetric').innerHTML=(tok.metrics||[]).map(m=>`<option value="${m.key}">${m.display_name||m.key}</option>`).join('');
+  document.getElementById('lodDim').innerHTML=(tok.dimensions||[]).map(d=>`<option value="${d.key}">${d.display_name||d.key}</option>`).join('');
+  document.getElementById('hPick').innerHTML=dimOpts;
+  onFilterFieldChange();
+}
+function renderFieldList(){
+  const q=(document.getElementById('fieldSrch').value||'').toLowerCase();
+  const items=(tok.metrics||[]).map(m=>['metric',m]).concat((tok.dimensions||[]).map(d=>['dim',d]))
+    .filter(([_,f])=>(f.key+(f.display_name||'')).toLowerCase().includes(q));
+  document.getElementById('fieldList').innerHTML=items.map(([tag,f])=>`<button class="item" draggable="true" ondragstart="event.dataTransfer.setData('text/plain','{${f.key}}')" onclick="insertAtCursor(document.getElementById('mFormula'),'{${f.key}}')"><span class="tag ${tag}">${tag}</span> ${f.display_name||f.key} <code>{${f.key}}</code></button>`).join('')||'<div class="muted small" style="padding:8px">no fields</div>';
+}
+function renderFnList(){
+  const q=(document.getElementById('fnSrch').value||'').toLowerCase();
+  let cat='';
+  document.getElementById('fnList').innerHTML=FUNCTIONS.filter(f=>(f[1]+f[3]).toLowerCase().includes(q)).map(f=>{
+    const head=(f[0]!==cat)?(cat=f[0],`<div class="ph" style="border-top:1px solid var(--line)">${f[0]}</div>`):'';
+    return head+`<button class="item" onclick="insertAtCursor(document.getElementById('mFormula'),'${f[2].replace(/'/g,"\\'")}')"><code>${f[1]}</code><span class="d">${f[3]}</span></button>`;
+  }).join('');
+}
+document.getElementById('fieldSrch').oninput=renderFieldList;
+document.getElementById('fnSrch').oninput=renderFnList;
+document.getElementById('opBar').innerHTML=OPERATORS.map(o=>`<span class="op" onclick="insertAtCursor(document.getElementById('mFormula'),'${o==='( )'?'()':' '+o+' '}')">${o}</span>`).join('');
+// ── LOD / window helper ──
+document.getElementById('lodInsert').onclick=()=>{
+  const M='{'+document.getElementById('lodMetric').value+'}', D='{'+document.getElementById('lodDim').value+'}';
+  const tpl={ pct_total:`SAFE_DIVIDE(${M}, SUM(${M}) OVER ())`,
+              fixed_total:`SUM(${M}) OVER ()`,
+              fixed_dim:`SUM(${M}) OVER (PARTITION BY ${D})`,
+              running:`SUM(${M}) OVER (ORDER BY ${D})`,
+              movavg:`AVG(${M}) OVER (ORDER BY ${D} ROWS BETWEEN 2 PRECEDING AND CURRENT ROW)`,
+              rank:`RANK() OVER (ORDER BY ${M} DESC)` }[document.getElementById('lodPat').value];
+  insertAtCursor(document.getElementById('mFormula'), tpl);
+};
+
+// ── live validation ──
+let valTimer=null;
+function validateSoon(){ clearTimeout(valTimer); valTimer=setTimeout(runValidate,650); }
+async function runValidate(){
+  const f=document.getElementById('mFormula').value.trim(), s=document.getElementById('mStatus');
+  if(!f){ s.className='status idle'; s.textContent='Type a formula — validated live.'; return; }
+  s.className='status idle'; s.textContent='checking…';
+  try{ const v=await api('/api/semantic/validate_formula',{method:'POST',body:JSON.stringify({formula:f,available_in:[cur],format:document.getElementById('mFormat').value})});
+    if(v.valid===false){ s.className='status err'; s.textContent='✗ '+v.error; }
+    else { s.className='status ok'; s.textContent='✓ valid'+(v.resolved_sql?'\n'+v.resolved_sql:(v.warning?'\n'+v.warning:'')); }
+  }catch(e){ s.className='status err'; s.textContent='✗ '+e.message; }
+}
+// ── syntax highlighting overlay ──
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const HLKW=/\b(SUM|AVG|COUNT|DISTINCT|MIN|MAX|COUNTIF|SAFE_DIVIDE|NULLIF|ROUND|ABS|CEIL|FLOOR|POWER|SQRT|GREATEST|LEAST|CASE|WHEN|THEN|ELSE|END|IF|IFNULL|COALESCE|CONCAT|UPPER|LOWER|CONTAINS_SUBSTR|DATE_DIFF|DATE_TRUNC|EXTRACT|AND|OR|NOT|IN|BETWEEN|FIXED|YEAR|MONTH|WEEK|DAY|QUARTER|OVER|PARTITION|ORDER|BY|ROWS|RANGE|PRECEDING|FOLLOWING|CURRENT|ROW|UNBOUNDED|RANK|DENSE_RANK|ROW_NUMBER|LAG|LEAD|DESC|ASC)\b/g;
+function highlight(){
+  const ta=document.getElementById('mFormula');
+  const h=esc(ta.value)
+    .replace(/\{[a-zA-Z0-9_]+\}/g,m=>`<span class="hl-field">${m}</span>`)
+    .replace(HLKW,'<span class="hl-fn">$1</span>')
+    .replace(/\b\d+\.?\d*\b/g,'<span class="hl-num">$&</span>');
+  document.getElementById('mHighlight').innerHTML=h+'\n';
+}
+const _ta=document.getElementById('mFormula');
+_ta.addEventListener('input',()=>{highlight();validateSoon();});
+_ta.addEventListener('keyup', handleAutocomplete);
+_ta.addEventListener('scroll',()=>{const h=document.getElementById('mHighlight');h.scrollTop=_ta.scrollTop;h.scrollLeft=_ta.scrollLeft;});
+// drag-and-drop fields into the formula
+_ta.addEventListener('dragover',e=>{e.preventDefault();_ta.classList.add('drop');});
+_ta.addEventListener('dragleave',()=>_ta.classList.remove('drop'));
+_ta.addEventListener('drop',e=>{e.preventDefault();_ta.classList.remove('drop');const tx=e.dataTransfer.getData('text/plain');if(tx)insertAtCursor(_ta,tx);});
+document.getElementById('mValidate').onclick=runValidate;
+// ── live preview value ──
+function fmtVal(v,fmt,prefix,suffix){ if(v==null)return '∅'; v=Number(v); if(isNaN(v))return '—';
+  let s; if(fmt==='currency')s='$'+v.toLocaleString(undefined,{maximumFractionDigits:2});
+  else if(fmt==='percent')s=(v*100).toFixed(2)+'%'; else if(fmt==='ratio')s=v.toFixed(4);
+  else s=v.toLocaleString(undefined,{maximumFractionDigits:2});
+  return (prefix||'')+s+(suffix||''); }
+document.getElementById('mPreview').onclick=async()=>{
+  const f=document.getElementById('mFormula').value.trim(), out=document.getElementById('mPreviewVal');
+  if(!f){out.textContent='';return;} out.textContent='running…';
+  try{ const r=await api('/api/semantic/preview_metric',{method:'POST',body:JSON.stringify({formula:f,available_in:[cur],format:document.getElementById('mFormat').value})});
+    out.style.color=r.ok?'var(--good)':'var(--bad)';
+    out.textContent=r.ok?('= '+fmtVal(r.value,document.getElementById('mFormat').value,document.getElementById('mPrefix').value,document.getElementById('mSuffix').value)+'  ('+r.elapsed_ms+'ms)'):('✗ '+r.error);
+  }catch(e){ out.style.color='var(--bad)'; out.textContent='✗ '+e.message; }
+};
+document.getElementById('mCreate').onclick=async()=>{
+  const name=document.getElementById('mName').value.trim(), formula=document.getElementById('mFormula').value.trim();
+  if(!name||!formula){ toast('Name and formula required',false); return; }
+  const body={display_name:name,formula,format:document.getElementById('mFormat').value,available_in:[cur],
+              prefix:document.getElementById('mPrefix').value,suffix:document.getElementById('mSuffix').value};
+  try{
+    if(editCalc){ await api('/api/semantic/calculated/'+editCalc,{method:'PUT',body:JSON.stringify(body)}); }
+    else{ await api('/api/semantic/calculated',{method:'POST',body:JSON.stringify(Object.assign({key:slug(name)},body))}); }
+    toast('Metric saved — Publish + Sync to make it live in ktx.');
+    editCalc=null; document.getElementById('mCreate').textContent='Create metric';
+    document.getElementById('mName').value=''; document.getElementById('mFormula').value='';
+    document.getElementById('mPrefix').value=''; document.getElementById('mSuffix').value=''; highlight(); runValidate(); selectTable(cur); refreshDraft();
+  }catch(e){ toast('Save failed: '+e.message,false); }
+};
+// edit/delete — metrics
+window.editCalcFn=(key)=>{ const m=calcByKey[key]; if(!m){toast('Still loading — try again',false);return;}
+  switchTab('metric'); document.getElementById('mName').value=m.display_name||key; document.getElementById('mFormula').value=m.formula||'';
+  document.getElementById('mFormat').value=m.format||'number'; document.getElementById('mPrefix').value=m.prefix||''; document.getElementById('mSuffix').value=m.suffix||'';
+  editCalc=key; document.getElementById('mCreate').textContent='Save changes'; highlight(); validateSoon(); };
+window.delCalc=async(key)=>{ const u=usage[key]||0; if(!confirm('Delete metric "'+key+'"?'+(u?(' It is referenced by '+u+' other metric(s).'):'')))return;
+  try{ await api('/api/semantic/calculated/'+key,{method:'DELETE'}); toast('Deleted. Publish + Sync to apply.'); selectTable(cur); refreshDraft(); }catch(e){ toast('Delete failed: '+e.message,false); } };
+// edit/delete — groups
+window.editGroupFn=(key)=>{ const c=combinedByKey[key]; if(!c)return; switchTab('group');
+  document.getElementById('gName').value=c.display_name||key; document.getElementById('gBase').value=c.base_field; document.getElementById('gRules').innerHTML='';
+  (c.rules||[]).filter(r=>!r.is_default).forEach(r=>{ const d=document.getElementById('gRules'),row=document.createElement('div'); row.className='ruleRow';
+    row.innerHTML=`<input class="rmatch" value="${(r.matches||[]).join(', ').replace(/"/g,'&quot;')}"><input class="rlabel" value="${(r.label||'').replace(/"/g,'&quot;')}" style="max-width:150px">`; d.appendChild(row); });
+  document.getElementById('gDefault').checked=(c.rules||[]).some(r=>r.is_default); editGroup=key; document.getElementById('gCreate').textContent='Save changes'; };
+window.delGroup=async(key)=>{ if(!confirm('Delete group "'+key+'"?'))return; try{ await api('/api/semantic/combined/'+key,{method:'DELETE'}); toast('Deleted. Publish + Sync to apply.'); selectTable(cur); refreshDraft(); }catch(e){ toast('Delete failed: '+e.message,false); } };
+// edit/delete — filters
+window.editFilterFn=(key)=>{ const r=rulesByKey[key]; if(!r)return; switchTab('filter');
+  document.getElementById('flName').value=r.display_name||key; document.getElementById('flField').value=r.field;
+  flPendingOp=r.op; flPendingVal=r.value; editFilter=key; document.getElementById('flCreate').textContent='Save changes'; onFilterFieldChange(); };
+window.delFilter=async(key)=>{ if(!confirm('Delete filter "'+key+'"?'))return; try{ await api('/api/semantic/rules/'+key,{method:'DELETE'}); toast('Deleted. Publish + Sync to apply.'); selectTable(cur); refreshDraft(); }catch(e){ toast('Delete failed: '+e.message,false); } };
+
+// ── { } field autocomplete ──
+function handleAutocomplete(e){
+  const el=document.getElementById('mFormula'), ac=document.getElementById('ac');
+  const upto=el.value.slice(0,el.selectionStart); const m=upto.match(/\{(\w*)$/);
+  if(!m){ ac.style.display='none'; return; }
+  const q=m[1].toLowerCase();
+  const opts=(tok.metrics||[]).concat(tok.dimensions||[]).filter(f=>f.key.toLowerCase().includes(q)).slice(0,8);
+  if(!opts.length){ ac.style.display='none'; return; }
+  ac.innerHTML=opts.map(f=>`<button onmousedown="event.preventDefault();pickAc('${f.key}',${m[1].length})">{${f.key}}</button>`).join('');
+  const r=el.getBoundingClientRect();
+  ac.style.left=(r.left+12)+'px'; ac.style.top=(r.bottom-6)+'px'; ac.style.display='block';
+}
+window.pickAc=(key,typed)=>{
+  const el=document.getElementById('mFormula'); const s=el.selectionStart;
+  el.value=el.value.slice(0,s-typed)+key+'}'+el.value.slice(s);
+  document.getElementById('ac').style.display='none'; el.focus();
+  const c=s-typed+key.length+1; el.setSelectionRange(c,c); validateSoon();
+};
+document.addEventListener('click',e=>{ if(e.target.id!=='mFormula') document.getElementById('ac').style.display='none'; });
+
+// ── tabs ──
+function switchTab(name){ document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.b===name));
+  document.querySelectorAll('.builder').forEach(b=>b.style.display='none'); document.getElementById('b-'+name).style.display='block'; }
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.b));
+
+// ── FILTER builder (multi-select polish) ──
+let flValues=[];
+function opsForField(key){ const ty=fieldTypes[key]; return ty==='metric'?OPS_NUM:(ty==='date'?OPS_DATE:OPS_DIM); }
+function onFilterFieldChange(){
+  const key=document.getElementById('flField').value;
+  document.getElementById('flOp').innerHTML=opsForField(key).map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+  if(flPendingOp!=null) document.getElementById('flOp').value=flPendingOp;
+  flValues=[];
+  if(fieldTypes[key]==='dim'){ api(`/api/semantic/distinct?table=${cur}&field=${key}&limit=300`).then(r=>{flValues=(r.values||[]).map(String);onFilterOpChange();}).catch(()=>onFilterOpChange()); }
+  else onFilterOpChange();
+}
+function onFilterOpChange(){
+  const op=document.getElementById('flOp').value, multi=(op==='in'||op==='not in');
+  document.getElementById('flMulti').style.display=multi?'block':'none';
+  document.getElementById('flSingle').style.display=multi?'none':'block';
+  if(multi){ document.getElementById('flInc').classList.toggle('on',op==='in'); document.getElementById('flExc').classList.toggle('on',op==='not in'); renderChk(); }
+  else{
+    document.getElementById('flValue2').style.display=(op==='between')?'block':'none';
+    const noval=(op==='is_null'||op==='not_null'); document.getElementById('flValue').style.display=noval?'none':'block';
+    document.getElementById('flSuggest').innerHTML=(fieldTypes[document.getElementById('flField').value]==='dim'&&!noval)
+      ? '<span class="muted small">values: </span>'+flValues.slice(0,16).map(v=>`<span class="valchip" onclick="setFlVal(${JSON.stringify(v).replace(/"/g,'&quot;')})">${v}</span>`).join(' ') : '';
+    if(flPendingOp!=null){
+      if(op==='between' && Array.isArray(flPendingVal)){ document.getElementById('flValue').value=flPendingVal[0]||''; document.getElementById('flValue2').value=flPendingVal[1]||''; }
+      else if(flPendingVal!=null && !Array.isArray(flPendingVal)){ document.getElementById('flValue').value=flPendingVal; }
+      flPendingOp=null; flPendingVal=undefined;
+    }
+  }
+}
+function renderChk(){ const q=(document.getElementById('flMSearch').value||'').toLowerCase();
+  document.getElementById('flChk').innerHTML=flValues.filter(v=>v.toLowerCase().includes(q)).slice(0,300).map(v=>`<label class="chkrow"><input type="checkbox" class="flc" value="${String(v).replace(/"/g,'&quot;')}"> ${v}</label>`).join('')||'<div class="muted small" style="padding:8px">no values</div>';
+  if(flPendingOp!=null && Array.isArray(flPendingVal)){ flPendingVal.forEach(v=>{const c=[...document.querySelectorAll('#flChk .flc')].find(x=>x.value===String(v)); if(c)c.checked=true;}); flPendingOp=null; flPendingVal=undefined; }
+}
+window.setFlVal=v=>{ const i=document.getElementById('flValue'); i.value=i.value?i.value+', '+v:v; };
+document.getElementById('flField').onchange=onFilterFieldChange;
+document.getElementById('flOp').onchange=onFilterOpChange;
+document.getElementById('flMSearch').oninput=renderChk;
+document.getElementById('flAll').onclick=()=>document.querySelectorAll('#flChk .flc').forEach(c=>c.checked=true);
+document.getElementById('flNone').onclick=()=>document.querySelectorAll('#flChk .flc').forEach(c=>c.checked=false);
+document.getElementById('flInc').onclick=()=>{document.getElementById('flOp').value='in';onFilterOpChange();};
+document.getElementById('flExc').onclick=()=>{document.getElementById('flOp').value='not in';onFilterOpChange();};
+document.getElementById('flCreate').onclick=async()=>{
+  const name=document.getElementById('flName').value.trim(), field=document.getElementById('flField').value, op=document.getElementById('flOp').value;
+  const s=document.getElementById('flStatus'); s.style.display='block';
+  if(!name){ toast('Filter name required',false); return; }
+  let value=null;
+  if(op==='in'||op==='not in') value=[...document.querySelectorAll('#flChk .flc:checked')].map(c=>c.value);
+  else if(op==='between') value=[document.getElementById('flValue').value.trim(),document.getElementById('flValue2').value.trim()];
+  else if(op==='is_null'||op==='not_null') value=null;
+  else value=document.getElementById('flValue').value.trim();
+  const body={display_name:name,table:cur,field,op,value};
+  try{
+    if(editFilter){ await api('/api/semantic/rules/'+editFilter,{method:'PUT',body:JSON.stringify(body)}); }
+    else{ await api('/api/semantic/rules',{method:'POST',body:JSON.stringify(Object.assign({key:slug(name)},body))}); }
+    s.className='status ok'; s.textContent='✓ filter saved — Publish + Sync to make it live.';
+    editFilter=null; document.getElementById('flCreate').textContent='Create filter'; document.getElementById('flName').value=''; selectTable(cur); refreshDraft();
+  }catch(e){ s.className='status err'; s.textContent='✗ '+e.message; }
+};
+
+// ── GROUP builder ──
+function addRule(){const d=document.getElementById('gRules');const row=document.createElement('div');row.className='ruleRow';
+  row.innerHTML=`<input placeholder="values, comma-separated" class="rmatch"><input placeholder="label" class="rlabel" style="max-width:150px">`;d.appendChild(row);}
+document.getElementById('gAddRule').onclick=addRule;
+// visual grouping: load members → checkbox → group selected
+let gValues=[];
+document.getElementById('gLoad').onclick=async()=>{ const f=document.getElementById('gBase').value; if(!f)return;
+  try{ const r=await api(`/api/semantic/distinct?table=${cur}&field=${f}&limit=300`); gValues=(r.values||[]).map(String);
+    document.getElementById('gMembersWrap').style.display='block'; renderMembers();
+  }catch(e){ toast('Load members failed: '+e.message,false); } };
+function renderMembers(){ const q=(document.getElementById('gMSearch').value||'').toLowerCase();
+  document.getElementById('gMembers').innerHTML=gValues.filter(v=>v.toLowerCase().includes(q)).slice(0,300).map(v=>`<label class="chkrow"><input type="checkbox" class="gmc" value="${String(v).replace(/"/g,'&quot;')}"> ${v}</label>`).join('')||'<div class="muted small" style="padding:8px">no values</div>'; }
+document.getElementById('gMSearch').oninput=renderMembers;
+document.getElementById('gGroupSel').onclick=()=>{
+  const sel=[...document.querySelectorAll('#gMembers .gmc:checked')].map(c=>c.value); if(!sel.length){toast('Select members first',false);return;}
+  const label=prompt('Label for these '+sel.length+' values:'); if(!label)return;
+  const d=document.getElementById('gRules'), row=document.createElement('div'); row.className='ruleRow';
+  row.innerHTML=`<input class="rmatch" value="${sel.join(', ').replace(/"/g,'&quot;')}"><input class="rlabel" value="${label.replace(/"/g,'&quot;')}" style="max-width:150px">`; d.appendChild(row);
+  document.querySelectorAll('#gMembers .gmc:checked').forEach(c=>c.checked=false);
+};
+document.getElementById('gCreate').onclick=async()=>{
+  const name=document.getElementById('gName').value.trim(), s=document.getElementById('gStatus'); s.style.display='block';
+  if(!name){ toast('Group name required',false); return; }
+  const rules=[...document.querySelectorAll('#gRules .ruleRow')].map(r=>({matches:r.querySelector('.rmatch').value.split(',').map(x=>x.trim()).filter(Boolean),label:r.querySelector('.rlabel').value.trim()||null})).filter(x=>x.matches.length&&x.label);
+  if(document.getElementById('gDefault').checked) rules.push({matches:[],label:'Other',is_default:true});
+  const body={display_name:name,base_field:document.getElementById('gBase').value,available_in:[cur],rules};
+  try{
+    if(editGroup){ await api('/api/semantic/combined/'+editGroup,{method:'PUT',body:JSON.stringify(body)}); }
+    else{ await api('/api/semantic/combined',{method:'POST',body:JSON.stringify(Object.assign({key:slug(name)},body))}); }
+    s.className='status ok'; s.textContent='✓ group saved — Publish + Sync to make it live.';
+    editGroup=null; document.getElementById('gCreate').textContent='Create group';
+    document.getElementById('gName').value=''; document.getElementById('gRules').innerHTML=''; addRule(); selectTable(cur); refreshDraft();
+  }catch(e){ s.className='status err'; s.textContent='✗ '+e.message; }
+};
+// ── ALIASES ──
+document.getElementById('aLoad').onclick=async()=>{ const f=document.getElementById('aField').value; if(!f)return;
+  try{ const r=await api(`/api/semantic/distinct?table=${cur}&field=${f}&limit=300`); aValues=(r.values||[]).map(String);
+    document.getElementById('aSearch').style.display='block'; renderAliasList();
+  }catch(e){ toast('Load values failed: '+e.message,false); } };
+function renderAliasList(){ const q=(document.getElementById('aSearch').value||'').toLowerCase();
+  document.getElementById('aList').innerHTML=aValues.filter(v=>v.toLowerCase().includes(q)).slice(0,300).map(v=>`<div class="chkrow"><span style="flex:1;color:var(--muted)">${v}</span> → <input class="amap" data-v="${String(v).replace(/"/g,'&quot;')}" value="${String(v).replace(/"/g,'&quot;')}" style="max-width:220px"></div>`).join('')||'<div class="muted small" style="padding:8px">no values</div>'; }
+document.getElementById('aSearch').oninput=renderAliasList;
+document.getElementById('aCreate').onclick=async()=>{ const s=document.getElementById('aStatus'); s.style.display='block';
+  const field=document.getElementById('aField').value;
+  const rules=[...document.querySelectorAll('#aList .amap')].filter(i=>i.value.trim()&&i.value.trim()!==i.dataset.v).map(i=>({matches:[i.dataset.v],label:i.value.trim()}));
+  if(!rules.length){ s.className='status err'; s.textContent='Change at least one value to alias it.'; return; }
+  try{ await api('/api/semantic/combined',{method:'POST',body:JSON.stringify({key:slug(field+'_aliased'),display_name:field.replace(/_/g,' ')+' (aliased)',base_field:field,available_in:[cur],rules})});
+    s.className='status ok'; s.textContent=`✓ aliased ${rules.length} value(s) into a new "${field} (aliased)" dimension — Publish + Sync to make it live.`; selectTable(cur); refreshDraft();
+  }catch(e){ s.className='status err'; s.textContent='✗ '+e.message; } };
+
+// ── BINS ──
+function addBinRow(min='',max='',label=''){ const d=document.getElementById('bRanges'),row=document.createElement('div'); row.className='ruleRow';
+  row.innerHTML=`<input class="bmin" placeholder="min" value="${min}" style="max-width:110px"><input class="bmax" placeholder="max" value="${max}" style="max-width:110px"><input class="blabel" placeholder="label" value="${String(label).replace(/"/g,'&quot;')}">`; d.appendChild(row); }
+document.getElementById('bAddRange').onclick=()=>addBinRow();
+function fmtBand(lo,hi){ const f=v=>v>=1000?((v/1000)+'k'):v; return hi==null?(f(lo)+'+'):(f(lo)+'–'+f(hi)); }
+document.getElementById('bAuto').onclick=()=>{ const size=parseFloat(document.getElementById('bSize').value), n=parseInt(document.getElementById('bCount').value||'5',10);
+  if(!size||size<=0){toast('Enter a bin size',false);return;} document.getElementById('bRanges').innerHTML='';
+  for(let i=0;i<n;i++){ const lo=i*size, hi=(i+1)*size; addBinRow(lo,(i===n-1?'':hi),fmtBand(lo,(i===n-1?null:hi))); } };
+document.getElementById('bCreate').onclick=async()=>{ const name=document.getElementById('bName').value.trim(), s=document.getElementById('bStatus'); s.style.display='block';
+  if(!name){toast('Bin name required',false);return;}
+  const rules=[...document.querySelectorAll('#bRanges .ruleRow')].map(r=>{ const mn=r.querySelector('.bmin').value.trim(), mx=r.querySelector('.bmax').value.trim(), lb=r.querySelector('.blabel').value.trim();
+    if(!lb) return null; const o={label:lb}; if(mn!=='')o.range_min=parseFloat(mn); if(mx!=='')o.range_max=parseFloat(mx); return (o.range_min!=null||o.range_max!=null)?o:null; }).filter(Boolean);
+  if(!rules.length){s.className='status err';s.textContent='Add at least one range with a label.';return;}
+  try{ await api('/api/semantic/combined',{method:'POST',body:JSON.stringify({key:slug(name),display_name:name,base_field:document.getElementById('bBase').value,available_in:[cur],rules})});
+    s.className='status ok'; s.textContent='✓ bins "'+name+'" created — Publish + Sync to make it live.'; document.getElementById('bName').value=''; document.getElementById('bRanges').innerHTML=''; selectTable(cur); refreshDraft();
+  }catch(e){ s.className='status err'; s.textContent='✗ '+e.message; } };
+
+// ── HIERARCHIES ──
+function renderLevels(){
+  const dn=k=>{const f=(tok.dimensions||[]).find(d=>d.key===k);return f?(f.display_name||k):k;};
+  document.getElementById('hLevels').innerHTML=hierLevels.length?hierLevels.map((k,i)=>`<div class="ruleRow"><span style="flex:1">${i+1}. ${dn(k)} <span class="k">{${k}}</span></span>
+    <button class="mini" onclick="hMove(${i},-1)">↑</button><button class="mini" onclick="hMove(${i},1)">↓</button><button class="mini" onclick="hDelLvl(${i})">✕</button></div>`).join(''):'<div class="muted small">No levels yet — add at least two.</div>';
+}
+window.hMove=(i,d)=>{const j=i+d; if(j<0||j>=hierLevels.length)return; [hierLevels[i],hierLevels[j]]=[hierLevels[j],hierLevels[i]]; renderLevels();};
+window.hDelLvl=(i)=>{hierLevels.splice(i,1); renderLevels();};
+document.getElementById('hAdd').onclick=()=>{const k=document.getElementById('hPick').value; if(k&&!hierLevels.includes(k)){hierLevels.push(k); renderLevels();}};
+document.getElementById('hCreate').onclick=async()=>{ const name=document.getElementById('hName').value.trim(), s=document.getElementById('hStatus'); s.style.display='block';
+  if(!name){toast('Name required',false);return;} if(hierLevels.length<2){s.className='status err';s.textContent='Add at least two levels.';return;}
+  const body={display_name:name,levels:hierLevels.slice(),available_in:[cur]};
+  try{ if(editHier){ await api('/api/semantic/hierarchies/'+editHier,{method:'PUT',body:JSON.stringify(body)}); }
+       else{ await api('/api/semantic/hierarchies',{method:'POST',body:JSON.stringify(Object.assign({key:slug(name)},body))}); }
+    s.className='status ok'; s.textContent='✓ hierarchy saved — Publish + Sync to make it live.';
+    editHier=null; document.getElementById('hCreate').textContent='Create hierarchy'; document.getElementById('hName').value=''; hierLevels=[]; renderLevels(); selectTable(cur); refreshDraft();
+  }catch(e){ s.className='status err'; s.textContent='✗ '+e.message; } };
+window.editHierFn=(key)=>{ const h=hiersByKey[key]; if(!h)return; switchTab('hier'); document.getElementById('hName').value=h.display_name||key; hierLevels=(h.levels||[]).slice(); renderLevels(); editHier=key; document.getElementById('hCreate').textContent='Save changes'; };
+window.delHier=async(key)=>{ if(!confirm('Delete hierarchy "'+key+'"?'))return; try{ await api('/api/semantic/hierarchies/'+key,{method:'DELETE'}); toast('Deleted. Publish + Sync to apply.'); selectTable(cur); refreshDraft(); }catch(e){ toast('Delete failed: '+e.message,false); } };
+
+// ── rename / auto-curate ──
+window.renameField=async(table,field)=>{ const n=prompt('Business-friendly name for '+field+':'); if(!n)return;
+  try{ await api(`/api/semantic/tables/${table}/fields/${field}/rename`,{method:'POST',body:JSON.stringify({display_name:n})}); toast('Renamed. Publish + Sync to apply.'); selectTable(table); refreshDraft(); }catch(e){ toast('Rename failed: '+e.message,false); } };
+window.renameTable=async(table)=>{ const n=prompt('Business-friendly table name:'); if(!n)return;
+  try{ await api(`/api/semantic/tables/${table}/rename`,{method:'POST',body:JSON.stringify({display_name:n})}); toast('Renamed. Publish + Sync to apply.'); loadTables(); }catch(e){ toast('Rename failed: '+e.message,false); } };
+window.autocurate=async(raw)=>{ if(!raw)return; if(!confirm('Auto-curate business-friendly names for "'+raw+'" from its raw schema? (re-derives field names)'))return;
+  try{ await api('/api/semantic/autocurate',{method:'POST',body:JSON.stringify({raw_table:raw,overwrite:true})}); toast('Auto-curated. Review, then Publish + Sync.'); loadTables(); }catch(e){ toast('Auto-curate failed: '+e.message,false); } };
+document.getElementById('curateAllBtn').onclick=async()=>{ if(!confirm('Auto-curate all tables not yet in the curated layer?'))return;
+  try{ const r=await api('/api/semantic/autocurate_all',{method:'POST',body:JSON.stringify({overwrite:false})}); toast(`Curated ${r.curated_count} new tables.`); loadTables(); }catch(e){ toast('Auto-curate failed: '+e.message,false); } };
+
+// ── publish + sync ──
+document.getElementById('publishBtn').onclick=async()=>{ const btn=document.getElementById('publishBtn'); btn.disabled=true; btn.textContent='Publishing…';
+  try{ try{ await api('/api/semantic/publish',{method:'POST'}); }catch(e){ if(!/nothing to publish/i.test(e.message)) throw e; }
+    btn.textContent='Syncing ktx…'; const s=await api('/api/semantic/sync_ktx',{method:'POST'});
+    toast(`Synced to ktx: ${s.sources} sources, ${s.measures} measures${s.reindex_ok?' · reindexed ✓':''}.`); refreshDraft();
+  }catch(e){ toast('Publish/sync failed: '+e.message,false); } finally{ btn.disabled=false; btn.textContent='⤴ Publish + Sync to ktx'; } };
+
+addRule(); loadTables();
+</script>
+</body>
+</html>

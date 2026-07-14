@@ -1,0 +1,54 @@
+name: expanded_text_ad_history
+descriptions:
+  user: Historical snapshots of Google Ads expanded text ad creative content, tracked over time via Fivetran.
+table: oh-data-warehouse.adwords_orlando_health.expanded_text_ad_history
+grain:
+- ad_group_id
+columns:
+- name: ad_group_id
+  type: number
+  descriptions:
+    ai: Identifier linking the ad to its parent Google Ads ad group.
+- name: ad_id
+  type: number
+  descriptions:
+    ai: Unique identifier for the specific expanded text ad.
+- name: updated_at
+  type: time
+  descriptions:
+    ai: Timestamp when the ad creative content was last modified.
+  role: time
+- name: _fivetran_synced
+  type: time
+  descriptions:
+    ai: Timestamp when Fivetran last synced this record from the source.
+  role: time
+- name: description
+  type: string
+  descriptions:
+    ai: Primary ad description line shown to users in search results.
+- name: description_2
+  type: string
+  descriptions:
+    ai: Optional second description line for additional ad messaging.
+- name: head_line_part_1
+  type: string
+  descriptions:
+    ai: First headline segment displayed prominently in the ad.
+- name: head_line_part_2
+  type: string
+  descriptions:
+    ai: Second headline segment displayed prominently in the ad.
+- name: head_line_part_3
+  type: string
+  descriptions:
+    ai: Optional third headline segment displayed in the ad.
+- name: path_1
+  type: string
+  descriptions:
+    ai: First optional URL display path appended to the visible URL.
+- name: path_2
+  type: string
+  descriptions:
+    ai: Second optional URL display path appended after path_1.
+measures: []

@@ -1,0 +1,308 @@
+{
+  "reports": [
+    {
+      "id": "5ca48369-1407-47e2-8dc0-245df14f3211",
+      "name": "Cardiology Leads \u2014 Orlando Health",
+      "description": "",
+      "pages": [
+        {
+          "name": "Lead Overview",
+          "elements": [
+            {
+              "type": "text",
+              "x": 40,
+              "y": 40,
+              "w": 1200,
+              "h": 50,
+              "props": {
+                "text": "Cardiology Leads \u2014 Orlando",
+                "size": 36,
+                "weight": 700,
+                "color": "#0f172a"
+              },
+              "id": "el_ny6k9om",
+              "locked": false
+            },
+            {
+              "type": "text",
+              "x": 40,
+              "y": 95,
+              "w": 1200,
+              "h": 30,
+              "props": {
+                "text": "Active marketing leads and patient inquiries for cardiac services",
+                "size": 14,
+                "weight": 500,
+                "color": "#64748b"
+              },
+              "id": "el_s1isu4k",
+              "locked": false
+            },
+            {
+              "type": "divider",
+              "x": 40,
+              "y": 130,
+              "w": 1200,
+              "h": 20,
+              "props": {},
+              "id": "el_gky3uda",
+              "locked": false
+            },
+            {
+              "type": "kpi",
+              "x": 40,
+              "y": 155,
+              "w": 280,
+              "h": 110,
+              "props": {
+                "label": "Total Leads (Month)",
+                "value": "487",
+                "delta": "+12.3%"
+              },
+              "id": "el_wmwej2m",
+              "locked": false
+            },
+            {
+              "type": "kpi",
+              "x": 340,
+              "y": 155,
+              "w": 280,
+              "h": 110,
+              "props": {
+                "label": "Qualified Leads",
+                "value": "312",
+                "delta": "+8.7%"
+              },
+              "id": "el_0cda0md",
+              "locked": false
+            },
+            {
+              "type": "kpi",
+              "x": 640,
+              "y": 155,
+              "w": 280,
+              "h": 110,
+              "props": {
+                "label": "Conversion Rate",
+                "value": "64.1%",
+                "delta": "+2.1%"
+              },
+              "id": "el_okg3b83",
+              "locked": false
+            },
+            {
+              "type": "kpi",
+              "x": 940,
+              "y": 155,
+              "w": 280,
+              "h": 110,
+              "props": {
+                "label": "Scheduled Appointments",
+                "value": "201",
+                "delta": "+5.9%"
+              },
+              "id": "el_wcxuoee",
+              "locked": false
+            },
+            {
+              "type": "text",
+              "x": 40,
+              "y": 290,
+              "w": 600,
+              "h": 20,
+              "props": {
+                "text": "Leads by Source",
+                "size": 15,
+                "weight": 600,
+                "color": "#0f172a"
+              },
+              "id": "el_381p1yy",
+              "locked": false
+            },
+            {
+              "type": "widget",
+              "x": 40,
+              "y": 320,
+              "w": 600,
+              "h": 360,
+              "props": {
+                "queryId": null,
+                "queryName": "Cardiology leads breakdown by marketing source (organic, paid search, referral, social, email, direct)",
+                "chartType": "bar"
+              },
+              "id": "el_ppd5v68",
+              "locked": false
+            },
+            {
+              "type": "text",
+              "x": 660,
+              "y": 290,
+              "w": 580,
+              "h": 20,
+              "props": {
+                "text": "Lead Status Distribution",
+                "size": 15,
+                "weight": 600,
+                "color": "#0f172a"
+              },
+              "id": "el_jil5t21",
+              "locked": false
+            },
+            {
+              "type": "widget",
+              "x": 660,
+              "y": 320,
+              "w": 580,
+              "h": 360,
+              "props": {
+                "queryId": null,
+                "queryName": "Cardiology leads by status (new, contacted, qualified, scheduled, converted, lost)",
+                "chartType": "donut"
+              },
+              "id": "el_xkde584",
+              "locked": false
+            }
+          ]
+        },
+        {
+          "name": "Lead Trends & Performance",
+          "elements": [
+            {
+              "type": "text",
+              "x": 40,
+              "y": 40,
+              "w": 1200,
+              "h": 50,
+              "props": {
+                "text": "Cardiology Leads \u2014 Trends & Performance",
+                "size": 36,
+                "weight": 700,
+                "color": "#0f172a"
+              },
+              "id": "el_f9xft9m",
+              "locked": false
+            },
+            {
+              "type": "text",
+              "x": 40,
+              "y": 95,
+              "w": 1200,
+              "h": 30,
+              "props": {
+                "text": "30-day lead volume, conversion funnel, and appointment pipeline",
+                "size": 14,
+                "weight": 500,
+                "color": "#64748b"
+              },
+              "id": "el_e74iy0m",
+              "locked": false
+            },
+            {
+              "type": "divider",
+              "x": 40,
+              "y": 130,
+              "w": 1200,
+              "h": 20,
+              "props": {},
+              "id": "el_o2nzaei",
+              "locked": false
+            },
+            {
+              "type": "text",
+              "x": 40,
+              "y": 155,
+              "w": 1200,
+              "h": 20,
+              "props": {
+                "text": "Lead Volume Trend (Last 30 Days)",
+                "size": 15,
+                "weight": 600,
+                "color": "#0f172a"
+              },
+              "id": "el_37vwdv5",
+              "locked": false
+            },
+            {
+              "type": "widget",
+              "x": 40,
+              "y": 185,
+              "w": 1200,
+              "h": 280,
+              "props": {
+                "queryId": null,
+                "queryName": "Daily cardiology leads count over the past 30 days with trend line",
+                "chartType": "line"
+              },
+              "id": "el_9fwaek4",
+              "locked": false
+            },
+            {
+              "type": "text",
+              "x": 40,
+              "y": 485,
+              "w": 600,
+              "h": 20,
+              "props": {
+                "text": "Conversion Funnel",
+                "size": 15,
+                "weight": 600,
+                "color": "#0f172a"
+              },
+              "id": "el_ooulcxx",
+              "locked": false
+            },
+            {
+              "type": "widget",
+              "x": 40,
+              "y": 515,
+              "w": 600,
+              "h": 165,
+              "props": {
+                "queryId": null,
+                "queryName": "Cardiology lead funnel showing progression from inquiry to appointment to conversion",
+                "chartType": "bar"
+              },
+              "id": "el_3zak3d3",
+              "locked": false
+            },
+            {
+              "type": "text",
+              "x": 660,
+              "y": 485,
+              "w": 580,
+              "h": 20,
+              "props": {
+                "text": "Top Appointment Times",
+                "size": 15,
+                "weight": 600,
+                "color": "#0f172a"
+              },
+              "id": "el_pf8hzdt",
+              "locked": false
+            },
+            {
+              "type": "widget",
+              "x": 660,
+              "y": 515,
+              "w": 580,
+              "h": 165,
+              "props": {
+                "queryId": null,
+                "queryName": "Cardiology scheduled appointment slots by day of week and time block",
+                "chartType": "bar"
+              },
+              "id": "el_4mkyf02",
+              "locked": false
+            }
+          ]
+        }
+      ],
+      "page_w": 1280,
+      "page_h": 720,
+      "owner_email": "edgar@smartwithmartin.com",
+      "scope": "private",
+      "created_at": 1781040272.396079,
+      "updated_at": 1781040383.046999
+    }
+  ]
+}

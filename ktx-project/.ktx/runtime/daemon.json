@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "pid": 34111,
+  "host": "127.0.0.1",
+  "port": 60600,
+  "version": "0.7.0",
+  "features": [
+    "core",
+    "local-embeddings"
+  ],
+  "startedAt": "2026-07-10T00:15:50.898Z",
+  "stdoutLog": "/Users/developer/Jarvis/ktx-project/.ktx/runtime/daemon.stdout.log",
+  "stderrLog": "/Users/developer/Jarvis/ktx-project/.ktx/runtime/daemon.stderr.log"
+}

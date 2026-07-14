@@ -1,0 +1,486 @@
+# ─────────────────────────────────────────────────────────────────────
+# Orlando Health Data Warehouse — Curated Catalog
+# ─────────────────────────────────────────────────────────────────────
+# Hand-written metadata that tells Jarvis what each column MEANS.
+# Inventory.json tells him what EXISTS. This file adds business semantics.
+#
+# Editing this file:
+#   - Roles: 'dimension' | 'metric' | 'filter' | 'time' | 'key' | 'join' | 'noise'
+#       * dimension: groupable (e.g., campaign_name, ad_source)
+#       * metric: aggregatable (e.g., leads, cost, clicks)
+#       * filter: boolean or low-cardinality picker (e.g., is_brand_lead)
+#       * time: the canonical date column for this table
+#       * key: identifier (e.g., campaign_id) — usually not asked for directly
+#       * join: foreign key to another table
+#       * noise: internal/match/sync columns — skip in reports (e.g., _match_*)
+#   - `default_metrics`: which metrics are interesting first
+#   - `warnings`: hard guardrails (e.g., "always filter by date — 340M rows")
+#   - `purpose`: one-line description Jarvis quotes when introducing the table
+# ─────────────────────────────────────────────────────────────────────
+
+# Service-line marts share a uniform schema across 14 marts.
+# Curate the standard tables once here; the Catalog code applies them
+# to every mart in `service_lines` below.
+mart_table_templates:
+
+  combined_campaign_stats:
+    label: "Campaign performance"
+    purpose: "Daily clicks, impressions, cost, and leads — rolled up to campaign level"
+    layer: data_mart
+    time_column: date
+    default_metrics: [leads, cost, clicks, impressions]
+    columns:
+      date:                { role: time }
+      ad_source:           { role: dimension, label: "Ad source",   examples: [google_ads, facebook_ads, microsoft_ads, evariant, organic] }
+      ad_medium:           { role: dimension, label: "Ad medium",   examples: [paid_search, display, social, email] }
+      is_digital:          { role: filter,    label: "Digital only", type: boolean }
+      dashboard_campaign:  { role: dimension, label: "Campaign (dashboard rollup)" }
+      campaign_name:       { role: dimension, label: "Campaign name (raw)" }
+      clicks:              { role: metric,    label: "Clicks",       agg: SUM }
+      impressions:         { role: metric,    label: "Impressions",  agg: SUM }
+      cost:                { role: metric,    label: "Spend",        agg: SUM, unit: USD }
+      leads:               { role: metric,    label: "Leads",        agg: SUM }
+      _match_ad_source:    { role: noise }
+      _match_ad_medium:    { role: noise }
+      _match_campaign_name: { role: noise }
+    derived_metrics:
+      - { name: cpa,          label: "CPA",         expr: "SAFE_DIVIDE(SUM(cost), SUM(leads))", unit: USD }
+      - { name: ctr,          label: "CTR",         expr: "SAFE_DIVIDE(SUM(clicks), SUM(impressions))", unit: ratio }
+      - { name: cpc,          label: "CPC",         expr: "SAFE_DIVIDE(SUM(cost), SUM(clicks))", unit: USD }
+      - { name: conversion_rate, label: "Click→lead conversion", expr: "SAFE_DIVIDE(SUM(leads), SUM(clicks))", unit: ratio }
+
+  digital_ads:
+    label: "Ad-level performance (without leads)"
+    purpose: "Granular ad-level data — clicks, impressions, cost. Use digital_ads_w_leads if you also need lead counts."
+    layer: data_mart
+    time_column: date
+    default_metrics: [cost, clicks, impressions]
+    columns:
+      date:               { role: time }
+      ad_source:          { role: dimension }
+      dashboard_campaign: { role: dimension }
+      account_name:       { role: dimension }
+      ad_medium:          { role: dimension }
+      campaign_name:      { role: dimension }
+      ad_group_name:      { role: dimension }
+      ad_name:            { role: dimension }
+      clicks:             { role: metric, agg: SUM }
+      impressions:        { role: metric, agg: SUM }
+      cost:               { role: metric, agg: SUM, unit: USD }
+      engagements:        { role: metric, agg: SUM }
+      video_views:        { role: metric, agg: SUM }
+    derived_metrics:
+      - { name: ctr, expr: "SAFE_DIVIDE(SUM(clicks), SUM(impressions))", unit: ratio }
+      - { name: cpc, expr: "SAFE_DIVIDE(SUM(cost), SUM(clicks))",        unit: USD }
+
+  digital_ads_w_leads:
+    label: "Ad-level performance with leads"
+    purpose: "Ad-level data PLUS lead counts — best table for ad-by-ad ROI analysis"
+    layer: data_mart
+    time_column: date
+    default_metrics: [leads, cost, clicks]
+    columns:
+      date:               { role: time }
+      ad_source:          { role: dimension }
+      dashboard_campaign: { role: dimension }
+      ad_medium:          { role: dimension }
+      campaign_name:      { role: dimension }
+      ad_content:         { role: dimension, label: "Ad creative / content" }
+      clicks:             { role: metric, agg: SUM }
+      impressions:        { role: metric, agg: SUM }
+      cost:               { role: metric, agg: SUM, unit: USD }
+      engagements:        { role: metric, agg: SUM }
+      video_views:        { role: metric, agg: SUM }
+      leads:              { role: metric, agg: SUM }
+      _match_ad_source:    { role: noise }
+      _match_ad_medium:    { role: noise }
+      _match_campaign_name: { role: noise }
+      _match_ad_content:   { role: noise }
+    derived_metrics:
+      - { name: cpa, expr: "SAFE_DIVIDE(SUM(cost), SUM(leads))",  unit: USD }
+      - { name: ctr, expr: "SAFE_DIVIDE(SUM(clicks), SUM(impressions))", unit: ratio }
+
+  efficiency_media_campaigns:
+    label: "Budget-owner level performance"
+    purpose: "Cost/clicks/impressions rolled up to the budget owner — for finance-style reporting"
+    layer: data_mart
+    time_column: date
+    default_metrics: [cost, clicks, impressions]
+    columns:
+      date:                            { role: time }
+      budget_owner:                    { role: dimension, label: "Budget owner" }
+      dashboard_campaign:              { role: dimension }
+      campaign_name:                   { role: dimension }
+      ad_source_medium:                { role: dimension, label: "Source / medium combined" }
+      name_of_patient_testimonials:    { role: dimension, label: "Testimonial used (if any)" }
+      impressions:                     { role: metric, agg: SUM }
+      clicks:                          { role: metric, agg: SUM }
+      cost:                            { role: metric, agg: SUM, unit: USD }
+      _match_budget_owner:             { role: noise }
+      _match_campaign_name:            { role: noise }
+      _match_ad_source_medium:         { role: noise }
+      _match_name_of_patient_testimonials: { role: noise }
+
+  leads:
+    label: "Leads — event-level"
+    purpose: "Per-service leads. Each row is a lead event with source/medium/brand classification"
+    layer: data_mart
+    time_column: date
+    default_metrics: [leads]
+    columns:
+      date:                { role: time }
+      data_source:         { role: dimension, label: "Data source",  examples: [salesforce, evariant, mychart] }
+      dashboard_campaign:  { role: dimension }
+      subject:             { role: dimension, label: "Lead subject / form name" }
+      lead_type:           { role: dimension, label: "Lead type",    examples: [appointment_request, callback, form_fill, registration] }
+      lead_source:         { role: dimension, label: "Lead source",  examples: [google, facebook, organic, direct, evariant] }
+      lead_medium:         { role: dimension, label: "Lead medium",  examples: [cpc, organic, social, email] }
+      is_paid_lead:        { role: filter,    label: "Paid lead",    type: boolean }
+      is_brand_lead:       { role: filter,    label: "Brand lead",   type: boolean }
+      leads:               { role: metric,    label: "Lead count",   agg: SUM, note: "Pre-aggregated per row — always SUM" }
+      _match_lead_source:  { role: noise }
+      _match_lead_medium:  { role: noise }
+
+  paid_keywords_w_leads:
+    label: "Keyword performance with leads"
+    purpose: "Per-keyword performance — clicks/cost/leads at keyword granularity (large table — always filter by date)"
+    layer: data_mart
+    time_column: date
+    default_metrics: [leads, cost, clicks]
+    warnings:
+      - "Large table (~1M rows per mart). Always filter by a date range."
+    columns:
+      date:               { role: time }
+      ad_source:          { role: dimension }
+      dashboard_campaign: { role: dimension }
+      ad_medium:          { role: dimension }
+      campaign_name:      { role: dimension }
+      ad_group_name:      { role: dimension }
+      keyword_match_type: { role: dimension, label: "Match type",  examples: [EXACT, PHRASE, BROAD] }
+      keyword_text:       { role: dimension, label: "Keyword" }
+      clicks:             { role: metric, agg: SUM }
+      impressions:        { role: metric, agg: SUM }
+      cost:               { role: metric, agg: SUM, unit: USD }
+      leads:              { role: metric, agg: SUM }
+      _match_ad_source:        { role: noise }
+      _match_ad_medium:        { role: noise }
+      _match_campaign_name:    { role: noise }
+      _match_ad_group_name:    { role: noise }
+      _match_keyword_match_type: { role: noise }
+      _match_keyword_text:     { role: noise }
+    derived_metrics:
+      - { name: cpa, expr: "SAFE_DIVIDE(SUM(cost), SUM(leads))",  unit: USD }
+      - { name: cpc, expr: "SAFE_DIVIDE(SUM(cost), SUM(clicks))", unit: USD }
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Service-line marts
+# ─────────────────────────────────────────────────────────────────────
+# All 14 service-line marts share the 6-table standard schema above.
+# The Catalog code expands these into 14 × 6 = 84 fully-typed table records.
+# data_mart_all and data_mart_facilities are handled specially below.
+
+service_line_marts:
+  source_label: "Service-line marts"
+  source_notes: "14 specialty marts plus rollups. Each mart pre-aggregates marketing performance for one service line."
+  template: mart_table_templates    # apply the templates above to each mart's standard tables
+  marts:
+    - { key: cardiology,   dataset: data_mart_cardiology,   label: "Cardiology",        aliases: [cardiac, heart, cardio] }
+    - { key: cancer,       dataset: data_mart_cancer,       label: "Cancer",            aliases: [oncology, tumor] }
+    - { key: orthopedics,  dataset: data_mart_orthopedics,  label: "Orthopedics",       aliases: [ortho, bone, joint] }
+    - { key: neuroscience, dataset: data_mart_neuroscience, label: "Neuroscience",      aliases: [neuro, stroke, brain, neurology] }
+    - { key: womens,       dataset: data_mart_womens,       label: "Women's Health",    aliases: [women, obgyn, obstetrics] }
+    - { key: pediatrics,   dataset: data_mart_pediatrics,   label: "Pediatrics",        aliases: [peds, kids, children] }
+    - { key: primary,      dataset: data_mart_primary,      label: "Primary Care",      aliases: [pcp, "family medicine"] }
+    - { key: surgery,      dataset: data_mart_surgery,      label: "Surgery",           aliases: [surgical, "general surgery"] }
+    - { key: bariatrics,   dataset: data_mart_bariatrics,   label: "Bariatrics",        aliases: ["weight loss", bariatric] }
+    - { key: urology,      dataset: data_mart_urology,      label: "Urology",           aliases: [] }
+    - { key: digestive,    dataset: data_mart_digestive,    label: "Digestive Health",  aliases: [gi, gastroenterology] }
+    - { key: colon,        dataset: data_mart_colon,        label: "Colon",             aliases: [colorectal] }
+    - { key: ancillary,    dataset: data_mart_ancillary,    label: "Ancillary",         aliases: []  }    # only has 2 tables
+    - { key: facilities,   dataset: data_mart_facilities,   label: "Facilities",        aliases: [] }     # has ER variants — handled below
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Cross-channel marketing (data_mart_all)
+# ─────────────────────────────────────────────────────────────────────
+# This is the enterprise rollup. Same standard tables but at MUCH larger scale.
+# Also contains derived views (report_*, view_*) — we surface only the
+# canonical source tables and ignore the engineering-internal views.
+
+cross_channel:
+  source_label: "Cross-channel marketing (all services)"
+  source_notes: "Enterprise-wide rollup across every service line. Use when you want the company-level view."
+  dataset: data_mart_all
+  tables:
+    # The standard tables — same schema as per-service marts, but enterprise-scale rows
+    "data_mart_all.combined_campaign_stats":
+      template: combined_campaign_stats
+      override_purpose: "Enterprise campaign performance across ALL service lines — 6.9M rows"
+
+    "data_mart_all.digital_ads_w_leads":
+      template: digital_ads_w_leads
+      override_purpose: "Enterprise ad-level performance with leads — 5.8M rows"
+
+    "data_mart_all.efficiency_media_campaigns":
+      template: efficiency_media_campaigns
+      override_purpose: "Enterprise budget-owner performance — best table for finance views"
+
+    "data_mart_all.paid_keywords_w_leads":
+      template: paid_keywords_w_leads
+      override_purpose: "Enterprise keyword performance — 13M+ rows, ALWAYS date-filter"
+      additional_warnings:
+        - "13M+ rows. Date-filter is mandatory."
+
+    "data_mart_all.leads":
+      # Special: this is event-level (NOT pre-aggregated like per-service marts)
+      label: "Enterprise leads — event-level"
+      purpose: "Every lead, one row each. ~1.1M rows. COUNT(*) for totals (no `leads` column to SUM)."
+      layer: data_mart
+      time_column: date
+      default_metrics: [lead_count]
+      warnings:
+        - "Event-level table — use COUNT(*), not SUM(leads). Per-service marts use SUM(leads); this one is different."
+      special_aggregation:
+        lead_count_expr: "COUNT(*)"
+
+
+# ─────────────────────────────────────────────────────────────────────
+# GA4 — web analytics
+# ─────────────────────────────────────────────────────────────────────
+ga4:
+  source_label: "GA4 web analytics"
+  source_notes: "Google Analytics 4. Lives in `gold` dataset, stitched from raw GA4 exports."
+  tables:
+
+    "gold.ga4_fact_events":
+      label: "GA4 events"
+      purpose: "Every tracked event — page_view, scroll, click, form_submit, etc. Top-level columns only; nested RECORDs (device, geo, search_event, form_event) require Phase 2 work to traverse."
+      layer: gold
+      time_column: event_date
+      default_metrics: [event_count, user_count, session_count]
+      warnings:
+        - "340M rows. Always filter by event_date — Jarvis will REJECT queries without a date filter."
+        - "Several columns are RECORD/STRUCT types (device, geo, click_event, etc.). Only top-level scalar columns are queryable in Phase 1."
+      hard_rules:
+        require_date_filter: true
+      column_overrides:
+        event_date:           { role: time }
+        event_timestamp:      { role: noise, note: "Use event_date for filters; event_timestamp is INTEGER UNIX time" }
+        event_datetime:       { role: noise }
+        event_name:           { role: dimension, label: "Event name", examples: [page_view, scroll, click, form_submit, file_download] }
+        event_display_name:   { role: dimension, label: "Event display name" }
+        user_pseudo_id:       { role: key, label: "User pseudo ID — COUNT(DISTINCT) for users" }
+        is_new_user:          { role: filter, label: "New users only?", type: boolean }
+        session_key:          { role: key, label: "Session key — COUNT(DISTINCT) for sessions" }
+        is_engaged_session:   { role: filter, label: "Engaged sessions only?", type: boolean }
+        ga_session_number:    { role: dimension, label: "Session number (1=first, 2=second...)" }
+        page_hostname:        { role: dimension, label: "Page hostname (which OH site)" }
+        page_url:             { role: dimension, label: "Page URL (path)" }
+        page_full_url:        { role: dimension, label: "Page full URL" }
+        page_title:           { role: dimension, label: "Page title" }
+        page_referrer:        { role: dimension, label: "Referrer URL" }
+        entrances:            { role: metric, agg: SUM, label: "Landing page entrances" }
+        engagement_time_msec: { role: metric, agg: SUM, label: "Engagement time (ms)" }
+        engagement_time_sec:  { role: metric, agg: SUM, label: "Engagement time (s)" }
+        # RECORDs — present in inventory but not directly queryable in Phase 1
+        device:               { role: noise, note: "STRUCT — requires Phase 2 work to query device.category, device.mobile_brand_name, etc." }
+        geo:                  { role: noise, note: "STRUCT — requires Phase 2 to query geo.country, geo.city, etc." }
+        click_event:          { role: noise }
+        content_event:        { role: noise }
+        guided_nav_event:     { role: noise }
+        file_event:           { role: noise }
+        search_event:         { role: noise }
+        form_event:           { role: noise }
+        ua_profile:           { role: noise }
+        ua_metric:            { role: noise }
+        batch_page_id:        { role: noise }
+        event_key:            { role: noise }
+        event_sequence:       { role: noise }
+      derived_metrics:
+        - { name: event_count,   expr: "COUNT(*)",                                                            label: "Event count" }
+        - { name: user_count,    expr: "COUNT(DISTINCT user_pseudo_id)",                                       label: "Unique users" }
+        - { name: session_count, expr: "COUNT(DISTINCT session_key)",                                          label: "Sessions" }
+
+    "gold.ga4_dim_sessions":
+      label: "GA4 sessions"
+      purpose: "One row per session with stitched attribution and engagement metrics"
+      layer: gold
+      time_column: session_date
+      default_metrics: [session_count, engaged_session_count]
+      warnings:
+        - "51M rows. Always filter by session_date."
+      hard_rules:
+        require_date_filter: true
+
+    "gold.ga4_dim_webpage":
+      label: "GA4 page-level data"
+      purpose: "Per-page aggregates: views, users, engagement"
+      layer: gold
+      default_metrics: [page_views, users]
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Search Console (GSC) — cross-domain
+# ─────────────────────────────────────────────────────────────────────
+# 11 raw datasets (one per Orlando Health-owned domain). The `gold.gsc_*`
+# tables stitch them together; use those and filter by `site` to compare
+# performance across domains.
+
+search_console:
+  source_label: "Google Search Console (cross-domain)"
+  source_notes: "Organic search performance across all 11 Orlando Health domains. Use the `site` filter to scope to a specific property or compare across them."
+  domains:
+    - "orlandohealth.com"
+    - "arnoldpalmerhospital.com"
+    - "southlakehospital.com"
+    - "bayfronthealth.com"
+    - "baptisthealthal.com"
+    - "brookwoodbaptisthealth.com"
+    - "doctorscenterhospital.com"
+    - "orlandohealthfoundation.com"
+
+  tables:
+
+    "gold.gsc_fact_site_impression":
+      label: "GSC impressions — daily"
+      purpose: "Daily search impressions, clicks, and average position per query+page-hostname+device+country"
+      layer: gold
+      time_column: date
+      default_metrics: [impressions, clicks, average_results_position]
+      warnings:
+        - "294M rows. Date filter is mandatory."
+      hard_rules:
+        require_date_filter: true
+      column_overrides:
+        date:                       { role: time }
+        page_hostname:              { role: dimension, label: "Site / domain", note: "Filter to one domain or group by it for cross-domain views. e.g., 'www.orlandohealth.com'" }
+        query:                      { role: dimension, label: "Search query" }
+        is_anonymized_query:        { role: filter, label: "Include anonymized queries?", type: boolean, note: "Google withholds the actual query for some searches; filter on FALSE to exclude them" }
+        country:                    { role: dimension }
+        search_type:                { role: dimension, label: "Search type", examples: [WEB, IMAGE, VIDEO, NEWS] }
+        device:                     { role: dimension, examples: [DESKTOP, MOBILE, TABLET] }
+        impressions:                { role: metric, agg: SUM }
+        clicks:                     { role: metric, agg: SUM }
+        sum_top_results_position:   { role: noise, note: "Internal sum used by warehouse; use average_results_position instead" }
+        average_results_position:   { role: metric, agg: AVG, label: "Average position" }
+      derived_metrics:
+        - { name: ctr, expr: "SAFE_DIVIDE(SUM(clicks), SUM(impressions))", unit: ratio, label: "CTR" }
+
+    "gold.gsc_summary_monthly_site_impression":
+      label: "GSC impressions — monthly summary"
+      purpose: "Same as gsc_fact_site_impression but pre-aggregated monthly. Use this for trend queries spanning many months — much faster."
+      layer: gold
+      time_column: month
+      default_metrics: [impressions, clicks]
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Cross-platform ads (gold)
+# ─────────────────────────────────────────────────────────────────────
+# Normalized ad performance across Google, Facebook, LinkedIn, Microsoft,
+# Snapchat. Use these when you need ad-level granularity below the data
+# mart aggregation level.
+
+cross_platform_ads:
+  source_label: "Cross-platform ads"
+  source_notes: "Normalized ad performance across all 5 ad platforms. Use the data marts first; drop to these when you need ad-level granularity."
+
+  tables:
+
+    "gold.ad_summary_ad_networks":
+      label: "Ad-network summary"
+      purpose: "Daily totals by ad platform & network type — small table, fast for top-level spend-by-platform queries"
+      layer: gold
+      time_column: date
+      default_metrics: [cost, clicks, impressions]
+      column_overrides:
+        date:             { role: time }
+        entity_key:       { role: key }
+        ad_platform:      { role: dimension, label: "Platform",   examples: [google_ads, facebook_ads, linkedin_ads, microsoft_ads, snapchat_ads] }
+        ad_network_type:  { role: dimension, label: "Network",    examples: [SEARCH, DISPLAY, YOUTUBE_SEARCH, YOUTUBE_WATCH] }
+        cost:             { role: metric, agg: SUM, unit: USD }
+        impressions:      { role: metric, agg: SUM }
+        clicks:           { role: metric, agg: SUM }
+
+    "gold.ad_dim_campaign":
+      label: "Campaign dimension"
+      purpose: "Static campaign metadata — names, budgets, dates, parsed service line, budget owner"
+      layer: gold
+      column_overrides:
+        ad_platform:           { role: dimension }
+        campaign_id:           { role: key }
+        campaign_name:         { role: dimension }
+        campaign_status:       { role: dimension, examples: [ENABLED, PAUSED, REMOVED] }
+        parsed_service_line:   { role: dimension, label: "Service line" }
+        parsed_sub_specialty:  { role: dimension, label: "Sub-specialty" }
+        budget_owner:          { role: dimension, label: "Budget owner" }
+        campaign_start_date:   { role: time }
+        campaign_end_date:     { role: time }
+
+    "gold.ad_fact_ads":
+      label: "Ad-level facts (all platforms)"
+      purpose: "Every ad, every day, every platform. 12.6M rows — drop to here when you need ad-level granularity below campaign rollup."
+      layer: gold
+      time_column: date
+      default_metrics: [cost, clicks, impressions]
+      warnings:
+        - "12.6M rows. Always filter by date."
+      hard_rules:
+        require_date_filter: true
+      column_overrides:
+        date:         { role: time }
+        ad_platform:  { role: dimension }
+        ad_id:        { role: key }
+        ad_group_id:  { role: key }
+        campaign_id:  { role: key }
+        clicks:       { role: metric, agg: SUM }
+        impressions:  { role: metric, agg: SUM }
+        cost:         { role: metric, agg: SUM, unit: USD }
+        device:       { role: dimension }
+        ad_network_type: { role: dimension }
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Financials — DEFERRED to Phase 2
+# ─────────────────────────────────────────────────────────────────────
+# `silver.revenue_attributed_to_marketing` has the right schema but 0 rows.
+# This is the closed-loop attribution work from the deck. Not populated yet.
+# When that table fills, we curate it here and surface "Financials" in the
+# report builder.
+
+financials:
+  status: deferred
+  reason: "Revenue attribution table schema exists (silver.revenue_attributed_to_marketing) but is not yet populated. This is the closed-loop work from the May CMO deck."
+  when_available:
+    - "silver.revenue_attributed_to_marketing — UTM-tagged revenue and payment data"
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Out-of-scope datasets (recorded so we don't repeatedly suggest them)
+# ─────────────────────────────────────────────────────────────────────
+out_of_scope:
+  # Salesforce: not used for marketing reporting (per stakeholder)
+  - dataset: fivetran_salesforce
+    reason: "Customer service cases/contacts, not marketing reports"
+  - dataset: fivetran_prm_salesforce
+    reason: "Physician relationship management — not marketing"
+  - dataset: data_mart_claims
+    reason: "PRM physician claims data — not marketing"
+  # Raw bronze (Fivetran/Airbyte) — only for engineering
+  - prefix: fivetran_
+    reason: "Bronze layer — raw vendor imports. Use gold/data_mart instead."
+  - prefix: airbyte_
+    reason: "Bronze layer — raw vendor imports."
+  - prefix: adwords_
+    reason: "Bronze layer — superseded by gold.ad_fact_ads"
+  - prefix: searchconsole_
+    reason: "Per-domain raw — superseded by gold.gsc_fact_site_impression"
+  - prefix: analytics_
+    reason: "Raw GA4 exports — superseded by gold.ga4_*"
+  - prefix: google_ads_
+    reason: "Raw Google Ads — superseded by gold.ad_fact_ads"
+  - dataset: epic
+    reason: "Epic EHR data — out of scope for v1 per closed-loop deck"
+  - dataset: zbackup
+    reason: "Backup tables"
