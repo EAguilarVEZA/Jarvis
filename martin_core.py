@@ -17,8 +17,10 @@ context comes from files + the vault.
 from __future__ import annotations
 
 import os
+import json
 import time
 import glob
+import hashlib
 from pathlib import Path
 
 _DIR = Path(__file__).resolve().parent
@@ -166,8 +168,57 @@ def _person_file(name: str) -> Path:
 def get_person(name: str) -> dict:
     f = _person_file(name)
     if f.exists():
-        return {"found": True, "name": name, "profile": _read(f, cap=4000)}
-    return {"found": False, "name": name, "profile": ""}
+        return {"found": True, "name": name, "profile": _read(f, cap=4000), "has_code": has_code(name)}
+    return {"found": False, "name": name, "profile": "", "has_code": has_code(name)}
+
+
+# ── Secret code (second factor) — stored HASHED only, never plaintext ─────────
+def _codes_file() -> Path:
+    return _vault() / "04-Claude-Memory" / "access_codes.json"
+
+
+def _load_codes() -> dict:
+    f = _codes_file()
+    try:
+        if f.exists():
+            return json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return {}
+
+
+def _norm_code(c: str) -> str:
+    return "".join(ch for ch in (c or "").lower() if ch.isalnum())
+
+
+def set_code(name: str, code: str) -> bool:
+    c = _norm_code(code)
+    if not name or len(c) < 2:
+        return False
+    data = _load_codes()
+    salt = hashlib.sha256(os.urandom(16)).hexdigest()[:16]
+    data[name.lower()] = {"hash": hashlib.sha256((salt + c).encode()).hexdigest(), "salt": salt}
+    try:
+        f = _codes_file()
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(json.dumps(data), encoding="utf-8")
+        try: os.chmod(f, 0o600)
+        except OSError: pass
+        return True
+    except Exception:
+        return False
+
+
+def verify_code(name: str, code: str) -> bool:
+    rec = _load_codes().get((name or "").lower())
+    if not rec:
+        return False
+    c = _norm_code(code)
+    return hashlib.sha256((rec.get("salt", "") + c).encode()).hexdigest() == rec.get("hash")
+
+
+def has_code(name: str) -> bool:
+    return (name or "").lower() in _load_codes()
 
 
 def save_person(name: str, fields: dict) -> bool:
@@ -207,6 +258,50 @@ def add_session_note(name: str, text: str) -> bool:
     except Exception:
         pass
     return ok
+
+
+def _voiceprints_file() -> Path:
+    return _vault() / "04-Claude-Memory" / "voiceprints.json"
+
+
+def get_voiceprints() -> dict:
+    f = _voiceprints_file()
+    try:
+        if f.exists():
+            return json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return {"prints": []}
+
+
+def save_voiceprint(name: str, sig: list) -> bool:
+    """Store/refresh a per-person voice signature (rolling average). Local only."""
+    if not name or not sig:
+        return False
+    import math
+    sig = [float(x) for x in sig][:64]
+    data = get_voiceprints()
+    prints = data.get("prints", [])
+    found = next((p for p in prints if str(p.get("name", "")).lower() == name.lower()), None)
+    if found and isinstance(found.get("sig"), list) and len(found["sig"]) == len(sig):
+        n = int(found.get("n", 1))
+        avg = [(found["sig"][i] * n + sig[i]) / (n + 1) for i in range(len(sig))]
+        nrm = math.sqrt(sum(v * v for v in avg)) or 1.0
+        found["sig"] = [v / nrm for v in avg]
+        found["n"] = n + 1
+    elif found:
+        found["sig"] = sig
+        found["n"] = 1
+    else:
+        prints.append({"name": name, "sig": sig, "n": 1})
+    data["prints"] = prints
+    try:
+        f = _voiceprints_file()
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(json.dumps(data), encoding="utf-8")
+        return True
+    except Exception:
+        return False
 
 
 def capture(kind: str, text: str, title: str = "") -> bool:

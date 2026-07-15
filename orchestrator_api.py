@@ -123,6 +123,87 @@ async def capture(c: Capture):
         return _err(500, "capture failed", str(e))
 
 
+class Code(BaseModel):
+    name: str
+    code: str
+
+
+@router.post("/set_code")
+async def set_code(c: Code):
+    try:
+        import martin_core
+        return {"ok": bool(martin_core.set_code(c.name, c.code))}
+    except Exception as e:
+        return _err(500, "set_code failed", str(e))
+
+
+@router.post("/verify_code")
+async def verify_code(c: Code):
+    try:
+        import martin_core
+        return {"ok": bool(martin_core.verify_code(c.name, c.code))}
+    except Exception:
+        return {"ok": False}
+
+
+class Voiceprint(BaseModel):
+    name: str
+    sig: list
+
+
+@router.post("/voiceprint")
+async def voiceprint_save(v: Voiceprint):
+    try:
+        import martin_core
+        return {"ok": bool(martin_core.save_voiceprint(v.name, v.sig))}
+    except Exception as e:
+        return _err(500, "voiceprint save failed", str(e))
+
+
+@router.get("/voiceprints")
+async def voiceprints_get():
+    try:
+        import martin_core
+        return martin_core.get_voiceprints()
+    except Exception:
+        return {"prints": []}
+
+
+@router.get("/verify_user")
+async def verify_user(name: str):
+    """Authorization gate: is this spoken name an active user in Admin (users.json)?
+    Martin must not interview or produce for anyone who isn't an authorized user.
+    Bootstrap-safe: if no users are configured yet, allow (so admins can set up)."""
+    q = " ".join((name or "").lower().split())
+    if not q:
+        return {"authorized": False, "name": name}
+    try:
+        import users_api
+        data = users_api._load_users()
+    except Exception:
+        return {"authorized": True, "name": name, "reason": "store-unavailable"}
+    users = data.get("users", []) or []
+    if not users:
+        return {"authorized": True, "name": name, "reason": "no-users-yet"}
+    qtok = set(q.split())
+    for u in users:
+        if str(u.get("status", "active")).lower() not in ("active", "invited", ""):
+            continue
+        cands = []
+        if u.get("name"): cands.append(str(u["name"]).lower())
+        fn, ln = str(u.get("first_name") or ""), str(u.get("last_name") or "")
+        if fn or ln: cands.append((fn + " " + ln).strip().lower())
+        if u.get("email"): cands.append(str(u["email"]).split("@")[0].replace(".", " ").replace("_", " ").lower())
+        for c in cands:
+            ctok = set(c.split())
+            if not ctok:
+                continue
+            if q == c or qtok.issubset(ctok) or ctok.issubset(qtok):
+                return {"authorized": True, "name": u.get("name") or name,
+                        "role": u.get("role", "user"), "groups": u.get("groups", [])}
+    return {"authorized": False, "name": name}
+
+
 @router.get("/person")
 async def person_get(name: str):
     try:

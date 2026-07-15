@@ -18780,6 +18780,24 @@ async function studioBuildAI(){
     toast('Workflow drafted by AI');
   }catch(e){ if(out) out.innerHTML='<div class="werr">'+esc(e.message)+'</div>'; }
 }
+// Voice-driven: open Studio, ask the AI to draft the whole graph from a spoken goal, render it.
+async function martinDraftAutomation(goal){
+  if(!goal||!goal.trim()) return {ok:false};
+  try{ showStudio(); }catch(e){}
+  await new Promise(function(r){ setTimeout(r,600); });
+  try{
+    const r=await api('/api/workflows/build_graph',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:goal.trim()})});
+    if(r.error) return {ok:false,error:r.error};
+    if(!(r.nodes||[]).length) return {ok:false,error:'no nodes'};
+    WF.name=r.name||goal.trim().slice(0,50); WF.id=null; WF.context=goal.trim();
+    WF.nodes=r.nodes.map(function(n){ return Object.assign({task:'',url:n.url||'',params:n.params||{}},n); });
+    WF.edges=r.edges||[]; WF.selected=null; WF.notes=WF.notes||[];
+    var nm=document.getElementById('wfName'); if(nm) nm.value=WF.name;
+    if(typeof wfCanvasRender==='function') wfCanvasRender(); if(typeof wfInspector==='function') wfInspector();
+    return {ok:true,count:r.nodes.length,name:WF.name};
+  }catch(e){ return {ok:false,error:e.message}; }
+}
+window.martinDraftAutomation=martinDraftAutomation;
 async function studioVersions(){
   if(!WF.id){ toast('Save the workflow first',true); return; }
   const out=document.getElementById('wfResults'); if(!out) return;
@@ -23525,7 +23543,8 @@ boot();
   var cv=document.getElementById('mvCanvas'), ctx=cv.getContext('2d');
   var mvSt=document.getElementById('mvSt'),mvClk=document.getElementById('mvClk'),mvLnk=document.getElementById('mvLnk'),capEl=document.getElementById('mvCap'),gate=document.getElementById('mvGate');
   var W,H,U,DPR=Math.min(1.25,window.devicePixelRatio||1),cx,cy;
-  var target='idle',level=0,levelTarget=0,micAnalyser=null,playAnalyser=null,micBuf=null,playBuf=null;
+  var target='idle',level=0,levelTarget=0,micAnalyser=null,playAnalyser=null,micBuf=null,playBuf=null,micFreq=null;
+  var voiceSig=null,voiceN=0,voiceCapturing=false,VOICE_BINS=32,VOICE_THRESH=0.86,pendingConfirmName=null,pendingSig=null,pendingCodeName=null,pendingBack=false,codeAttempts=0;
   function rand(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
   function lp(a,b,t){return a+(b-a)*t;}function hx(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
   function mix(a,b,t){return[lp(a[0],b[0],t),lp(a[1],b[1],t),lp(a[2],b[2],t)];}
@@ -23551,6 +23570,7 @@ boot();
   function rms(an,buf){if(!an)return 0;an.getByteTimeDomainData(buf);var s=0;for(var i=0;i<buf.length;i++){var v=(buf[i]-128)/128;s+=v*v;}return Math.min(1,Math.sqrt(s/buf.length)*3.2);}
   function draw(now){var dt=Math.min(.05,(now-tPrev)/1000);tPrev=now;
     if(target==='speaking')levelTarget=rms(playAnalyser,playBuf);else if(target==='listening')levelTarget=rms(micAnalyser,micBuf);else levelTarget=0;
+    try{ accumVoice(); }catch(e){}
     for(var k in blend)blend[k]=lp(blend[k],k===target?1:0,1-Math.pow(.002,dt));var laa=levelTarget>level?(1-Math.pow(.001,dt/.12)):(1-Math.pow(.001,dt/.4));level=lp(level,levelTarget,laa);
     var g=0,r=0,sm=0;for(var s in blend){g+=PAL[s].glow*blend[s];r+=PAL[s].rate*blend[s];sm+=blend[s];}if(sm>0){g/=sm;r/=sm;}glow=lp(glow,g+level*.4,1-Math.pow(.02,dt));rate=lp(rate,r,1-Math.pow(.06,dt));
     var tint=bcol('tint'),hot=bcol('hot'),warm=WARM,I=.62+glow*.42+level*.5;
@@ -23649,23 +23669,63 @@ boot();
   function firstName(n){ return ((n||'').trim().split(/\s+/)[0]||'there'); }
   function cleanName(t){ return (t||'').replace(/\b(my name is|i am|i'?m|this is|it'?s|hi|hello|hey|good (morning|afternoon|evening))\b/gi,'').replace(/[^A-Za-z'\-\s]/g,'').replace(/\s+/g,' ').trim(); }
   function log(s){ if(s) sessionLog.push(s); }
-  function startOnboarding(){ if(onboardStarted)return; onboardStarted=true; STAGE='await_name'; setCap('I’m Martin. May I have your first and last name?'); speak('Good day. I’m Martin, your operations partner. Before we begin, may I have your first and last name?'); }
+  function accumVoice(){ if(!voiceCapturing||!micAnalyser||!micFreq||target!=='listening') return;
+    micAnalyser.getByteFrequencyData(micFreq); var n=micFreq.length, per=Math.floor(n/VOICE_BINS)||1, e=0; var bins=new Float64Array(VOICE_BINS);
+    for(var b=0;b<VOICE_BINS;b++){ var s=0; for(var k=0;k<per;k++){ var v=micFreq[b*per+k]||0; s+=v; e+=v; } bins[b]=s/per; }
+    if(e < VOICE_BINS*per*7) return; if(!voiceSig) voiceReset(); for(var b2=0;b2<VOICE_BINS;b2++) voiceSig[b2]+=bins[b2]; voiceN++; }
+  function voiceReset(){ voiceSig=new Float64Array(VOICE_BINS); voiceN=0; }
+  function finalizeVoice(){ if(!voiceSig||voiceN<8) return null; var v=new Array(VOICE_BINS),nm=0; for(var i=0;i<VOICE_BINS;i++){ v[i]=voiceSig[i]/voiceN; nm+=v[i]*v[i]; } nm=Math.sqrt(nm)||1; for(var j=0;j<VOICE_BINS;j++) v[j]/=nm; return v; }
+  function cosine(a,b){ if(!a||!b||a.length!==b.length) return -1; var d=0; for(var i=0;i<a.length;i++) d+=a[i]*b[i]; return d; }
+  function matchVoice(sig,prints){ var best=null; (prints||[]).forEach(function(p){ if(p&&p.sig&&p.sig.length===sig.length){ var s=cosine(sig,p.sig); if(!best||s>best.score) best={name:p.name,score:s}; } }); return best; }
+  function saveVoiceprintNow(name){ var sig=null; try{ sig=finalizeVoice(); }catch(e){} if(sig&&name) post('/api/orchestrator/voiceprint',{name:name,sig:sig}).catch(function(){}); }
+
+  function startOnboarding(){ if(onboardStarted)return; onboardStarted=true; STAGE='greet'; voiceReset(); voiceCapturing=true; setCap('I’m Martin. How are you today?'); speak('Good day. I’m Martin, your operations partner. How are you today?'); }
+  function loadPersonActive(name, back){ get('/api/orchestrator/person?name='+encodeURIComponent(name)).then(function(d){
+      if(d&&d.found){ if(d.has_code){ pendingCodeName=name; pendingBack=back; codeAttempts=0; STAGE='await_code'; setCap('Please say your secret code to verify.'); speak('Please say your secret code to verify it’s you.'); }
+        else { STAGE='active'; voiceCapturing=false; setCap('Good to see you again, '+firstName(name)+'. How can I help?'); speak((back?'Good to see you again, ':'Welcome back, ')+firstName(name)+'. What shall we work on?'); } }
+      else { STAGE='interview'; iIdx=0; answers={}; setCap(INTERVIEW[0].q); speak('Lovely to meet you, '+firstName(name)+'. A few quick questions so I can help you properly. '+INTERVIEW[0].q); } })
+    .catch(function(){ STAGE='interview'; iIdx=0; answers={}; setCap(INTERVIEW[0].q); speak(INTERVIEW[0].q); }); }
+  function verifyThen(name, ok){ get('/api/orchestrator/verify_user?name='+encodeURIComponent(name)).then(function(v){
+      if(!v||!v.authorized){ person=null; STAGE='await_name'; voiceReset(); voiceCapturing=true; setCap('I don’t see you in the system yet. Please ask your administrator to add you, then we can begin.'); speak('I’m sorry — I don’t see you in the system yet. Please ask your administrator to add you as a user before we begin. Once you’re set up, tell me your name.'); return; }
+      if(v.name) name=v.name; person={name:name}; ok(name); })
+    .catch(function(){ person=null; STAGE='await_name'; setCap('I couldn’t reach the user directory. Please try again.'); speak('I couldn’t reach the user directory just now. Please try again in a moment.'); }); }
   function onboarding(text){
-    if(STAGE==='await_name'){ var nm=cleanName(text); if(nm.length<2){ speak('Sorry, may I have your first and last name?'); return; } person={name:nm}; setCap('Looking you up…');
-      get('/api/orchestrator/person?name='+encodeURIComponent(nm)).then(function(d){ if(d&&d.found){ STAGE='active'; setCap('Welcome back, '+firstName(nm)+'. How can I help?'); speak('Welcome back, '+firstName(nm)+'. Good to see you. What shall we work on?'); }
-        else { STAGE='interview'; iIdx=0; answers={}; setCap(INTERVIEW[0].q); speak('Lovely to meet you, '+firstName(nm)+'. A few quick questions so I can help you properly. '+INTERVIEW[0].q); } })
-      .catch(function(){ STAGE='interview'; iIdx=0; answers={}; setCap(INTERVIEW[0].q); speak('Lovely to meet you, '+firstName(nm)+'. '+INTERVIEW[0].q); }); return; }
+    if(STAGE==='greet'){ var sig=null; try{ sig=finalizeVoice(); }catch(e){} voiceReset();
+      if(sig){ get('/api/orchestrator/voiceprints').then(function(d){ var best=matchVoice(sig,(d&&d.prints)||[]);
+          if(best && best.score>=VOICE_THRESH){ pendingConfirmName=best.name; pendingSig=sig; STAGE='confirm_id'; setCap('Welcome back — is that you, '+firstName(best.name)+'?'); speak('Welcome back — is that you, '+firstName(best.name)+'?'); }
+          else { STAGE='await_name'; voiceCapturing=true; setCap('May I have your first and last name?'); speak('I don’t think we’ve met yet. May I have your first and last name?'); } })
+        .catch(function(){ STAGE='await_name'; voiceCapturing=true; setCap('May I have your first and last name?'); speak('May I have your first and last name?'); }); }
+      else { STAGE='await_name'; voiceCapturing=true; setCap('May I have your first and last name?'); speak('May I have your first and last name?'); }
+      return; }
+    if(STAGE==='confirm_id'){
+      if(confirmYes(text)){ var nmc=pendingConfirmName, sc=pendingSig; pendingConfirmName=null; verifyThen(nmc, function(nm){ if(sc) post('/api/orchestrator/voiceprint',{name:nm,sig:sc}).catch(function(){}); loadPersonActive(nm, true); }); return; }
+      if(confirmNo(text)){ pendingConfirmName=null; STAGE='await_name'; voiceReset(); voiceCapturing=true; setCap('My apologies — may I have your first and last name?'); speak('My apologies. May I have your first and last name?'); return; }
+      pendingConfirmName=null; STAGE='await_name'; voiceReset(); voiceCapturing=true; setCap('May I have your first and last name?'); speak('May I have your first and last name?'); return; }
+    if(STAGE==='await_name'){ var nm=cleanName(text); if(nm.length<2){ speak('Sorry, may I have your first and last name?'); return; } setCap('Verifying you in the system…'); verifyThen(nm, function(name){ loadPersonActive(name, false); }); return; }
     if(STAGE==='interview'){ answers[INTERVIEW[iIdx].k]=text.trim(); iIdx++;
       if(iIdx<INTERVIEW.length){ setCap(INTERVIEW[iIdx].q); speak(INTERVIEW[iIdx].q); }
-      else { post('/api/orchestrator/person',{name:person.name,fields:answers}).catch(function(){}); STAGE='active'; log('Onboarded '+person.name); setCap('Thank you — your profile is saved. How can I help?'); speak('Thank you, '+firstName(person.name)+'. I have saved your profile. Now, how can I help?'); } return; }
+      else { post('/api/orchestrator/person',{name:person.name,fields:answers}).catch(function(){}); saveVoiceprintNow(person.name); log('Onboarded '+person.name); STAGE='set_code'; setCap('Finally — set a secret code: a word or short phrase only you know, to verify yourself next time.'); speak('One last thing — please set a secret code. A word or short phrase only you know, that I’ll ask for to verify you next time. What would you like it to be?'); }
+      return; }
+    if(STAGE==='set_code'){ post('/api/orchestrator/set_code',{name:person.name,code:text}).then(function(){ voiceCapturing=false; STAGE='active'; setCap('Secret code saved. How can I help?'); speak('Your secret code is saved. From now on I’ll recognise your voice and ask for that code. Now, how can I help?'); }).catch(function(){ voiceCapturing=false; STAGE='active'; setCap('How can I help?'); speak('Let’s carry on. How can I help?'); }); return; }
+    if(STAGE==='await_code'){ post('/api/orchestrator/verify_code',{name:pendingCodeName,code:text}).then(function(r){
+        if(r&&r.ok){ var nm=pendingCodeName, bk=pendingBack; pendingCodeName=null; STAGE='active'; voiceCapturing=false; setCap('Verified. Good to see you, '+firstName(nm)+'. How can I help?'); speak((bk?'Good to see you again, ':'Welcome back, ')+firstName(nm)+'. What shall we work on?'); }
+        else { codeAttempts++; if(codeAttempts>=3){ pendingCodeName=null; STAGE='greet'; voiceReset(); voiceCapturing=true; setCap('That code didn’t match. Let’s start over — how are you today?'); speak('That code didn’t match after a few tries. Let’s start fresh. How are you today?'); } else { setCap('That didn’t match — please say your secret code again.'); speak('That didn’t match. Please say your secret code again.'); } } })
+      .catch(function(){ setCap('I couldn’t verify the code — please try again.'); speak('I couldn’t verify that — please try again.'); }); return; }
   }
   // ---- Phase 5: guided build (automation / agent / dashboard / report / funnel) ----
   var BUILD_RE=/\b(build|create|set ?up|make|design)\b[\s\S]*\b(automation|workflow|agent|dashboard|report|funnel)\b|\b(i want to|help me|walk me through|show me how to)\b[\s\S]*\b(automation|workflow|agent|dashboard|report)\b/i;
+  var pendingBuild=null;
   function detectBuild(t){ return BUILD_RE.test(t); }
-  function routeBuild(q){ var t=q.toLowerCase(),sec,intro;
-    if(/agent/.test(t)){ sec='studio'; intro='Let’s build an agent team. Opening the Studio. First — what outcome should this agent produce, and how often?'; }
-    else if(/automation|workflow/.test(t)){ sec='automations'; intro='Let’s set up an automation. Opening Automations. First — what should trigger it: a schedule, or an event?'; }
-    else if(/dashboard/.test(t)){ sec='curate'; intro='Let’s build a dashboard. We start at the Schema layer. First — which dataset or service line is this about?'; }
+  function detectRunWF(t){ return /\brun (it|this|the (workflow|automation|flow))\b/i.test(t); }
+  function hasDetail(q){ var s=q.replace(BUILD_RE,'').replace(/\b(a|an|the|me|for me|please|automation|workflow|agent)\b/gi,'').trim(); return s.split(/\s+/).filter(Boolean).length>=3; }
+  function draftAutomation(goal){ setCap('Designing your automation…'); speak('Let me design that for you — one moment.'); dock(); target='thinking';
+    Promise.resolve(window.martinDraftAutomation?window.martinDraftAutomation(goal):{ok:false}).then(function(res){
+      if(res&&res.ok){ setCap('Drafted “'+res.name+'” — '+res.count+' steps. Review it, then say “run it”, or tell me what to change.'); speak('Done. I drafted '+res.count+' steps for '+res.name+'. Have a look — say “run it”, or tell me what to change.'); log('Drafted automation: '+goal); }
+      else { var el=document.getElementById(IDMAP['studio']); if(el) el.click(); setCap('I couldn’t draft that one automatically — I’ve opened the Studio so we can build it together.'); speak('I could not draft that one automatically. I have opened the Studio so we can build it together.'); } }); }
+  function routeBuild(q){ var t=q.toLowerCase();
+    if(/agent|automation|workflow/.test(t)){ if(hasDetail(q)){ draftAutomation(q); } else { pendingBuild=true; setCap('What should it do? Describe it in one sentence.'); speak('Happy to build that. In one sentence — what should it do, and what should trigger it?'); target='thinking'; } return; }
+    var sec,intro;
+    if(/dashboard/.test(t)){ sec='curate'; intro='Let’s build a dashboard. We start at the Schema layer. First — which dataset or service line is this about?'; }
     else if(/report/.test(t)){ sec='designer'; intro='Let’s build a report. Opening the Designer. First — what’s the report about, and who’s it for?'; }
     else if(/funnel/.test(t)){ sec='funnel'; intro='Let’s map a funnel. Opening the Funnel view. What offer is this funnel for?'; }
     else { sec='studio'; intro='Let’s build it together in the Studio.'; }
@@ -23674,8 +23734,35 @@ boot();
   function detectEnd(t){ return /\b(i'?m done|that'?s (all|it)( for (today|now))?|wrap (it |things )?up|end (the )?session|log (the |today'?s )?session|good ?bye|hang up|call it (a day|quits)|we'?re done)\b/i.test(t); }
   function doEndSession(){ pendingEnd=false; var summary=sessionLog.length?sessionLog.slice(-6).join('; '):'General conversation.'; if(person&&person.name){ post('/api/orchestrator/session_note',{name:person.name,text:summary}).catch(function(){}); } speak('Logged. Good working with you'+(person?', '+firstName(person.name):'')+'. Until next time.'); setCap('Session logged to your vault. See you next time.'); setTimeout(function(){ close_(); },2600); }
 
+  // ---- feature-intent: match natural wording to ANY left-panel feature → confirm → open + guide ----
+  var pendingFeature=null;
+  var FEATURES=[
+    {sec:'experiments',name:'Test & Learn',re:/\b(test and learn|a\/?b ?test|ab ?test|split ?test|experiment|control group|statistical significance|measure lift)\b/i,guide:'Opening Test & Learn. What are we testing, and what’s the control group?'},
+    {sec:'briefs',name:'Briefs',re:/\b(brief|briefing|prep(are)? (me )?(a|for)|meeting prep|one[- ]?pager|write me a summary)\b/i,guide:'Opening Briefs. What’s the brief about, and who’s the audience?'},
+    {sec:'funnel',name:'Funnel',re:/\b(funnel|conversion path|drop[- ]?off|customer journey)\b/i,guide:'Opening the Funnel. Which offer or service line is this for?'},
+    {sec:'marketplace',name:'Data Marketplace',re:/\b(data ?marketplace|marketplace|monetize (our |the )?data|licen[cs]e (our |the )?data|sell (our |access to )?(data|datasets?)|publish a data product|list a dataset|data products?|data licensing)\b/i,guide:'Opening the Data Marketplace. Are we listing a new data product to license out, or browsing what’s available?'},
+    {sec:'connect',name:'Connect',re:/\b(connect (a |the )?(data )?source|data source|new integration|hook up|airbyte|connect big ?query)\b/i,guide:'Opening Connect. Which source do you want to connect?'},
+    {sec:'query',name:'Query Builder',re:/\b(query builder|build a query|run a query|write (some )?sql|sql query)\b/i,guide:'Opening the Query Builder. Which dataset should we start from?'},
+    {sec:'designer',name:'Report Designer',re:/\b(report designer|design (a )?report|report layout|lay out a report)\b/i,guide:'Opening the Designer. What’s the report about?'},
+    {sec:'curate',name:'Schema Layer',re:/\b(schema|curate the|data model|semantic (layer|model)|define relationships|join (the )?tables)\b/i,guide:'Opening the Schema layer. Which tables are we modeling?'},
+    {sec:'pulse',name:'Pulse',re:/\b(pulse|what'?s happening|today'?s activity|activity feed|any alerts|what'?s new)\b/i,guide:'Opening Pulse — here’s the latest activity.'},
+    {sec:'goals',name:'Goals',re:/\b(my goals|see (my )?goals|goals? list|goal progress|track (my )?goals)\b/i,guide:'Opening Goals.'},
+    {sec:'metrics',name:'Metrics',re:/\b(metrics library|browse (the )?metrics|list of metrics|all (our )?metrics|kpis?)\b/i,guide:'Opening Metrics.'},
+    {sec:'knowledge',name:'Knowledge',re:/\b(knowledge base|company knowledge|our knowledge|documentation)\b/i,guide:'Opening Knowledge.'},
+    {sec:'agents',name:'Agents',re:/\b(the agents|agent library|specialist agents|see (my|the) agents)\b/i,guide:'Opening Agents.'},
+    {sec:'studio',name:'Studio',re:/\b(studio|orchestrate|agent team)\b/i,guide:'Opening the Studio.'},
+    {sec:'dashboards',name:'Dashboards',re:/\b(dashboards?)\b/i,guide:'Opening Dashboards.'},
+    {sec:'automations',name:'Automations',re:/\b(automations?|workflow|scheduled task|recurring task)\b/i,guide:'Opening Automations.'},
+    {sec:'admin',name:'Admin',re:/\b(admin|manage users|permissions|access control|user management)\b/i,guide:'Opening Admin.'}
+  ];
+  function detectFeature(t){ for(var i=0;i<FEATURES.length;i++){ if(FEATURES[i].re.test(t)) return FEATURES[i]; } return null; }
+  function offerFeature(ft){ pendingFeature=ft; setCap('Sounds like '+ft.name+' — shall I open it?'); speak('It sounds like you want to work with '+ft.name+'. Shall I open it?'); target='thinking'; }
+  function openFeature(ft){ dock(); var el=document.getElementById(IDMAP[ft.sec]); if(el) el.click(); setCap(ft.guide); speak(ft.guide); log('Opened '+ft.name); }
+
   function routeIntent(text){ if(!text)return;
     if(pendingCapture){ if(confirmNo(text)){ pendingCapture=null; setCap('Discarded.'); speak('Discarded.'); return; } if(confirmYes(text)){ doCapture(); return; } pendingCapture.text=text.trim(); setCap('Updated '+noun(pendingCapture.kind)+': “'+text+'” — say “save it” to confirm.'); speak('Updated. Shall I save it now?'); return; }
+    if(pendingBuild){ if(confirmNo(text)){ pendingBuild=null; setCap('Cancelled.'); speak('No problem.'); return; } pendingBuild=null; draftAutomation(text); return; }
+    if(pendingFeature){ if(confirmYes(text)){ var f=pendingFeature; pendingFeature=null; openFeature(f); return; } if(confirmNo(text)){ pendingFeature=null; setCap('No problem — what else?'); speak('No problem. What else can I do?'); return; } pendingFeature=null; }
     if(pendingEnd){ if(confirmYes(text)){ doEndSession(); return; } if(confirmNo(text)){ pendingEnd=false; setCap('Carry on.'); speak('Of course — carry on.'); return; } }
     if(detectEnd(text)){ pendingEnd=true; setCap('Shall I log today’s session before you go?'); speak('Shall I log what we worked on before you go?'); return; }
     if(tryNavigate(text)){ log('Opened a section'); return; }
@@ -23684,6 +23771,8 @@ boot();
     if(detectBuild(text)){ routeBuild(text); return; }
     if(detectGoal(text)){ log('Delegated: '+text); routeToGoal(text); return; }
     if(detectData(text)){ log('Asked: '+text); routeToAsk(text); return; }
+    if(detectRunWF(text) && typeof window.studioRunGraph==='function'){ speak('Running it now.'); setCap('Running the workflow…'); try{ window.studioRunGraph(); }catch(e){} log('Ran workflow'); return; }
+    var ft=detectFeature(text); if(ft){ offerFeature(ft); return; }
     setCap('“'+text+'”'); target='thinking'; pauseRecog(); if(ws&&ws.readyState===1) ws.send(JSON.stringify({type:'transcript',text:text,isFinal:true})); }
 
   function handleUser(text){ if(!text)return; if(!onboardStarted){ startOnboarding(); return; } if(STAGE!=='active'){ onboarding(text); return; } routeIntent(text); }
@@ -23695,7 +23784,7 @@ boot();
   async function startVoice(){ if(started)return; started=true; gate.style.display='none';
     actx=new (window.AudioContext||window.webkitAudioContext)(); playAnalyser=actx.createAnalyser(); playAnalyser.fftSize=256; playAnalyser.smoothingTimeConstant=.8; playAnalyser.connect(actx.destination); playBuf=new Uint8Array(playAnalyser.fftSize);
     try{ await actx.resume(); var b=actx.createBuffer(1,1,22050),s=actx.createBufferSource(); s.buffer=b; s.connect(actx.destination); s.start(0); }catch(e){}
-    try{ var stream=await navigator.mediaDevices.getUserMedia({audio:true}); var msrc=actx.createMediaStreamSource(stream); micAnalyser=actx.createAnalyser(); micAnalyser.fftSize=256; micAnalyser.smoothingTimeConstant=.7; msrc.connect(micAnalyser); micBuf=new Uint8Array(micAnalyser.fftSize); }catch(e){ setCap('Microphone blocked — allow mic access and reload.'); }
+    try{ var stream=await navigator.mediaDevices.getUserMedia({audio:true}); var msrc=actx.createMediaStreamSource(stream); micAnalyser=actx.createAnalyser(); micAnalyser.fftSize=256; micAnalyser.smoothingTimeConstant=.7; msrc.connect(micAnalyser); micBuf=new Uint8Array(micAnalyser.fftSize); micFreq=new Uint8Array(micAnalyser.frequencyBinCount); }catch(e){ setCap('Microphone blocked — allow mic access and reload.'); }
     initRecog(); openWS(); startRecog(); target='listening'; setTimeout(function(){ startOnboarding(); },1400); }
 
   // ---- overlay control ----
