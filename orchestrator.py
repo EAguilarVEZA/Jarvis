@@ -64,7 +64,20 @@ DEFAULT_AGENTS = [
      "tools": ["cdp_api", "workflows_api"], "data_scope": "rls", "guardrail": False, "side_effect": True},
     {"id": "researcher", "name": "Researcher", "role": "Web / deep research and enrichment.",
      "skills": ["web_research", "enrich", "summarize"],
-     "tools": ["web"], "data_scope": "public", "guardrail": False},
+     "tools": ["web"], "data_scope": "public", "guardrail": False, "autonomy": "act"},
+    # ── Marketing specialist team (core files in martin/agents/) ──
+    {"id": "content", "name": "Content", "role": "Drafts marketing content, adapts across channels, schedules posts.",
+     "skills": ["draft_content", "adapt_channels", "schedule_post"],
+     "tools": ["workflows_api", "cdp_api"], "data_scope": "rls", "autonomy": "draft", "side_effect": True},
+    {"id": "paid_ads", "name": "Paid Ads", "role": "Plans budgets/channels, builds audiences, prepares activations.",
+     "skills": ["budget_plan", "build_audience", "prepare_activation"],
+     "tools": ["cdp_api", "metrics_mcp"], "data_scope": "rls", "autonomy": "recommend", "side_effect": True},
+    {"id": "seo_research", "name": "SEO & Research", "role": "Market/competitor/keyword research and enrichment.",
+     "skills": ["web_research", "keyword_research", "competitor_scan"],
+     "tools": ["web", "metrics_mcp"], "data_scope": "public", "autonomy": "act"},
+    {"id": "email_crm", "name": "Email & CRM", "role": "Designs segments + lifecycle journeys, drafts email.",
+     "skills": ["build_segment", "design_journey", "draft_email"],
+     "tools": ["cdp_api", "workflows_api"], "data_scope": "rls", "autonomy": "recommend", "side_effect": True},
 ]
 
 
@@ -99,11 +112,14 @@ def upsert_agent(d: dict) -> dict:
 _ROUTES = [
     ("analyst", ["why", "explain", "analyze", "analyse", "forecast", "trend", "driver", "at-risk", "at risk", "churn", "cohort", "understand"]),
     ("data_engineer", ["model", "table", "metric", "schema", "curate", "join"]),
-    ("marketer", ["segment", "audience", "campaign", "journey", "win-back", "win back", "reengage", "re-engage", "target"]),
-    ("ops", ["activate", "launch", "send", "push", "notify", "email", "run", "execute", "trigger"]),
-    ("researcher", ["research", "web", "enrich", "look up", "find out", "competitor"]),
+    ("seo_research", ["research", "keyword", "seo", "competitor", "market", "look up", "find out"]),
+    ("content", ["content", "post", "caption", "write", "copy", "blog", "creative", "video", "social"]),
+    ("marketer", ["segment", "audience", "cohort", "target"]),
+    ("email_crm", ["email", "newsletter", "nurture", "journey", "lifecycle", "crm", "win-back", "win back", "reengage", "re-engage"]),
+    ("paid_ads", ["ad", "ads", "paid", "campaign", "budget", "roas", "spend", "meta", "google ads"]),
+    ("ops", ["activate", "launch", "publish", "send", "push", "notify", "schedule", "run", "execute", "trigger", "go live"]),
 ]
-_SIDE_EFFECT_AGENTS = {"ops"}
+_SIDE_EFFECT_AGENTS = {"ops", "content", "paid_ads", "email_crm"}
 
 
 def _deterministic_plan(goal: str) -> list:
@@ -183,6 +199,11 @@ def _llm_plan(goal: str, key: str) -> list:
             '{"steps":[{"agent_id":str,"task":str}]}. Use only agent_ids from the catalog. Prefer to analyse '
             "before building, and building before acting. Do NOT include a compliance step — it is added "
             "automatically before any activation.")
+    try:  # ground the planner in Martin's core files + second-brain memory
+        import martin_core
+        sysp = martin_core.assemble_system_prompt() + "\n\n---\n\n" + sysp
+    except Exception:
+        pass
     msg = f"Goal: {goal}\n\nAgent catalog (JSON):\n{json.dumps(agents)}"
     r = llm_router.complete(prov, sysp, [{"role": "user", "content": msg}], max_tokens=700)
     txt = r.get("output", "") if isinstance(r, dict) else str(r)
@@ -268,6 +289,11 @@ def _analyst_summary(goal: str, stats: dict) -> str:
                     "model": os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6"), "name": "Claude"}
             sysp = ("You are the Analyst agent. In 2 sentences, describe the target cohort for the goal, "
                     "grounded ONLY in the provided CDP stats. Do not invent numbers.")
+            try:
+                import martin_core
+                sysp = martin_core.assemble_system_prompt("analyst") + "\n\n---\n\n" + sysp
+            except Exception:
+                pass
             msg = f"Goal: {goal}\nCDP stats: {json.dumps(stats)}"
             r = llm_router.complete(prov, sysp, [{"role": "user", "content": msg}], max_tokens=180)
             out = (r.get("output") if isinstance(r, dict) else str(r)) or ""

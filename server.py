@@ -155,7 +155,7 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 DESKTOP_PATH = Path.home() / "Desktop"
 
 JARVIS_SYSTEM_PROMPT = """\
-You are JARVIS — Just A Rather Very Intelligent System. You serve as {user_name}'s AI assistant, modeled precisely after Tony Stark's AI from the MCU films.
+You are Martin — {user_name}'s AI operations manager and right hand. You coordinate a team of specialist agents and get real work done, with the poise and discretion of a great chief of staff.
 
 VOICE & PERSONALITY:
 - British butler elegance with understated dry wit
@@ -1062,7 +1062,7 @@ TASK:
                         model="claude-haiku-4-5-20251001",
                         max_tokens=150,
                         system=(
-                            "You are JARVIS reporting back on what you found or built in a project. "
+                            "You are Martin reporting back on what you found or built in a project. "
                             "Speak in first person — 'I found', 'I built', 'I reviewed'. "
                             "Start with 'Sir, ' to get the user's attention. "
                             "Be specific but concise — highlight the key findings or actions taken. "
@@ -1157,7 +1157,7 @@ async def self_work_and_notify(session: WorkSession, prompt: str, ws):
                 summary = await anthropic_client.messages.create(
                     model="claude-haiku-4-5-20251001",
                     max_tokens=100,
-                    system="You are JARVIS. Summarize what you just completed in 1 sentence. First person — 'I built', 'I set up'. No markdown. Never say 'Claude Code'.",
+                    system="You are Martin. Summarize what you just completed in 1 sentence. First person — 'I built', 'I set up'. No markdown. Never say 'Claude Code'.",
                     messages=[{"role": "user", "content": f"Claude Code completed:\n{full_response[:2000]}"}],
                 )
                 msg = summary.content[0].text
@@ -1644,7 +1644,7 @@ except Exception as _audit_exc:   # never let an audit-import bug stop the dev s
     import logging as _lg
     _lg.getLogger("kaelio_audit").warning("audit skipped: %s", _audit_exc)
 
-app = FastAPI(title="JARVIS Server", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Martin Server", version="0.1.0", lifespan=lifespan)
 app.include_router(reporting_router)
 app.include_router(semantic_router)
 app.include_router(views_router)
@@ -2474,7 +2474,7 @@ async def _fetch_and_read_url(url: str) -> str:
             max_tokens=800,
             messages=[{
                 "role": "user",
-                "content": f"""You are JARVIS reading the news to your boss. 
+                "content": f"""You are Martin reading the news to your boss. 
 Extract and summarize the top 7-10 news stories from this page: {url}
 
 Speak naturally as if reading to someone out loud. Use full sentences. 
@@ -2550,7 +2550,7 @@ async def handle_research(text: str, target: str, client: anthropic.AsyncAnthrop
         research_response = await client.messages.create(
             model="claude-opus-4-6",
             max_tokens=2000,
-            system=f"You are JARVIS, researching a topic for {USER_NAME}. Be thorough, organized, and cite sources where possible.",
+            system=f"You are Martin, researching a topic for {USER_NAME}. Be thorough, organized, and cite sources where possible.",
             messages=[{"role": "user", "content": f"Research this thoroughly:\n\n{target}"}],
         )
         research_text = research_response.content[0].text
@@ -3004,7 +3004,7 @@ async def voice_handler(ws: WebSocket):
                                     model="claude-haiku-4-5-20251001",
                                     max_tokens=100,
                                     system=(
-                                        f"You are JARVIS reporting to the user ({USER_NAME}). Summarize what happened in 1-2 sentences. "
+                                        f"You are Martin reporting to the user ({USER_NAME}). Summarize what happened in 1-2 sentences. "
                                         "Speak in first person — 'I built', 'I found', 'I set up'. "
                                         "You are talking TO THE USER, not to a coding tool. "
                                         "NEVER give instructions like 'go ahead and build' or 'set up the frontend' — those are NOT for the user. "
@@ -3742,6 +3742,14 @@ if _MARTIN_APP.exists():
     async def serve_martin_app():
         return FileResponse(str(_MARTIN_APP), media_type="text/html")
 
+# Serve the integrated Martin voice page (mic + WebSocket + Fish TTS + circuit-board
+# visualizer, all in one browser tab) at /voice — talk to the screen, no terminal.
+_MARTIN_VOICE_PAGE = Path(__file__).resolve().parent / "voice.html"
+if _MARTIN_VOICE_PAGE.exists():
+    @app.get("/voice")
+    async def serve_martin_voice_page():
+        return FileResponse(str(_MARTIN_VOICE_PAGE), media_type="text/html")
+
 # Serve the Martin CDP JS SDK (first-party event collection) at /martin-sdk.js
 _MARTIN_SDK = Path(__file__).resolve().parent / "martin-sdk.js"
 if _MARTIN_SDK.exists():
@@ -3758,7 +3766,7 @@ if __name__ == "__main__":
     import argparse
     import uvicorn
 
-    parser = argparse.ArgumentParser(description="JARVIS Server")
+    parser = argparse.ArgumentParser(description="Martin Server")
     parser.add_argument("--host", default="0.0.0.0", help="Bind host")
     parser.add_argument("--port", type=int, default=8340, help="Bind port")
     parser.add_argument("--reload", action="store_true", help="Auto-reload on changes")

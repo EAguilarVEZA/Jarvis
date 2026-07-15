@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Martin Live — one command that wires the whole thing together:
+#   1) makes sure the Martin server (brain + TTS) is up on :8340
+#   2) starts the visualizer (LIVE, not mock) on :8777 and opens it
+#   3) runs the voice line in this terminal, which writes the shared signal
+#      bus (~/.martin_voice) that the visualizer reads — so it reacts as you talk.
+#
+# Usage:  ./martin-live            # tap-to-talk (Enter to start/stop)
+#         ./martin-live --mode ptt # hold Right-Option to talk
+set -e
+cd "$(dirname "$0")"
+
+# one shared bus for both sides
+export MARTIN_VOICE_BUS="$HOME/.martin_voice"
+mkdir -p "$MARTIN_VOICE_BUS"
+
+# venv if present
+if [ -d venv ]; then source venv/bin/activate; fi
+mkdir -p logs
+
+# 1) Martin server (brain + Fish TTS) on :8340
+if ! curl -sk https://localhost:8340/api/health >/dev/null 2>&1; then
+  echo "→ starting Martin server on :8340 …"
+  nohup python server.py --port 8340 > logs/backend.log 2>&1 &
+  for i in $(seq 1 15); do sleep 1; curl -sk https://localhost:8340/api/health >/dev/null 2>&1 && break; done
+fi
+curl -sk https://localhost:8340/api/health >/dev/null 2>&1 && echo "  server: online" || echo "  server: NOT responding (see logs/backend.log)"
+
+# 2) Visualizer (LIVE bus) on :8777, then open it
+if ! curl -s http://127.0.0.1:8777/state >/dev/null 2>&1; then
+  echo "→ starting visualizer on :8777 …"
+  ( cd voice-visualizer && MARTIN_VOICE_BUS="$MARTIN_VOICE_BUS" nohup python3 server.py > /tmp/martin-visualizer.log 2>&1 & )
+  sleep 1
+fi
+URL="http://127.0.0.1:8777/"
+echo "→ opening visualizer: $URL"
+if [ -d "/Applications/Google Chrome.app" ]; then
+  open -na "Google Chrome" --args --new-window --app="$URL" --user-data-dir="/tmp/martin-viz-profile" >/dev/null 2>&1 || open "$URL"
+else
+  open "$URL" 2>/dev/null || echo "  open $URL in your browser and press F11 for fullscreen"
+fi
+
+# 3) Voice line in the foreground — this writes the bus the visualizer watches
+echo "→ voice line ready. Talk to Martin; the board reacts live. Ctrl-C to hang up."
+echo
+exec ./martin-voiceline "$@"

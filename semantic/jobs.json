@@ -1,5 +1,25 @@
 [
   {
+    "id": "1d24c96d0405",
+    "name": "Connection Finder",
+    "type": "skill",
+    "status": "success",
+    "detail": "04-JARVIS-OUTPUTS/connections/2026-07-14_2300_connection-finder-2026-07-14.md",
+    "started_at": 1784084401.384801,
+    "finished_at": 1784084404.080599,
+    "duration": 2.7
+  },
+  {
+    "id": "d79f93ffa065",
+    "name": "Capture Processor",
+    "type": "skill",
+    "status": "failed",
+    "detail": "Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011Cd2rnxizxrFuFfmJkqEyy'}",
+    "started_at": 1784073601.1563141,
+    "finished_at": 1784073605.599839,
+    "duration": 4.44
+  },
+  {
     "id": "62a9703891d5",
     "name": "Connection Finder",
     "type": "skill",

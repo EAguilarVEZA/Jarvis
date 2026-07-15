@@ -101,3 +101,83 @@ async def get_run(rid: str):
 @router.get("/runs")
 async def runs(limit: int = 50):
     return {"runs": orch.list_runs(limit)}
+
+
+class Capture(BaseModel):
+    kind: str
+    text: str
+    title: Optional[str] = None
+
+
+@router.post("/capture")
+async def capture(c: Capture):
+    """Voice capture → vault: kind is 'goal' | 'rule' | 'knowledge'. Writes to the
+    Obsidian vault (Active Priorities / House Rules / second-brain memory)."""
+    if not (c.text or "").strip():
+        return _err(400, "text required")
+    try:
+        import martin_core
+        ok = martin_core.capture(c.kind, c.text, c.title or "")
+        return {"ok": bool(ok), "kind": c.kind}
+    except Exception as e:
+        return _err(500, "capture failed", str(e))
+
+
+@router.get("/person")
+async def person_get(name: str):
+    try:
+        import martin_core
+        return martin_core.get_person(name)
+    except Exception as e:
+        return _err(500, "lookup failed", str(e))
+
+
+class Person(BaseModel):
+    name: str
+    fields: Optional[dict] = None
+
+
+@router.post("/person")
+async def person_save(p: Person):
+    if not (p.name or "").strip():
+        return _err(400, "name required")
+    try:
+        import martin_core
+        return {"ok": bool(martin_core.save_person(p.name, p.fields or {}))}
+    except Exception as e:
+        return _err(500, "save failed", str(e))
+
+
+class SessionNote(BaseModel):
+    name: str
+    text: str
+
+
+@router.post("/session_note")
+async def session_note_post(s: SessionNote):
+    try:
+        import martin_core
+        return {"ok": bool(martin_core.add_session_note(s.name, s.text))}
+    except Exception as e:
+        return _err(500, "note failed", str(e))
+
+
+@router.get("/context")
+async def context():
+    """Martin's core-files + second-brain (Obsidian) status: which identity/soul/
+    boundaries + agent files are loaded, and whether the vault memory is found."""
+    try:
+        import martin_core
+        return martin_core.status()
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.get("/context/preview")
+async def context_preview(agent_id: str = None):
+    """Preview the exact grounding an agent runs on (core files + memory + role)."""
+    try:
+        import martin_core
+        return {"agent_id": agent_id, "system_prompt": martin_core.assemble_system_prompt(agent_id)}
+    except Exception as e:
+        return {"error": str(e)}

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Martin Voiceline — local hold-to-talk phone line to Martin.
+# Usage:  ./martin-voiceline           # tap-to-talk (press Enter)
+#         ./martin-voiceline --mode ptt  # hold Right-Option to talk
+set -e
+cd "$(dirname "$0")"
+if [ -d venv ]; then source venv/bin/activate; fi
+exec python martin_voiceline.py "$@"

@@ -3605,6 +3605,7 @@
   <!-- Legacy top horizontal nav: kept in DOM (data-nav handlers live on these) but hidden by CSS.
        The new left vertical sidebar (#leftNav) mirrors these items 1:1 and routes clicks through. -->
   <div class="topnav">
+    <span class="nav-item" data-nav="martin" id="navMartin" style="display:none">Martin</span>
     <span class="nav-item" data-nav="connect" id="navConnect">Connect</span>
     <span class="nav-item" data-nav="curate" id="navCurate">Curate <span id="curateBadge" class="nav-badge"></span></span>
     <span style="width:1px;height:18px;background:var(--line);margin:0 6px;align-self:center;"></span>
@@ -3631,6 +3632,13 @@
 <!-- R26 — vertical left sidebar (Kaelio-style). Three sections: primary work,
      setup, admin. All items have data-lnav matching legacy data-nav targets. -->
 <aside class="leftnav" id="leftNav">
+  <!-- Martin — the agent-team command center (delegate an outcome, watch the team). -->
+  <div class="leftnav-section">
+    <div class="lnav-item" data-lnav="martin" title="Martin — delegate a goal to your agent team" style="font-weight:700;">
+      <span class="lnav-icon" data-ic="bolt"></span><span class="lnav-name">Martin</span>
+    </div>
+  </div>
+
   <!-- R54 — "Dashboard Creation" group: Curate (Schema Layer) → Query Builder → Designer
        are the three sequential steps for building a deliverable. They live together at
        the top of the nav, in order, under a single section label. -->
@@ -4136,7 +4144,7 @@ function renderLogin(err){
   document.body.classList.add('public-view');  // hide nav chrome
   app.innerHTML =
     '<div style="max-width:340px;margin:100px auto;font-family:Inter,system-ui,sans-serif;text-align:center;">'+
-      '<div style="color:var(--blue);margin-bottom:4px;">'+jvIcon('lock','big')+'</div><h2 style="margin:8px 0 16px;">Sign in to Jarvis</h2>'+
+      '<div style="color:var(--blue);margin-bottom:4px;">'+jvIcon('lock','big')+'</div><h2 style="margin:8px 0 16px;">Sign in to Martin</h2>'+
       '<input id="loginEmail" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;margin-bottom:8px;box-sizing:border-box;">'+
       '<input id="loginPw" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;margin-bottom:10px;box-sizing:border-box;">'+
       '<button class="btn primary" id="loginBtn" style="width:100%;">Sign in</button>'+
@@ -4186,7 +4194,7 @@ async function boot(){
   try { await resolveBase(true); setApi('ok','Connected'); await loadTables(); await refreshGoals(); checkCurateBadge(); setInterval(checkCurateBadge, 20000); }
   catch(e){
     setApi('bad','Backend unreachable'); refreshGoals();
-    document.getElementById('app').innerHTML='<div class="empty-state" style="color:var(--orange)">Can’t reach the Jarvis backend.<br><br>Run <code>./jarvis restart</code>, and if this is the first visit, open '+
+    document.getElementById('app').innerHTML='<div class="empty-state" style="color:var(--orange)">Can’t reach the Martin backend.<br><br>Run <code>./jarvis restart</code>, and if this is the first visit, open '+
       '<a href="https://localhost:8000/api/health" target="_blank" style="color:var(--blue);text-decoration:underline;">https://localhost:8000/api/health</a> once to accept the certificate, then reload.</div>';
     return;
   }
@@ -4199,7 +4207,7 @@ async function getFields(tableKey){ if(S.fieldCache[tableKey]) return S.fieldCac
 
 // ── Nav + voice ──
 function setNav(screen){ S.screen=screen;
-  const map={pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',studio:'navStudio',marketplace:'navMarketplace',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
+  const map={martin:'navMartin',pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',studio:'navStudio',marketplace:'navMarketplace',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
   // Legacy top-nav (hidden) — keep state in sync so badges/handlers still work.
   Object.keys(map).forEach(k=>{ const el=document.getElementById(map[k]); if(el) el.classList.toggle('active', screen===k); });
   // New left vertical sidebar (visible) — mark active item.
@@ -4228,7 +4236,7 @@ function jarvisSignOut(){
     if(!item) return;
     const target = item.getAttribute('data-lnav');
     // Map to legacy element id
-    const idMap = {pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',studio:'navStudio',marketplace:'navMarketplace',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
+    const idMap = {martin:'navMartin',pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',studio:'navStudio',marketplace:'navMarketplace',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
     const legacy = document.getElementById(idMap[target]);
     if(legacy) legacy.click();
   });
@@ -5989,6 +5997,205 @@ async function semanticModelModal(tab){
   }
   setTab(st.tab);
 }
+// ═══════════════════════════════════════════════════════════════════
+//  MARTIN — the agent-team command center. Delegate an outcome; the
+//  manager plans it across specialists and executes with approvals inline.
+// ═══════════════════════════════════════════════════════════════════
+const _MT_COL={analyst:'#8B5CF6',data_engineer:'#0EA5E9',marketer:'#F59E0B',compliance:'#3B82F6',ops:'#F43F5E',researcher:'#14B8A6',content:'#EC4899',paid_ads:'#F97316',seo_research:'#10B981',email_crm:'#6366F1'};
+function _martinStyle(){ if(document.getElementById('mtStyle'))return; const s=document.createElement('style'); s.id='mtStyle'; s.textContent=`
+  .mt-wrap{max-width:1080px;margin:0 auto;padding:22px 26px 60px;}
+  .mt-hero{background:linear-gradient(120deg,#24282A,#3A4341 60%,#4E5552);color:#fff;border-radius:16px;padding:20px 22px;margin-bottom:16px;}
+  .mt-hero h1{margin:0;font-size:22px;letter-spacing:-.3px;}
+  .mt-hero p{margin:5px 0 0;font-size:13px;color:#CFC9BE;}
+  .mt-ctx{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px;}
+  .mt-chip{background:rgba(255,255,255,.14);border-radius:999px;padding:3px 11px;font-size:11px;font-weight:600;}
+  .mt-goal{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;}
+  .mt-goal textarea{flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-size:14px;font-family:inherit;min-height:56px;resize:vertical;}
+  .mt-ex{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+  .mt-ex button{font-size:11.5px;background:#f1f5f9;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:#475569;cursor:pointer;}
+  .mt-ex button:hover{background:#e2e8f0;}
+  .mt-sec{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 10px;}
+  .mt-team{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+  .mt-agent{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 13px;position:relative;overflow:hidden;}
+  .mt-agent::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c);}
+  .mt-agent .n{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:7px;}
+  .mt-agent .r{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;}
+  .mt-dot{width:10px;height:10px;border-radius:50%;background:var(--c);flex-shrink:0;}
+  .mt-auto{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border-radius:5px;padding:1px 6px;margin-left:auto;}
+  .mt-auto.act{background:#d1fae5;color:#065f46;} .mt-auto.recommend{background:#fef3c7;color:#92400e;} .mt-auto.draft{background:#e2e8f0;color:#475569;}
+  .mt-run{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:6px;}
+  .mt-step{display:flex;gap:11px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f1f5f9;}
+  .mt-step:last-child{border-bottom:0;}
+  .mt-av{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;flex-shrink:0;}
+  .mt-st-title{font-size:13px;font-weight:700;}
+  .mt-st-task{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.45;}
+  .mt-st-res{font-size:12px;color:#334155;margin-top:4px;}
+  .mt-badge{font-size:11px;font-weight:700;white-space:nowrap;}
+  .mt-trace{max-height:170px;overflow:auto;margin-top:10px;border-top:1px solid var(--line);padding-top:8px;}
+  .mt-trace div{font-size:11px;color:var(--muted);font-family:ui-monospace,monospace;padding:1px 0;}
+`; document.head.appendChild(s); }
+
+function _mtInitials(id){ return (id||'?').split('_').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+function _mtStatusBadge(st){
+  return st==='done'?'<span class="mt-badge" style="color:#059669;">✓ done</span>':
+    st==='awaiting_approval'?'<span class="mt-badge" style="color:#d97706;">needs approval</span>':
+    st==='running'?'<span class="mt-badge" style="color:#2563eb;">running…</span>':
+    st==='blocked'?'<span class="mt-badge" style="color:#dc2626;">blocked</span>':
+    st==='exited'?'<span class="mt-badge" style="color:#94a3b8;">exited</span>':'<span class="mt-badge" style="color:#94a3b8;">pending</span>';
+}
+function _mtRenderRun(run){
+  const host=document.getElementById('mtRun'); if(!host) return;
+  const pill=(run.status==='done'?'ok':run.status==='blocked'?'err':'info');
+  host.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><b style="font-size:14px;">Run</b>'+
+    '<span class="hc-pill '+pill+'">'+esc(run.status)+'</span><span class="hc-pill info">'+esc(run.method)+' plan</span>'+
+    '<span class="hc-pill info">'+(run.steps||[]).length+' steps</span></div>'+
+    (run.steps||[]).map(s=>{ const col=_MT_COL[s.agent_id]||'#6366f1'; const r=s.result||{};
+      return '<div class="mt-step"><div class="mt-av" style="background:'+col+';">'+_mtInitials(s.agent_id)+'</div>'+
+        '<div style="flex:1;min-width:0;"><div class="mt-st-title">'+(s.step)+'. '+esc((s.agent_id||"").replace(/_/g," "))+(s.gate?' · gate':'')+'</div>'+
+        '<div class="mt-st-task">'+esc(s.task||'')+'</div>'+
+        (r.summary?'<div class="mt-st-res">↳ '+esc(r.summary)+'</div>':'')+'</div>'+
+        '<div style="text-align:right;">'+_mtStatusBadge(s.status)+(s.status==='awaiting_approval'?'<br><button class="btn small primary" data-mtapprove="'+s.step+'" style="margin-top:4px;">Approve</button>':'')+'</div></div>';
+    }).join('')+
+    '<div class="mt-trace">'+(run.trace||[]).map(t=>'<div>'+esc(t.actor)+' · '+esc(t.action)+' — '+esc(t.detail||'')+'</div>').join('')+'</div>';
+  host.querySelectorAll('[data-mtapprove]').forEach(b=>b.addEventListener('click',async()=>{
+    b.disabled=true; b.textContent='…';
+    try{ const r=await api('/api/orchestrator/run/'+run.id+'/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({step:+b.getAttribute('data-mtapprove')})}); _mtLastRun=r.run; _mtRenderRun(r.run); _mtFlow(r.run,true); }
+    catch(e){ toast('Approve failed',true); }
+  }));
+}
+
+function _mtColOf(id){ return (window._MT_COL&&_MT_COL[id])||'#6366f1'; }
+function _mtRingCol(status, forcePending){ if(forcePending) return '#334155'; return status==='done'?'#059669':status==='awaiting_approval'?'#d97706':status==='blocked'?'#dc2626':status==='running'?'#2563eb':'#334155'; }
+function _mtTween(el,attr,from,to,ms,cb){ const t0=performance.now(); function fr(t){ let k=Math.min(1,(t-t0)/ms); const e=1-Math.pow(1-k,3); el.setAttribute(attr,(from+(to-from)*e).toFixed(1)); if(k<1) requestAnimationFrame(fr); else if(cb) cb(); } requestAnimationFrame(fr); }
+function _mtFlow(run, animate){
+  const host=document.getElementById('mtFlow'); if(!host) return;
+  if(!document.getElementById('mtFlowCss')){ const st=document.createElement('style'); st.id='mtFlowCss'; st.textContent=`
+    .mt-flow{background:linear-gradient(180deg,#0f1720,#0b1118);border:1px solid #1f2a37;border-radius:14px;padding:8px 6px 2px;margin-bottom:10px;overflow-x:auto}
+    .mt-flow svg{display:block;width:100%;height:auto;min-width:420px}
+    .mt-node-core{transition:opacity .3s}
+    .mt-node.pending .mt-node-core{opacity:.32}
+    .mt-node-ring{fill:none;stroke-width:3;transition:stroke .3s}
+    .mt-lbl{fill:#e2e8f0;font:600 11px system-ui}
+    .mt-sub{fill:#7c8aa0;font:500 9px system-ui}
+    .mt-num{fill:#fff;font:700 11px system-ui}
+    .mt-conn{stroke:#26324a;stroke-width:3;stroke-linecap:round;transition:stroke .3s}
+    .mt-conn.lit{stroke:#059669}
+    .mt-packet{fill:#38bdf8;filter:drop-shadow(0 0 6px #38bdf8)}
+    .mt-gatering{fill:none;stroke:#d97706;stroke-width:1.5;stroke-dasharray:3 3;opacity:.85}
+    @keyframes mtpulse{0%,100%{stroke-opacity:1}50%{stroke-opacity:.3}}
+    .mt-node.active .mt-node-ring{animation:mtpulse 1s ease-in-out infinite}
+    .mt-node.await .mt-node-ring{animation:mtpulse .8s ease-in-out infinite}
+    .mt-replay{margin-left:8px;font:600 11px system-ui;background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca;border-radius:8px;padding:2px 8px;cursor:pointer;vertical-align:middle}
+    .mt-flow-cap{text-align:center;padding:2px 0 6px;color:#94a3b8;font:500 11px system-ui}
+  `; document.head.appendChild(st); }
+  const steps=(run.steps||[]);
+  const nodes=[{id:'martin',name:'Martin',sub:'manager',status:'done',gate:false,col:'#e5b567'}]
+    .concat(steps.map(s=>({id:s.agent_id,name:(s.agent_id||'').replace(/_/g,' '),sub:(s.gate?'gate':'step '+s.step),status:s.status,gate:!!s.gate,col:_mtColOf(s.agent_id)})));
+  const N=nodes.length, pad=42, gap=126, cy=60, r=22, H=118;
+  const W=pad*2+Math.max(1,N-1)*gap;
+  nodes.forEach((n,j)=>{ n.x=pad+j*gap; });
+  let conns='', circs='';
+  for(let j=1;j<N;j++){ conns+='<line class="mt-conn" id="mtc-'+j+'" x1="'+nodes[j-1].x+'" y1="'+cy+'" x2="'+nodes[j].x+'" y2="'+cy+'"/>'; }
+  nodes.forEach((n,j)=>{
+    const initials = n.id==='martin'?'M':_mtInitials(n.id);
+    const cls = (animate&&j>0)?'pending':(n.status==='done'?'done':n.status==='awaiting_approval'?'await':n.status==='running'?'active':'pending');
+    const ring = _mtRingCol(n.status, animate&&j>0);
+    circs+='<g class="mt-node '+cls+'" id="mtn-'+j+'">'+
+      (n.gate?'<circle class="mt-gatering" cx="'+n.x+'" cy="'+cy+'" r="'+(r+5)+'"/>':'')+
+      '<circle class="mt-node-core" cx="'+n.x+'" cy="'+cy+'" r="'+r+'" fill="'+n.col+'"/>'+
+      '<circle class="mt-node-ring" cx="'+n.x+'" cy="'+cy+'" r="'+r+'" style="stroke:'+ring+'"/>'+
+      '<text class="mt-num" x="'+n.x+'" y="'+(cy+4)+'" text-anchor="middle">'+initials+'</text>'+
+      '<text class="mt-lbl" x="'+n.x+'" y="'+(cy+r+15)+'" text-anchor="middle">'+esc(n.name)+'</text>'+
+      '<text class="mt-sub" x="'+n.x+'" y="'+(cy+r+27)+'" text-anchor="middle">'+esc(n.sub)+'</text>'+
+    '</g>';
+  });
+  const packet='<circle class="mt-packet" id="mtpk" cx="'+nodes[0].x+'" cy="'+cy+'" r="5" style="opacity:0"/>';
+  host.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">'+conns+packet+circs+'</svg>'+
+    '<div class="mt-flow-cap" id="mtFlowCap"></div>';
+  const cap=document.getElementById('mtFlowCap');
+  if(!animate){
+    for(let j=1;j<N;j++){ if(nodes[j].status==='done') document.getElementById('mtc-'+j).classList.add('lit'); }
+    const paused=steps.find(s=>s.status==='awaiting_approval');
+    cap.textContent = paused? '⏸ Waiting for your approval — see the steps below.' : (run.status==='done'?'Run complete.':run.status==='planned'?'Plan preview — press Delegate to run it.':'');
+    return;
+  }
+  const pk=document.getElementById('mtpk'); let j=1;
+  function next(){
+    if(j>=N){ cap.textContent='Run complete.'; return; }
+    const node=document.getElementById('mtn-'+j), fin=nodes[j].status;
+    cap.textContent='Martin → '+nodes[j].name+'…';
+    node.classList.add('active');
+    pk.style.opacity='1';
+    _mtTween(pk,'cx',nodes[j-1].x,nodes[j].x,650,function(){
+      pk.style.opacity='0';
+      document.getElementById('mtc-'+j).classList.add('lit');
+      node.classList.remove('pending','active');
+      const ring=node.querySelector('.mt-node-ring');
+      if(fin==='awaiting_approval'){ node.classList.add('await'); ring.style.stroke='#d97706'; cap.innerHTML='⏸ <b>'+esc(nodes[j].name)+'</b> is waiting for your approval — see the steps below.'; return; }
+      if(fin==='blocked'){ ring.style.stroke='#dc2626'; cap.textContent='Blocked at '+nodes[j].name+'.'; return; }
+      if(fin==='exited'){ ring.style.stroke='#94a3b8'; }
+      else { node.classList.add('done'); ring.style.stroke='#059669'; }
+      j++; setTimeout(next, 430);
+    });
+  }
+  setTimeout(next, 350);
+}
+
+async function showMartin(){
+  setNav('martin'); S.view=null;
+  const app=document.getElementById('app'); _martinStyle(); try{ _healthStyle(); }catch(e){}
+  app.innerHTML='<div class="mt-wrap">'+
+    '<div class="mt-hero"><h1>Martin</h1><p>Delegate an <b>outcome</b>, not a step. Martin plans it across your specialist team and executes — pausing for your approval before anything that matters.</p>'+
+      '<div class="mt-ctx" id="mtCtx"></div></div>'+
+    '<div class="mt-goal"><textarea id="mtGoal" placeholder="Delegate a goal…  e.g. Find lapsed patients and launch a compliant win-back campaign"></textarea>'+
+      '<div style="display:flex;flex-direction:column;gap:6px;"><button class="btn primary" id="mtDelegate">Delegate</button><button class="btn" id="mtPlan">Plan only</button></div></div>'+
+    '<div class="mt-ex" id="mtEx"></div>'+
+    '<div id="mtRunWrap" style="display:none;"><div class="mt-sec">Execution <button class="mt-replay" id="mtReplay" title="Replay the hand-off animation">▶ Replay</button></div><div class="mt-flow" id="mtFlow"></div><div class="mt-run" id="mtRun"></div></div>'+
+    '<div class="mt-sec">Your team</div><div class="mt-team" id="mtTeam"><div class="loading" style="padding:14px;">Loading team…</div></div>'+
+    '<div class="mt-sec">Recent runs</div><div id="mtRecent"></div>'+
+  '</div>';
+  const examples=['Find lapsed patients and launch a compliant win-back campaign','Write and schedule 3 social posts about our new cardiology service','Research our top 3 competitors and summarize their offers','Explain why appointment bookings dropped last month'];
+  document.getElementById('mtEx').innerHTML=examples.map(e=>'<button data-mtex="'+esc(e)+'">'+esc(e)+'</button>').join('');
+  document.getElementById('mtEx').querySelectorAll('[data-mtex]').forEach(b=>b.addEventListener('click',()=>{ document.getElementById('mtGoal').value=b.getAttribute('data-mtex'); }));
+  // context (core files + second brain)
+  try{ const c=await api('/api/orchestrator/context'); const cf=c.core_files||{}; const ok=Object.values(cf).filter(Boolean).length;
+    document.getElementById('mtCtx').innerHTML='<span class="mt-chip">'+jvIcon('check')+' Core files: '+ok+'/3</span>'+
+      '<span class="mt-chip">'+(c.vault_found?'🧠 Second brain connected':'Second brain: not found')+'</span>'+
+      (c.memory_chars?'<span class="mt-chip">'+Math.round((c.memory_chars||0)/1000)+'k chars of memory</span>':'')+
+      '<span class="mt-chip">'+(c.agent_files||[]).length+' agent files</span>';
+  }catch(e){ document.getElementById('mtCtx').innerHTML='<span class="mt-chip">context unavailable</span>'; }
+  // team
+  try{ const a=await api('/api/orchestrator/agents'); const ags=a.agents||[];
+    document.getElementById('mtTeam').innerHTML=ags.map(x=>{ const col=_MT_COL[x.id]||'#6366f1'; const au=x.autonomy||'draft';
+      return '<div class="mt-agent" style="--c:'+col+';"><div class="n"><span class="mt-dot"></span>'+esc(x.name)+'<span class="mt-auto '+au+'">'+au+'</span></div><div class="r">'+esc(x.role||'')+'</div></div>';
+    }).join('');
+  }catch(e){ document.getElementById('mtTeam').innerHTML='<div class="hc-it-detail">Could not load team.</div>'; }
+  // recent runs
+  loadMartinRecent();
+  // wire delegate / plan
+  document.getElementById('mtDelegate').addEventListener('click',async()=>{
+    const goal=document.getElementById('mtGoal').value.trim(); if(!goal){ toast('Enter a goal',true); return; }
+    document.getElementById('mtRunWrap').style.display=''; document.getElementById('mtRun').innerHTML='<div class="loading" style="padding:14px;">Martin is delegating to the team…</div>';
+    try{ const r=await api('/api/orchestrator/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal})}); _mtLastRun=r.run; _mtRenderRun(r.run); _mtFlow(r.run,true); loadMartinRecent(); }
+    catch(e){ toast('Run failed',true); }
+  });
+  document.getElementById('mtPlan').addEventListener('click',async()=>{
+    const goal=document.getElementById('mtGoal').value.trim(); if(!goal){ toast('Enter a goal',true); return; }
+    document.getElementById('mtRunWrap').style.display=''; document.getElementById('mtRun').innerHTML='<div class="loading" style="padding:14px;">Planning…</div>';
+    try{ const p=await api('/api/orchestrator/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal})});
+      const pr={id:null,status:'planned',method:p.method,steps:(p.steps||[]).map(s=>({...s,status:'pending'})),trace:[]}; _mtLastRun=pr; _mtRenderRun(pr); _mtFlow(pr,false); }
+    catch(e){ toast('Plan failed',true); }
+  });
+  const rp=document.getElementById('mtReplay'); if(rp) rp.addEventListener('click',()=>{ if(_mtLastRun) _mtFlow(_mtLastRun,true); });
+}
+async function loadMartinRecent(){
+  const host=document.getElementById('mtRecent'); if(!host) return;
+  try{ const r=await api('/api/orchestrator/runs?limit=8'); const runs=r.runs||[];
+    host.innerHTML=runs.length?runs.map(x=>'<div class="hc-item" data-mtrun="'+esc(x.id)+'" style="cursor:pointer;"><span class="hc-dot '+(x.status==='done'?'info':x.status==='blocked'?'error':'warning')+'"></span><div style="flex:1;min-width:0;"><div class="hc-it-title">'+esc(x.goal||'')+'</div><div class="hc-it-ref">'+esc(x.status)+' · '+(x.steps||[]).length+' steps · '+esc(x.method)+'</div></div></div>').join(''):'<div class="hc-it-detail">No runs yet — delegate a goal above.</div>';
+    host.querySelectorAll('[data-mtrun]').forEach(b=>b.addEventListener('click',async()=>{ try{ const d=await api('/api/orchestrator/run/'+b.getAttribute('data-mtrun')); document.getElementById('mtRunWrap').style.display=''; _mtRenderRun(d.run); window.scrollTo({top:0,behavior:'smooth'}); }catch(e){} }));
+  }catch(e){ host.innerHTML='<div class="hc-it-detail">Could not load runs.</div>'; }
+}
+
 async function showCurate(){
   setNav('curate'); S.view=null;
   const app=document.getElementById('app');
@@ -14085,7 +14292,7 @@ function openMobileAppModal(){
   overlay.innerHTML =
     '<div class="mob-card">'+
       '<button class="mob-x" title="Close">✕</button>'+
-      '<div class="mob-head"><span class="mob-phone-icon">'+jvIcon('phone')+'</span><b>Install Jarvis on Your Phone</b></div>'+
+      '<div class="mob-head"><span class="mob-phone-icon">'+jvIcon('phone')+'</span><b>Install Martin on Your Phone</b></div>'+
       '<p class="mob-sub">Jarvis is a Progressive Web App — install it from your phone\'s browser and it appears on your home screen like any native app. Scan a QR code below to begin, or click <b>Install Now</b> if you\'re already on the device.</p>'+
 
       // Install Now button — only shown when the browser has fired beforeinstallprompt
@@ -14105,7 +14312,7 @@ function openMobileAppModal(){
       '<div class="mob-howto"><b>How to scan + install:</b>'+
         '<ol>'+
           '<li>Open your phone\'s camera app and point it at the QR code for your device</li>'+
-          '<li>Tap the notification to open Jarvis in your browser</li>'+
+          '<li>Tap the notification to open Martin in your browser</li>'+
           '<li>iOS: tap the <b>Share</b> button → "Add to Home Screen". Android: tap the menu (⋮) → "Install app" or "Add to Home Screen".</li>'+
           '<li>Jarvis icon appears on your home screen — launch it like any other app</li>'+
         '</ol>'+
@@ -18836,7 +19043,7 @@ async function studioCreds(){
         '<div class="s2-field"><label>Type</label><select id="wfcType">'+typeOpts+'</select></div>'+
         '<div id="wfcFields"></div>'+
         '<button class="btn primary" id="wfcSave" style="margin-top:8px;">'+jvIcon('save')+' Save credential</button>'+
-        '<div class="s2-note" style="margin-top:8px;">Secrets are stored locally by Jarvis on this machine and never leave it.</div>'+
+        '<div class="s2-note" style="margin-top:8px;">Secrets are stored locally by Martin on this machine and never leave it.</div>'+
       '</div>'+
     '</div></div>';
   document.body.appendChild(back);
@@ -18888,7 +19095,7 @@ async function studioMcp(){
         '<div class="s2-field"><label>Transport</label><select id="wfmTransport"><option value="sse">Remote (SSE)</option><option value="http">Remote (streamable HTTP)</option><option value="stdio">Local (stdio command)</option></select></div>'+
         '<div id="wfmFields"></div>'+
         '<button class="btn primary" id="wfmSave" style="margin-top:8px;">'+jvIcon('save')+' Save server</button>'+
-        '<div class="s2-note" style="margin-top:8px;">Remote connectors use an MCP endpoint URL (+ optional auth header). Local ones run a command. Requires the <code>mcp</code> Python package on the Jarvis host.</div>'+
+        '<div class="s2-note" style="margin-top:8px;">Remote connectors use an MCP endpoint URL (+ optional auth header). Local ones run a command. Requires the <code>mcp</code> Python package on the Martin host.</div>'+
       '</div>'+
     '</div></div>';
   document.body.appendChild(back);
@@ -21877,7 +22084,7 @@ async function renderDsCreate(panel){
       panel.innerHTML =
         '<div class="ds-empty">'+
           '<div class="ds-empty-icon">'+jvIcon('warn','big')+'</div>'+
-          '<div class="ds-empty-title">Could not reach Jarvis backend</div>'+
+          '<div class="ds-empty-title">Could not reach Martin backend</div>'+
           '<div class="ds-empty-sub">Backend returned: '+esc(e.message||'unknown error')+'</div>'+
           '<div style="margin-top:14px"><button class="btn primary" id="dsRetry">Retry</button></div>'+
         '</div>';
@@ -21928,7 +22135,7 @@ async function renderDsCreate(panel){
         : '');
   panel.innerHTML =
     (DS.config && !DS.config.configured
-      ? '<div class="ds-banner warn">'+jvIcon('warn')+' Airbyte URL not configured — open the <b>Airbyte config</b> tab to point Jarvis at your local Airbyte.</div>' : '')+
+      ? '<div class="ds-banner warn">'+jvIcon('warn')+' Airbyte URL not configured — open the <b>Airbyte config</b> tab to point Martin at your local Airbyte.</div>' : '')+
     fallbackBanner+
     '<div class="ds-toolbar">'+
       '<input type="text" class="ds-search" id="dsSearch" placeholder="Search 600+ connectors…" value="'+esc(DS.search)+'">'+
@@ -22109,6 +22316,7 @@ async function renderDsConfig(panel){
   });
 }
 
+{ const b=document.getElementById('navMartin'); if(b) b.addEventListener('click',function(){ (window.openMartinOverlay||showMartin)(); }); }
 document.getElementById('navConnect').addEventListener('click',showConnect);
 document.getElementById('navCurate').addEventListener('click',showCurate);
 document.getElementById('navAutomations').addEventListener('click',showAutomations);
@@ -23279,6 +23487,234 @@ document.getElementById('ej_delete').addEventListener('click', erdDeleteJoin);
 window.addEventListener('resize', ()=>{ if(document.getElementById('erdOverlay').classList.contains('show')) erdLayout(); });
 
 boot();
+</script>
+<script>
+/* ===================== MARTIN OVERLAY (voice + circuit board on top of the app) ===================== */
+(function(){
+  if(window.openMartinOverlay) return;
+  var st=document.createElement('style'); st.textContent=`
+    #mvov{position:fixed;z-index:9998;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;transition:all .45s cubic-bezier(.4,0,.2,1);background:#030b0a}
+    #mvov.imm{inset:0;border-radius:0;box-shadow:none;cursor:default}
+    #mvov.dock{right:22px;bottom:22px;width:176px;height:176px;border-radius:20px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.55),0 0 0 1px rgba(93,255,158,.25);cursor:pointer}
+    #mvov.hidden{display:none}
+    #mvCanvas{display:block;width:100%;height:100%}
+    #mvChrome{position:absolute;top:16px;right:18px;display:flex;gap:8px;z-index:3}
+    #mvov.dock #mvChrome,#mvov.dock .mvhud,#mvov.dock #mvCap{display:none}
+    .mvbtn{font:600 11px ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:#bff7d8;background:rgba(10,26,18,.6);border:1px solid rgba(93,255,158,.3);border-radius:8px;padding:7px 11px;cursor:pointer;backdrop-filter:blur(4px)}
+    .mvbtn:hover{background:rgba(20,60,40,.7)}
+    .mvhud{position:absolute;font-size:12px;letter-spacing:.24em;text-transform:uppercase;text-shadow:0 0 10px currentColor;opacity:.85;color:#57e6a0;pointer-events:none;z-index:2}
+    .mvhud .sub{display:block;font-size:9px;letter-spacing:.2em;opacity:.6;margin-top:4px}
+    .mvhud .on{color:#eafff0}
+    #mvTL{left:26px;top:22px}#mvTR{right:120px;top:22px;text-align:right}
+    #mvBL{left:26px;bottom:22px;font-size:9px;opacity:.5}#mvBR{right:26px;bottom:22px;font-size:9px;opacity:.5;text-align:right}
+    #mvCap{position:absolute;left:0;right:0;bottom:60px;text-align:center;color:#dff7e6;font-size:15px;text-transform:none;opacity:.92;text-shadow:0 0 12px rgba(0,0,0,.8);padding:0 8%;pointer-events:none;z-index:2}
+    #mvGate{position:absolute;inset:0;display:flex;flex-direction:column;gap:16px;align-items:center;justify-content:center;background:rgba(3,11,10,.55);z-index:4}
+    #mvGate .b{font:600 13px ui-monospace,monospace;color:#0a1a12;letter-spacing:.16em;text-transform:uppercase;background:#5dff9e;border:0;border-radius:10px;padding:14px 24px;cursor:pointer;box-shadow:0 0 30px rgba(93,255,158,.4)}
+    #mvGate .s{font-size:10px;color:#5a7a55;letter-spacing:.3em;text-transform:uppercase}
+  `; document.head.appendChild(st);
+  var ov=document.createElement('div'); ov.id='mvov'; ov.className='hidden';
+  ov.innerHTML='<canvas id="mvCanvas"></canvas>'+
+    '<div class="mvhud" id="mvTL">Martin<span class="sub">neural link · <span class="on" id="mvLnk">standby</span></span></div>'+
+    '<div class="mvhud" id="mvTR"><span id="mvSt">idle</span><span class="sub" id="mvClk">00:00:00</span></div>'+
+    '<div class="mvhud" id="mvBL">mic :: listening for you</div>'+
+    '<div class="mvhud" id="mvBR">talk to the screen</div>'+
+    '<div id="mvCap"></div>'+
+    '<div id="mvChrome"><button class="mvbtn" id="mvDock">⤢ Dock</button><button class="mvbtn" id="mvClose">✕</button></div>'+
+    '<div id="mvGate"><button class="b" id="mvStart">Talk to Martin</button><div class="s">click once to enable mic + voice</div></div>';
+  document.body.appendChild(ov);
+  var cv=document.getElementById('mvCanvas'), ctx=cv.getContext('2d');
+  var mvSt=document.getElementById('mvSt'),mvClk=document.getElementById('mvClk'),mvLnk=document.getElementById('mvLnk'),capEl=document.getElementById('mvCap'),gate=document.getElementById('mvGate');
+  var W,H,U,DPR=Math.min(1.25,window.devicePixelRatio||1),cx,cy;
+  var target='idle',level=0,levelTarget=0,micAnalyser=null,playAnalyser=null,micBuf=null,playBuf=null;
+  function rand(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function lp(a,b,t){return a+(b-a)*t;}function hx(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+  function mix(a,b,t){return[lp(a[0],b[0],t),lp(a[1],b[1],t),lp(a[2],b[2],t)];}
+  var PAL={idle:{tint:'#14514a',hot:'#3ef07a',glow:.35,rate:.35},listening:{tint:'#186a80',hot:'#57e8ff',glow:.6,rate:.7},thinking:{tint:'#8a6620',hot:'#ffce6a',glow:.72,rate:1},speaking:{tint:'#1a8564',hot:'#62ff90',glow:1,rate:1},alert:{tint:'#853030',hot:'#ff6b6a',glow:1,rate:.95}};
+  var WARM=[240,224,150],GOLD=[216,200,120],LET=[238,251,232];
+  var wires,chips,vias,panels,plate,rays;
+  function segOf(p){var l=[],T=0;for(var i=1;i<p.length;i++){var dx=p[i][0]-p[i-1][0],dy=p[i][1]-p[i-1][1],d=Math.hypot(dx,dy)||.001;l.push({a:p[i-1],b:p[i],l:d,ac:T});T+=d;}return{l:l,t:T};}
+  function pAt(s,t){t=Math.max(0,Math.min(1,t));var d=t*s.t,i=0,L=s.l;while(i<L.length-1&&d>L[i].ac+L[i].l)i++;var g=L[i],lt=(d-g.ac)/g.l;return[lp(g.a[0],g.b[0],lt),lp(g.a[1],g.b[1],lt)];}
+  function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1]);}
+  function build(){var rw=cv.clientWidth||window.innerWidth,rh=cv.clientHeight||window.innerHeight;W=cv.width=Math.floor(rw*DPR);H=cv.height=Math.floor(rh*DPR);U=Math.min(W,H);cx=W/2;cy=H/2;
+    var cell=Math.max(20,Math.round(U*.04)),cols=Math.ceil(W/cell)+1,rows=Math.ceil(H/cell)+1,rng=rand(20260714),dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]];
+    panels=[];for(var pnl=0;pnl<8;pnl++){var pw=(3+((rng()*5)|0))*cell,ph2=(2+((rng()*4)|0))*cell;panels.push({x:(rng()*(W-pw))|0,y:(rng()*(H-ph2))|0,w:pw,h:ph2,a:.02+rng()*.03});}
+    wires=[];var count=Math.max(50,Math.round((cols*rows)/6.5));for(var i=0;i<count;i++){var gx=(rng()*cols)|0,gy=(rng()*rows)|0,pts=[[gx*cell,gy*cell]],steps=3+((rng()*6)|0),d=dirs[(rng()*4)|0];for(var s=0;s<steps;s++){if(rng()<.42)d=dirs[(rng()*dirs.length)|0];var len=1+((rng()*4)|0);gx=Math.max(0,Math.min(cols-1,gx+d[0]*len));gy=Math.max(0,Math.min(rows-1,gy+d[1]*len));var np=[gx*cell,gy*cell];if(np[0]!==pts[pts.length-1][0]||np[1]!==pts[pts.length-1][1])pts.push(np);}if(pts.length<2)continue;var seg=segOf(pts),mid=pAt(seg,.5),cf=Math.max(0,1-dist(mid,[cx,cy])/(U*.55)),fwd=dist(pts[pts.length-1],[cx,cy])<dist(pts[0],[cx,cy]);wires.push({seg:seg,br:.09+rng()*.08,cf:cf,active:rng()<.42,fwd:fwd,spawn:rng()*3,sig:[]});}
+    chips=[];var cn=Math.max(10,Math.round(count*.2));for(var j=0;j<cn;j++){var w2=(1+((rng()*2)|0))*cell+cell*.4,h2=(1+((rng()*2)|0))*cell+cell*.4,x2=(rng()*(W-w2))|0,y2=(rng()*(H-h2))|0;if(dist([x2+w2/2,y2+h2/2],[cx,cy])<U*.27)continue;chips.push({x:x2,y:y2,w:w2,h:h2,pins:Math.max(3,(h2/(cell*.55))|0)});}
+    vias=[];for(var v=0;v<count*1.2;v++){if(rng()<.5)vias.push({x:(rng()*W)|0,y:(rng()*H)|0,r:DPR*(1+rng()*1.2),tw:rng()*6.28,sp:.5+rng()});}
+    plate={x:cx,y:cy,w:U*.5,h:U*.135};rays=[];var rn=15;for(var q=0;q<rn;q++)rays.push({ang:-Math.PI/2+(q-(rn-1)/2)*.135,ph:rng()*6.28,sp:.6+rng()*.9,len:.46+rng()*.28});}
+  var blend={idle:1,listening:0,thinking:0,speaking:0,alert:0},glow=.35,rate=.35,tPrev=performance.now();
+  function bcol(p){var o=[0,0,0],t=0;for(var s in blend){var c=hx(PAL[s][p]);o[0]+=c[0]*blend[s];o[1]+=c[1]*blend[s];o[2]+=c[2]*blend[s];t+=blend[s];}if(t>0){o[0]/=t;o[1]/=t;o[2]/=t;}return o;}
+  function rgb(o,a){return'rgba('+Math.round(o[0])+','+Math.round(o[1])+','+Math.round(o[2])+','+a+')';}function css(o){return'rgb('+Math.round(o[0])+','+Math.round(o[1])+','+Math.round(o[2])+')';}
+  function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+  function beam(ang,len,hw,col,a){ctx.save();ctx.translate(cx,cy);ctx.rotate(ang);var gr=ctx.createLinearGradient(0,0,len,0);gr.addColorStop(0,rgb(col,a));gr.addColorStop(.5,rgb(col,a*.4));gr.addColorStop(1,rgb(col,0));ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(len,-hw);ctx.lineTo(len,hw);ctx.closePath();ctx.fill();ctx.restore();}
+  function streak(seg,head,dir,len,ch){var N=9,pts=[];for(var k=0;k<=N;k++){var tt=head-dir*len*(k/N);if(tt<0||tt>1)continue;pts.push(pAt(seg,tt));}if(pts.length<2)return;ctx.lineWidth=DPR*4.5;ctx.strokeStyle=rgb(ch,.1*(.6+glow*.6));ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(var a=1;a<pts.length;a++)ctx.lineTo(pts[a][0],pts[a][1]);ctx.stroke();for(var b=0;b<pts.length-1;b++){var w=1-b/(pts.length-1);ctx.lineWidth=DPR*(1.4+w*1.3);ctx.strokeStyle=rgb(ch,.25+.7*w);ctx.beginPath();ctx.moveTo(pts[b][0],pts[b][1]);ctx.lineTo(pts[b+1][0],pts[b+1][1]);ctx.stroke();}ctx.fillStyle=rgb(LET,.95);ctx.beginPath();ctx.arc(pts[0][0],pts[0][1],DPR*(1.5+level*1.2),0,6.283);ctx.fill();}
+  function rms(an,buf){if(!an)return 0;an.getByteTimeDomainData(buf);var s=0;for(var i=0;i<buf.length;i++){var v=(buf[i]-128)/128;s+=v*v;}return Math.min(1,Math.sqrt(s/buf.length)*3.2);}
+  function draw(now){var dt=Math.min(.05,(now-tPrev)/1000);tPrev=now;
+    if(target==='speaking')levelTarget=rms(playAnalyser,playBuf);else if(target==='listening')levelTarget=rms(micAnalyser,micBuf);else levelTarget=0;
+    for(var k in blend)blend[k]=lp(blend[k],k===target?1:0,1-Math.pow(.002,dt));var laa=levelTarget>level?(1-Math.pow(.001,dt/.12)):(1-Math.pow(.001,dt/.4));level=lp(level,levelTarget,laa);
+    var g=0,r=0,sm=0;for(var s in blend){g+=PAL[s].glow*blend[s];r+=PAL[s].rate*blend[s];sm+=blend[s];}if(sm>0){g/=sm;r/=sm;}glow=lp(glow,g+level*.4,1-Math.pow(.02,dt));rate=lp(rate,r,1-Math.pow(.06,dt));
+    var tint=bcol('tint'),hot=bcol('hot'),warm=WARM,I=.62+glow*.42+level*.5;
+    ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.fillStyle='#030b0a';ctx.fillRect(0,0,W,H);
+    for(var pn=0;pn<panels.length;pn++){var pl=panels[pn];ctx.fillStyle=rgb(tint,pl.a);ctx.fillRect(pl.x,pl.y,pl.w,pl.h);}
+    ctx.globalCompositeOperation='lighter';
+    var hg=ctx.createRadialGradient(cx,cy,0,cx,cy,U*.68);hg.addColorStop(0,rgb(mix(warm,[255,255,240],.35),.78*I));hg.addColorStop(.16,rgb(mix(warm,[255,255,235],.15),.5*I));hg.addColorStop(.34,rgb(warm,.28*I));hg.addColorStop(.6,rgb(mix(warm,hot,.5),.14*I));hg.addColorStop(1,'rgba(3,11,10,0)');ctx.fillStyle=hg;ctx.fillRect(0,0,W,H);
+    for(var ri=0;ri<rays.length;ri++){var ry=rays[ri],fl=.6+.4*Math.sin(now*.001*ry.sp+ry.ph);beam(ry.ang,U*ry.len*(.9+level*.5),U*.017*(.6+fl*.8),warm,(.16+.14*fl)*I);}
+    ctx.lineCap='round';ctx.lineJoin='round';
+    for(var i=0;i<wires.length;i++){var w=wires[i],L=w.seg.l,wc=mix(tint,warm,w.cf*.55);ctx.beginPath();ctx.moveTo(L[0].a[0],L[0].a[1]);for(var q=0;q<L.length;q++)ctx.lineTo(L[q].b[0],L[q].b[1]);ctx.lineWidth=DPR*(1+w.cf*.4);ctx.strokeStyle=rgb(wc,(w.br+w.cf*.14)*(.7+glow*.5));ctx.stroke();}
+    for(var vi=0;vi<vias.length;vi++){var vv=vias[vi],tw=.5+.5*Math.sin(now*.001*vv.sp+vv.tw);ctx.fillStyle=rgb(hot,(.05+tw*.08)*(.5+glow*.5));ctx.fillRect(vv.x-vv.r,vv.y-vv.r,vv.r*2,vv.r*2);}
+    ctx.globalCompositeOperation='source-over';
+    for(var ci=0;ci<chips.length;ci++){var o=chips[ci];rr(o.x,o.y,o.w,o.h,DPR*2);ctx.fillStyle='rgba(3,11,10,.9)';ctx.fill();ctx.lineWidth=DPR;ctx.strokeStyle=rgb(tint,.5+glow*.25);ctx.stroke();ctx.strokeStyle=rgb(tint,.32+glow*.2);for(var pnp=1;pnp<=o.pins;pnp++){var py=o.y+o.h*pnp/(o.pins+1);ctx.beginPath();ctx.moveTo(o.x,py);ctx.lineTo(o.x-DPR*3,py);ctx.moveTo(o.x+o.w,py);ctx.lineTo(o.x+o.w+DPR*3,py);ctx.stroke();}ctx.fillStyle=rgb(hot,.4);ctx.beginPath();ctx.arc(o.x+DPR*5,o.y+DPR*5,DPR*1.3,0,6.283);ctx.fill();}
+    ctx.globalCompositeOperation='lighter';var sln=U*.06;
+    for(var wi=0;wi<wires.length;wi++){var wr=wires[wi];if(!wr.active)continue;wr.spawn-=dt*rate;if(wr.spawn<=0){wr.spawn=1.4+Math.random()*2.6;wr.sig.push({t:wr.fwd?0:1,sp:.3+Math.random()*.18});}var d2=wr.fwd?1:-1,lf=Math.min(.85,sln/wr.seg.t);for(var si=wr.sig.length-1;si>=0;si--){var sg2=wr.sig[si];sg2.t+=d2*sg2.sp*dt*(.6+rate*.8);if(sg2.t<-.03||sg2.t>1.03){wr.sig.splice(si,1);continue;}streak(wr.seg,Math.max(0,Math.min(1,sg2.t)),d2,lf,hot);}}
+    var px=plate.x,py=plate.y,pw=plate.w,ph=plate.h;ctx.globalCompositeOperation='source-over';rr(px-pw/2,py-ph/2,pw,ph,ph*.2);ctx.fillStyle='rgba(3,10,9,.92)';ctx.fill();
+    ctx.globalCompositeOperation='lighter';ctx.lineWidth=DPR*7;ctx.strokeStyle=rgb(GOLD,.16+glow*.14);rr(px-pw/2,py-ph/2,pw,ph,ph*.2);ctx.stroke();ctx.lineWidth=DPR*4;ctx.strokeStyle=rgb(GOLD,.34+glow*.18);rr(px-pw/2,py-ph/2,pw,ph,ph*.2);ctx.stroke();ctx.lineWidth=DPR*1.8;ctx.strokeStyle=rgb(mix(GOLD,[255,248,210],.4),.92+glow*.08);rr(px-pw/2,py-ph/2,pw,ph,ph*.2);ctx.stroke();
+    var label='M.A.R.T.I.N.',maxW=pw-ph*.85,fs=ph*.46;ctx.textAlign='center';ctx.textBaseline='middle';function tw2(f){ctx.font='600 '+Math.round(f)+'px ui-monospace,Menlo,monospace';try{ctx.letterSpacing='0px';}catch(e){}return ctx.measureText(label).width+(f*.12)*(label.length-1);}var gd=0;while(tw2(fs)>maxW&&fs>6&&gd++<40)fs*=.94;ctx.fillStyle=css(LET);ctx.font='600 '+Math.round(fs)+'px ui-monospace,Menlo,monospace';try{ctx.letterSpacing=Math.round(fs*.12)+'px';}catch(e){}ctx.shadowColor=rgb(warm,1);ctx.shadowBlur=DPR*18;ctx.fillText(label,px,py+DPR);ctx.shadowBlur=DPR*9;ctx.fillText(label,px,py+DPR);ctx.shadowBlur=0;try{ctx.letterSpacing='0px';}catch(e){}
+    ctx.globalCompositeOperation='source-over';var vg=ctx.createRadialGradient(cx,cy,U*.26,cx,cy,Math.max(W,H)*.72);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.78)');ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+    if(mvSt) mvSt.textContent=target; if(mvClk){var d=new Date();mvClk.textContent=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2);}
+    var col=css(hot);['mvTL','mvTR','mvBL','mvBR'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.color=col;});
+    if(!ov.classList.contains('hidden')) requestAnimationFrame(draw);
+  }
+
+  // ---- voice controller ----
+  var recog=null,ws=null,actx=null,pq=[],playing=false,curSrc=null,recogOn=false,recogPaused=false,started=false,raf=false;
+  var IDMAP={martin:'navMartin',pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',studio:'navStudio',marketplace:'navMarketplace',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
+  var NAVWORDS=[['test and learn','experiments'],['report designer','designer'],['query builder','query'],['data marketplace','marketplace'],['ask ai','ask'],['metrics','metrics'],['metric','metrics'],['knowledge','knowledge'],['pulse','pulse'],['briefs','briefs'],['brief','briefs'],['dashboards','dashboards'],['dashboard','dashboards'],['goals','goals'],['goal','goals'],['funnel','funnel'],['experiments','experiments'],['experiment','experiments'],['agents','agents'],['agent','agents'],['studio','studio'],['marketplace','marketplace'],['connect','connect'],['automations','automations'],['automation','automations'],['reports','automations'],['report','automations'],['admin','admin'],['designer','designer'],['query','query'],['schema','curate'],['curate','curate'],['home','martin']];
+  function setCap(t){ if(capEl) capEl.textContent=t||''; }
+  function startRecog(){ if(!recog)return; recogOn=true; recogPaused=false; try{recog.start();}catch(e){} }
+  function pauseRecog(){ recogPaused=true; if(recog){try{recog.stop();}catch(e){}} }
+  function resumeRecog(){ recogPaused=false; if(recogOn&&recog){try{recog.start();}catch(e){}} }
+  function playNext(){ if(pq.length===0){playing=false;curSrc=null;if(target==='speaking'){target='idle';resumeRecog();}return;} playing=true;var buf=pq.shift();var src=actx.createBufferSource();src.buffer=buf;src.connect(playAnalyser);curSrc=src;src.onended=function(){if(curSrc===src)playNext();};src.start(); }
+  function enqueueAudio(b64){ if(actx.state==='suspended')actx.resume(); try{var bin=atob(b64),by=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)by[i]=bin.charCodeAt(i);actx.decodeAudioData(by.buffer.slice(0)).then(function(ab){pq.push(ab);target='speaking';pauseRecog();if(!playing)playNext();}).catch(function(){if(!playing&&pq.length)playNext();});}catch(e){} }
+  function openWS(){ var proto=location.protocol==='https:'?'wss':'ws'; ws=new WebSocket(proto+'://'+location.host+'/ws/voice');
+    ws.onopen=function(){ if(mvLnk){mvLnk.textContent='connected';mvLnk.className='on';} };
+    ws.onclose=function(){ if(mvLnk){mvLnk.textContent='reconnecting';mvLnk.className='';} setTimeout(openWS,1500); };
+    ws.onmessage=function(ev){var m;try{m=JSON.parse(ev.data);}catch(e){return;}var t=m.type;
+      if(t==='status'){ if(m.state==='thinking')target='thinking'; else if(m.state==='idle'){ if(!playing){target='idle';resumeRecog();} } }
+      else if(t==='audio'){ if(m.text)setCap(m.text); enqueueAudio(m.data); }
+      else if(t==='text'){ if(m.text)setCap(m.text); target='idle'; resumeRecog(); } }; }
+  function tryNavigate(text){ var t=text.toLowerCase(); if(!/\b(take me to|go to|show me|open|navigate to|switch to|bring up|pull up|jump to)\b/.test(t)) return false;
+    for(var i=0;i<NAVWORDS.length;i++){ if(t.indexOf(NAVWORDS[i][0])>=0){ var sec=NAVWORDS[i][1]; if(sec==='martin'){ expand(); setCap('Here, sir.'); return true; } var el=document.getElementById(IDMAP[sec]); if(el){ setCap('Opening '+NAVWORDS[i][0]+'…'); dock(); el.click(); return true; } } } return false; }
+  // ---- Phase 2: data / Ask-AI routing (KTX + BigQuery Orlando Health) ----
+  var DATA_RE=/\b(how (many|much|did|are|is|was|were)|how'?s|what('| i)?s the (number|count|total|trend|average|rate)|number of|trend|compare|versus|\bvs\b|year over year|month over month|last (month|quarter|week|year)|this (month|quarter|week|year)|bookings?|appointments?|referrals?|revenue|leads?|conversion|volume|patients?|encounters?|spend|budget|\broi\b|\bcac\b|\bltv\b|cost per|growth|top \d|breakdown|by service line|service line|cardiology|oncology|orthoped|neuro|bariatric|women'?s health)\b/i;
+  function detectData(t){ return DATA_RE.test(t); }
+  function speak(text){ if(!text||!actx)return; var body=JSON.stringify({text:text});
+    var p; try{ p = window.api ? Promise.resolve(window.api('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:body})) : fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:body}).then(function(r){return r.json();}); }catch(e){ return; }
+    p.then(function(d){ if(d&&d.audio) enqueueAudio(d.audio); }).catch(function(){}); }
+  function narrateAnswer(){ var last=-1,stable=0,tries=0; var iv=setInterval(function(){ tries++; var res=document.getElementById('askResult');
+    if(res && res.offsetParent!==null){ var txt=(res.innerText||'').replace(/\s+/g,' ').trim();
+      if(txt.length>100){ if(txt.length===last){stable++;}else{stable=0;last=txt.length;} if(stable>=3){ clearInterval(iv); var head=txt.split(/(?<=[.!?])\s/).slice(0,2).join(' ').slice(0,240); if(head) speak(head); return; } } }
+    if(tries>50){ clearInterval(iv); } },500); }
+  function routeToAsk(q){ setCap('“'+q+'”'); speak('On it — pulling that up, sir.'); dock();
+    var nav=document.getElementById('navAsk'); if(nav) nav.click(); else if(typeof showAsk==='function') showAsk();
+    setTimeout(function(){ var inp=document.getElementById('askInput'); if(inp) inp.value=q; try{ if(typeof doResearch==='function') doResearch(); else { var go=document.getElementById('askGo'); if(go) go.click(); } }catch(e){}
+      target='thinking'; narrateAnswer(); },380); }
+
+  // ---- Phase 3: goal → agent orchestrator (compliance gate + approvals + animation) ----
+  var GOAL_RE=/\b(launch|delegate|coordinate|research|draft|compose|write (a |an |the |me )?(post|posts|email|emails|ad|ads|copy|caption|captions|blog|newsletter)|create (a |an |the )?(campaign|lead magnet|ad|segment|audience|journey|nurture|funnel)|build (a |an |the )?(segment|audience|journey|funnel|list)|plan (a |an |the )?funnel|win.?back|nurture|reengage|re-?engage|run (a |an )?(campaign|ad|experiment)|set up (a |an )?(campaign|journey|automation|funnel)|have the team|get the team|competitor|social post|content calendar)\b/i;
+  function detectGoal(t){ return GOAL_RE.test(t); }
+  function routeToGoal(q){ setCap('“'+q+'”'); speak('Delegating to the team, sir.'); dock(); try{ if(typeof showMartin==='function') showMartin(); }catch(e){}
+    var set=false,started=false,tries=0; var iv=setInterval(function(){ tries++;
+      var g=document.getElementById('mtGoal'),b=document.getElementById('mtDelegate'),rw=document.getElementById('mtRunWrap');
+      if(g&&!set){ g.value=q; set=true; }
+      if(rw && rw.style.display!=='none'){ started=true; }
+      else if(b&&set){ try{ b.click(); }catch(e){} }
+      if(started||tries>30){ clearInterval(iv); if(started){ setCap('Coordinating the agents…'); target='thinking'; } } },200); }
+  function detectApprove(t){ return /\b(approve|approved|go ahead|do it|send it|launch it|ship it|confirmed|you can send|you have my approval)\b/i.test(t); }
+  function tryApprove(){ var b=document.querySelector('[data-mtapprove],[data-approve]'); if(b){ speak('Approved.'); setCap('Approved — continuing.'); b.click(); return true; } return false; }
+
+  // ---- Phase 4: capture to the vault (goal / rule / knowledge) — confirm first ----
+  var pendingCapture=null;
+  var GOALSET_RE=/\b(set (a |our |the )?goal|new goal|our goal is|add (this |it )?to (my |our )?priorities|add a priority|make (it|this) a priority|remind me to)\b/i;
+  var RULE_RE=/\b(add (a |another )?rule|new rule|make (a )?rule|set a rule|the rule is|rule for martin)\b/i;
+  var KNOW_RE=/\b(remember (that|this)|add (this |it )?to (our |the )?knowledge|note that|for future reference|save this|make a note|keep in mind)\b/i;
+  function stripLead(text,re){ var t=text.replace(re,''); return (t.replace(/^[\s,:;\-–—]+/,'').replace(/^(that|to)\s+/i,'').trim())||text.trim(); }
+  function detectCapture(text){ if(GOALSET_RE.test(text)) return {kind:'goal',text:stripLead(text,GOALSET_RE)}; if(RULE_RE.test(text)) return {kind:'rule',text:stripLead(text,RULE_RE)}; if(KNOW_RE.test(text)) return {kind:'knowledge',text:stripLead(text,KNOW_RE)}; return null; }
+  function post(url,obj){ var body=JSON.stringify(obj); try{ if(window.api) return Promise.resolve(window.api(url,{method:'POST',headers:{'Content-Type':'application/json'},body:body})); }catch(e){} return fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:body}).then(function(r){return r.json();}); }
+  function noun(k){ return k==='goal'?'goal':k==='rule'?'rule':'note'; }
+  function beginCapture(c){ pendingCapture=c; setCap('New '+noun(c.kind)+': “'+c.text+'” — say “save it” to confirm, or restate it.'); speak('I have this '+noun(c.kind)+': '+c.text+'. Shall I save it?'); target='thinking'; }
+  function confirmYes(t){ return /\b(save it|save that|save|yes|yep|confirm|correct|do it|go ahead|please do|that'?s right)\b/i.test(t); }
+  function confirmNo(t){ return /\b(no|nope|cancel|never ?mind|forget it|discard|scratch that)\b/i.test(t); }
+  function doCapture(){ var pc=pendingCapture; pendingCapture=null; if(!pc)return; speak('Saved, sir.'); setCap('Saved the '+noun(pc.kind)+' to your vault.'); post('/api/orchestrator/capture',{kind:pc.kind,text:pc.text}).catch(function(){}); }
+
+  // ---- Setup: who am I talking to? identity + interview + per-person memory ----
+  var STAGE='pre', person=null, iIdx=0, answers={}, sessionLog=[], onboardStarted=false, pendingEnd=false;
+  var INTERVIEW=[
+    {k:'role', q:'What is your role — a service line manager, physician relations, or an executive?'},
+    {k:'service_line', q:'Which service line or area do you look after?'},
+    {k:'priorities', q:'What are your top priorities right now?'},
+    {k:'automations', q:'What recurring tasks or automations would you love me to handle for you?'},
+    {k:'context', q:'Anything about your service line I should know to help you well?'}
+  ];
+  function get(url){ try{ if(window.api) return Promise.resolve(window.api(url)); }catch(e){} return fetch(url).then(function(r){return r.json();}); }
+  function firstName(n){ return ((n||'').trim().split(/\s+/)[0]||'there'); }
+  function cleanName(t){ return (t||'').replace(/\b(my name is|i am|i'?m|this is|it'?s|hi|hello|hey|good (morning|afternoon|evening))\b/gi,'').replace(/[^A-Za-z'\-\s]/g,'').replace(/\s+/g,' ').trim(); }
+  function log(s){ if(s) sessionLog.push(s); }
+  function startOnboarding(){ if(onboardStarted)return; onboardStarted=true; STAGE='await_name'; setCap('I’m Martin. May I have your first and last name?'); speak('Good day. I’m Martin, your operations partner. Before we begin, may I have your first and last name?'); }
+  function onboarding(text){
+    if(STAGE==='await_name'){ var nm=cleanName(text); if(nm.length<2){ speak('Sorry, may I have your first and last name?'); return; } person={name:nm}; setCap('Looking you up…');
+      get('/api/orchestrator/person?name='+encodeURIComponent(nm)).then(function(d){ if(d&&d.found){ STAGE='active'; setCap('Welcome back, '+firstName(nm)+'. How can I help?'); speak('Welcome back, '+firstName(nm)+'. Good to see you. What shall we work on?'); }
+        else { STAGE='interview'; iIdx=0; answers={}; setCap(INTERVIEW[0].q); speak('Lovely to meet you, '+firstName(nm)+'. A few quick questions so I can help you properly. '+INTERVIEW[0].q); } })
+      .catch(function(){ STAGE='interview'; iIdx=0; answers={}; setCap(INTERVIEW[0].q); speak('Lovely to meet you, '+firstName(nm)+'. '+INTERVIEW[0].q); }); return; }
+    if(STAGE==='interview'){ answers[INTERVIEW[iIdx].k]=text.trim(); iIdx++;
+      if(iIdx<INTERVIEW.length){ setCap(INTERVIEW[iIdx].q); speak(INTERVIEW[iIdx].q); }
+      else { post('/api/orchestrator/person',{name:person.name,fields:answers}).catch(function(){}); STAGE='active'; log('Onboarded '+person.name); setCap('Thank you — your profile is saved. How can I help?'); speak('Thank you, '+firstName(person.name)+'. I have saved your profile. Now, how can I help?'); } return; }
+  }
+  // ---- Phase 5: guided build (automation / agent / dashboard / report / funnel) ----
+  var BUILD_RE=/\b(build|create|set ?up|make|design)\b[\s\S]*\b(automation|workflow|agent|dashboard|report|funnel)\b|\b(i want to|help me|walk me through|show me how to)\b[\s\S]*\b(automation|workflow|agent|dashboard|report)\b/i;
+  function detectBuild(t){ return BUILD_RE.test(t); }
+  function routeBuild(q){ var t=q.toLowerCase(),sec,intro;
+    if(/agent/.test(t)){ sec='studio'; intro='Let’s build an agent team. Opening the Studio. First — what outcome should this agent produce, and how often?'; }
+    else if(/automation|workflow/.test(t)){ sec='automations'; intro='Let’s set up an automation. Opening Automations. First — what should trigger it: a schedule, or an event?'; }
+    else if(/dashboard/.test(t)){ sec='curate'; intro='Let’s build a dashboard. We start at the Schema layer. First — which dataset or service line is this about?'; }
+    else if(/report/.test(t)){ sec='designer'; intro='Let’s build a report. Opening the Designer. First — what’s the report about, and who’s it for?'; }
+    else if(/funnel/.test(t)){ sec='funnel'; intro='Let’s map a funnel. Opening the Funnel view. What offer is this funnel for?'; }
+    else { sec='studio'; intro='Let’s build it together in the Studio.'; }
+    setCap(intro); speak(intro); dock(); var el=document.getElementById(IDMAP[sec]); if(el) el.click(); log('Guided build: '+q); }
+  // ---- end of session ----
+  function detectEnd(t){ return /\b(i'?m done|that'?s (all|it)( for (today|now))?|wrap (it |things )?up|end (the )?session|log (the |today'?s )?session|good ?bye|hang up|call it (a day|quits)|we'?re done)\b/i.test(t); }
+  function doEndSession(){ pendingEnd=false; var summary=sessionLog.length?sessionLog.slice(-6).join('; '):'General conversation.'; if(person&&person.name){ post('/api/orchestrator/session_note',{name:person.name,text:summary}).catch(function(){}); } speak('Logged. Good working with you'+(person?', '+firstName(person.name):'')+'. Until next time.'); setCap('Session logged to your vault. See you next time.'); setTimeout(function(){ close_(); },2600); }
+
+  function routeIntent(text){ if(!text)return;
+    if(pendingCapture){ if(confirmNo(text)){ pendingCapture=null; setCap('Discarded.'); speak('Discarded.'); return; } if(confirmYes(text)){ doCapture(); return; } pendingCapture.text=text.trim(); setCap('Updated '+noun(pendingCapture.kind)+': “'+text+'” — say “save it” to confirm.'); speak('Updated. Shall I save it now?'); return; }
+    if(pendingEnd){ if(confirmYes(text)){ doEndSession(); return; } if(confirmNo(text)){ pendingEnd=false; setCap('Carry on.'); speak('Of course — carry on.'); return; } }
+    if(detectEnd(text)){ pendingEnd=true; setCap('Shall I log today’s session before you go?'); speak('Shall I log what we worked on before you go?'); return; }
+    if(tryNavigate(text)){ log('Opened a section'); return; }
+    if(detectApprove(text) && tryApprove()){ log('Approved a step'); return; }
+    var cap=detectCapture(text); if(cap && cap.text){ beginCapture(cap); return; }
+    if(detectBuild(text)){ routeBuild(text); return; }
+    if(detectGoal(text)){ log('Delegated: '+text); routeToGoal(text); return; }
+    if(detectData(text)){ log('Asked: '+text); routeToAsk(text); return; }
+    setCap('“'+text+'”'); target='thinking'; pauseRecog(); if(ws&&ws.readyState===1) ws.send(JSON.stringify({type:'transcript',text:text,isFinal:true})); }
+
+  function handleUser(text){ if(!text)return; if(!onboardStarted){ startOnboarding(); return; } if(STAGE!=='active'){ onboarding(text); return; } routeIntent(text); }
+  function initRecog(){ var SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR){ setCap('This browser has no speech recognition — use Chrome.'); return; }
+    recog=new SR(); recog.continuous=true; recog.interimResults=true; recog.lang='en-US';
+    recog.onresult=function(e){ if(recogPaused)return; for(var i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal){ var tx=e.results[i][0].transcript.trim(); if(tx)handleUser(tx); } } };
+    recog.onend=function(){ if(recogOn&&!recogPaused){try{recog.start();}catch(e){}} };
+    recog.onerror=function(e){ if(e.error==='not-allowed'){ setCap('Microphone blocked — allow mic access and reload.'); recogOn=false; } }; }
+  async function startVoice(){ if(started)return; started=true; gate.style.display='none';
+    actx=new (window.AudioContext||window.webkitAudioContext)(); playAnalyser=actx.createAnalyser(); playAnalyser.fftSize=256; playAnalyser.smoothingTimeConstant=.8; playAnalyser.connect(actx.destination); playBuf=new Uint8Array(playAnalyser.fftSize);
+    try{ await actx.resume(); var b=actx.createBuffer(1,1,22050),s=actx.createBufferSource(); s.buffer=b; s.connect(actx.destination); s.start(0); }catch(e){}
+    try{ var stream=await navigator.mediaDevices.getUserMedia({audio:true}); var msrc=actx.createMediaStreamSource(stream); micAnalyser=actx.createAnalyser(); micAnalyser.fftSize=256; micAnalyser.smoothingTimeConstant=.7; msrc.connect(micAnalyser); micBuf=new Uint8Array(micAnalyser.fftSize); }catch(e){ setCap('Microphone blocked — allow mic access and reload.'); }
+    initRecog(); openWS(); startRecog(); target='listening'; setTimeout(function(){ startOnboarding(); },1400); }
+
+  // ---- overlay control ----
+  function loop(){ if(!raf){ raf=true; requestAnimationFrame(function(f){ raf=false; draw(f); }); } }
+  function relayout(){ setTimeout(function(){ build(); loop(); },60); }
+  function show(cls){ ov.classList.remove('hidden','imm','dock'); ov.classList.add(cls); relayout(); }
+  function expand(){ show('imm'); }
+  function dock(){ show('dock'); }
+  function close_(){ ov.classList.add('hidden'); }
+  function openMartinOverlay(){ setNav && setNav('martin'); if(ov.classList.contains('dock')){ expand(); return; } expand();
+    if(!started){ startVoice(); } }
+  document.getElementById('mvDock').addEventListener('click',function(e){ e.stopPropagation(); dock(); });
+  document.getElementById('mvClose').addEventListener('click',function(e){ e.stopPropagation(); close_(); });
+  document.getElementById('mvStart').addEventListener('click',function(e){ e.stopPropagation(); startVoice(); });
+  ov.addEventListener('click',function(){ if(ov.classList.contains('dock')) expand(); });
+  addEventListener('keydown',function(e){ if(e.key==='Escape'&&ov.classList.contains('imm')) dock(); });
+  addEventListener('resize',function(){ if(!ov.classList.contains('hidden')) relayout(); });
+  window.openMartinOverlay=openMartinOverlay; window.dockMartin=dock; window.expandMartin=expand;
+})();
 </script>
 </body>
 </html>
