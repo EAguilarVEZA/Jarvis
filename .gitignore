@@ -54,3 +54,10 @@ _backups/
 *.bak.*
 _logo_preview.png
 *.png.tmp
+
+data/jarvis.db
+data/usage_log.jsonl
+cdp_journey_runs.json
+workflow_runs.json
+semantic/jobs.json
+datavant_assets.json
