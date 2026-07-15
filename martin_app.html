@@ -23596,14 +23596,14 @@ boot();
   }
 
   // ---- voice controller ----
-  var recog=null,ws=null,actx=null,pq=[],playing=false,curSrc=null,recogOn=false,recogPaused=false,started=false,raf=false;
+  var recog=null,ws=null,actx=null,pq=[],playing=false,curSrc=null,recogOn=false,recogPaused=false,started=false,raf=false,guardUntil=0;
   var IDMAP={martin:'navMartin',pulse:'navPulse',ask:'navAsk',query:'navQuery',metrics:'navMetrics',briefs:'navBriefs',dashboards:'navDash',designer:'navDesigner',goals:'navGoals',funnel:'navFunnel',experiments:'navExperiments',agents:'navAgents',studio:'navStudio',marketplace:'navMarketplace',connect:'navConnect',curate:'navCurate',knowledge:'navKnowledge',automations:'navAutomations',admin:'navAdmin'};
   var NAVWORDS=[['test and learn','experiments'],['report designer','designer'],['query builder','query'],['data marketplace','marketplace'],['ask ai','ask'],['metrics','metrics'],['metric','metrics'],['knowledge','knowledge'],['pulse','pulse'],['briefs','briefs'],['brief','briefs'],['dashboards','dashboards'],['dashboard','dashboards'],['goals','goals'],['goal','goals'],['funnel','funnel'],['experiments','experiments'],['experiment','experiments'],['agents','agents'],['agent','agents'],['studio','studio'],['marketplace','marketplace'],['connect','connect'],['automations','automations'],['automation','automations'],['reports','automations'],['report','automations'],['admin','admin'],['designer','designer'],['query','query'],['schema','curate'],['curate','curate'],['home','martin']];
   function setCap(t){ if(capEl) capEl.textContent=t||''; }
   function startRecog(){ if(!recog)return; recogOn=true; recogPaused=false; try{recog.start();}catch(e){} }
-  function pauseRecog(){ recogPaused=true; if(recog){try{recog.stop();}catch(e){}} }
-  function resumeRecog(){ recogPaused=false; if(recogOn&&recog){try{recog.start();}catch(e){}} }
-  function playNext(){ if(pq.length===0){playing=false;curSrc=null;if(target==='speaking'){target='idle';resumeRecog();}return;} playing=true;var buf=pq.shift();var src=actx.createBufferSource();src.buffer=buf;src.connect(playAnalyser);curSrc=src;src.onended=function(){if(curSrc===src)playNext();};src.start(); }
+  function pauseRecog(){ recogPaused=true; } /* keep the mic running; just ignore results while Martin speaks (avoids stop/start races that kill recognition) */
+  function resumeRecog(){ recogPaused=false; guardUntil=performance.now()+700; if(recogOn&&recog){try{recog.start();}catch(e){}} }
+  function playNext(){ if(pq.length===0){playing=false;curSrc=null;if(target==='speaking'){target='listening';resumeRecog();}return;} playing=true;var buf=pq.shift();var src=actx.createBufferSource();src.buffer=buf;src.connect(playAnalyser);curSrc=src;src.onended=function(){if(curSrc===src)playNext();};src.start(); }
   function enqueueAudio(b64){ if(actx.state==='suspended')actx.resume(); try{var bin=atob(b64),by=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)by[i]=bin.charCodeAt(i);actx.decodeAudioData(by.buffer.slice(0)).then(function(ab){pq.push(ab);target='speaking';pauseRecog();if(!playing)playNext();}).catch(function(){if(!playing&&pq.length)playNext();});}catch(e){} }
   function openWS(){ var proto=location.protocol==='https:'?'wss':'ws'; ws=new WebSocket(proto+'://'+location.host+'/ws/voice');
     ws.onopen=function(){ if(mvLnk){mvLnk.textContent='connected';mvLnk.className='on';} };
@@ -23702,11 +23702,17 @@ boot();
       if(confirmNo(text)){ pendingConfirmName=null; STAGE='await_name'; voiceReset(); voiceCapturing=true; setCap('My apologies — may I have your first and last name?'); speak('My apologies. May I have your first and last name?'); return; }
       pendingConfirmName=null; STAGE='await_name'; voiceReset(); voiceCapturing=true; setCap('May I have your first and last name?'); speak('May I have your first and last name?'); return; }
     if(STAGE==='await_name'){ var nm=cleanName(text); if(nm.length<2){ speak('Sorry, may I have your first and last name?'); return; } setCap('Verifying you in the system…'); verifyThen(nm, function(name){ loadPersonActive(name, false); }); return; }
-    if(STAGE==='interview'){ answers[INTERVIEW[iIdx].k]=text.trim(); iIdx++;
-      if(iIdx<INTERVIEW.length){ setCap(INTERVIEW[iIdx].q); speak(INTERVIEW[iIdx].q); }
-      else { post('/api/orchestrator/person',{name:person.name,fields:answers}).catch(function(){}); saveVoiceprintNow(person.name); log('Onboarded '+person.name); STAGE='set_code'; setCap('Finally — set a secret code: a word or short phrase only you know, to verify yourself next time.'); speak('One last thing — please set a secret code. A word or short phrase only you know, that I’ll ask for to verify you next time. What would you like it to be?'); }
+    if(STAGE==='interview'){ var ans=(text||'').trim();
+      if(ans.length<2){ setCap(INTERVIEW[iIdx].q); speak('Sorry, I didn’t quite catch that. '+INTERVIEW[iIdx].q); return; }
+      answers[INTERVIEW[iIdx].k]=ans; post('/api/orchestrator/person',{name:person.name,fields:answers}).catch(function(){}); iIdx++;
+      if(iIdx<INTERVIEW.length){ setCap(INTERVIEW[iIdx].q); speak('Thank you. '+INTERVIEW[iIdx].q); }
+      else { saveVoiceprintNow(person.name); log('Onboarded '+person.name); STAGE='set_code'; setCap('Finally — set a secret code: a word or short phrase only you know.'); speak('Thank you. One last thing — please set a secret code, a word or short phrase only you know, that I’ll ask for to verify you next time. What would you like it to be?'); }
       return; }
-    if(STAGE==='set_code'){ post('/api/orchestrator/set_code',{name:person.name,code:text}).then(function(){ voiceCapturing=false; STAGE='active'; setCap('Secret code saved. How can I help?'); speak('Your secret code is saved. From now on I’ll recognise your voice and ask for that code. Now, how can I help?'); }).catch(function(){ voiceCapturing=false; STAGE='active'; setCap('How can I help?'); speak('Let’s carry on. How can I help?'); }); return; }
+    if(STAGE==='set_code'){ if((text||'').trim().length<2){ speak('That’s a little short. Please say a word or short phrase for your secret code.'); return; } post('/api/orchestrator/set_code',{name:person.name,code:text}).then(function(){ STAGE='offer_overview'; setCap('Saved. Would you like a quick overview of what I can do?'); speak('Your secret code is saved. Would you like a quick overview of what I can do — yes or no?'); }).catch(function(){ voiceCapturing=false; STAGE='active'; setCap('How can I help?'); speak('Let’s carry on. How can I help?'); }); return; }
+    if(STAGE==='offer_overview'){
+      if(confirmYes(text)){ voiceCapturing=false; STAGE='active'; setCap('Here’s a quick overview of what I can do.'); speak('Happy to. Here is what I can do. You can ask me about your service line’s numbers, and I’ll pull the data and show you the chart. You can hand me a goal — like researching competitors or drafting posts — and I’ll coordinate a team of specialist agents and pause for your approval before anything goes out. I can build reports, dashboards, and automations for your recurring work. And I remember your goals, rules, and notes in your vault, so I don’t forget. Just talk to me. Where would you like to start?'); return; }
+      if(confirmNo(text)){ voiceCapturing=false; STAGE='active'; setCap('Where would you like to start?'); speak('No problem. Where would you like to start?'); return; }
+      speak('Would you like a quick overview — yes, or no?'); return; }
     if(STAGE==='await_code'){ post('/api/orchestrator/verify_code',{name:pendingCodeName,code:text}).then(function(r){
         if(r&&r.ok){ var nm=pendingCodeName, bk=pendingBack; pendingCodeName=null; STAGE='active'; voiceCapturing=false; setCap('Verified. Good to see you, '+firstName(nm)+'. How can I help?'); speak((bk?'Good to see you again, ':'Welcome back, ')+firstName(nm)+'. What shall we work on?'); }
         else { codeAttempts++; if(codeAttempts>=3){ pendingCodeName=null; STAGE='greet'; voiceReset(); voiceCapturing=true; setCap('That code didn’t match. Let’s start over — how are you today?'); speak('That code didn’t match after a few tries. Let’s start fresh. How are you today?'); } else { setCap('That didn’t match — please say your secret code again.'); speak('That didn’t match. Please say your secret code again.'); } } })
@@ -23778,7 +23784,7 @@ boot();
   function handleUser(text){ if(!text)return; if(!onboardStarted){ startOnboarding(); return; } if(STAGE!=='active'){ onboarding(text); return; } routeIntent(text); }
   function initRecog(){ var SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR){ setCap('This browser has no speech recognition — use Chrome.'); return; }
     recog=new SR(); recog.continuous=true; recog.interimResults=true; recog.lang='en-US';
-    recog.onresult=function(e){ if(recogPaused)return; for(var i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal){ var tx=e.results[i][0].transcript.trim(); if(tx)handleUser(tx); } } };
+    recog.onresult=function(e){ if(recogPaused||performance.now()<guardUntil)return; for(var i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal){ var tx=e.results[i][0].transcript.trim(); if(tx)handleUser(tx); } } };
     recog.onend=function(){ if(recogOn&&!recogPaused){try{recog.start();}catch(e){}} };
     recog.onerror=function(e){ if(e.error==='not-allowed'){ setCap('Microphone blocked — allow mic access and reload.'); recogOn=false; } }; }
   async function startVoice(){ if(started)return; started=true; gate.style.display='none';
