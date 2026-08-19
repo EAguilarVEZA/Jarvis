@@ -61,3 +61,11 @@ cdp_journey_runs.json
 workflow_runs.json
 semantic/jobs.json
 datavant_assets.json
+
+# TLS material — self-signed localhost dev certs, never commit
+*.pem
+*.crt
+*.cer
+*.p12
+*.pfx
+*.pem.*
