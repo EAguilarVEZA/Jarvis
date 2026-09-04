@@ -20,6 +20,7 @@ Public API:
 Requires ANTHROPIC_API_KEY in the environment (same key Jarvis already uses).
 """
 from __future__ import annotations
+import system_llm  # route LLM calls through the active system model
 
 import asyncio
 import json
@@ -64,7 +65,7 @@ def _get_client() -> anthropic.AsyncAnthropic:
         key = os.environ.get("ANTHROPIC_API_KEY")
         if not key:
             raise RuntimeError("ANTHROPIC_API_KEY not set")
-        _client = anthropic.AsyncAnthropic(api_key=key)
+        _client = system_llm.anthropic_client(api_key=key)
     return _client
 
 

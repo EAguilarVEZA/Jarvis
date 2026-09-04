@@ -22,6 +22,7 @@ Routes (prefix /api/workflows):
 """
 from __future__ import annotations
 
+import system_llm  # route LLM calls through the active system model
 import json
 import os
 import re
@@ -52,7 +53,9 @@ _LLM_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "llm_provid
 def _get_llm_provider(pid):
     for p in _load(_LLM_PATH, "providers").get("providers", []):
         if p.get("id") == pid:
-            return p
+            # A provider fetched by explicit id (per-node model choice, Test button)
+            # is honored as-is and never overridden by the global system model.
+            return {**p, "_explicit": True}
     return None
 _VERS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "workflow_versions.json")
 _APPROVAL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "workflow_approvals.json")
@@ -911,7 +914,7 @@ async def _llm_transform(instruction, upstream, provider_id=None):
         return {"error": "AI not configured — pick an LLM provider on the node or set ANTHROPIC_API_KEY."}
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         model = os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6")
         resp = await client.messages.create(model=model, max_tokens=1200, system=system, messages=messages)
         return {"output": "".join(b.text for b in resp.content if getattr(b, "type", "") == "text")}
@@ -2035,7 +2038,7 @@ async def suggest(body: SuggestRequest):
         "agent_slug MUST be an exact slug from the roster. Each task is a concrete instruction for that agent.")
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         model = os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6")
         resp = await client.messages.create(
             model=model, max_tokens=800, system=system,
@@ -2120,7 +2123,7 @@ async def build_graph(body: BuildGraphRequest):
         "NODE CATALOG:\n" + _GRAPH_NODE_CATALOG + "\nAGENT SLUGS: " + slugs)
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         model = os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6")
         resp = await client.messages.create(
             model=model, max_tokens=1600, system=system,
@@ -2992,11 +2995,14 @@ async def delete_mcp_server(sid: str):
 @router.get("/llm_providers")
 async def list_llm_providers():
     import llm_router
-    provs = _load(_LLM_PATH, "providers").get("providers", [])
+    store = _load(_LLM_PATH, "providers")
+    provs = store.get("providers", [])
+    active_id = store.get("active_id")
     safe = [{"id": p.get("id"), "name": p.get("name"), "type": p.get("type"),
              "model": p.get("model"), "base_url": p.get("base_url", ""),
-             "local": llm_router.is_local(p), "has_key": bool(p.get("api_key"))} for p in provs]
-    return {"ok": True, "providers": safe,
+             "local": llm_router.is_local(p), "has_key": bool(p.get("api_key")),
+             "active": p.get("id") == active_id} for p in provs]
+    return {"ok": True, "providers": safe, "active_id": active_id,
             "types": ["anthropic", "openai", "openai_compatible", "gemini", "ollama"]}
 
 
@@ -3035,8 +3041,99 @@ async def save_llm_provider(body: LLMProviderRequest):
 async def delete_llm_provider(pid: str):
     store = _load(_LLM_PATH, "providers")
     store["providers"] = [p for p in store.get("providers", []) if p.get("id") != pid]
+    if store.get("active_id") == pid:
+        store["active_id"] = None      # don't leave the system pointing at a deleted model
     _save(_LLM_PATH, store)
     return {"ok": True}
+
+
+# ── Which model runs the SYSTEM (Martin + KTX data-question planner) ──────────
+@router.get("/llm_active")
+async def get_llm_active():
+    """Report the model currently powering Martin + the data planner."""
+    try:
+        import system_llm
+        system_llm.ensure_seed()
+        return {"ok": True, "active": system_llm.active_summary()}
+    except Exception as e:
+        return {"error": f"Could not read active model: {e}"}
+
+
+class LLMActiveRequest(BaseModel):
+    id: Optional[str] = None   # provider id, or null / "" to fall back to the default Claude
+
+
+@router.post("/llm_active")
+async def set_llm_active(body: LLMActiveRequest):
+    """Choose which configured provider runs the system. Pass id=null to reset to the Claude default."""
+    try:
+        import system_llm
+        ok = system_llm.set_active((body.id or "").strip() or None)
+        if not ok:
+            return {"error": "That provider no longer exists."}
+        return {"ok": True, "active": system_llm.active_summary()}
+    except Exception as e:
+        return {"error": f"Could not set active model: {e}"}
+
+
+class LLMTestRequest(BaseModel):
+    id: str
+
+
+@router.post("/llm_test")
+async def test_llm_provider(body: LLMTestRequest):
+    """Send a tiny prompt to a provider so the admin can confirm it actually answers."""
+    import llm_router
+    prov = _get_llm_provider(body.id)
+    if not prov:
+        return {"error": "Unknown provider."}
+    # Anthropic provider with no stored key → borrow the env key for the test.
+    if prov.get("type") == "anthropic" and not (prov.get("api_key") or "").strip():
+        prov = {**prov, "api_key": os.getenv("ANTHROPIC_API_KEY", "")}
+    import time as _t
+    t0 = _t.time()
+    r = await llm_router.complete(
+        prov, "You are a connectivity test. Reply with exactly: OK",
+        [{"role": "user", "content": "Say OK"}], max_tokens=16)
+    ms = int((_t.time() - t0) * 1000)
+    if r.get("error"):
+        try:
+            import system_llm
+            cat = system_llm.classify_error(r["error"])
+            label = system_llm.ERROR_LABEL.get(cat, "")
+        except Exception:
+            cat, label = "error", ""
+        return {"ok": False, "error": r["error"], "category": cat, "label": label,
+                "ms": ms, "local": llm_router.is_local(prov)}
+    out = (r.get("output") or "").strip()
+    return {"ok": True, "reply": out[:120], "ms": ms, "local": llm_router.is_local(prov)}
+
+
+# ── Automatic failover (OFF by default; admin controls the chain) ────────────
+@router.get("/llm_failover")
+async def get_llm_failover():
+    try:
+        import system_llm
+        fo = system_llm.get_failover()
+        return {"ok": True, "enabled": fo["enabled"], "chain": fo["chain"],
+                "suggested": system_llm.suggest_chain(exclude_id=system_llm.get_active_id())}
+    except Exception as e:
+        return {"error": f"Could not read failover: {e}"}
+
+
+class LLMFailoverRequest(BaseModel):
+    enabled: Optional[bool] = None
+    chain: Optional[list] = None   # ordered list of provider ids
+
+
+@router.post("/llm_failover")
+async def set_llm_failover(body: LLMFailoverRequest):
+    try:
+        import system_llm
+        fo = system_llm.set_failover(enabled=body.enabled, chain=body.chain)
+        return {"ok": True, "enabled": fo["enabled"], "chain": fo["chain"]}
+    except Exception as e:
+        return {"error": f"Could not save failover: {e}"}
 
 
 class MCPToolsRequest(BaseModel):

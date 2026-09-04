@@ -99,16 +99,41 @@ def _summary(q: dict) -> dict:
 
 
 def _viewer_email(request: Request) -> Optional[str]:
-    """Identity comes from the X-Jarvis-User header that the frontend already sends."""
+    """Identity comes from the X-Jarvis-User header that the frontend already sends.
+    When JARVIS_REQUIRE_AUTH is on, the auth gate overwrites this header with the
+    verified token identity, so this is trustworthy either way."""
     return (request.headers.get("X-Jarvis-User") or "").strip() or None
 
 
-def _can_see(q: dict, viewer: Optional[str]) -> bool:
-    """Sharing rules: private→owner only, group/company/corporate→anyone with the header."""
+def _viewer_is_admin(viewer: Optional[str]) -> bool:
+    """Admins see every saved query. Keeps single-admin installs working when the
+    login email differs from the pre-auth default owner_email on old queries."""
+    if not viewer:
+        return False
+    try:
+        from auth import _users
+        u = next(
+            (x for x in _users() if (x.get("email") or "").strip().lower() == viewer.strip().lower()),
+            None,
+        )
+        return bool(u) and (u.get("role") or "").strip().lower() == "admin"
+    except Exception:
+        return False
+
+
+def _same_email(a: Optional[str], b: Optional[str]) -> bool:
+    return bool(a) and bool(b) and a.strip().lower() == b.strip().lower()
+
+
+def _can_see(q: dict, viewer: Optional[str], viewer_admin: bool = False) -> bool:
+    """Sharing rules: private→owner (or an admin), group/company/corporate→anyone
+    with an identity. Email comparison is case-insensitive."""
     scope = (q.get("scope") or "private").lower()
     if scope != "private":
         return True
-    return bool(viewer) and viewer == q.get("owner_email")
+    if viewer_admin:
+        return True
+    return _same_email(viewer, q.get("owner_email"))
 
 
 class QueryCreate(BaseModel):
@@ -132,8 +157,9 @@ class QueryUpdate(BaseModel):
 @router.get("")
 async def list_queries(request: Request):
     viewer = _viewer_email(request)
+    admin = _viewer_is_admin(viewer)
     data = _load()
-    items = [_summary(q) for q in data["queries"] if _can_see(q, viewer)]
+    items = [_summary(q) for q in data["queries"] if _can_see(q, viewer, admin)]
     items.sort(key=lambda x: x.get("updated_at") or 0, reverse=True)
     return {"queries": items, "count": len(items)}
 
@@ -145,7 +171,7 @@ async def get_query(query_id: str, request: Request):
     q = next((x for x in data["queries"] if x.get("id") == query_id), None)
     if not q:
         return _err(404, "not found", f"No query '{query_id}'")
-    if not _can_see(q, viewer):
+    if not _can_see(q, viewer, _viewer_is_admin(viewer)):
         return _err(403, "forbidden", "This query is private to its owner.")
     return q
 
@@ -190,8 +216,8 @@ async def update_query(query_id: str, body: QueryUpdate, request: Request):
         q = next((x for x in data["queries"] if x.get("id") == query_id), None)
         if not q:
             return _err(404, "not found", f"No query '{query_id}'")
-        # Only the owner can edit
-        if q.get("owner_email") and viewer != q.get("owner_email"):
+        # Only the owner (or an admin) can edit
+        if q.get("owner_email") and not _same_email(viewer, q.get("owner_email")) and not _viewer_is_admin(viewer):
             return _err(403, "forbidden", "Only the owner can edit a saved query.")
         if body.name is not None:        q["name"] = body.name.strip() or q["name"]
         if body.description is not None: q["description"] = body.description.strip()
@@ -220,7 +246,7 @@ async def delete_query(query_id: str, request: Request):
         target = next((x for x in data["queries"] if x.get("id") == query_id), None)
         if not target:
             return _err(404, "not found", f"No query '{query_id}'")
-        if target.get("owner_email") and viewer != target.get("owner_email"):
+        if target.get("owner_email") and not _same_email(viewer, target.get("owner_email")) and not _viewer_is_admin(viewer):
             return _err(403, "forbidden", "Only the owner can delete a saved query.")
         data["queries"] = [x for x in data["queries"] if x.get("id") != query_id]
         if len(data["queries"]) == before:
@@ -267,7 +293,7 @@ async def run_query(query_id: str, request: Request, limit: Optional[int] = None
     q = next((x for x in data["queries"] if x.get("id") == query_id), None)
     if not q:
         return _err(404, "not found", f"No query '{query_id}'")
-    if not _can_see(q, viewer):
+    if not _can_see(q, viewer, _viewer_is_admin(viewer)):
         return _err(403, "forbidden", "This query is private to its owner.")
     qdict = dict(q.get("qdict") or {})
     if limit is not None and limit > 0:

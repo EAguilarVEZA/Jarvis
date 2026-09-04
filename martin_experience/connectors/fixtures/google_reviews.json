@@ -1,0 +1,62 @@
+[
+  {
+    "external_review_id": "gr_1001",
+    "place_id": "ChIJ_OrlandoHealth_Downtown",
+    "location_name": "Orlando Health Downtown",
+    "review_date": "2026-08-02T14:20:00Z",
+    "reviewer_display_name": "M. R.",
+    "star_rating": 2,
+    "review_text": "The doctor was wonderful but nobody told me why I waited 90 minutes past my appointment time.",
+    "owner_response": "",
+    "owner_response_at": null,
+    "source_url": "https://maps.google.com/?cid=1001"
+  },
+  {
+    "external_review_id": "gr_1002",
+    "place_id": "ChIJ_OrlandoHealth_Downtown",
+    "location_name": "Orlando Health Downtown",
+    "review_date": "2026-08-05T09:05:00Z",
+    "reviewer_display_name": "J. T.",
+    "star_rating": 5,
+    "review_text": "Front desk was courteous and check-in was fast. The nurse explained everything clearly.",
+    "owner_response": "Thank you for the kind words!",
+    "owner_response_at": "2026-08-06T12:00:00Z",
+    "source_url": "https://maps.google.com/?cid=1002"
+  },
+  {
+    "external_review_id": "gr_1003",
+    "place_id": "ChIJ_OrlandoHealth_Winnie",
+    "location_name": "Winnie Palmer Hospital",
+    "review_date": "2026-08-09T18:40:00Z",
+    "reviewer_display_name": "A. L.",
+    "star_rating": 1,
+    "review_text": "Scheduling was a nightmare. I called five times and could never get through on the phone.",
+    "owner_response": "",
+    "owner_response_at": null,
+    "source_url": "https://maps.google.com/?cid=1003"
+  },
+  {
+    "external_review_id": "gr_1004",
+    "place_id": "ChIJ_OrlandoHealth_Winnie",
+    "location_name": "Winnie Palmer Hospital",
+    "review_date": "2026-08-14T11:15:00Z",
+    "reviewer_display_name": "D. P.",
+    "star_rating": 4,
+    "review_text": "Clean facility and the parking was easy. Billing was a little confusing afterward.",
+    "owner_response": "",
+    "owner_response_at": null,
+    "source_url": "https://maps.google.com/?cid=1004"
+  },
+  {
+    "external_review_id": "gr_1005",
+    "place_id": "ChIJ_OrlandoHealth_Downtown",
+    "location_name": "Orlando Health Downtown",
+    "review_date": "2026-08-20T16:30:00Z",
+    "reviewer_display_name": "S. K.",
+    "star_rating": 3,
+    "review_text": "Care was good but the online portal kept logging me out and I could not message my doctor.",
+    "owner_response": "",
+    "owner_response_at": null,
+    "source_url": "https://maps.google.com/?cid=1005"
+  }
+]

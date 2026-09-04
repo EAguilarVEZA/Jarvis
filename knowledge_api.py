@@ -25,6 +25,7 @@ Helper for /ask:
 """
 
 from __future__ import annotations
+import system_llm  # route LLM calls through the active system model
 
 import json
 import os
@@ -267,7 +268,7 @@ async def auto_capture(body: AutoCaptureBody):
         key = os.environ.get("ANTHROPIC_API_KEY")
         if not key:
             return _err(503, "no api key", "ANTHROPIC_API_KEY not set.")
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         model = os.getenv("JARVIS_BRAIN_MODEL", "claude-sonnet-4-6")
         resp = await client.messages.create(
             model=model, max_tokens=800,

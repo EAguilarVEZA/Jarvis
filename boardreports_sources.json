@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "id": "baptist-web-traffic",
+      "name": "Baptist Health \u2014 Website Traffic",
+      "entity": "Baptist Health",
+      "template": "corporate",
+      "dashboard_url": "https://datastudio.google.com/reporting/6c0e74b3-c126-4775-b861-f93273fb6727",
+      "host": "www.baptisthealthal.com"
+    },
+    {
+      "id": "orlando-web-traffic",
+      "name": "Orlando Health \u2014 Website Traffic",
+      "entity": "Orlando Health",
+      "template": "corporate",
+      "host": "www.orlandohealth.com",
+      "dashboard_url": ""
+    }
+  ]
+}

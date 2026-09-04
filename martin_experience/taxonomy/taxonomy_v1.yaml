@@ -1,0 +1,104 @@
+# MARTIN Healthcare Experience Taxonomy — v1 (spec §10)
+# Versioned as DATA, never hard-coded into UI (spec §28.7). Loaded into the `topic`
+# table by the taxonomy service. Every node: id, parent, domain, name, description,
+# and optional HCAHPS / regulatory mapping.
+version: "taxonomy-1.0"
+effective_from: "2026-08-24"
+domains:
+  ACCESS:
+    name: Access
+    topics:
+      - {id: ACCESS.APPOINTMENT_AVAILABILITY, name: Appointment availability}
+      - {id: ACCESS.SCHEDULING, name: Scheduling}
+      - {id: ACCESS.PHONE_ACCESS, name: Phone access}
+      - {id: ACCESS.REFERRAL, name: Referral}
+      - {id: ACCESS.REGISTRATION, name: Registration}
+      - {id: ACCESS.INSURANCE_ACCESS, name: Insurance access}
+      - {id: ACCESS.HOURS_CONVENIENCE, name: Hours / convenience}
+  ARRIVAL:
+    name: Arrival
+    topics:
+      - {id: ARRIVAL.PARKING, name: Parking}
+      - {id: ARRIVAL.WAYFINDING, name: Wayfinding}
+      - {id: ARRIVAL.CHECK_IN, name: Check-in}
+      - {id: ARRIVAL.FRONT_DESK, name: Front desk}
+      - {id: ARRIVAL.REGISTRATION, name: Registration}
+      - {id: ARRIVAL.ACCESSIBILITY, name: Accessibility}
+  WAITING:
+    name: Waiting
+    topics:
+      - {id: WAIT.TOTAL_WAIT, name: Total wait}
+      - {id: WAIT.PERCEIVED_WAIT, name: Perceived wait}
+      - {id: WAIT.EXPECTATION_SETTING, name: Expectation setting}
+      - {id: WAIT.DELAY_COMMUNICATION, name: Delay communication, hcahps_mapping: communication_about_delays}
+      - {id: WAIT.QUEUE_FAIRNESS, name: Queue fairness}
+  CLINICAL_EXPERIENCE:
+    name: Clinical experience
+    topics:
+      - {id: CLIN.PHYSICIAN_COMMUNICATION, name: Physician communication, hcahps_mapping: doctor_communication}
+      - {id: CLIN.NURSING_COMMUNICATION, name: Nursing communication, hcahps_mapping: nurse_communication}
+      - {id: CLIN.LISTENING, name: Listening}
+      - {id: CLIN.EMPATHY, name: Empathy}
+      - {id: CLIN.RESPECT, name: Respect}
+      - {id: CLIN.CONFIDENCE_TRUST, name: Confidence / trust}
+      - {id: CLIN.SHARED_DECISION_MAKING, name: Shared decision making}
+      - {id: CLIN.EXPLANATION_OF_CARE, name: Explanation of care}
+  RESPONSIVENESS:
+    name: Responsiveness
+    topics:
+      - {id: RESP.CALL_LIGHT, name: Call light, hcahps_mapping: responsiveness_of_staff}
+      - {id: RESP.RESPONSE_TIME, name: Response time}
+      - {id: RESP.FOLLOW_UP, name: Follow-up}
+      - {id: RESP.SERVICE_RECOVERY, name: Service recovery}
+  CARE_COORDINATION:
+    name: Care coordination
+    topics:
+      - {id: COORD.HANDOFFS, name: Handoffs}
+      - {id: COORD.DISCHARGE, name: Discharge, hcahps_mapping: discharge_information}
+      - {id: COORD.MEDICATION_EXPLANATION, name: Medication explanation, hcahps_mapping: communication_about_medicines}
+      - {id: COORD.FOLLOW_UP_INSTRUCTIONS, name: Follow-up instructions}
+      - {id: COORD.CONTINUITY, name: Continuity}
+      - {id: COORD.REFERRAL_COORDINATION, name: Referral coordination}
+  ENVIRONMENT:
+    name: Environment
+    topics:
+      - {id: ENV.CLEANLINESS, name: Cleanliness, hcahps_mapping: cleanliness}
+      - {id: ENV.NOISE, name: Noise, hcahps_mapping: quietness}
+      - {id: ENV.PRIVACY, name: Privacy}
+      - {id: ENV.FOOD, name: Food}
+      - {id: ENV.COMFORT, name: Comfort}
+      - {id: ENV.SAFETY, name: Safety}
+      - {id: ENV.ROOM_FACILITY, name: Room / facility}
+  DIGITAL:
+    name: Digital
+    topics:
+      - {id: DIG.WEBSITE, name: Website}
+      - {id: DIG.PATIENT_PORTAL, name: Patient portal}
+      - {id: DIG.MOBILE_APP, name: Mobile app}
+      - {id: DIG.ONLINE_SCHEDULING, name: Online scheduling}
+      - {id: DIG.DIGITAL_CHECK_IN, name: Digital check-in}
+      - {id: DIG.MESSAGING, name: Messaging}
+  FINANCIAL:
+    name: Financial
+    topics:
+      - {id: FIN.BILLING, name: Billing}
+      - {id: FIN.ESTIMATES, name: Estimates}
+      - {id: FIN.INSURANCE, name: Insurance}
+      - {id: FIN.PRICE_TRANSPARENCY, name: Price transparency}
+      - {id: FIN.PAYMENT_PROCESS, name: Payment process}
+  REPUTATION_LOYALTY:
+    name: Reputation / loyalty
+    topics:
+      - {id: REP.LIKELIHOOD_TO_RECOMMEND, name: Likelihood to recommend, hcahps_mapping: recommend_hospital}
+      - {id: REP.RETURN_INTENTION, name: Return intention}
+      - {id: REP.TRUST, name: Trust}
+      - {id: REP.BRAND_IDENTIFICATION, name: Brand identification}
+      - {id: REP.PUBLIC_REPUTATION, name: Public reputation}
+  STAFF_PEOPLE:
+    name: Staff / people
+    topics:
+      - {id: STAFF.COURTESY, name: Courtesy}
+      - {id: STAFF.PROFESSIONALISM, name: Professionalism}
+      - {id: STAFF.TEAMWORK, name: Teamwork}
+      - {id: STAFF.COMMUNICATION, name: Communication}
+      - {id: STAFF.RECOGNITION_PRAISE, name: Recognition / praise}

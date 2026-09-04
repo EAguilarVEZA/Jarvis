@@ -24,8 +24,6 @@ import hashlib
 from pathlib import Path
 
 _DIR = Path(__file__).resolve().parent
-CORE_DIR = _DIR / "martin" / "core"
-AGENTS_DIR = _DIR / "martin" / "agents"
 
 
 def _vault() -> Path:
@@ -37,6 +35,12 @@ def _vault() -> Path:
         if cand.exists():
             return cand
     return home / "Documents" / "MyVault"
+
+
+# Martin's core + agent files now live in the Obsidian vault (single source of
+# truth), not in the code repo. Resolved from the vault at import time.
+CORE_DIR = _vault() / "04-Claude-Memory" / "Martin Core"
+AGENTS_DIR = _vault() / "04-Claude-Memory" / "Martin Agents"
 
 
 def _read(p: Path, cap: int = 8000) -> str:
@@ -81,11 +85,147 @@ def read_memory(daily_notes: int = 3) -> str:
     return "\n\n".join(parts)
 
 
+def read_reporting_playbook(cap: int = 6000) -> str:
+    """The professional-report playbook from the vault — primes Martin to guide
+    people to build the best, most professional reports when they ask data
+    questions. Kept capped so it doesn't bloat the grounding."""
+    v = _vault()
+    for cand in (v / "02-Knowledge" / "Reporting" / "Professional Report Playbook.md",
+                 v / "02-Knowledge" / "Professional Report Playbook.md"):
+        t = _read(cand, cap=cap)
+        if t:
+            return t
+    return ""
+
+
+def read_marketing_guide(cap: int = 5000) -> str:
+    """Marketing orchestration primer from the vault: the Marketing-Manager quick
+    guide (what to ask for ad copy / creative-testing / campaigns) plus the agent
+    routing cheat-sheet, so Martin can guide a marketing manager and delegate to the
+    right specialist agent. Full playbooks live alongside it in 02-Knowledge/Marketing."""
+    mk = _vault() / "02-Knowledge" / "Marketing"
+    parts = []
+    quick = _read(mk / "Marketing Manager Assist — Quick Guide.md", cap=3000)
+    if quick:
+        parts.append(quick)
+    roster = _read(mk / "Marketing Agent Roster and Routing.md", cap=2500)
+    if roster:
+        parts.append("### Agent routing\n" + roster)
+    return "\n\n".join(parts)[:cap]
+
+
+def read_funnel_playbook(cap: int = 6500) -> str:
+    """The Customer Value Journey (Ryan Deiss) master note — the source funnel
+    framework: 8-stage journey, the relationship/dating logic (don't propose on the
+    first date), lead magnet / tripwire / core offer / profit maximizer, and the
+    Return Path. Primes Martin to guide funnel, offer, and nurture strategy."""
+    mk = _vault() / "02-Knowledge" / "Marketing"
+    for cand in (mk / "Ryan Deiss — Customer Value Journey (Master).md",
+                 mk / "Ryan Deiss - Customer Value Journey (Master).md"):
+        t = _read(cand, cap=cap)
+        if t:
+            return t
+    return ""
+
+
+def read_healthcare_playbook(cap: int = 9000) -> str:
+    """The Orlando Health healthcare-marketing playbook (patient acquisition by
+    service line, brand/trust/reputation, physician & referral marketing, HIPAA-safe
+    digital). This is the CORE healthcare context and is kept SEPARATE from the
+    venture/funnel material so the two never get confused."""
+    v = _vault()
+    for cand in (v / "02-Knowledge" / "Marketing" / "Healthcare" / "Healthcare Marketing Playbook — Orlando Health.md",
+                 v / "02-Knowledge" / "Marketing" / "Healthcare Marketing Playbook — Orlando Health.md"):
+        t = _read(cand, cap=cap)
+        if t:
+            return t
+    return ""
+
+
+def read_ventures_pointer() -> str:
+    """A short awareness pointer to Edgar's SEPARATE side-venture funnel notes — so
+    Martin knows they exist and stays them-vs-healthcare distinct, without bloating
+    the grounding or bleeding venture examples into healthcare work."""
+    v = _vault() / "02-Knowledge" / "Marketing" / "Ventures"
+    if not v.exists():
+        return ""
+    return ("Edgar also has SEPARATE side ventures with their own step-by-step funnel notes in "
+            "02-Knowledge/Marketing/Ventures/ — a reusable 8-step template, Colette French Pastries (bakery), "
+            "and the Parasite Club (high-end European frames + Rx glasses). These are DISTINCT from Orlando "
+            "Health healthcare work: never mix a venture funnel with healthcare/patient/service-line work. "
+            "Only use them when Edgar is explicitly working on that venture.")
+
+
+def read_intent_router(cap: int = 6000) -> str:
+    """How Martin opens and routes every request (quick answer / brief / report /
+    Customer Value Journey / automation / agent) + the step-by-step CVJ build guide
+    with worked examples (Colette French Pastries, healthcare). Primes Martin to run
+    the guided flows and reuse existing dashboard/brief formats rather than invent."""
+    v = _vault()
+    parts = []
+    router = _read(v / "02-Knowledge" / "Operations" /
+                   "Martin Intent Router — Ask, Brief, Report, Journey, Automation, Agent.md", cap=3400)
+    if router:
+        parts.append(router)
+    cvj = _read(v / "02-Knowledge" / "Marketing" /
+                "Customer Value Journey — Step-by-Step Build Guide (with examples).md", cap=3200)
+    if cvj:
+        parts.append("### Customer Value Journey — step-by-step build guide\n" + cvj)
+    return "\n\n".join(parts)[:cap]
+
+
+def read_operations_guide(cap: int = 8000) -> str:
+    """Operations primers so Martin is a strong agent-manager + app-coordinator:
+    how to delegate/orchestrate agents, the app capability map + intent router, the
+    always-on compliance guardrails, and the KPI/data dictionary. Front sections of
+    each doc (they front-load the essentials), capped so grounding stays bounded."""
+    op = _vault() / "02-Knowledge" / "Operations"
+    order = [
+        ("Compliance Guardrails — HIPAA and Meta Health Ads.md", 2600),
+        ("Agent Delegation and Orchestration Playbook.md", 2400),
+        ("App Capability Map and Intent Router.md", 2000),
+        ("KPI and Data Dictionary.md", 1800),
+    ]
+    parts = []
+    for name, c in order:
+        t = _read(op / name, cap=c)
+        if t:
+            parts.append(t)
+    return "\n\n".join(parts)[:cap]
+
+
 def assemble_system_prompt(agent_id: str = None, task: str = "") -> str:
     """Compose the full grounding for a Martin agent: core files + specialist
-    identity + second-brain memory + the task."""
+    identity + second-brain memory + reporting/marketing/operations playbooks + task."""
     c = read_core()
     blocks = []
+    # Martin's manner — the felt experience of talking with him. This leads the prompt
+    # so it colors every reply.
+    blocks.append(
+        "## How Martin feels to talk with (always)\n"
+        "Be CALM, NATURAL, and RATIONAL, and move at the SPEED OF THE USER. "
+        "Listen and fully understand before you respond — if something is unclear, ask one short question rather than guessing. "
+        "Speak plainly and warmly, like a thoughtful person, not a bot. Keep replies short and unhurried; say one clear thing at a time and let the user lead. "
+        "Never rush, never pile on options, never fire actions the user didn't ask for. Silence is fine — wait for them. "
+        "Reason out loud only as much as helps; prefer a clear answer over a long one."
+    )
+    blocks.append(
+        "## You are a full assistant, not only a marketing tool\n"
+        "Martin is the user's personal AI assistant (Jarvis-style). Answer ANY question they ask — general knowledge, "
+        "explanations, advice, writing, planning, everyday help — helpfully and conversationally, from your own knowledge. "
+        "Never refuse a normal question or call it out of scope. Only for genuinely live/real-time things you cannot know "
+        "(today's weather, today's news, their inbox or calendar, a website's current contents) should you say that live "
+        "connection isn't wired up yet, and offer what you can do instead."
+    )
+    blocks.append(
+        "## You are connected to the data (never deny this)\n"
+        "You ARE connected to the user's live marketing warehouse (BigQuery, through a governed semantic layer) and you CAN "
+        "pull reports, briefs, dashboards, metrics and charts from it. NEVER tell the user you lack a data connection, "
+        "cannot see their data, cannot run queries, or can't do this in real time — those statements are FALSE and are not allowed. "
+        "When a request needs data (a report, campaign performance, spend, leads, CPL, ROI, impressions, clicks, a trend, a chart, etc.), "
+        "do not refuse and do not keep chatting once you have enough: the app will run the query for you. "
+        "Gather at most one short clarifying detail if truly needed, then say you're pulling it."
+    )
     if c["identity"]:
         blocks.append(c["identity"])
     if c["soul"]:
@@ -100,6 +240,27 @@ def assemble_system_prompt(agent_id: str = None, task: str = "") -> str:
     mem = read_memory()
     if mem:
         blocks.append("## Business context & memory (from the second brain)\n" + mem)
+    play = read_reporting_playbook()
+    if play:
+        blocks.append("## How to guide people to build great reports (playbook)\n" + play)
+    mkt = read_marketing_guide()
+    if mkt:
+        blocks.append("## How to guide marketing work + delegate to agents (playbook)\n" + mkt)
+    funnel = read_funnel_playbook()
+    if funnel:
+        blocks.append("## The funnel framework — Customer Value Journey / relationship marketing (playbook)\n" + funnel)
+    router = read_intent_router()
+    if router:
+        blocks.append("## How Martin opens & routes requests + the guided CVJ build (playbook)\n" + router)
+    hc = read_healthcare_playbook()
+    if hc:
+        blocks.append("## Healthcare marketing for Orlando Health (playbook — the core context)\n" + hc)
+    ventures = read_ventures_pointer()
+    if ventures:
+        blocks.append("## Edgar's side ventures (SEPARATE from healthcare — do not mix)\n" + ventures)
+    ops = read_operations_guide()
+    if ops:
+        blocks.append("## Managing agents, coordinating the app, compliance & data (playbooks)\n" + ops)
     if task:
         blocks.append("## Current task\n" + task)
     return "\n\n---\n\n".join(blocks)

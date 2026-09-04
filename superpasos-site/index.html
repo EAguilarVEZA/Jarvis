@@ -235,6 +235,18 @@
   .dtab:hover{color:#fff;}
   .dashframe{margin-top:20px;border-radius:var(--rad);overflow:hidden;padding:6px;}
   .dashframe iframe{width:100%;height:780px;border:0;border-radius:16px;background:#0b1020;display:block;}
+  /* founder / quiénes somos */
+  .fdr{display:grid;grid-template-columns:1.1fr .9fr;gap:44px;align-items:start;margin-top:34px;}
+  @media(max-width:860px){.fdr{grid-template-columns:1fr;gap:28px;}}
+  .fp{font-size:16.5px;color:#D4DEF0;margin-bottom:16px;line-height:1.7;}
+  .fp b{color:#fff;}
+  .tl{display:flex;flex-direction:column;gap:12px;}
+  .tlc{display:flex;gap:14px;align-items:center;background:var(--glass);border:1px solid var(--gline);border-radius:16px;padding:15px 18px;}
+  .tlc.on{border-color:var(--green);box-shadow:0 10px 30px rgba(25,227,125,.18);}
+  .tlc .tld{font-size:30px;}
+  .tlc b{font-size:16px;display:block;color:#fff;} .tlc span{font-size:13.5px;color:var(--mut);}
+  .fquote{margin-top:20px;background:var(--glass);border:1px solid var(--gline);border-left:3px solid var(--green);border-radius:14px;padding:18px 20px;font-size:15.5px;color:#EAF0FA;font-style:italic;line-height:1.6;}
+  .fquote b{color:var(--green);font-style:normal;display:block;margin-top:8px;}
   /* full-screen viewer (mobile tap-to-open for heavy embeds) */
   .mobLaunch{display:none;}
   .viewer{position:fixed;inset:0;z-index:120;background:#070B16;flex-direction:column;display:none;}
@@ -288,6 +300,7 @@
       <a href="#dentro">Por dentro</a>
       <a href="#ia">IA</a>
       <a href="#mision">Misión 2030</a>
+      <a href="#fundador">Fundador</a>
     </nav>
     <button class="btn grad sm" onclick="openInq('empresa')">Quiero ser patrocinador</button>
   </div>
@@ -513,6 +526,30 @@
       <div class="pblabels"><span>2015 · nace el movimiento global</span><span><b style="color:#fff">Hoy</b></span><span>2030 · Hambre Cero</span></div>
     </div>
     <p style="font-size:13px;color:var(--mut);margin-top:26px">Caminar también es innovar contra el hambre.</p>
+  </div>
+</section>
+
+<!-- FOUNDER / QUIÉNES SOMOS -->
+<section class="s" id="fundador">
+  <div class="wrap">
+    <span class="kick rv">Quiénes somos</span>
+    <h2 class="big rv">Detrás de SuperPasos hay una <span style="color:var(--green)">vida dedicada a servir.</span></h2>
+    <p class="sub rv d1">SuperPasos nace de la mente de <b style="color:#fff">Edgar Aguilar</b>, su fundador — un emprendedor social que lleva años ayudando a comunidades en distintos países. Esta idea, pensada para la niñez de Colombia, es el siguiente capítulo de una trayectoria de impacto real.</p>
+    <div class="fdr">
+      <div class="rv d1">
+        <p class="fp">En la <b>India</b>, Edgar ayudó a crear <b>dos bancos de alimentos para niños</b> — dos proyectos que se convirtieron en un éxito y que hoy siguen alimentando a quienes más lo necesitan.</p>
+        <p class="fp">Y de manera muy concreta, Edgar ayudó a <b>financiar y poner en marcha</b> el <b>Centro de Educación y Terapia “Ray of Hope”</b> en <b>Tiruvannamalai</b> (Tamil Nadu, India), junto a <b>Sylvia Wright</b> y la <b>Sylvia Wright Trust</b>. Inaugurado en 2017, este centro de casi 1.000 m² atiende a más de <b>100 niños con discapacidad</b> —parálisis cerebral, distrofia muscular, síndrome de Down, autismo y más—; fue la <b>primera instalación con acceso para sillas de ruedas</b> de la ciudad e incluye una piscina de hidroterapia para los niños con espasticidad. Aulas, terapias y dos comidas al día que transforman vidas.<br><a href="https://www.sylviawright.org/Education%20&amp;%20Therapy%20Centre.html" target="_blank" rel="noopener" style="color:var(--cyan);font-weight:700">Conoce el Centro “Ray of Hope” →</a></p>
+        <p class="fp">De la India a Colombia, el hilo es siempre el mismo: <b>usar la tecnología y la comunidad para cuidar a los niños.</b> SuperPasos lleva esa misión a cada paso que damos.</p>
+      </div>
+      <div class="rv d2">
+        <div class="tl">
+          <div class="tlc"><span class="tld">🇮🇳</span><div><b>India</b><span>Dos bancos de alimentos para niños</span></div></div>
+          <div class="tlc"><span class="tld">🏥</span><div><b>“Ray of Hope” · Sylvia Wright Trust</b><span>Centro de educación y terapia para 100+ niños con discapacidad · Tiruvannamalai, India (2017)</span></div></div>
+          <div class="tlc on"><span class="tld">🇨🇴</span><div><b>Colombia · SuperPasos</b><span>Tus pasos, su superpoder</span></div></div>
+        </div>
+        <div class="fquote">“Cada comunidad que he acompañado me enseñó lo mismo: cuando cuidamos a los niños, cuidamos el futuro. SuperPasos es esa convicción, hecha tecnología.”<b>— Edgar Aguilar, fundador</b></div>
+      </div>
+    </div>
   </div>
 </section>
 

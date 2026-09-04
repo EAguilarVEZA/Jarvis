@@ -1,0 +1,48 @@
+field,type,meaning
+synthetic_patient_id,string,Synthetic identifier only
+encounter_id,string,Synthetic encounter identifier
+data_year,integer,Synthetic service year
+age_band,category,Age band
+sex_at_birth,category,Synthetic demographic
+race_group,category,Synthetic demographic
+ethnicity_group,category,Synthetic demographic
+county_group,category,Synthetic coarse geography
+payer_group,category,Commercial/Medicare/Medicaid/Self-pay/Other
+encounter_type,category,Inpatient/ED/Outpatient/Ambulatory Surgery/Telehealth
+facility_code,category,Synthetic facility code
+service_line,category,Clinical service line
+primary_condition_group,category,High-level synthetic condition group
+procedure_group,category,High-level synthetic procedure group
+comorbidity_count,integer,Synthetic count
+acuity_band,category,Low/Moderate/High
+length_of_stay_days,integer,Synthetic LOS
+discharge_disposition,category,Synthetic disposition
+imaging_available,boolean,Synthetic imaging indicator
+imaging_modality,category,XR/CT/MRI/US/None
+image_count,integer,Synthetic count
+hip_image_flag,boolean,Synthetic hip imaging scenario
+image_format_demo,category,DICOM/JPG/None - metadata only
+lab_panel_count,integer,Synthetic lab count
+abnormal_lab_flag,boolean,Synthetic signal
+medication_class_count,integer,Synthetic count
+ed_return_30d,boolean,Synthetic outcome
+readmission_30d,boolean,Synthetic outcome
+followup_30d,boolean,Synthetic follow-up
+mortality_inpatient_demo,boolean,Synthetic outcome; demo only
+digital_source,category,Synthetic acquisition source
+campaign_exposed,boolean,Synthetic marketing signal
+appointment_channel,category,Synthetic booking channel
+portal_active,boolean,Synthetic portal flag
+web_journey_issue,category,Synthetic digital issue
+experience_score_0_10,integer,Synthetic experience score
+complaint_theme,category,Synthetic complaint theme
+call_center_contact,boolean,Synthetic contact flag
+sentiment_band,category,Positive/Neutral/Negative
+nps_bucket,category,Promoter/Passive/Detractor
+allowed_amount_demo,decimal,Fictional financial amount
+estimated_cost_demo,decimal,Fictional cost
+balance_band,category,Synthetic balance band
+token_demo,string,Synthetic non-production linkage token
+deid_tier_eligible,category,Demo tier eligibility
+clean_room_eligible,boolean,Demo flag
+synthetic_flag,boolean,Always true

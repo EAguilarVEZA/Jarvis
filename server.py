@@ -9,6 +9,7 @@ Handles:
 """
 
 import asyncio
+import system_llm  # route LLM calls through the active system model
 import base64
 import json
 import logging
@@ -1216,41 +1217,98 @@ def _set_jarvis_state(state: str, last_speech: Optional[str] = None) -> None:
         _jarvis_speech_at = time.time()
 
 
+def _tts_chunks(text: str, max_len: int = 700):
+    """Split long text into sentence-sized chunks so the WHOLE message gets
+    voiced (Fish is happier with shorter requests; we stitch the audio back)."""
+    import re
+    parts = re.split(r"(?<=[.!?…])\s+|\n+", text or "")
+    chunks, cur = [], ""
+    for p in parts:
+        p = p.strip()
+        if not p:
+            continue
+        if len(cur) + len(p) + 1 <= max_len:
+            cur = (cur + " " + p).strip()
+        else:
+            if cur:
+                chunks.append(cur)
+            if len(p) <= max_len:
+                cur = p
+            else:
+                for i in range(0, len(p), max_len):
+                    chunks.append(p[i:i + max_len])
+                cur = ""
+    if cur:
+        chunks.append(cur)
+    return chunks or ([text] if text else [])
+
+
+async def _fish_one(http, text: str) -> Optional[bytes]:
+    # WAV so multi-chunk audio can be stitched sample-accurately (see _concat_wav).
+    response = await http.post(
+        FISH_API_URL,
+        headers={"Authorization": f"Bearer {FISH_API_KEY}", "Content-Type": "application/json"},
+        json={"text": text, "reference_id": FISH_VOICE_ID, "format": "wav"},
+    )
+    if response.status_code == 200:
+        return response.content
+    log.error(f"TTS error: {response.status_code}")
+    return None
+
+
+def _concat_wav(parts):
+    """Stitch multiple WAV clips into ONE valid WAV by concatenating PCM frames
+    (not raw bytes). This is what removes the glitch/distortion at chunk joins."""
+    import io, wave
+    good = [p for p in parts if p]
+    if not good:
+        return None
+    if len(good) == 1:
+        return good[0]
+    out = io.BytesIO()
+    writer = None
+    try:
+        for p in good:
+            with wave.open(io.BytesIO(p), "rb") as w:
+                if writer is None:
+                    writer = wave.open(out, "wb")
+                    writer.setnchannels(w.getnchannels())
+                    writer.setsampwidth(w.getsampwidth())
+                    writer.setframerate(w.getframerate())
+                writer.writeframes(w.readframes(w.getnframes()))
+        if writer:
+            writer.close()
+        return out.getvalue()
+    except Exception as e:
+        log.error(f"wav concat failed: {e}")
+        return good[0]
+
+
 async def synthesize_speech(text: str) -> Optional[bytes]:
-    """Generate speech audio from text using Fish Audio TTS."""
+    """Generate speech audio from text using Fish Audio TTS. Long text is voiced
+    in full by synthesizing it in sentence chunks and concatenating the MP3s —
+    no more 1500-char / fixed-time cutoff mid-message."""
     _set_jarvis_state("speaking", last_speech=text)
     if not FISH_API_KEY:
         log.warning("FISH_API_KEY not set, skipping TTS")
         _set_jarvis_state("idle")
         return None
 
+    parts = []
     try:
-        async with httpx.AsyncClient(timeout=15.0) as http:
-            response = await http.post(
-                FISH_API_URL,
-                headers={
-                    "Authorization": f"Bearer {FISH_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "text": text,
-                    "reference_id": FISH_VOICE_ID,
-                    "format": "mp3",
-                },
-            )
-            if response.status_code == 200:
-                _session_tokens["tts_calls"] += 1
-                _append_usage_entry(0, 0, "tts")
-                _set_jarvis_state("idle")
-                return response.content
-            else:
-                log.error(f"TTS error: {response.status_code}")
-                _set_jarvis_state("idle")
-                return None
+        async with httpx.AsyncClient(timeout=45.0) as http:
+            for chunk in _tts_chunks(text):
+                part = await _fish_one(http, chunk)
+                if part:
+                    parts.append(part)
+                    _session_tokens["tts_calls"] += 1
+                    _append_usage_entry(0, 0, "tts")
+                else:
+                    break  # stop on first failure; return what we have
     except Exception as e:
         log.error(f"TTS error: {e}")
-        _set_jarvis_state("idle")
-        return None
+    _set_jarvis_state("idle")
+    return _concat_wav(parts)
 
 
 # ---------------------------------------------------------------------------
@@ -1567,7 +1625,7 @@ def _bq_startup_refresh():
 async def lifespan(application: FastAPI):
     global anthropic_client, cached_projects
     if ANTHROPIC_API_KEY:
-        anthropic_client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        anthropic_client = system_llm.anthropic_client(api_key=ANTHROPIC_API_KEY)
     else:
         log.warning("ANTHROPIC_API_KEY not set — LLM features disabled")
     cached_projects = []
@@ -1736,6 +1794,48 @@ app.include_router(ask_history_router)
 app.include_router(airbyte_router)
 app.include_router(experiments_router)
 app.include_router(assistant_router)
+try:
+    from boardreports_api import router as boardreports_router
+    app.include_router(boardreports_router)
+    log.info("[OK] Board Reports mounted at /api/boardreports")
+except Exception as _e:
+    log.warning("board reports not mounted: %s", _e)
+try:
+    from brief_api import router as brief_router
+    app.include_router(brief_router)
+    log.info("[OK] Daily Brief mounted at /api/brief")
+except Exception as _e:
+    log.warning("daily brief not mounted: %s", _e)
+try:
+    from campaigns_api import router as campaigns_router
+    app.include_router(campaigns_router)
+    log.info("[OK] Campaigns mounted at /api/campaigns")
+except Exception as _e:
+    log.warning("campaigns not mounted: %s", _e)
+try:
+    from convo_api import router as convo_router
+    app.include_router(convo_router)
+    log.info("[OK] Conversational engine mounted at /api/convo")
+except Exception as _e:
+    log.warning("convo engine not mounted: %s", _e)
+try:
+    from realtime_api import router as realtime_router
+    app.include_router(realtime_router)
+    log.info("[OK] Realtime conversation WS mounted at /ws/realtime")
+except Exception as _e:
+    log.warning("realtime ws not mounted: %s", _e)
+try:
+    from realtime_openai import router as realtime_openai_router
+    app.include_router(realtime_openai_router)
+    log.info("[OK] OpenAI Realtime voice mounted at /api/realtime")
+except Exception as _e:
+    log.warning("openai realtime not mounted: %s", _e)
+try:
+    from data_exchange_api import router as exchange_router
+    app.include_router(exchange_router)
+    log.info("[OK] Health Data Exchange (demo) mounted at /v1/exchange")
+except Exception as _e:
+    log.warning("data exchange not mounted: %s", _e)
 app.include_router(agents_router)
 app.include_router(workflows_router)
 
@@ -1948,7 +2048,7 @@ class _TTSBody(BaseModel):
 async def api_tts(body: _TTSBody):
     """Speak arbitrary text in the JARVIS (Fish Audio) voice — used by the
     assistant's 'voice answers' toggle. Returns base64 MP3, or a clear reason."""
-    text = strip_markdown_for_tts((body.text or "")[:1500]).strip()
+    text = strip_markdown_for_tts((body.text or "")[:8000]).strip()
     if not text:
         return {"audio": None}
     audio = await synthesize_speech(text)
@@ -2690,7 +2790,16 @@ async def voice_handler(ws: WebSocket):
             greeting = "Good evening, sir."
 
         global _last_greeting_time
-        should_greet = (time.time() - _last_greeting_time) > 60
+        # When the in-app Martin overlay drives onboarding it owns the greeting
+        # (a single, time-aware "Good afternoon — I'm Martin"). Suppress the
+        # server's duplicate greeting in that case to avoid the double "good
+        # afternoon / good day" collision.
+        _client_onboard = False
+        try:
+            _client_onboard = ws.query_params.get("onboard") in ("1", "true", "yes")
+        except Exception:
+            _client_onboard = False
+        should_greet = (not _client_onboard) and (time.time() - _last_greeting_time) > 60
 
         if should_greet:
             _last_greeting_time = time.time()
@@ -3532,7 +3641,7 @@ async def api_test_anthropic(body: KeyTest):
     if not key:
         return {"valid": False, "error": "No key provided"}
     try:
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         await client.messages.create(model="claude-haiku-4-5-20251001", max_tokens=10, messages=[{"role": "user", "content": "Hi"}])
         return {"valid": True}
     except Exception as e:

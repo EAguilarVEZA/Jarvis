@@ -104,6 +104,59 @@ def _err(status: int, error: str, detail: str = "") -> JSONResponse:
     return JSONResponse(status_code=status, content={"error": error, "detail": detail})
 
 
+# ─── Password policy ─────────────────────────────────────────────────
+# Enforced server-side on every path that can set a password (create, update,
+# invite/reset). The UI mirrors these rules, but the server is the authority.
+PW_MIN_LEN = 10
+
+PW_RULES = [
+    f"at least {PW_MIN_LEN} characters",
+    "an uppercase letter (A–Z)",
+    "a lowercase letter (a–z)",
+    "a number (0–9)",
+    "a special character (!@#$…)",
+    "no spaces",
+]
+
+
+def _password_problems(pw: str, user: Optional[dict] = None) -> list:
+    """Return a list of unmet requirements. Empty list == acceptable password."""
+    import re
+    p = pw or ""
+    probs = []
+    if len(p) < PW_MIN_LEN:
+        probs.append(f"at least {PW_MIN_LEN} characters")
+    if not re.search(r"[A-Z]", p):
+        probs.append("an uppercase letter (A–Z)")
+    if not re.search(r"[a-z]", p):
+        probs.append("a lowercase letter (a–z)")
+    if not re.search(r"[0-9]", p):
+        probs.append("a number (0–9)")
+    if not re.search(r"[^A-Za-z0-9\s]", p):
+        probs.append("a special character (!@#$…)")
+    if re.search(r"\s", p):
+        probs.append("no spaces")
+    # Must not embed the person's own identifiers — a standard check.
+    if user:
+        low = p.lower()
+        for key in ("email", "first_name", "last_name", "user_id", "name"):
+            v = str(user.get(key) or "").split("@")[0].strip().lower()
+            if len(v) >= 3 and v in low:
+                probs.append("must not contain your own name or email")
+                break
+    return probs
+
+
+def _pw_err(probs: list):
+    return _err(400, "weak password", "Password must include: " + "; ".join(probs))
+
+
+@router.get("/password_policy")
+async def password_policy():
+    """So the UI can render the exact rules the server enforces."""
+    return {"min_length": PW_MIN_LEN, "rules": PW_RULES}
+
+
 def _current_user(x_jarvis_user: Optional[str]) -> dict:
     """Resolve the current user from header. Falls back to the first admin or a default."""
     data = _load_users()
@@ -164,8 +217,10 @@ async def create_user(body: UserIn):
         return _err(400, "invalid role", f"role must be one of {ROLES}")
     if body.status not in ("active", "inactive", "invited", "created"):
         return _err(400, "invalid status", "status must be active, inactive, invited, or created")
-    if body.password is not None and len(body.password) < 8:
-        return _err(400, "weak password", "Password must be at least 8 characters")
+    if body.password:
+        probs = _password_problems(body.password, body.model_dump())
+        if probs:
+            return _pw_err(probs)
     with _lock:
         data = _load_users()
         if any(u.get("email") == body.email for u in data["users"]):
@@ -219,14 +274,33 @@ async def get_user(uid: str):
 
 @router.put("/users/{uid}")
 async def update_user(uid: str, body: UserIn):
+    """Update a user. A password supplied here is HASHED (salt + sha256) exactly
+    like the create path — the raw value is never persisted. Omit/blank the
+    password to leave the existing one untouched."""
+    import secrets, hashlib
+    if body.password:
+        probs = _password_problems(body.password, body.model_dump())
+        if probs:
+            return _pw_err(probs)
     with _lock:
         data = _load_users()
         u = next((u for u in data["users"] if u.get("id") == uid or u.get("email") == uid), None)
         if not u: return _err(404, "not found")
-        u.update(body.model_dump())
+        patch = body.model_dump()
+        pw = patch.pop("password", None)          # never let a raw password reach the store
+        u.update(patch)
+        if pw:
+            salt = secrets.token_hex(16)
+            u["password_salt"] = salt
+            u["password_hash"] = hashlib.sha256((salt + pw).encode()).hexdigest()
+            u["password_set_by"] = "admin"
+            if (u.get("status") or "") in ("created", "invited", ""):
+                u["status"] = "active"            # a user with a password can sign in
+        u.pop("password", None)                   # belt-and-braces: strip any legacy plaintext
         u["updated_at"] = time.time()
         _save_users(data)
-    return u
+    safe = dict(u); safe.pop("password_hash", None); safe.pop("password_salt", None)
+    return safe
 
 
 @router.delete("/users/{uid}")

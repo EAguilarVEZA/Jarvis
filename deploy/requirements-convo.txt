@@ -1,0 +1,6 @@
+# Extra deps for the conversational engine's production infrastructure.
+# Core engine + JSON persistence + in-process vectors need NOTHING beyond the app's existing deps.
+# These activate the pgvector durable-memory backend:
+psycopg[binary]>=3.1
+pgvector>=0.2.5
+# (Realtime WebRTC audio path, when you build it, adds: aiortc + a streaming-ASR SDK.)

@@ -13,6 +13,7 @@ import asyncio
 import datetime as _dt
 import json
 import logging
+import os
 
 from . import skills, vault
 
@@ -181,7 +182,12 @@ async def _loop():
             now = _dt.datetime.now()
             stamp = now.strftime("%Y-%m-%d %H:%M")
             client = _get_client() if _get_client else None
+            # SECOND-BRAIN SCHEDULER: OFF by default so it never spends API tokens on a
+            # schedule. Set JARVIS_BRAIN_ENABLED=1 in the environment to turn it back on.
+            _brain_on = os.getenv("JARVIS_BRAIN_ENABLED", "0").strip().lower() not in ("0", "false", "no", "off", "")
             for skill in skills.SKILLS:
+                if not _brain_on:
+                    break   # disabled — no morning brief / capture / synthesis / etc. token spend
                 if not cron_due(skill.cron, now):
                     continue
                 if _last_minute.get(skill.name) == stamp:

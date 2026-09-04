@@ -1,0 +1,25 @@
+# Postgres + pgvector for MARTIN's conversational memory (blueprint §14, Phase 4).
+# Brings up a local pgvector-enabled Postgres the convo engine uses when DATABASE_URL is set.
+# Usage:  cd ~/Jarvis/deploy && docker compose up -d
+services:
+  convo-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: martin-convo-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: martin
+      POSTGRES_PASSWORD: martin_local_dev
+      POSTGRES_DB: martin_convo
+    ports:
+      - "5433:5432"          # 5433 on host to avoid clashing with any existing Postgres
+    volumes:
+      - convo_pgdata:/var/lib/postgresql/data
+      - ./convo_pgvector.sql:/docker-entrypoint-initdb.d/01_convo.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U martin -d martin_convo"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  convo_pgdata:

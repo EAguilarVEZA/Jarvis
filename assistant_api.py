@@ -16,6 +16,7 @@ Both are best-effort and degrade gracefully when the model/key is unavailable.
 """
 from __future__ import annotations
 
+import system_llm  # route LLM calls through the active system model
 import json
 import os
 import re
@@ -101,7 +102,7 @@ def _client():
         return None
     try:
         import anthropic
-        return anthropic.AsyncAnthropic(api_key=key)
+        return system_llm.anthropic_client(api_key=key)
     except Exception:
         return None
 
@@ -136,6 +137,227 @@ async def help_endpoint(body: HelpRequest):
         answer = (f"**{body.screen or 'This screen'}** — {guide}" if guide else
                   "Sorry, I couldn't reach the assistant model just now.")
     return {"ok": True, "answer": answer, "suggestions": _suggestions(body.screen)}
+
+
+class MartinChatRequest(BaseModel):
+    messages: list = []
+    directive: str | None = None   # optional extra steer (e.g., CVJ stage coaching)
+
+
+@router.post("/martin")
+async def martin_chat(body: MartinChatRequest):
+    """Martin's own conversational brain, grounded on his second-brain + playbooks
+    (report/brief/funnel/CVJ/intent-router). Powers in-pill answers and the
+    step-by-step Customer Value Journey coaching. Best-effort; degrades gracefully."""
+    msgs = [m for m in (body.messages or []) if isinstance(m, dict) and str(m.get("content", "")).strip()]
+    if not msgs:
+        return {"error": "Say something to Martin."}
+    try:
+        import martin_core
+        system = martin_core.assemble_system_prompt(task=(body.directive or ""))
+    except Exception:
+        system = ("You are Martin, a warm, concise healthcare-marketing BI + marketing assistant. "
+                  "Answer helpfully and briefly.")
+    if body.directive:
+        system += "\n\n## Right now\n" + body.directive
+    conv = [{"role": ("assistant" if m.get("role") == "assistant" else "user"),
+             "content": str(m.get("content", ""))} for m in msgs][-16:]
+
+    # Route through the multi-LLM harness so the admin-selected "system model"
+    # (e.g. a local Ollama model) powers Martin — with a safe Claude fallback.
+    try:
+        import system_llm, llm_router
+        system_llm.ensure_seed()
+        prov = system_llm.resolve(
+            anthropic_key=os.getenv("ANTHROPIC_API_KEY", "") or None,
+            anthropic_model=os.getenv("JARVIS_MARTIN_MODEL",
+                                      os.getenv("JARVIS_ASSISTANT_MODEL", "claude-haiku-4-5-20251001")),
+            name="Claude")
+    except Exception:
+        prov = None
+    if not prov:
+        return {"ok": True, "answer": "I can’t reach a model right now — pick one in Admin → System model (or add an API key), and I’ll be right back.", "offline": True}
+    try:
+        # Local models keep everything on-device; egress is allowed for cloud
+        # providers the admin explicitly configured.
+        r = await llm_router.complete(prov, system, conv, max_tokens=900)
+        if r.get("error"):
+            raise RuntimeError(r["error"])
+        answer = (r.get("output") or "").strip()
+        if not answer:
+            answer = "I didn’t get anything back from the model just now — try once more?"
+    except Exception as e:
+        log.warning(f"martin chat failed via {prov.get('name','?')}: {e}")
+        answer = "Sorry — I couldn’t reach my model just now. If you just switched models in Admin, make sure it’s running (for a local model: `ollama serve`)."
+    return {"ok": True, "answer": answer, "engine": prov.get("name"), "local": (prov.get("type") == "ollama")}
+
+
+class WebRequest(BaseModel):
+    intent: str = ""     # 'weather' | 'news' | 'fetch'
+    query: str = ""      # place (weather), topic (news), or a URL/description (fetch)
+
+
+def _http_get(url: str, timeout: int = 12) -> str:
+    """Fetch a URL with a real User-Agent (stdlib only). Returns decoded text."""
+    import urllib.request
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "SmartWithMartin/1.0 (+https://smartwithmartin.ai)",
+        "Accept": "text/html,application/xhtml+xml,application/xml,text/plain,*/*",
+    })
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return resp.read().decode("utf-8", "replace")
+
+
+async def _llm_summarize(system: str, user: str, max_tokens: int = 400) -> str:
+    """Summarize fetched content through the active system model (Claude by default)."""
+    try:
+        import system_llm, llm_router
+        system_llm.ensure_seed()
+        prov = system_llm.resolve(
+            anthropic_key=os.getenv("ANTHROPIC_API_KEY", "") or None,
+            anthropic_model=os.getenv("JARVIS_MARTIN_MODEL", "claude-haiku-4-5-20251001"),
+            name="Claude")
+        if not prov:
+            return ""
+        r = await llm_router.complete(prov, system, [{"role": "user", "content": user}], max_tokens=max_tokens)
+        return (r.get("output") or "").strip()
+    except Exception as e:
+        log.warning(f"web summarize failed: {e}")
+        return ""
+
+
+@router.post("/web")
+async def web_action(body: WebRequest):
+    """Live-web actions for Martin: weather (wttr.in) and news (Google News RSS),
+    summarized for a natural spoken reply. Best-effort; degrades gracefully."""
+    import urllib.parse
+    intent = (body.intent or "").lower().strip()
+    q = (body.query or "").strip()
+    try:
+        if intent == "weather":
+            place = q or "Orlando"
+            fmt = "%l:+%C,+%t+(feels+%f),+humidity+%h,+wind+%w"
+            raw = _http_get("https://wttr.in/" + urllib.parse.quote(place) + "?format=" + fmt + "&u", timeout=12)
+            raw = (raw or "").strip()
+            if not raw or "Unknown location" in raw or "<" in raw[:1]:
+                return {"ok": False, "answer": f"I couldn’t find the weather for “{place}”. Try a city name."}
+            return {"ok": True, "answer": raw, "source": "wttr.in"}
+
+        if intent == "news":
+            topic = q.strip()
+            if topic:
+                url = ("https://news.google.com/rss/search?q=" + urllib.parse.quote(topic)
+                       + "&hl=en-US&gl=US&ceid=US:en")
+            else:
+                url = "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en"
+            xml = _http_get(url, timeout=12)
+            titles = re.findall(r"<title><!\[CDATA\[(.*?)\]\]></title>", xml) or re.findall(r"<title>(.*?)</title>", xml)
+            titles = [t.strip() for t in titles if t.strip()][1:9]   # drop the feed title
+            if not titles:
+                return {"ok": False, "answer": "I couldn’t pull the news just now — try again in a moment."}
+            headlines = "\n".join("- " + t for t in titles)
+            summ = await _llm_summarize(
+                "You are Martin, a concise briefing assistant. Turn these live headlines into a short, "
+                "natural spoken news digest of 4–6 sentences. Group related items, no preamble, no markdown headers.",
+                ("Topic: " + topic + "\n\n" if topic else "") + "Headlines:\n" + headlines,
+                max_tokens=350)
+            return {"ok": True, "answer": summ or headlines, "headlines": titles, "source": "Google News"}
+
+        if intent == "fetch":
+            if not q or not re.match(r"^https?://", q):
+                return {"ok": False, "answer": "Give me a full URL (starting with http) and I’ll summarize it."}
+            html = _http_get(q, timeout=14)
+            text = re.sub(r"<script.*?</script>|<style.*?</style>", " ", html, flags=re.S | re.I)
+            text = re.sub(r"<[^>]+>", " ", text)
+            text = re.sub(r"\s+", " ", text).strip()[:6000]
+            summ = await _llm_summarize(
+                "Summarize this web page in 4–6 plain sentences for a spoken reply. No markdown, no preamble.",
+                text, max_tokens=350)
+            return {"ok": True, "answer": summ or "I fetched the page but couldn’t summarize it.", "source": q}
+
+        return {"ok": False, "answer": "I’m not sure what to look up — try weather, news, or a URL."}
+    except Exception as e:
+        log.warning(f"web_action {intent} failed: {e}")
+        return {"ok": False, "answer": "That live lookup didn’t go through just now — try again in a moment."}
+
+
+class OpsRequest(BaseModel):
+    intent: str = ""   # calendar_today | calendar_next | calendar_upcoming | mail_unread | mail_recent | mail_search
+    query: str = ""
+    count: int = 8
+    hours: int = 6
+
+
+@router.post("/ops")
+async def ops_action(body: OpsRequest):
+    """Read-only personal ops for Martin: today's calendar / next event / upcoming,
+    and unread / recent / searched email. Uses the local Apple Calendar + Mail
+    bridges (macOS). Read-only by design — never sends or deletes anything."""
+    intent = (body.intent or "").lower().strip()
+    try:
+        if intent.startswith("calendar"):
+            import calendar_access as cal
+            if intent == "calendar_next":
+                ev = await cal.get_next_event()
+                return {"ok": True, "answer": cal.format_schedule_summary([ev]) if ev else "Nothing else on your calendar right now."}
+            if intent == "calendar_upcoming":
+                evs = await cal.get_upcoming_events(hours=body.hours or 6)
+                return {"ok": True, "answer": cal.format_schedule_summary(evs) if evs else "Nothing coming up in the next few hours."}
+            evs = await cal.get_todays_events()
+            return {"ok": True, "answer": cal.format_schedule_summary(evs) if evs else "Your calendar is clear today."}
+
+        if intent.startswith("mail"):
+            import mail_access as mail
+            if intent == "mail_search":
+                msgs = await mail.search_mail(body.query or "", count=body.count or 8)
+                return {"ok": True, "answer": mail.format_messages_for_voice(msgs) if msgs else f"I didn’t find any email matching “{body.query}”."}
+            if intent == "mail_recent":
+                msgs = await mail.get_recent_messages(count=body.count or 8)
+                return {"ok": True, "answer": mail.format_messages_for_voice(msgs) if msgs else "No recent messages."}
+            msgs = await mail.get_unread_messages(count=body.count or 8)
+            return {"ok": True, "answer": mail.format_messages_for_voice(msgs) if msgs else "You’re all caught up — no unread email."}
+
+        return {"ok": False, "answer": "I can check your calendar or your email — which would you like?"}
+    except Exception as e:
+        log.warning(f"ops_action {intent} failed: {e}")
+        return {"ok": False, "answer": "I couldn’t reach your Mail/Calendar just now. On your Mac it needs permission under System Settings → Privacy & Security → Automation (allow this app to control Mail and Calendar)."}
+
+
+class CampaignRequest(BaseModel):
+    brief: str = ""
+
+
+class CampaignSaveRequest(BaseModel):
+    brief: str = ""
+    stages: list = []
+
+
+@router.post("/campaign")
+async def campaign(body: CampaignRequest):
+    """Martin-as-manager builds a full Customer Value Journey campaign: plans the
+    funnel, then delegates the lead magnet, tripwire, core offer, and profit
+    maximizer to the specialist Jobs. Draft-only."""
+    brief = (body.brief or "").strip()
+    if len(brief) < 8:
+        return {"ok": False, "answer": "Tell me the offer and who it's for, and I'll build the campaign."}
+    try:
+        import campaign_pipeline
+        return await campaign_pipeline.run_campaign(brief)
+    except Exception as e:
+        log.warning(f"campaign failed: {e}")
+        return {"ok": False, "error": str(e)}
+
+
+@router.post("/campaign_save")
+async def campaign_save(body: CampaignSaveRequest):
+    """Persist an assembled campaign to the Obsidian vault (03-Projects/Campaigns)."""
+    try:
+        import campaign_pipeline
+        p = campaign_pipeline.save_campaign(body.brief, body.stages or [])
+        return {"ok": True, "path": p}
+    except Exception as e:
+        log.warning(f"campaign_save failed: {e}")
+        return {"ok": False, "error": str(e)}
 
 
 def _suggestions(screen: str):

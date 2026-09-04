@@ -8734,6 +8734,1385 @@
       },
       "created_at": 1783731516.2895901,
       "updated_at": 1783731516.289591
+    },
+    {
+      "id": "c19f8e76-f70f-4b97-9d37-64778e3dd8c7",
+      "title": "ER Campaign Performance \u2014 Digital Leads to Net Revenue ROI",
+      "prompt": "What is the conversion rate from a digital lead to actual net patient revenue for the top-performing ER campaigns?",
+      "widget": {
+        "type": "bar",
+        "title": "Top ER Campaigns by Digital Leads",
+        "query": {
+          "primary_table": "combined_campaign_stats_er",
+          "dimensions": [
+            {
+              "table": "combined_campaign_stats_er",
+              "field": "campaign_name"
+            }
+          ],
+          "metrics": [
+            {
+              "table": "combined_campaign_stats_er",
+              "field": "leads"
+            }
+          ],
+          "filters": [
+            {
+              "table": "combined_campaign_stats_er",
+              "field": "date",
+              "op": "between",
+              "value": [
+                "2024-02-24",
+                "2024-05-24"
+              ]
+            }
+          ],
+          "limit": 30,
+          "order_by": [
+            {
+              "field": "leads",
+              "direction": "desc"
+            }
+          ]
+        },
+        "metricFormats": [
+          "number"
+        ],
+        "layout": {
+          "w": 12
+        }
+      },
+      "brief": {
+        "headline": "ER Campaign Performance \u2014 Digital Leads to Net Revenue ROI",
+        "period_summary": "Performance and Attribution Brief",
+        "summary": "This analytical brief evaluates Orlando Health's Emergency Department digital marketing strategies by linking media investments to clinical financial outcomes. We assess the complete journey from initial patient inquiry to downstream clinical revenue capture. Our analysis isolates high-performing channels and campaign efficiency across several core dimensions:",
+        "research": {
+          "headline": "ER Campaign Performance \u2014 Digital Leads to Net Revenue ROI",
+          "subtitle": "Performance and Attribution Brief",
+          "intro_md": "This analytical brief evaluates Orlando Health's Emergency Department digital marketing strategies by linking media investments to clinical financial outcomes. We assess the complete journey from initial patient inquiry to downstream clinical revenue capture. Our analysis isolates high-performing channels and campaign efficiency across several core dimensions:",
+          "sections": [
+            {
+              "heading": "1. Lead Generation Volume \u2014 Top Digital ER Campaigns",
+              "intent": "Which ER campaigns generated the highest volume of digital leads?",
+              "widget": {
+                "type": "bar",
+                "title": "Top ER Campaigns by Digital Leads",
+                "query": {
+                  "primary_table": "combined_campaign_stats_er",
+                  "dimensions": [
+                    {
+                      "table": "combined_campaign_stats_er",
+                      "field": "campaign_name"
+                    }
+                  ],
+                  "metrics": [
+                    {
+                      "table": "combined_campaign_stats_er",
+                      "field": "leads"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "table": "combined_campaign_stats_er",
+                      "field": "date",
+                      "op": "between",
+                      "value": [
+                        "2024-02-24",
+                        "2024-05-24"
+                      ]
+                    }
+                  ],
+                  "limit": 30,
+                  "order_by": [
+                    {
+                      "field": "leads",
+                      "direction": "desc"
+                    }
+                  ]
+                },
+                "metricFormats": [
+                  "number"
+                ],
+                "layout": {
+                  "w": 12
+                }
+              },
+              "columns": [
+                "campaign_name",
+                "leads"
+              ],
+              "rows": [
+                [
+                  "[Paid Search] Reunion Village FSED - ER - 5932",
+                  28
+                ],
+                [
+                  "[Paid Search] Bayfront - ER - 5932",
+                  26
+                ],
+                [
+                  "[Paid Search] Osceola FSED - ER - 5932",
+                  22
+                ],
+                [
+                  "[Paid Search] Dr. Phillips Hospital - ER - 5932",
+                  21
+                ],
+                [
+                  "[Paid Search] Randal Park FSED - ER - 5932",
+                  18
+                ],
+                [
+                  "[Paid Search] Horizon West Hospital - ER - 5932",
+                  18
+                ],
+                [
+                  "[Paid Search] Pediatrics - APH ER - 5969",
+                  16
+                ],
+                [
+                  "[Paid Search] St. Cloud Hospital - ER - 5932",
+                  14
+                ],
+                [
+                  "[Paid Search] Health Central Hospital - ER - 5932",
+                  12
+                ],
+                [
+                  "[Display] Horizon West Hospital - ER - 5932",
+                  8
+                ],
+                [
+                  "[Paid Search] Lake Mary FSED - ER - 5932",
+                  8
+                ],
+                [
+                  "[Paid Search] ORMC - ER - 5932",
+                  7
+                ],
+                [
+                  "[Paid Search] South Seminole Hospital - ER - 5932",
+                  7
+                ],
+                [
+                  "[Display] Randal Park FSED - ER - 5932",
+                  6
+                ],
+                [
+                  "[Display] South Lake Hospital - ER - 5932",
+                  6
+                ],
+                [
+                  "[Paid Search] Four Corners FSED - ER - 5932",
+                  6
+                ],
+                [
+                  "[Paid Search] South Lake Hospital - ER - 5932",
+                  5
+                ],
+                [
+                  "[Display] Dr. Phillips Hospital - ER - 5932",
+                  4
+                ],
+                [
+                  "[Display] Blue Cedar FSED - ER - 5932",
+                  3
+                ],
+                [
+                  "[Display] Osceola FSED - ER - 5932",
+                  3
+                ],
+                [
+                  "[Paid Search] Blue Cedar FSED - ER - 5932",
+                  3
+                ],
+                [
+                  "[Display] South Seminole Hospital - ER - 5932",
+                  2
+                ],
+                [
+                  "[Display] Bayfront - ER - 5932",
+                  1
+                ],
+                [
+                  "[Display] Reunion Village FSED - ER - 5932",
+                  1
+                ],
+                [
+                  "[Display] Four Corners FSED - ER - 5932",
+                  null
+                ],
+                [
+                  "[Display] Health Central Hospital - ER - 5932",
+                  null
+                ],
+                [
+                  "[Display] Lake Mary FSED - ER - 5932",
+                  null
+                ],
+                [
+                  "[Display] ORMC - ER - 5932",
+                  null
+                ],
+                [
+                  "[Display] Pediatrics - APH ER - 5980",
+                  null
+                ],
+                [
+                  "[Paid Social] Bayfront - ER",
+                  null
+                ]
+              ],
+              "row_count": 30,
+              "dimension_label": "campaign name",
+              "callout_md": ""
+            },
+            {
+              "heading": "2. Acquisition Efficiency \u2014 Cost per Lead Across Ad Sources",
+              "intent": "What is the cost per lead across different ER campaigns and ad sources?",
+              "widget": {
+                "type": "table",
+                "title": "ER Campaign Cost per Lead",
+                "query": {
+                  "primary_table": "combined_campaign_stats_er",
+                  "dimensions": [
+                    {
+                      "table": "combined_campaign_stats_er",
+                      "field": "campaign_name"
+                    },
+                    {
+                      "table": "combined_campaign_stats_er",
+                      "field": "ad_source"
+                    }
+                  ],
+                  "metrics": [
+                    {
+                      "table": "combined_campaign_stats_er",
+                      "field": "cost"
+                    },
+                    {
+                      "table": "combined_campaign_stats_er",
+                      "field": "leads"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "table": "combined_campaign_stats_er",
+                      "field": "date",
+                      "op": "between",
+                      "value": [
+                        "2024-02-24",
+                        "2024-05-24"
+                      ]
+                    }
+                  ],
+                  "limit": 30,
+                  "order_by": [
+                    {
+                      "field": "cost",
+                      "direction": "desc"
+                    }
+                  ]
+                },
+                "metricFormats": [
+                  "currency",
+                  "number"
+                ],
+                "layout": {
+                  "w": 12
+                }
+              },
+              "columns": [
+                "campaign_name",
+                "ad_source",
+                "cost",
+                "leads"
+              ],
+              "rows": [
+                [
+                  "Community Hospitals - ER",
+                  "Billboards",
+                  140992.76,
+                  null
+                ],
+                [
+                  "Bayfront - ER",
+                  "Billboards",
+                  48380.11,
+                  null
+                ],
+                [
+                  "Community Hospitals - ER",
+                  "Digital Audio",
+                  39743.16,
+                  null
+                ],
+                [
+                  "Community Hospitals - ER",
+                  "Transit",
+                  27957.18,
+                  null
+                ],
+                [
+                  "Dr. Phillips Hospital - ER",
+                  "Billboards",
+                  23986.88,
+                  null
+                ],
+                [
+                  "Pediatrics - APH ER",
+                  "Billboards",
+                  23661.51,
+                  null
+                ],
+                [
+                  "South Lake Hospital - ER",
+                  "Transit",
+                  22729.41,
+                  null
+                ],
+                [
+                  "Bayfront - ER",
+                  "Transit",
+                  18075.29,
+                  null
+                ],
+                [
+                  "South Lake Hospital - ER",
+                  "Billboards",
+                  17810.35,
+                  null
+                ],
+                [
+                  "Pediatrics - APH ER",
+                  "Digital Audio",
+                  16253.92,
+                  null
+                ],
+                [
+                  "[Paid Search] Bayfront - ER - 5932",
+                  "google",
+                  16035.192593000003,
+                  26
+                ],
+                [
+                  "Pediatrics - APH ER",
+                  "Radio",
+                  13924.2,
+                  null
+                ],
+                [
+                  "St. Cloud Hospital - ER",
+                  "Billboards",
+                  12988.26,
+                  null
+                ],
+                [
+                  "[Paid Search] Pediatrics - APH ER - 5969",
+                  "google",
+                  12726.002723000001,
+                  16
+                ],
+                [
+                  "Horizon West Hospital - ER",
+                  "Billboards",
+                  12014.130000000001,
+                  null
+                ],
+                [
+                  "Reunion Village FSED - ER",
+                  "Print",
+                  11192.64,
+                  null
+                ],
+                [
+                  "ORMC - ER",
+                  "Billboards",
+                  9256.08,
+                  null
+                ],
+                [
+                  "[Paid Search] Osceola FSED - ER - 5932",
+                  "google",
+                  8652.308738,
+                  22
+                ],
+                [
+                  "South Seminole Hospital - ER",
+                  "Billboards",
+                  8300.14,
+                  null
+                ],
+                [
+                  "St. Cloud Hospital - ER",
+                  "Display",
+                  7610,
+                  null
+                ],
+                [
+                  "[Paid Search] Dr. Phillips Hospital - ER - 5932",
+                  "google",
+                  7224.119568,
+                  21
+                ],
+                [
+                  "[Paid Search] Randal Park FSED - ER - 5932",
+                  "google",
+                  6806.727354,
+                  18
+                ],
+                [
+                  "[Paid Search] ORMC - ER - 5932",
+                  "google",
+                  6178.123740999999,
+                  7
+                ],
+                [
+                  "Randal Park FSED - ER",
+                  "Digital Audio",
+                  6105.15,
+                  null
+                ],
+                [
+                  "[Paid Search] South Seminole Hospital - ER - 5932",
+                  "google",
+                  5411.730044999999,
+                  7
+                ],
+                [
+                  "[Paid Search] South Lake Hospital - ER - 5932",
+                  "google",
+                  5297.272069,
+                  5
+                ],
+                [
+                  "[Paid Search] Reunion Village FSED - ER - 5932",
+                  "google",
+                  4898.501706000001,
+                  28
+                ],
+                [
+                  "[Display] Osceola FSED - ER - 5932",
+                  "google",
+                  4815.627874000001,
+                  3
+                ],
+                [
+                  "Osceola FSED - ER",
+                  "Digital Audio",
+                  4784.02,
+                  null
+                ],
+                [
+                  "Randal Park FSED - ER",
+                  "Print",
+                  4762.35,
+                  null
+                ]
+              ],
+              "row_count": 30,
+              "dimension_label": "campaign name",
+              "callout_md": ""
+            },
+            {
+              "heading": "3. Financial Performance \u2014 Attributed Net Patient Revenue by Service",
+              "intent": "Which patient services and marketing campaigns drove the highest net revenue?",
+              "widget": {
+                "type": "table",
+                "title": "Revenue by Patient Service and Campaign",
+                "query": {
+                  "primary_table": "revenue_attributed_to_marketing",
+                  "dimensions": [
+                    {
+                      "table": "revenue_attributed_to_marketing",
+                      "field": "patient_service"
+                    },
+                    {
+                      "table": "revenue_attributed_to_marketing",
+                      "field": "utm_campaign"
+                    }
+                  ],
+                  "metrics": [
+                    {
+                      "table": "revenue_attributed_to_marketing",
+                      "field": "net_revenue"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "table": "revenue_attributed_to_marketing",
+                      "field": "service_date",
+                      "op": "between",
+                      "value": [
+                        "2024-02-24",
+                        "2024-05-24"
+                      ]
+                    }
+                  ],
+                  "limit": 30,
+                  "order_by": [
+                    {
+                      "field": "net_revenue",
+                      "direction": "desc"
+                    }
+                  ]
+                },
+                "metricFormats": [
+                  "currency"
+                ],
+                "layout": {
+                  "w": 12
+                }
+              },
+              "columns": [
+                "patient_service",
+                "utm_campaign",
+                "net_revenue"
+              ],
+              "rows": [
+                [
+                  "MEDICAL",
+                  null,
+                  524821221.84
+                ],
+                [
+                  "N/A",
+                  null,
+                  389968244.23
+                ],
+                [
+                  "EMERGENCY MEDICINE",
+                  null,
+                  273835981.06
+                ],
+                [
+                  "SURGICAL",
+                  null,
+                  188783950.35
+                ],
+                [
+                  "CARDIOVASCULAR",
+                  null,
+                  144169527.91
+                ],
+                [
+                  "ORTHOPEDICS",
+                  null,
+                  66143145.16
+                ],
+                [
+                  "OBSTETRICS",
+                  null,
+                  58248429.6
+                ],
+                [
+                  "TRAUMA",
+                  null,
+                  53215398.89
+                ],
+                [
+                  "PEDIATRICS",
+                  null,
+                  52921370.72
+                ],
+                [
+                  "NEONATOLOGY",
+                  null,
+                  47244515.85
+                ],
+                [
+                  "NEUROLOGY",
+                  null,
+                  34985061.32
+                ],
+                [
+                  "NEUROSURGERY",
+                  null,
+                  24757485.38
+                ],
+                [
+                  "HEMATOLOGY/ONCOLOGY",
+                  null,
+                  21692407.42
+                ],
+                [
+                  "GYNECOLOGY",
+                  null,
+                  15010715.36
+                ],
+                [
+                  "INTENSIVE",
+                  null,
+                  14090103.21
+                ],
+                [
+                  "PHYSICAL MEDICINE AND REHABILITATION",
+                  null,
+                  13720873.93
+                ],
+                [
+                  "COLO-RECTAL",
+                  null,
+                  12409619.93
+                ],
+                [
+                  "PSYCHIATRY",
+                  null,
+                  10714524.9
+                ],
+                [
+                  "BARIATRICS",
+                  null,
+                  9021647.67
+                ],
+                [
+                  "BURN",
+                  null,
+                  7456012.96
+                ],
+                [
+                  "UROLOGY",
+                  null,
+                  7368451.98
+                ],
+                [
+                  "HOSPITAL CARE AT HOME",
+                  null,
+                  5090824.6
+                ],
+                [
+                  "GASTROENTEROLOGY",
+                  null,
+                  3566298.72
+                ],
+                [
+                  "OBSTETRICS",
+                  "[Paid Search] Women's Institute - Obstetrics - 5969",
+                  2947360.25
+                ],
+                [
+                  "PEDIATRIC GASTROENTEROLOGY",
+                  null,
+                  2567278.41
+                ],
+                [
+                  "PLASTICS",
+                  null,
+                  2384258.69
+                ],
+                [
+                  "OTOLARYNGOLOGY",
+                  null,
+                  2184470.27
+                ],
+                [
+                  "OBSTETRICS",
+                  "[Paid Search] Women's Services - Obstetrics - 5969",
+                  2058335.86
+                ],
+                [
+                  "MATERNAL-FETAL MEDICINE",
+                  null,
+                  1929975.93
+                ],
+                [
+                  "MEDICAL",
+                  "[Paid Search] Ancillary Services - LabWorks - 5969",
+                  1350569.69
+                ]
+              ],
+              "row_count": 30,
+              "dimension_label": "patient service",
+              "callout_md": ""
+            }
+          ],
+          "verdict": {},
+          "next_questions": [],
+          "tool_count": 3,
+          "thinking_steps": 1,
+          "time_elapsed": 37.9,
+          "engine": "BigQuery via curated semantic layer"
+        }
+      },
+      "created_at": 1784724521.7464771,
+      "updated_at": 1784724521.746479
+    },
+    {
+      "id": "eaa1e66b-c678-46e2-b844-1b3468bf4307",
+      "title": "Orlando Health Campaign Spend & Performance Analysis",
+      "prompt": "show me our campaign spend form January 2026 to July 2026",
+      "widget": {
+        "type": "line",
+        "title": "Campaign Spend Trend Jan-Jul 2026",
+        "query": {
+          "primary_table": "ad_performance",
+          "dimensions": [
+            {
+              "table": "date",
+              "field": "calendar_month"
+            }
+          ],
+          "metrics": [
+            {
+              "table": "ad_performance",
+              "field": "spend"
+            }
+          ],
+          "filters": [
+            {
+              "table": "ad_performance",
+              "field": "date",
+              "op": "between",
+              "value": [
+                "2026-01-01",
+                "2026-07-31"
+              ]
+            }
+          ],
+          "limit": 30,
+          "order_by": [
+            {
+              "field": "spend",
+              "direction": "desc"
+            }
+          ]
+        },
+        "metricFormats": [
+          "currency"
+        ],
+        "layout": {
+          "w": 12
+        }
+      },
+      "brief": {
+        "headline": "Orlando Health Campaign Spend & Performance Analysis",
+        "period_summary": "January 2026 \u2013 July 2026",
+        "summary": "This analytical brief evaluates Orlando Health's campaign investment and media deployment from January through July 2026. We examine the monthly spend trajectory, identify high-priority healthcare service lines driving the budget, and assess the acquisition efficiency of our major channels. The following analysis breaks down our media performance across key dimensions:",
+        "research": {
+          "headline": "Orlando Health Campaign Spend & Performance Analysis",
+          "subtitle": "January 2026 \u2013 July 2026",
+          "intro_md": "This analytical brief evaluates Orlando Health's campaign investment and media deployment from January through July 2026. We examine the monthly spend trajectory, identify high-priority healthcare service lines driving the budget, and assess the acquisition efficiency of our major channels. The following analysis breaks down our media performance across key dimensions:",
+          "sections": [
+            {
+              "heading": "1. Spend Trajectory \u2014 Monthly Investment Patterns Over the Half",
+              "intent": "How did campaign spend trend month-over-month between January and July 2026?",
+              "widget": {
+                "type": "line",
+                "title": "Campaign Spend Trend Jan-Jul 2026",
+                "query": {
+                  "primary_table": "ad_performance",
+                  "dimensions": [
+                    {
+                      "table": "date",
+                      "field": "calendar_month"
+                    }
+                  ],
+                  "metrics": [
+                    {
+                      "table": "ad_performance",
+                      "field": "spend"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "table": "ad_performance",
+                      "field": "date",
+                      "op": "between",
+                      "value": [
+                        "2026-01-01",
+                        "2026-07-31"
+                      ]
+                    }
+                  ],
+                  "limit": 30,
+                  "order_by": [
+                    {
+                      "field": "spend",
+                      "direction": "desc"
+                    }
+                  ]
+                },
+                "metricFormats": [
+                  "currency"
+                ],
+                "layout": {
+                  "w": 12
+                }
+              },
+              "columns": [
+                "calendar_month",
+                "spend"
+              ],
+              "rows": [
+                [
+                  2,
+                  2250718.622624892
+                ],
+                [
+                  4,
+                  1697792.61916208
+                ],
+                [
+                  3,
+                  1676714.631040581
+                ],
+                [
+                  1,
+                  1250037.404756004
+                ],
+                [
+                  5,
+                  1249327.731872982
+                ],
+                [
+                  6,
+                  601048.356652
+                ],
+                [
+                  7,
+                  263.75
+                ]
+              ],
+              "row_count": 7,
+              "dimension_label": "calendar month",
+              "callout_md": ""
+            },
+            {
+              "heading": "2. Service Line Allocation \u2014 Core Medical Specialties Drive Primary Investment",
+              "intent": "Which healthcare service lines received the largest share of budget during this period?",
+              "widget": {
+                "type": "bar",
+                "title": "Budget Share by Service Line",
+                "query": {
+                  "primary_table": "campaigns",
+                  "dimensions": [
+                    {
+                      "table": "campaigns",
+                      "field": "service_line"
+                    }
+                  ],
+                  "metrics": [
+                    {
+                      "table": "campaigns",
+                      "field": "campaign_budget"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "table": "campaigns",
+                      "field": "start_date",
+                      "op": "between",
+                      "value": [
+                        "2024-02-24",
+                        "2024-05-24"
+                      ]
+                    }
+                  ],
+                  "limit": 30,
+                  "order_by": [
+                    {
+                      "field": "campaign_budget",
+                      "direction": "desc"
+                    }
+                  ]
+                },
+                "metricFormats": [
+                  "currency"
+                ],
+                "layout": {
+                  "w": 12
+                }
+              },
+              "columns": [
+                "service_line",
+                "campaign_budget"
+              ],
+              "rows": [
+                [
+                  "Saturday, June 8, 2024 | 9am-12pm\nFMCOH Wiregrass Campus -...",
+                  null
+                ],
+                [
+                  "PSYCHIATRY...\"",
+                  null
+                ],
+                [
+                  "Colon and Rectal Institute",
+                  null
+                ],
+                [
+                  "Neurosciences",
+                  null
+                ],
+                [
+                  "South Lake Hospital",
+                  null
+                ],
+                [
+                  "EGD (thru Jul)",
+                  null
+                ],
+                [
+                  "Digestive Health Institute",
+                  null
+                ],
+                [
+                  "Women's Institute",
+                  null
+                ],
+                [
+                  "APR 2024",
+                  null
+                ],
+                [
+                  "Skin Cancer (thru Aug)",
+                  null
+                ],
+                [
+                  "canceled)",
+                  null
+                ],
+                [
+                  "OHPA",
+                  null
+                ],
+                [
+                  "Rehab Institute",
+                  null
+                ],
+                [
+                  "MAY 2024",
+                  null
+                ],
+                [
+                  "Orlando Health Brand",
+                  null
+                ],
+                [
+                  "OHCI Brand",
+                  null
+                ],
+                [
+                  "Horizon West Hospital",
+                  null
+                ],
+                [
+                  "Jewett Orthopedic Institute",
+                  null
+                ],
+                [
+                  "Cancer Institute",
+                  null
+                ],
+                [
+                  "Heart and Vascular Institute",
+                  null
+                ],
+                [
+                  "OHMG",
+                  null
+                ],
+                [
+                  "MAR 2024",
+                  null
+                ],
+                [
+                  "Promoting Dr. Andrew Sprouse",
+                  null
+                ],
+                [
+                  "Bariatrics",
+                  null
+                ],
+                [
+                  null,
+                  null
+                ],
+                [
+                  "Alopecia (thru Jul)",
+                  null
+                ],
+                [
+                  "Promoting Dr. Sprouse",
+                  null
+                ],
+                [
+                  "Knee Surgery (thru Jul)",
+                  null
+                ],
+                [
+                  "Diabetes (thru Aug)",
+                  null
+                ],
+                [
+                  "Dermal Fillers (thru Jul)",
+                  null
+                ]
+              ],
+              "row_count": 30,
+              "dimension_label": "service line",
+              "callout_md": ""
+            },
+            {
+              "heading": "3. Channel Distribution \u2014 Digital Ad Platforms Command Major Media Outlay",
+              "intent": "How was campaign spend distributed across ad platforms and which offered the best CPA?",
+              "widget": {
+                "type": "table",
+                "title": "Campaign Spend and CPA by Platform",
+                "query": {
+                  "primary_table": "ad_performance",
+                  "dimensions": [
+                    {
+                      "table": "ad_performance",
+                      "field": "platform"
+                    }
+                  ],
+                  "metrics": [
+                    {
+                      "table": "ad_performance",
+                      "field": "spend"
+                    },
+                    {
+                      "table": "ad_performance",
+                      "field": "cpa"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "table": "ad_performance",
+                      "field": "date",
+                      "op": "between",
+                      "value": [
+                        "2024-02-24",
+                        "2024-05-24"
+                      ]
+                    }
+                  ],
+                  "limit": 30,
+                  "order_by": [
+                    {
+                      "field": "spend",
+                      "direction": "desc"
+                    }
+                  ]
+                },
+                "metricFormats": [
+                  "currency",
+                  "currency"
+                ],
+                "layout": {
+                  "w": 12
+                }
+              },
+              "columns": [
+                "ad_platform",
+                "spend",
+                "cpa"
+              ],
+              "rows": [
+                [
+                  "Billboards",
+                  1181285.464883065,
+                  null
+                ],
+                [
+                  "Google Ads",
+                  990791.239803,
+                  33.34983323862873
+                ],
+                [
+                  "Television",
+                  772433.07523916,
+                  null
+                ],
+                [
+                  "Transit",
+                  269407.055739647,
+                  null
+                ],
+                [
+                  "Digital Audio",
+                  257692.452291411,
+                  null
+                ],
+                [
+                  "Print",
+                  217568.112791998,
+                  null
+                ],
+                [
+                  "Radio",
+                  205268.670522804,
+                  null
+                ],
+                [
+                  "Digital Video",
+                  177166.115584056,
+                  null
+                ],
+                [
+                  "Meta Ads",
+                  126261.53,
+                  null
+                ],
+                [
+                  "Display",
+                  46358.178642966,
+                  null
+                ],
+                [
+                  "Outdoor",
+                  23374.87704118,
+                  null
+                ],
+                [
+                  "Bing Search",
+                  9731.909833144,
+                  null
+                ],
+                [
+                  "Microsoft Ads",
+                  7943.67,
+                  180.53795454545454
+                ],
+                [
+                  "LinkedIn",
+                  3987.909677424,
+                  null
+                ],
+                [
+                  "Cinema",
+                  3974.925917709,
+                  null
+                ]
+              ],
+              "row_count": 15,
+              "dimension_label": "platform",
+              "callout_md": ""
+            },
+            {
+              "heading": "4. Top Campaign Investments \u2014 High-Value Outlays versus Direct Lead Outcomes",
+              "intent": "What are our top campaigns by spend and how efficiently did they acquire leads?",
+              "widget": {
+                "type": "table",
+                "title": "Campaign Spend and Lead Efficiency",
+                "query": {
+                  "primary_table": "combined_campaign_stats_dashboard",
+                  "dimensions": [
+                    {
+                      "table": "combined_campaign_stats_dashboard",
+                      "field": "campaign_name_formatted"
+                    }
+                  ],
+                  "metrics": [
+                    {
+                      "table": "combined_campaign_stats_dashboard",
+                      "field": "cost"
+                    },
+                    {
+                      "table": "combined_campaign_stats_dashboard",
+                      "field": "leads"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "table": "combined_campaign_stats_dashboard",
+                      "field": "date",
+                      "op": "between",
+                      "value": [
+                        "2024-02-24",
+                        "2024-05-24"
+                      ]
+                    }
+                  ],
+                  "limit": 30,
+                  "order_by": [
+                    {
+                      "field": "cost",
+                      "direction": "desc"
+                    }
+                  ]
+                },
+                "metricFormats": [
+                  "currency",
+                  "number"
+                ],
+                "layout": {
+                  "w": 12
+                }
+              },
+              "columns": [
+                "campaign_name_formatted",
+                "cost",
+                "leads"
+              ],
+              "rows": [
+                [
+                  "Community Hospitals - ER",
+                  210639.45,
+                  null
+                ],
+                [
+                  "Bayfront - ER",
+                  66455.4,
+                  null
+                ],
+                [
+                  "Pediatrics - APH ER",
+                  61280.14,
+                  1
+                ],
+                [
+                  "South Lake Hospital - ER",
+                  40539.76,
+                  null
+                ],
+                [
+                  "Dr. Phillips Hospital - ER",
+                  25100.62,
+                  null
+                ],
+                [
+                  "St. Cloud Hospital - ER",
+                  20598.260000000002,
+                  null
+                ],
+                [
+                  "[Paid Search] Bayfront - ER - 5932",
+                  16035.192593000002,
+                  26
+                ],
+                [
+                  "Reunion Village FSED - ER",
+                  15344.02,
+                  null
+                ],
+                [
+                  "Horizon West Hospital - ER",
+                  13769.16,
+                  null
+                ],
+                [
+                  "[Paid Search] Pediatrics - APH ER - 5969",
+                  12726.002723000001,
+                  29
+                ],
+                [
+                  "Lake Mary FSED - ER",
+                  11937.27,
+                  null
+                ],
+                [
+                  "Randal Park FSED - ER",
+                  10867.500000000002,
+                  null
+                ],
+                [
+                  "ORMC - ER",
+                  9256.08,
+                  null
+                ],
+                [
+                  "South Seminole Hospital - ER",
+                  9193.089999999998,
+                  null
+                ],
+                [
+                  "[Paid Search] Osceola FSED - ER - 5932",
+                  8652.308738,
+                  23
+                ],
+                [
+                  "[Paid Search] Dr. Phillips Hospital - ER - 5932",
+                  7224.119568,
+                  22
+                ],
+                [
+                  "[Paid Search] Randal Park FSED - ER - 5932",
+                  6806.727354000001,
+                  19
+                ],
+                [
+                  "Blue Cedar FSED - ER",
+                  6733,
+                  null
+                ],
+                [
+                  "[Paid Search] ORMC - ER - 5932",
+                  6178.123740999999,
+                  7
+                ],
+                [
+                  "Osceola FSED - ER",
+                  5676.969999999999,
+                  null
+                ],
+                [
+                  "[Paid Search] South Seminole Hospital - ER - 5932",
+                  5411.730044999999,
+                  7
+                ],
+                [
+                  "[Paid Search] South Lake Hospital - ER - 5932",
+                  5297.272069000001,
+                  5
+                ],
+                [
+                  "[Paid Search] Reunion Village FSED - ER - 5932",
+                  4898.501706,
+                  29
+                ],
+                [
+                  "[Display] Osceola FSED - ER - 5932",
+                  4815.627874,
+                  3
+                ],
+                [
+                  "[Paid Search] Horizon West Hospital - ER - 5932",
+                  4701.715877,
+                  18
+                ],
+                [
+                  "[Display] Dr. Phillips Hospital - ER - 5932",
+                  4684.341012999999,
+                  4
+                ],
+                [
+                  "Four Corners FSED - ER",
+                  4500.73,
+                  null
+                ],
+                [
+                  "[Display] Randal Park FSED - ER - 5932",
+                  4282.5887569999995,
+                  6
+                ],
+                [
+                  "[Paid Search] St. Cloud Hospital - ER - 5932",
+                  3971.513449,
+                  15
+                ],
+                [
+                  "Health Central Hospital - ER",
+                  3863.3199999999997,
+                  null
+                ]
+              ],
+              "row_count": 30,
+              "dimension_label": "campaign name formatted",
+              "callout_md": ""
+            }
+          ],
+          "verdict": {},
+          "next_questions": [],
+          "tool_count": 4,
+          "thinking_steps": 1,
+          "time_elapsed": 45.6,
+          "engine": "BigQuery via curated semantic layer"
+        }
+      },
+      "created_at": 1784728516.312196,
+      "updated_at": 1784728516.312196
     }
   ]
 }

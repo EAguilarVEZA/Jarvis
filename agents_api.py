@@ -15,6 +15,7 @@ Routes (prefix /api/agents):
   POST /api/agents/{slug}/chat     — chat with the agent
 """
 from __future__ import annotations
+import system_llm  # route LLM calls through the active system model
 
 import json
 import os
@@ -249,7 +250,7 @@ async def run_agent_turn(agent: dict, message: str, history=None, use_tools=True
     msgs.append({"role": "user", "content": message})
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         model = os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6")
         tools_used, answer, trace = [], "", []
         for _ in range(6):
@@ -303,6 +304,90 @@ async def chat(slug: str, body: ChatRequest):
     if not (body.message or "").strip():
         return {"error": "Say something to the agent."}
     return await run_agent_turn(a, body.message, body.history, body.tools)
+
+
+# ── Concierge: match a manager's task to the right agent(s) ───────────────────
+# Deterministic (zero-token) matcher. Common marketing intents get a strong
+# boost to a specific agent; everything else falls back to term overlap over
+# each agent's name / role / what-it-does / division / tags.
+_INTENT_BOOSTS = [
+    (r"\bcarousel|swipe|slides?\b", "carousel-growth-engine"),
+    (r"\blead ?magnet|magnet|trip ?wire|opt-?in|freebie|offer\b", "offer-lead-gen-strategist"),
+    (r"\bemail|nurture|lifecycle|drip|crm|newsletter|sequence\b", "email-marketing-strategist"),
+    (r"\bad copy|ad creative|rsa|headline|google ads?|responsive search\b", "ad-creative-strategist"),
+    (r"\bppc|search campaign|shopping|performance max|pmax\b", "ppc-campaign-strategist"),
+    (r"\bpaid social|meta ads?|facebook ads?|instagram ads?\b", "paid-social-strategist"),
+    (r"\bseo|rank|keywords?|organic|search engine|get found\b", "seo-specialist"),
+    (r"\bblog|article|editorial|content calendar|content plan\b", "content-creator"),
+    (r"\binstagram|\big\b|reels?\b", "instagram-curator"),
+    (r"\btiktok\b", "tiktok-strategist"),
+    (r"\blinkedin\b", "linkedin-content-creator"),
+    (r"\btwitter\b|\bx\.com\b", "twitter-engager"),
+    (r"\byoutube|video\b", "video-optimization-specialist"),
+    (r"\bsocial media|social post|social strategy\b", "social-media-strategist"),
+    (r"\bgrowth|acquisition|viral|funnel experiment\b", "growth-hacker"),
+    (r"\breport|dashboard|analy[sz]e|metric|kpi|trend|trending|leads?|volume|traffic|conversions?|how (are|is|did|many|much)\b", "analytics-reporter"),
+    (r"\bexecutive summary|leadership summary|board\b", "executive-summary-generator"),
+    (r"\bbrand|voice|guidelines?|consistency\b", "brand-guardian"),
+    (r"\bpress|pr\b|media relations|announcement\b", "pr-communications-manager"),
+    (r"\bpodcast\b", "global-podcast-strategist"),
+    (r"\bproposal|rfp\b", "proposal-strategist"),
+]
+
+_STOP = set("the a an of to for and or with your you our we i how do can make build create "
+            "want need help me my on in at is are use using new get".split())
+
+
+def _tokens(s: str):
+    return [t for t in re.findall(r"[a-z0-9]+", (s or "").lower()) if t not in _STOP and len(t) > 2]
+
+
+def recommend_agents(task: str, limit: int = 3) -> list:
+    agents = _load_all()
+    tl = (task or "").lower()
+    scored = {}
+    # 1) intent boosts — strong, specific
+    for pat, slug in _INTENT_BOOSTS:
+        if slug in agents and re.search(pat, tl):
+            scored[slug] = scored.get(slug, 0) + 10
+    # 2) term overlap across the whole library
+    terms = set(_tokens(task))
+    if terms:
+        for slug, a in agents.items():
+            name_t = set(_tokens(a.get("name", "")))
+            body_t = set(_tokens(a.get("role", "") + " " + a.get("what", "")))
+            div_t = set(_tokens(a.get("division", "")))
+            tag_t = set(_tokens(" ".join(a.get("tags", []))))
+            s = 3 * len(terms & name_t) + 1 * len(terms & body_t) + 2 * len(terms & div_t) + 2 * len(terms & tag_t)
+            if s:
+                scored[slug] = scored.get(slug, 0) + s
+    ranked = sorted(scored.items(), key=lambda kv: kv[1], reverse=True)[:limit]
+    out = []
+    for slug, sc in ranked:
+        a = agents[slug]
+        out.append({"slug": slug, "name": a["name"], "division": a["division"],
+                    "role": a["role"], "what": a["what"], "score": sc})
+    return out
+
+
+class RecommendRequest(BaseModel):
+    task: str
+    limit: Optional[int] = 3
+
+
+@router.post("/recommend")
+async def recommend(body: RecommendRequest):
+    if not (body.task or "").strip():
+        return {"error": "Describe what you're trying to do."}
+    recs = recommend_agents(body.task, min(int(body.limit or 3), 5))
+    if not recs:
+        # graceful fallback — the everyday marketing set
+        fallback = ["content-creator", "social-media-strategist", "analytics-reporter"]
+        agents = _load_all()
+        recs = [{"slug": s, "name": agents[s]["name"], "division": agents[s]["division"],
+                 "role": agents[s]["role"], "what": agents[s]["what"], "score": 0}
+                for s in fallback if s in agents]
+    return {"ok": True, "task": body.task, "recommendations": recs}
 
 
 # ── Saved agent chats ────────────────────────────────────────────────────────

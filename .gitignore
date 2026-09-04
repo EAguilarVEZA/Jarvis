@@ -69,3 +69,27 @@ datavant_assets.json
 *.p12
 *.pfx
 *.pem.*
+
+# --- Local runtime state / personal data — never publish (added for GitHub safety) ---
+convo_state/
+convo_artifacts/
+brief_store.json
+brief_store.json.bak*
+phase2_evidence.md
+martin_app.html.bak.*
+*.bak.*
+.env.bak.*
+
+# --- Secret/config with provider keys — never publish ---
+llm_providers.json
+# --- Local brief config (may hold Outlook content) ---
+brief_in.json
+brief_mute.json
+# --- Embedded subprojects / heavy demo assets (not core) ---
+higgsfield-studio/
+prestige-os/
+prestige-os.zip
+prestige-demo/
+prestige-demo.zip
+*.zip
+generated_reports/

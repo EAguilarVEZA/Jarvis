@@ -25,6 +25,7 @@ Errors:
 
 from __future__ import annotations
 
+import system_llm  # route LLM calls through the active system model
 import asyncio
 import copy
 import json
@@ -1815,8 +1816,18 @@ async def metric_ask(body: MetricAskBody, request: Request):
             entry["subject"] = table_desc[:200]
         catalog.append(entry)
     import llm_router
-    prov = {"type": "anthropic", "api_key": key,
-            "model": os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6"), "name": "Claude"}
+    try:
+        import system_llm
+        system_llm.ensure_seed()
+        prov = system_llm.resolve(anthropic_key=key or None,
+                                  anthropic_model=os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6"),
+                                  name="Claude")
+    except Exception:
+        prov = {"type": "anthropic", "api_key": key,
+                "model": os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6"), "name": "Claude"}
+    if not prov:
+        prov = {"type": "anthropic", "api_key": key,
+                "model": os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6"), "name": "Claude"}
     sysp = ("You ground analytics questions in a catalog of GOVERNED METRICS. Given the question and the catalog "
             "(JSON), pick the single best metric and query parameters. Each metric may include 'also_known_as' "
             "(synonyms/aliases the business uses for it) and 'subject' (what the underlying data is about) — use "
@@ -1968,8 +1979,15 @@ async def metric_insights_impl(body: MetricInsightsBody, request: Request):
     if key and top:
         try:
             import llm_router
-            prov = {"type": "anthropic", "api_key": key,
-                    "model": os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6"), "name": "Claude"}
+            try:
+                import system_llm
+                prov = system_llm.resolve(anthropic_key=key or None,
+                                          anthropic_model=os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6"),
+                                          name="Claude") or {"type": "anthropic", "api_key": key,
+                                          "model": os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6"), "name": "Claude"}
+            except Exception:
+                prov = {"type": "anthropic", "api_key": key,
+                        "model": os.getenv("JARVIS_AGENT_MODEL", "claude-sonnet-4-6"), "name": "Claude"}
             sysp = ("You write a 2-3 sentence executive digest for a business metric. You are given the metric name "
                     "and a list of NUMERIC FACTS already computed. Phrase them clearly and prioritize the most "
                     "important. Do NOT invent numbers or add facts not in the list.")
@@ -3003,16 +3021,50 @@ def _metric_format(model, table: str, field: str) -> str:
 
 
 def _extract_json(text: str) -> Optional[dict]:
+    """Pull a JSON object out of a model reply. Tolerant of prose, ```json fences,
+    reasoning-model 'thinking' blocks, and trailing junk — important for smaller,
+    local, or reasoning models (e.g. GPT-OSS) that don't always obey 'JSON only'."""
     if not text:
         return None
-    # strip ```json fences if present
-    m = re.search(r"\{.*\}", text, re.DOTALL)
-    if not m:
-        return None
-    try:
-        return json.loads(m.group(0))
-    except json.JSONDecodeError:
-        return None
+    s = text.strip()
+    # 0) Reasoning models (GPT-OSS, DeepSeek, Qwen-thinking) emit hidden chain-of-thought
+    #    before the answer. Drop it so we don't parse an example object from the reasoning.
+    s = re.sub(r"<think>.*?</think>", " ", s, flags=re.DOTALL | re.IGNORECASE)
+    s = re.sub(r"<reasoning>.*?</reasoning>", " ", s, flags=re.DOTALL | re.IGNORECASE)
+    s = re.sub(r"<\|?channel\|?>.*?<\|?message\|?>", " ", s, flags=re.DOTALL | re.IGNORECASE)
+    s = s.strip()
+    # 1) fenced ```json block — take the LAST one (the answer comes after any examples)
+    fences = re.findall(r"```(?:json)?\s*(\{.*?\})\s*```", s, re.DOTALL)
+    for block in reversed(fences):
+        try:
+            return json.loads(block)
+        except json.JSONDecodeError:
+            pass
+    # 2) balanced-brace scan for TOP-LEVEL objects only (skip nested ones so we don't
+    #    return an inner array element), and return the LAST that parses — the real
+    #    answer almost always comes after any reasoning/example objects.
+    candidates = []
+    covered_until = -1
+    for start in (i for i, c in enumerate(s) if c == "{"):
+        if start <= covered_until:
+            continue  # inside an object we already captured — it's nested
+        depth = 0
+        for j in range(start, len(s)):
+            c = s[j]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    candidates.append(s[start:j + 1])
+                    covered_until = j
+                    break
+    for cand in reversed(candidates):
+        try:
+            return json.loads(cand)
+        except json.JSONDecodeError:
+            continue
+    return None
 
 
 _ASK_SYSTEM = (
@@ -3048,6 +3100,9 @@ class AskRequest(BaseModel):
     # server resolves them into qdict.filters automatically. So "top campaigns"
     # asked from a dashboard scoped to Pediatrics returns Pediatrics-only.
     dashboard_id: Optional[str] = None
+    # Skip the (slow) strategic-brief generation — used by the conversational agent, which
+    # narrates the rows itself. Saves a whole model call; big latency win for voice.
+    no_brief: bool = False
     # Set true on the follow-up call after the user answered a clarifying
     # question, so the planner commits to a spec instead of clarifying again.
     no_clarify: bool = False
@@ -3547,7 +3602,7 @@ async def _try_experiment(model, prompt, key):
         return None
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         plan_model = os.getenv("JARVIS_EXPERIMENT_MODEL", "claude-sonnet-4-6")
         resp = await client.messages.create(
             model=plan_model, max_tokens=700, system=_EXPERIMENT_PLANNER_SYSTEM,
@@ -3631,7 +3686,7 @@ async def _try_forecast(model, prompt, key):
         return None
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         plan_model = os.getenv("JARVIS_EXPERIMENT_MODEL", "claude-sonnet-4-6")
         resp = await client.messages.create(
             model=plan_model, max_tokens=500, system=_FORECAST_PLANNER_SYSTEM,
@@ -3703,23 +3758,43 @@ async def ask(body: AskRequest):
     # Ground the planner in KTX's canonical semantic index (best-effort, tight timeout).
     ktx_blk = await _ktx_hint(body.prompt)
 
+    # Preflight: bail out early (with a clear reason) if the active model is down,
+    # so we don't fire failing, possibly-billed calls.
+    try:
+        hp = await system_llm.probe_active(anthropic_key=key)
+        if not hp.get("ok") and not hp.get("skip"):
+            return _err(503, "model unavailable",
+                        f"{hp.get('name','The selected model')} isn't responding right now "
+                        f"({hp.get('label','error')}). Try again shortly, or switch models in Admin → System model.")
+    except Exception:
+        pass
+
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         history_blk = _history_for_prompt(body.history or [])
         _clarify_on = (os.getenv("JARVIS_CLARIFY", "1") != "0") and not body.no_clarify
         system_prompt = _ASK_SYSTEM + always_blk + (_ASK_CLARIFY_ADDENDUM if _clarify_on else "")
-        resp = await client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=700,
-            system=system_prompt,
-            messages=[{"role": "user", "content": _ask_context(model, body.prompt) + auto_blk + ktx_blk + "\n\n" + history_blk + "Question: " + body.prompt}],
-        )
-        raw = resp.content[0].text if resp.content else ""
+        user_msg = _ask_context(model, body.prompt) + auto_blk + ktx_blk + "\n\n" + history_blk + "Question: " + body.prompt
+        # Two attempts + generous token budget: reasoning models (GPT-OSS) spend
+        # tokens 'thinking' and can truncate or bury the JSON at a low cap.
+        raw = ""
+        spec = None
+        for _a in range(2):
+            _sysp = system_prompt if _a == 0 else (system_prompt +
+                    "\n\nOutput ONLY the JSON object — no reasoning, no <think> tags, no markdown, "
+                    "no commentary. Start with { and end with }.")
+            resp = await client.messages.create(
+                model="claude-haiku-4-5-20251001", max_tokens=1500,
+                system=_sysp,
+                messages=[{"role": "user", "content": user_msg}])
+            raw = resp.content[0].text if resp.content else ""
+            spec = _extract_json(raw)
+            if spec and (spec.get("primary_table") or spec.get("clarify")):
+                break
     except Exception as e:
         return _err(502, "AI request failed", str(e))
 
-    spec = _extract_json(raw)
     # Clarifying-question loop: when the planner is genuinely torn it returns a
     # clarify object instead of a spec. Surface it to the user (no query runs);
     # the follow-up call arrives with no_clarify=True and the chosen answer folded
@@ -3738,6 +3813,8 @@ async def ask(body: AskRequest):
                 },
             }
     if not spec or not spec.get("primary_table"):
+        log.warning("ASK map-fail | prompt=%r | parsed=%r | raw[:600]=%r",
+                    body.prompt, spec, (raw or "")[:600])
         return _err(422, "could not interpret", "The AI couldn't map that to your data. Try rephrasing.", )
 
     chart_type = spec.get("chart_type", "table")
@@ -3842,8 +3919,10 @@ async def ask(body: AskRequest):
         "layout": {"w": 6 if chart_type != "kpi" else 3},
     }
 
-    # 3. Strategic brief — ask Claude to interpret the actual data.
-    brief = await _generate_brief(client, body.prompt, result.columns, result.rows, formats)
+    # 3. Strategic brief — ask Claude to interpret the actual data. Skippable for low-latency
+    # callers (the conversational agent narrates rows itself), saving a full model call.
+    brief = None if getattr(body, "no_brief", False) else \
+        await _generate_brief(client, body.prompt, result.columns, result.rows, formats)
 
     # Surface BOTH the planner's raw intent (spec) and what actually ran (qdict)
     # so callers can verify server-side mutations (e.g. date-phrase injection).
@@ -4103,16 +4182,29 @@ async def _research_run_section(client, model, sp: dict, dashboard_id: Optional[
     if not intent:
         return None
     try:
-        sub_resp = await client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=700,
-            system=_ASK_SYSTEM,
-            messages=[{"role": "user", "content": _ask_context(model, intent) + "\n\nQuestion: " + intent}],
-        )
-        spec = _extract_json(sub_resp.content[0].text if sub_resp.content else "")
+        # Two attempts: reasoning models (GPT-OSS) sometimes bury or truncate the JSON.
+        # max_tokens is generous so 'thinking' doesn't eat the answer; retry is stricter.
+        spec = None
+        for _a in range(2):
+            _sys = _ASK_SYSTEM if _a == 0 else (_ASK_SYSTEM +
+                   "\n\nOutput ONLY the JSON object — no reasoning, no markdown, no commentary. "
+                   "Start with { and end with }.")
+            sub_resp = await client.messages.create(
+                model="claude-haiku-4-5-20251001",
+                max_tokens=1500,
+                system=_sys,
+                messages=[{"role": "user", "content": _ask_context(model, intent) + "\n\nQuestion: " + intent}],
+            )
+            spec = _extract_json(sub_resp.content[0].text if sub_resp.content else "")
+            if spec and spec.get("primary_table"):
+                break
         if not spec or not spec.get("primary_table"):
             log.warning(f"research section '{heading}': planner returned no spec")
             return None
+        log.info("research section '%s' → table=%s dims=%s metrics=%s",
+                 heading, spec.get("primary_table"),
+                 [d.get("field") for d in (spec.get("dimensions") or [])],
+                 [m.get("field") for m in (spec.get("metrics") or [])])
         chart_type = spec.get("chart_type", "table")
         title = spec.get("title") or intent
         qdict = {
@@ -4195,26 +4287,61 @@ async def research(body: ResearchRequest):
 
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
     except Exception as e:
         return _err(502, "anthropic client failed", str(e))
 
-    # Phase 1 — plan
+    # Preflight: one cheap health check on the active model BEFORE firing the many
+    # calls a brief needs. If the model is down (503) or not responding, abort now
+    # with a clear reason instead of racking up failed, possibly-billed calls.
     try:
-        plan_resp = await client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=900,
-            system=_RESEARCH_PLANNER_SYSTEM,
-            messages=[{
-                "role": "user",
-                "content": _ask_context(model, body.prompt) + "\n\nResearch question: " + body.prompt,
-            }],
-        )
-        plan = _extract_json(plan_resp.content[0].text if plan_resp.content else "")
-    except Exception as e:
-        return _err(502, "research planning failed", str(e))
-    if not plan or not isinstance(plan.get("sections"), list) or not plan["sections"]:
-        return _err(422, "could not plan research", "The AI couldn't decompose the question.")
+        hp = await system_llm.probe_active(anthropic_key=key)
+        if not hp.get("ok") and not hp.get("skip"):
+            return _err(503, "model unavailable",
+                        f"{hp.get('name','The selected model')} isn't responding right now "
+                        f"({hp.get('label','error')}). Nothing was run. Try again shortly, or switch "
+                        f"models in Admin → System model.")
+    except Exception:
+        pass
+
+    # Phase 1 — plan. Small/local models don't always return strict JSON, so we
+    # try once, retry with a stricter instruction, then fall back to a simple
+    # one-section plan so a brief still generates rather than hard-failing.
+    def _valid(p):
+        return bool(p and isinstance(p.get("sections"), list) and p["sections"])
+
+    plan = None
+    base_user = _ask_context(model, body.prompt) + "\n\nResearch question: " + body.prompt
+    for attempt in range(2):
+        sys_p = _RESEARCH_PLANNER_SYSTEM
+        user_c = base_user
+        if attempt == 1:
+            # stricter re-ask for models that added prose or fences the first time
+            sys_p = _RESEARCH_PLANNER_SYSTEM + ("\n\nIMPORTANT: Output ONLY the raw JSON object. "
+                    "No markdown, no code fences, no commentary before or after. Start with { and end with }.")
+        try:
+            plan_resp = await client.messages.create(
+                model="claude-haiku-4-5-20251001", max_tokens=900,
+                system=sys_p, messages=[{"role": "user", "content": user_c}])
+            plan = _extract_json(plan_resp.content[0].text if plan_resp.content else "")
+        except Exception as e:
+            if attempt == 1:
+                return _err(502, "research planning failed", str(e))
+            plan = None
+        if _valid(plan):
+            break
+
+    if not _valid(plan):
+        # Deterministic fallback: build a minimal brief from the question itself so
+        # the pipeline still runs (each section is answered from the data layer).
+        log.warning("research planner returned no valid sections; using single-section fallback")
+        q = body.prompt.strip().rstrip("?")
+        plan = {
+            "final_headline": (q[:70] or "Analysis"),
+            "final_subtitle": "",
+            "intro_md": "Here is what the data shows for your question.",
+            "sections": [{"heading": "1. " + (q[:60] or "Overview"), "intent": body.prompt.strip()}],
+        }
 
     section_plans = plan["sections"][:5]
 
@@ -4296,7 +4423,7 @@ async def auto_insights(refresh: bool = False):
 
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
     except Exception as e:
         return _err(502, "AI client init failed", str(e))
 
@@ -4575,7 +4702,7 @@ async def coach_recommendations():
 
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         resp = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=1200,
@@ -4677,7 +4804,7 @@ async def curator_chat(body: CuratorRequest):
 
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         resp = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=400,
@@ -4731,8 +4858,9 @@ def _pulse_summary_for_llm(goals: list, briefs: list, dashboards: list) -> str:
 
 
 @router.get("/pulse")
-async def pulse():
-    """One-screen executive summary across goals, briefs, dashboards, with an AI headline."""
+async def pulse(ai: int = 0):
+    """One-screen executive summary across goals, briefs, dashboards. The AI headline
+    only runs when ai=1 is passed — by default Pulse spends ZERO tokens on load."""
     # Pull everything in parallel from the in-process modules.
     try:
         from goals_api import list_goals as _list_goals
@@ -4769,13 +4897,14 @@ async def pulse():
         return abs(d) if isinstance(d, (int, float)) else -1
     biggest_miss = max(off, key=_abs_delta) if off else None
 
-    # Optional AI headline — best-effort, never fails the response
+    # Optional AI headline — ONLY when explicitly requested (ai=1), so a normal
+    # Pulse visit costs no tokens. Best-effort, never fails the response.
     headline = None
     key = os.getenv("ANTHROPIC_API_KEY", "")
-    if key and (goals or briefs or views):
+    if ai and key and (goals or briefs or views):
         try:
             import anthropic
-            client = anthropic.AsyncAnthropic(api_key=key)
+            client = system_llm.anthropic_client(api_key=key)
             resp = await client.messages.create(
                 model="claude-haiku-4-5-20251001",
                 max_tokens=200,

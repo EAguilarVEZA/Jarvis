@@ -19,6 +19,7 @@ Routes (prefix /api/reports):
 """
 
 from __future__ import annotations
+import system_llm  # route LLM calls through the active system model
 
 import io
 import json
@@ -713,7 +714,7 @@ async def ai_generate(body: AIDesignRequest, request: Request):
         return _err(503, "AI not configured", "ANTHROPIC_API_KEY is not set.")
     try:
         import anthropic
-        client = anthropic.AsyncAnthropic(api_key=key)
+        client = system_llm.anthropic_client(api_key=key)
         resp = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=4000,

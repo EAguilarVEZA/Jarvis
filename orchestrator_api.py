@@ -169,14 +169,62 @@ async def voiceprints_get():
         return {"prints": []}
 
 
+def _owner_tokens() -> set:
+    """Name tokens of the system owner/administrator, from USER_NAME / MARTIN_OWNER
+    env. The owner is always authorized so they can never lock themselves out."""
+    import os
+    toks = set()
+    for env in ("USER_NAME", "MARTIN_OWNER", "OWNER_NAME"):
+        v = os.getenv(env)
+        if v:
+            toks |= set(" ".join(v.lower().split()).split())
+    return toks
+
+
+def _ensure_owner_seeded(spoken_name: str):
+    """Make sure the owner exists in the Admin directory (users.json) as an admin,
+    so they also appear under Admin → Users. Best-effort; returns the stored full
+    name if known/seeded, else None."""
+    try:
+        import os
+        import users_api
+        data = users_api._load_users()
+        users = data.get("users", []) or []
+        owner_toks = _owner_tokens()
+        for u in users:
+            cand = set(str(u.get("name", "")).lower().split()) | set(str(u.get("first_name", "")).lower().split())
+            if owner_toks and (owner_toks.issubset(cand) or (cand & owner_toks)):
+                return u.get("name") or spoken_name
+        full = " ".join((spoken_name or "").split()).title() or (os.getenv("USER_NAME") or "Owner").title()
+        parts = full.split()
+        email = (parts[0].lower() + "@local") if parts else "owner@local"
+        users.append({"id": "owner", "name": full,
+                      "first_name": parts[0] if parts else full,
+                      "last_name": " ".join(parts[1:]) if len(parts) > 1 else "",
+                      "email": os.getenv("OWNER_EMAIL") or email,
+                      "role": "admin", "status": "active", "groups": []})
+        data["users"] = users
+        users_api._save_users(data)
+        return full
+    except Exception:
+        return None
+
+
 @router.get("/verify_user")
 async def verify_user(name: str):
     """Authorization gate: is this spoken name an active user in Admin (users.json)?
     Martin must not interview or produce for anyone who isn't an authorized user.
+    The system owner (USER_NAME/MARTIN_OWNER) is always authorized and auto-seeded.
     Bootstrap-safe: if no users are configured yet, allow (so admins can set up)."""
     q = " ".join((name or "").lower().split())
     if not q:
         return {"authorized": False, "name": name}
+    qtok = set(q.split())
+    # Owner short-circuit — the owner can never be locked out of their own system.
+    owner_toks = _owner_tokens()
+    if owner_toks and (owner_toks.issubset(qtok) or qtok.issubset(owner_toks)):
+        seeded = _ensure_owner_seeded(name)
+        return {"authorized": True, "name": seeded or name, "role": "admin", "reason": "owner"}
     try:
         import users_api
         data = users_api._load_users()
@@ -185,7 +233,6 @@ async def verify_user(name: str):
     users = data.get("users", []) or []
     if not users:
         return {"authorized": True, "name": name, "reason": "no-users-yet"}
-    qtok = set(q.split())
     for u in users:
         if str(u.get("status", "active")).lower() not in ("active", "invited", ""):
             continue

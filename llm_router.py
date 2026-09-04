@@ -76,7 +76,14 @@ def build_request(provider: dict, system: str, messages: list, max_tokens: int =
         headers = {"Content-Type": "application/json"}
         contents = [{"role": ("model" if m.get("role") == "assistant" else "user"),
                      "parts": [{"text": m.get("content", "")}]} for m in messages]
-        payload = {"contents": contents}
+        # Cap output + low temperature for deterministic JSON. For Flash/Flash-Lite,
+        # ALSO disable "thinking" (budget 0) so calls are fast and cheap. Pro models
+        # REQUIRE thinking and reject budget 0 with a 400 — so only set it for flash/lite.
+        gen = {"maxOutputTokens": int(max_tokens or 1024), "temperature": 0.2}
+        _ml = (model or "").lower()
+        if "flash" in _ml or "lite" in _ml:
+            gen["thinkingConfig"] = {"thinkingBudget": 0}
+        payload = {"contents": contents, "generationConfig": gen}
         if system:
             payload["systemInstruction"] = {"parts": [{"text": system}]}
         return "POST", url, headers, payload
@@ -113,6 +120,18 @@ async def complete(provider: dict, system: str, messages: list, max_tokens: int 
     If allow_egress is False, non-local providers are refused (on-prem lockdown)."""
     if not provider:
         return {"error": "No LLM provider selected."}
+    # Global "system model" override: when a caller passes the DEFAULT Anthropic
+    # provider (not one a user explicitly picked, e.g. a per-node model in Agent
+    # Studio, which is flagged _explicit), honor the admin-selected active model
+    # so a single switch moves the whole app onto (say) local Ollama.
+    if provider.get("type") == "anthropic" and not provider.get("_explicit"):
+        try:
+            import system_llm
+            _act = system_llm.get_active_provider()
+            if _act and _act.get("id") and _act.get("type") != "anthropic":
+                provider = _act
+        except Exception:
+            pass
     if not allow_egress and egresses(provider):
         return {"error": "Blocked: this provider sends data off-network and egress is disabled."}
     try:
@@ -122,7 +141,11 @@ async def complete(provider: dict, system: str, messages: list, max_tokens: int 
     ptype = provider.get("type", "openai")
 
     def _do():
-        req = urllib.request.Request(url, data=json.dumps(payload).encode(), method=method, headers=headers)
+        # Always send a real User-Agent. Cloudflare-fronted APIs (e.g. Groq) return
+        # 403 Forbidden to the default "Python-urllib/x" agent.
+        hdrs = dict(headers)
+        hdrs.setdefault("User-Agent", "SmartWithMartin/1.0 (+https://smartwithmartin.ai)")
+        req = urllib.request.Request(url, data=json.dumps(payload).encode(), method=method, headers=hdrs)
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return json.loads(resp.read().decode("utf-8", "replace"))
     try:
